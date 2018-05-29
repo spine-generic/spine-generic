@@ -67,7 +67,7 @@ fi
 #   echo "Create manual labels."
 #   sct_label_utils -i t2.nii.gz -create-viewer 3,4,5,6,7,8 -o label_disc.nii.gz -msg "Place labels at the posterior tip of each inter-vertebral disc. E.g. Label 3: C2/C3, Label 4: C3/C4, etc."
 # fi
-echo "Flatten t2 scan (to make nice figures"
+echo "Flatten t2 scan (to make nice figures)"
 sct_flatten_sagittal -i t2.nii.gz -s ${file_seg}
 # Go back to parent folder
 cd ..
