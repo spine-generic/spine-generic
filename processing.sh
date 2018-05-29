@@ -11,6 +11,8 @@
 # Authors: Julien Cohen-Adad, Stephanie Alley
 
 
+# t1
+# ===========================================================================================================
 cd t1
 # Check if manual segmentation already exists
 if [ -e "t1_seg_manual.nii.gz" ]; then
@@ -26,27 +28,38 @@ fi
 # Check if manual labels already exists
 if [ ! -e "label_disc.nii.gz" ]; then
   echo "Create manual labels."
-  sct_label_utils -i t1.nii.gz -create-viewer 3,4,5,6,7,8 -msg "Place labels at the posterior tip of each inter-vertebral disc. E.g. Label 3: C2/C3, Label 4: C3/C4, etc."
+  sct_label_utils -i t1.nii.gz -create-viewer 3,4,5,6,7,8 -o label_disc.nii.gz -msg "Place labels at the posterior tip of each inter-vertebral disc. E.g. Label 3: C2/C3, Label 4: C3/C4, etc."
 fi
 echo "Flatten t1 scan (to make nice figures"
 sct_flatten_sagittal -i t1.nii.gz -s ${file_seg}
-
-# echo "Create mask for cropping"
-# sct_create_mask -i t1.nii.gz -p centerline,${file_seg} -size 40mm -o mask_cord.nii.gz
-# echo "Crop data for faster processing"
-# sct_crop_image -i t1.nii.gz -m mask_cord.nii.gz -o t1_crop.nii.gz
-# sct_crop_image -i ${file_seg} -m mask_cord.nii.gz -o t1_seg_crop.nii.gz
-# echo "Register to template"
-# sct_register_to_template -i t1_crop.nii.gz -s t1_seg_crop.nii.gz -l labels.nii.gz -c t1
-# echo "Warp template (without white matter atlas)"
-# sct_warp_template -d t1_crop.nii.gz -w warp_template2anat.nii.gz -a 0
 # Go to parent folder
 cd ..
 
 
+# t2
+# ===========================================================================================================
+cd t2
+# Check if manual segmentation already exists
+if [ -e "t2_seg_manual.nii.gz" ]; then
+  file_seg="t2_seg_manual.nii.gz"
+else
+  echo "Segment spinal cord"
+  sct_propseg -i t2.nii.gz -c t2
+  file_seg="t2_seg.nii.gz"
+  # Check segmentation results and do manual corrections if necessary
+  echo "Check segmentation and do manual correction if necessary, then save modified segmentation as t2_seg_manual.nii.gz"
+  fsleyes t2.nii.gz -cm greyscale t2_seg.nii.gz -cm red -a 70.0 &
+fi
+# Check if manual labels already exists
+if [ ! -e "label_disc.nii.gz" ]; then
+  echo "Create manual labels."
+  sct_label_utils -i t2.nii.gz -create-viewer 3,4,5,6,7,8 -o label_disc.nii.gz -msg "Place labels at the posterior tip of each inter-vertebral disc. E.g. Label 3: C2/C3, Label 4: C3/C4, etc."
+fi
+echo "Flatten t2 scan (to make nice figures"
+sct_flatten_sagittal -i t2.nii.gz -s ${file_seg}
+# Go to parent folder
+cd ..
 
-# # t2
-# cd t2
 
 # # Segment cord
 # echo "Segmenting t2 cord"
@@ -89,8 +102,8 @@ cd ..
 # echo "Warping template to t2"
 # sct_warp_template -d t2_crop.nii.gz -w warp_template2anat.nii.gz -a 0
 
-# # Go to parent folder
-# cd ..
+# Go to parent folder
+cd ..
 
 # # ===========================================================================================================
 
@@ -250,4 +263,3 @@ cd ..
 
 # # Go to parent folder
 # cd ..
-"
