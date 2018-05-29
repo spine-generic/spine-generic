@@ -32,7 +32,7 @@ if [ ! -e "label_disc.nii.gz" ]; then
 fi
 echo "Flatten t1 scan (to make nice figures)"
 sct_flatten_sagittal -i t1.nii.gz -s ${file_seg}
-# Go to parent folder
+# Go back to parent folder
 cd ..
 
 
@@ -57,7 +57,7 @@ if [ ! -e "label_disc.nii.gz" ]; then
 fi
 echo "Flatten t2 scan (to make nice figures"
 sct_flatten_sagittal -i t2.nii.gz -s ${file_seg}
-# Go to parent folder
+# Go back to parent folder
 cd ..
 
 
@@ -82,7 +82,7 @@ else
   sct_propseg -i dwi_moco_mean.nii.gz -c dwi
   file_seg="dwi_moco_mean_seg.nii.gz"
   # Check segmentation results and do manual corrections if necessary, then save modified segmentation as dwi_moco_mean_seg_manual.nii.gz"
-  echo "Check segmentation and do manual correction if necessary, then save modified segmentation as t2_seg_manual.nii.gz"
+  echo "Check segmentation and do manual correction if necessary, then save modified segmentation as dwi_moco_mean_seg_manual.nii.gz"
   fsleyes dwi_moco_mean.nii.gz -cm greyscale dwi_moco_mean_seg.nii.gz -cm red -a 70.0 &
 fi
 # create dummy label with value=4
@@ -100,7 +100,7 @@ mv warp_template2anat.nii.gz warp_template2dmri.nii.gz
 sct_warp_template -d dwi_moco_mean.nii.gz -w warp_template2dmri.nii.gz
 # Compute DTI
 sct_dmri_compute_dti -i dmri_crop_moco.nii.gz -bvec bvecs.txt -bval bvals.txt -method restore
-# Go to parent folder
+# Go back to parent folder
 cd ..
 
 
@@ -115,7 +115,7 @@ else
   sct_propseg -i t1w.nii.gz -c t1
   file_seg="t1w_seg.nii.gz"
   # Check segmentation results and do manual corrections if necessary, then save modified segmentation as dwi_moco_mean_seg_manual.nii.gz"
-  echo "Check segmentation and do manual correction if necessary, then save modified segmentation as t2_seg_manual.nii.gz"
+  echo "Check segmentation and do manual correction if necessary, then save modified segmentation as t1w_seg_manual.nii.gz"
   fsleyes t1w.nii.gz -cm greyscale t1w_seg.nii.gz -cm red -a 70.0 &
 fi
 # Create mask
@@ -142,52 +142,34 @@ sct_compute_mtr -mt0 mt0_reg.nii.gz -mt1 mt1_reg.nii.gz
 # Compute MTsat
 # TODO
 # sct_compute_mtsat -mt mt1_crop.nii.gz -pd mt0_reg.nii.gz -t1 t1w_reg.nii.gz -trmt 30 -trpd 30 -trt1 15 -famt 9 -fapd 9 -fat1 15
-# Go to parent folder
+# Go back to parent folder
 cd ..
 
 
+# t2s
+# ===========================================================================================
+cd t2s
+# Check if manual cord segmentation already exists
+if [ -e "t2s_seg_manual.nii.gz" ]; then
+  file_gmseg="t2s_seg_manual.nii.gz"
+else
+  # Segment gray matter
+  sct_deepseg_sc -i t2s.nii.gz -c t2s
+  file_seg="t2s_seg.nii.gz"
+  # Check segmentation results and do manual corrections if necessary, then save modified segmentation as dwi_moco_mean_seg_manual.nii.gz"
+  echo "Check segmentation and do manual correction if necessary, then save modified segmentation as t2s_seg_manual.nii.gz"
+  fsleyes t2s.nii.gz -cm greyscale t2s_seg.nii.gz -cm red -a 70.0 &
+fi
+# Check if manual cord segmentation already exists
+if [ -e "t2s_gmseg_manual.nii.gz" ]; then
+  file_gmseg="t2s_gmseg_manual.nii.gz"
+else
+  # Segment gray matter
+  sct_deepseg_gm -i t2s.nii.gz
+  file_seg="t2s_gmseg.nii.gz"
+  # Check segmentation results and do manual corrections if necessary, then save modified segmentation as dwi_moco_mean_seg_manual.nii.gz"
+  echo "Check segmentation and do manual correction if necessary, then save modified segmentation as t2_seg_manual.nii.gz"
+fi
+# Go back to parent folder
+cd ..
 
-# # ===========================================================================================================
-# : "
-# # gre-me
-# cd gre-me
-
-# #Segment cord
-# echo "Segmenting gre-me cord"
-# sct_propseg -i gre-me.nii.gz -c t2_seg
-
-# # Add QC here
-
-# # Create a file, labels.nii.gz, that will be used for template registration
-# # Manually create labels at C3 (3) and C4 (4) by clicking on the center of the respective vertebral level using the interactive window
-# echo "Creating gre-me labels"
-# sct_label_utils -i gre-me.nii.gz -create-viewer 3,4
-
-# # Create mask for faster processing
-# sct_create_mask -i gre-me.nii.gz -p centerline,gre-me_seg.nii.gz -size 40mm -o mask_cord.nii.gz
-
-# # Crop data for faster processing
-# echo "Cropping gre-me data"
-# sct_crop_image -i gre-me.nii.gz -m mask_cord.nii.gz -o gre-me_crop.nii.gz
-# sct_crop_image -i gre-me_seg.nii.gz -m mask_cord.nii.gz -o gre-me_seg_crop.nii.gz
-# sct_crop_image -i labels.nii.gz -m mask_cord.nii.gz -o labels_crop.nii.gz
-
-# # Create vertebral levels for the cord segmentation (t1 and t2 are the only contrast options available)
-# # Initialize manually by clicking on the C2-C3 disc using the interactive window
-# echo "Creating vertebral levels for gre-me"
-# sct_label_vertebrae -i gre-me_crop.nii.gz -s gre-me_seg_crop -c t2 -initc2
-
-# # Register to template
-# echo "Registering gre-me to template"
-# sct_register_to_template -i gre-me_crop.nii.gz -s gre-me_seg_crop.nii.gz -c t2s -l labels_crops.nii.gz
-
-# # Warp template without the white matter atlas
-# echo "Warping template to gre-me"
-# sct_warp_template -d gre-me_crop.nii.gz -w warp_template2anat.nii.gz -a 0
-
-# # Segment the gray matter of the gre-me
-# echo "Segmenting gre-me gray matter"
-# sct_segment_graymatter -i gre-me_crop.nii.gz -s gre-me_seg_crop.nii.gz
-
-# # Go to parent folder
-# cd ..
