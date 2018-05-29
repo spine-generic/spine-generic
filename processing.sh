@@ -24,6 +24,12 @@ else
   # Check segmentation results and do manual corrections if necessary
   echo "Check segmentation and do manual correction if necessary, then save modified segmentation as t1_seg_manual.nii.gz"
   fsleyes t1.nii.gz -cm greyscale t1_seg.nii.gz -cm red -a 70.0 &
+  # pause process during checking
+  read -p "Press any key to continue..."
+  # check if segmentation was modified
+  if [ -e "t1_seg_manual.nii.gz" ]; then
+  	file_seg="t1_seg_manual.nii.gz"
+  fi
 fi
 # Check if manual labels already exists
 if [ ! -e "label_disc.nii.gz" ]; then
@@ -49,12 +55,18 @@ else
   # Check segmentation results and do manual corrections if necessary
   echo "Check segmentation and do manual correction if necessary, then save modified segmentation as t2_seg_manual.nii.gz"
   fsleyes t2.nii.gz -cm greyscale t2_seg.nii.gz -cm red -a 70.0 &
+  # pause process during checking
+  read -p "Press any key to continue..."
+  # check if segmentation was modified
+  if [ -e "t2_seg_manual.nii.gz" ]; then
+  	file_seg="t2_seg_manual.nii.gz"
+  fi
 fi
-# Check if manual labels already exists
-if [ ! -e "label_disc.nii.gz" ]; then
-  echo "Create manual labels."
-  sct_label_utils -i t2.nii.gz -create-viewer 3,4,5,6,7,8 -o label_disc.nii.gz -msg "Place labels at the posterior tip of each inter-vertebral disc. E.g. Label 3: C2/C3, Label 4: C3/C4, etc."
-fi
+# # Check if manual labels already exists
+# if [ ! -e "label_disc.nii.gz" ]; then
+#   echo "Create manual labels."
+#   sct_label_utils -i t2.nii.gz -create-viewer 3,4,5,6,7,8 -o label_disc.nii.gz -msg "Place labels at the posterior tip of each inter-vertebral disc. E.g. Label 3: C2/C3, Label 4: C3/C4, etc."
+# fi
 echo "Flatten t2 scan (to make nice figures"
 sct_flatten_sagittal -i t2.nii.gz -s ${file_seg}
 # Go back to parent folder
@@ -84,6 +96,12 @@ else
   # Check segmentation results and do manual corrections if necessary, then save modified segmentation as dwi_moco_mean_seg_manual.nii.gz"
   echo "Check segmentation and do manual correction if necessary, then save modified segmentation as dwi_moco_mean_seg_manual.nii.gz"
   fsleyes dwi_moco_mean.nii.gz -cm greyscale dwi_moco_mean_seg.nii.gz -cm red -a 70.0 &
+  # pause process during checking
+  read -p "Press any key to continue..."
+  # check if segmentation was modified
+  if [ -e "dwi_moco_mean_seg_manual.nii.gz" ]; then
+  	file_seg="dwi_moco_mean_seg_manual.nii.gz"
+  fi
 fi
 # create dummy label with value=4
 sct_label_utils -i dwi_moco_mean.nii.gz -create 1,1,1,4 -o label_dummy.nii.gz
@@ -117,6 +135,12 @@ else
   # Check segmentation results and do manual corrections if necessary, then save modified segmentation as dwi_moco_mean_seg_manual.nii.gz"
   echo "Check segmentation and do manual correction if necessary, then save modified segmentation as t1w_seg_manual.nii.gz"
   fsleyes t1w.nii.gz -cm greyscale t1w_seg.nii.gz -cm red -a 70.0 &
+  # pause process during checking
+  read -p "Press any key to continue..."
+  # check if segmentation was modified
+  if [ -e "t1w_seg_manual.nii.gz" ]; then
+  	file_seg="t1w_seg_manual.nii.gz"
+  fi
 fi
 # Create mask
 sct_create_mask -i t1w.nii.gz -p centerline,t1w_seg.nii.gz -size 35mm
@@ -158,6 +182,12 @@ else
   file_seg="t2s_gmseg.nii.gz"
   # Check segmentation results and do manual corrections if necessary, then save modified segmentation as dwi_moco_mean_seg_manual.nii.gz"
   echo "Check segmentation and do manual correction if necessary, then save modified segmentation as t2_seg_manual.nii.gz"
+  # pause process during checking
+  read -p "Press any key to continue..."
+  # check if segmentation was modified
+  if [ -e "t2s_gmseg_manual.nii.gz" ]; then
+  	file_seg="t2s_gmseg_manual.nii.gz"
+  fi
 fi
 # Go back to parent folder
 cd ..
