@@ -2,7 +2,7 @@
 # 
 # Process data.
 # 
-# Run script from the subject's folder.
+# Run script within the subject's folder.
 # 
 # Dependencies: 
 # - SCT v3.2.0 and higher.
@@ -22,7 +22,7 @@ else
   sct_propseg -i t1.nii.gz -c t1
   file_seg="t1_seg.nii.gz"
   # Check segmentation results and do manual corrections if necessary
-  echo "Check segmentation and do manual correction if necessary, then save modified segmentation as t1_seg_manual.nii.gz"
+  echo "Check segmentation and do manual correction if necessary, then save segmentation as t1_seg_manual.nii.gz"
   fsleyes t1.nii.gz -cm greyscale t1_seg.nii.gz -cm red -a 70.0 &
   # pause process during checking
   read -p "Press any key to continue..."
@@ -36,7 +36,11 @@ if [ ! -e "label_disc.nii.gz" ]; then
   echo "Create manual labels."
   sct_label_utils -i t1.nii.gz -create-viewer 3,4,5,6,7,8 -o label_disc.nii.gz -msg "Place labels at the posterior tip of each inter-vertebral disc. E.g. Label 3: C2/C3, Label 4: C3/C4, etc."
 fi
-echo "Flatten t1 scan (to make nice figures)"
+# Generate labeled segmentation
+sct_process_segmentation -i ${file_seg} -p label-vert -discfile label_disc.nii.gz
+# Rename with fixed name
+for file in `ls *_labeled.nii.gz` ; do mv "$file" t1_seg_labeled.nii.gz; done
+# Flatten t1 scan (to make nice figures)
 sct_flatten_sagittal -i t1.nii.gz -s ${file_seg}
 # Go back to parent folder
 cd ..
@@ -53,7 +57,7 @@ else
   sct_propseg -i t2.nii.gz -c t2
   file_seg="t2_seg.nii.gz"
   # Check segmentation results and do manual corrections if necessary
-  echo "Check segmentation and do manual correction if necessary, then save modified segmentation as t2_seg_manual.nii.gz"
+  echo "Check segmentation and do manual correction if necessary, then save segmentation as t2_seg_manual.nii.gz"
   fsleyes t2.nii.gz -cm greyscale t2_seg.nii.gz -cm red -a 70.0 &
   # pause process during checking
   read -p "Press any key to continue..."
@@ -62,6 +66,8 @@ else
   	file_seg="t2_seg_manual.nii.gz"
   fi
 fi
+# Bring labeled segmentation to t2 space
+sct_register_multimodal -i ../t1/t1_seg_labeled.nii.gz -d t2.nii.gz -identity 1 -x nn
 # # Check if manual labels already exists
 # if [ ! -e "label_disc.nii.gz" ]; then
 #   echo "Create manual labels."
@@ -94,7 +100,7 @@ else
   sct_propseg -i dwi_moco_mean.nii.gz -c dwi
   file_seg="dwi_moco_mean_seg.nii.gz"
   # Check segmentation results and do manual corrections if necessary, then save modified segmentation as dwi_moco_mean_seg_manual.nii.gz"
-  echo "Check segmentation and do manual correction if necessary, then save modified segmentation as dwi_moco_mean_seg_manual.nii.gz"
+  echo "Check segmentation and do manual correction if necessary, then save segmentation as dwi_moco_mean_seg_manual.nii.gz"
   fsleyes dwi_moco_mean.nii.gz -cm greyscale dwi_moco_mean_seg.nii.gz -cm red -a 70.0 &
   # pause process during checking
   read -p "Press any key to continue..."
@@ -133,7 +139,7 @@ else
   sct_propseg -i t1w.nii.gz -c t1
   file_seg="t1w_seg.nii.gz"
   # Check segmentation results and do manual corrections if necessary, then save modified segmentation as dwi_moco_mean_seg_manual.nii.gz"
-  echo "Check segmentation and do manual correction if necessary, then save modified segmentation as t1w_seg_manual.nii.gz"
+  echo "Check segmentation and do manual correction if necessary, then save segmentation as t1w_seg_manual.nii.gz"
   fsleyes t1w.nii.gz -cm greyscale t1w_seg.nii.gz -cm red -a 70.0 &
   # pause process during checking
   read -p "Press any key to continue..."
