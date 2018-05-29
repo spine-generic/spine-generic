@@ -39,7 +39,7 @@ data
 
 - Download (or `git clone`) this repository.
 - Go to this repository: `cd spine_generic`
-- Export environment variable: `export PATH_SPINEGENERIC=`pwd``
+- Export environment variable: ``export PATH_SPINEGENERIC=`pwd```
 - Go to a subject data (e.g. cd PATH_TO_DATA/001)
 - Process data: `${PATH_SPINEGENERIC}/process_data.sh`
 - Compute metrics: `${PATH_SPINEGENERIC}/compute_metrics.sh`
