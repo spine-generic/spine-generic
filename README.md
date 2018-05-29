@@ -8,7 +8,7 @@ The following metrics are output (per contrast):
 - t2s: Gray matter CSA profile between C3 and C4, averaged within each level
 - dmri: FA in WM across slices
 - mt: MTR in WM across slices
-- mt: mTsat in WM across slices
+- mt: MTsat in WM across slices
 
 ## Dependencies
 
