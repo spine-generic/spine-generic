@@ -150,17 +150,6 @@ cd ..
 # ===========================================================================================
 cd t2s
 # Check if manual cord segmentation already exists
-if [ -e "t2s_seg_manual.nii.gz" ]; then
-  file_gmseg="t2s_seg_manual.nii.gz"
-else
-  # Segment gray matter
-  sct_deepseg_sc -i t2s.nii.gz -c t2s
-  file_seg="t2s_seg.nii.gz"
-  # Check segmentation results and do manual corrections if necessary, then save modified segmentation as dwi_moco_mean_seg_manual.nii.gz"
-  echo "Check segmentation and do manual correction if necessary, then save modified segmentation as t2s_seg_manual.nii.gz"
-  fsleyes t2s.nii.gz -cm greyscale t2s_seg.nii.gz -cm red -a 70.0 &
-fi
-# Check if manual cord segmentation already exists
 if [ -e "t2s_gmseg_manual.nii.gz" ]; then
   file_gmseg="t2s_gmseg_manual.nii.gz"
 else
