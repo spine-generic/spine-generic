@@ -29,7 +29,7 @@ data
       |- t2s
         |- t2s.nii.gz
       |- mt
-	    |- mt1.nii.gz
+        |- mt1.nii.gz
         |- mt0.nii.gz
         |- t1w.nii.gz
       |- dmri
