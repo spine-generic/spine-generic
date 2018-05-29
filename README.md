@@ -3,9 +3,12 @@
 Processing pipeline for the "spine generic protocol" project 
 
 The following metrics are output (per contrast):
-- T1: CSA profile between C2 and Th1
-- T2: CSA profile between C2 and Th1
-
+- t1: Spinal cord CSA profile between C2 and Th1, averaged within each level
+- t2: Spinal cord CSA profile between C2 and Th1, averaged within each level
+- t2s: Gray matter CSA profile between C3 and C4, averaged within each level
+- dmri: FA in WM across slices
+- mt: MTR in WM across slices
+- mt: mTsat in WM across slices
 
 ## Dependencies
 
