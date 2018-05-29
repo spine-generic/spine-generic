@@ -187,7 +187,7 @@ else
   sct_deepseg_gm -i t2s.nii.gz
   file_seg="t2s_gmseg.nii.gz"
   # Check segmentation results and do manual corrections if necessary, then save modified segmentation as dwi_moco_mean_seg_manual.nii.gz"
-  echo "Check segmentation and do manual correction if necessary, then save modified segmentation as t2_seg_manual.nii.gz"
+  echo "Check segmentation and do manual correction if necessary, then save segmentation as t2_seg_manual.nii.gz"
   # pause process during checking
   read -p "Press any key to continue..."
   # check if segmentation was modified
