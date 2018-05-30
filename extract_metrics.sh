@@ -18,7 +18,7 @@ cd t1
 # remove existing folder
 rm -rf csa
 # Compute the cord CSA for each vertebral level of interest
-for i in 3 4 5 6 7 8
+for i in 2 3 4 5 6 7
 do
   sct_process_segmentation -i t1_seg_manual.nii.gz -p csa -vert ${i} -vertfile t1_seg_labeled.nii.gz -ofolder csa
 done
@@ -32,7 +32,7 @@ cd t2
 # remove existing folder
 rm -rf csa
 # Compute the CSA of the cord for each vertebral level of interest
-for i in 3 4 5 6 7 8
+for i in 2 3 4 5 6 7
 do
   sct_process_segmentation -i t2_seg_manual.nii.gz -p csa -vert ${i} -vertfile t1_seg_labeled_reg.nii.gz -ofolder csa
 done
