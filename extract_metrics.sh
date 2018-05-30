@@ -6,6 +6,7 @@
 # 
 # Dependencies: 
 # - SCT v3.2.0 and higher.
+# - FSL (for fslhd)
 # - (fsleyes for visualization)
 # 
 # Authors: Julien Cohen-Adad, Stephanie Alley
@@ -44,9 +45,12 @@ cd ..
 cd dmri
 # remove existing file
 rm fa.xls
+# get number of slices
+nz=`fslhd dti_fa.nii.gz.nii.gz | grep -m 1 dim3 | sed -e "s/^dim3           //"`
+# build index from 0->nz-1
+ind=`seq 0 $((${nz}-1))`
 # Compute FA in WM for each slice
-for i in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14
-do
+for i in ${ind}; do
   sct_extract_metric -i dti_FA.nii.gz -f label/template/PAM50_wm.nii.gz -z ${i} -o fa.xls
 done
 # Go to parent folder
@@ -58,9 +62,12 @@ cd ..
 cd mt
 # remove existing file
 rm mtr.xls
+# get number of slices
+nz=`fslhd mtr.nii.gz.nii.gz | grep -m 1 dim3 | sed -e "s/^dim3           //"`
+# build index from 0->nz-1
+ind=`seq 0 $((${nz}-1))`
 # Compute MTR in WM for each slice
-for i in 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
-do
+for i in ${ind}; do
   sct_extract_metric -i mtr.nii.gz -f label/template/PAM50_wm.nii.gz -z ${i} -o mtr.xls
 done
 # Go to parent folder
@@ -76,7 +83,9 @@ rm -rf csa_gm
 # Tips: -no-angle 1 because we do not want angle correction (too unstable with GM seg), and t2s data were acquired orthogonal to the cord.
 for i in 3 4
 do
-  sct_process_segmentation -i t2s_gmseg_manual.nii.gz -p csa -no-angle 1 -vert ${i} -vertfile t1_seg_labeled_reg.nii.gz -ofolder csa_gm
+  sct_process_segmentation -i t2s_gmseg_manual.nii.gz -p csa -vert ${i} -vertfile t1_seg_labeled_reg.nii.gz -ofolder csa_gm
+  # TODO: when (https://github.com/neuropoly/spinalcordtoolbox/issues/1791) is fixed, use the command below instead
+  # sct_process_segmentation -i t2s_gmseg_manual.nii.gz -p csa -no-angle 1 -vert ${i} -vertfile t1_seg_labeled_reg.nii.gz -ofolder csa_gm
 done
 # Go to parent folder
 cd ..
