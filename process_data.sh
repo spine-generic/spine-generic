@@ -188,6 +188,7 @@ else
   file_seg="t2s_gmseg.nii.gz"
   # Check segmentation results and do manual corrections if necessary, then save modified segmentation as dwi_moco_mean_seg_manual.nii.gz"
   echo "Check segmentation and do manual correction if necessary, then save segmentation as t2_seg_manual.nii.gz"
+  fsleyes t2s.nii.gz -cm greyscale -a 100.0 t2s_gmseg.nii.gz -cm red -a 70.0 &
   # pause process during checking
   read -p "Press any key to continue..."
   # check if segmentation was modified
