@@ -195,6 +195,8 @@ else
   	file_seg="t2s_gmseg_manual.nii.gz"
   fi
 fi
+# Bring labeled segmentation to t2s space
+sct_register_multimodal -i ../t1/t1_seg_labeled.nii.gz -d t2s.nii.gz -identity 1 -x nn
 # Go back to parent folder
 cd ..
 
