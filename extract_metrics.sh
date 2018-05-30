@@ -46,12 +46,12 @@ cd dmri
 # remove existing file
 rm fa.xls
 # get number of slices
-nz=`fslhd dti_fa.nii.gz.nii.gz | grep -m 1 dim3 | sed -e "s/^dim3           //"`
+# nz=`fslhd dti_fa.nii.gz.nii.gz | grep -m 1 dim3 | sed -e "s/^dim3           //"`
 # build index from 0->nz-1
-ind=`seq 0 $((${nz}-1))`
+# ind=`seq 0 $((${nz}-1))`
 # Compute FA in WM for each slice
-for i in ${ind}; do
-  sct_extract_metric -i dti_FA.nii.gz -f label/template/PAM50_wm.nii.gz -z ${i} -o fa.xls
+for i in 2 3 4 5; do
+  sct_extract_metric -i dti_FA.nii.gz -f label/atlas -l 51 -vert ${i} -o fa.xls
 done
 # Go to parent folder
 cd ..
@@ -63,12 +63,13 @@ cd mt
 # remove existing file
 rm mtr.xls
 # get number of slices
-nz=`fslhd mtr.nii.gz.nii.gz | grep -m 1 dim3 | sed -e "s/^dim3           //"`
+# nz=`fslhd mtr.nii.gz.nii.gz | grep -m 1 dim3 | sed -e "s/^dim3           //"`
 # build index from 0->nz-1
-ind=`seq 0 $((${nz}-1))`
+# ind=`seq 0 $((${nz}-1))`
 # Compute MTR in WM for each slice
-for i in ${ind}; do
-  sct_extract_metric -i mtr.nii.gz -f label/template/PAM50_wm.nii.gz -z ${i} -o mtr.xls
+for i in 2 3 4 5; do
+  sct_extract_metric -i mtr.nii.gz -f label/atlas -l 51 -vert ${i} -o mtr.xls
+  # sct_extract_metric -i mtr.nii.gz -f label/template/PAM50_wm.nii.gz -z ${i} -o mtr.xls
 done
 # Go to parent folder
 cd ..
