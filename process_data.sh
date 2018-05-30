@@ -120,7 +120,7 @@ sct_label_utils -i ../t1/label_disc.nii.gz -remove label_dummy.nii.gz -o label_d
 sct_register_to_template -i dwi_moco_mean.nii.gz -s ${file_seg} -ldisc label_disc.nii.gz -ref subject -c t1 -param step=1,type=seg,algo=centermass:step=2,type=seg,algo=bsplinesyn,slicewise=1,iter=3
 # Rename warping field for clarity
 mv warp_template2anat.nii.gz warp_template2dmri.nii.gz
-# Warp template and white matter atlas
+# Warp template
 sct_warp_template -d dwi_moco_mean.nii.gz -w warp_template2dmri.nii.gz
 # Compute DTI
 sct_dmri_compute_dti -i dmri_crop_moco.nii.gz -bvec bvecs.txt -bval bvals.txt -method restore
@@ -149,7 +149,7 @@ else
   fi
 fi
 # Create mask
-sct_create_mask -i t1w.nii.gz -p centerline,t1w_seg.nii.gz -size 35mm
+sct_create_mask -i t1w.nii.gz -p centerline,${file_seg} -size 35mm
 # Crop data for faster processing
 sct_crop_image -i t1w.nii.gz -m mask_t1w.nii.gz -o t1w_crop.nii.gz
 # Register mt0->t1w
@@ -166,7 +166,7 @@ sct_register_to_template -i t1w_crop.nii.gz -s ${file_seg} -ldisc label_disc.nii
 # Rename warping field for clarity
 mv warp_template2anat.nii.gz warp_template2mt.nii.gz
 # Warp template
-sct_warp_template -d t1w_crop.nii.gz -w warp_template2mt.nii.gz -a 0
+sct_warp_template -d t1w_crop.nii.gz -w warp_template2mt.nii.gz
 # Compute MTR
 sct_compute_mtr -mt0 mt0_reg.nii.gz -mt1 mt1_reg.nii.gz
 # Compute MTsat
