@@ -34,7 +34,7 @@ fi
 # Check if manual labels already exists
 if [ ! -e "label_disc.nii.gz" ]; then
   echo "Create manual labels."
-  sct_label_utils -i t1.nii.gz -create-viewer 3,4,5,6,7,8 -o label_disc.nii.gz -msg "Place labels at the posterior tip of each inter-vertebral disc. E.g. Label 3: C2/C3, Label 4: C3/C4, etc."
+  sct_label_utils -i t1.nii.gz -create-viewer 2,3,4,5,6,7,8 -o label_disc.nii.gz -msg "Place labels at the posterior tip of each inter-vertebral disc. E.g. Label 2: C1/C2, Label 3: C2/C3, etc."
 fi
 # Generate labeled segmentation
 sct_process_segmentation -i ${file_seg} -p label-vert -discfile label_disc.nii.gz
