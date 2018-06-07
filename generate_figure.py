@@ -5,7 +5,7 @@
 # USAGE:
 # The script should be launched within the "spine_generic" folder, where all data folders are located.
 # To run:
-#   ${SCT_DIR}/python/bin/python ${PATH_TO_SPINE_GENERIC}/generate_figure.py -c "contrast"
+#   ${SCT_DIR}/python/bin/python ${PATH_TO_SPINE_GENERIC}/generate_figure.py -c {t1, t2, dmri, mt, t2s}
 #
 # OUTPUT:
 # results_per_center.csv: metric results for each center
@@ -97,12 +97,15 @@ def main():
     results_per_center.to_csv(file_output)
 
     # Generate figure for results
-    fig = results_per_center.plot(kind='bar', color=list_colors, figsize=(8, 4), legend=False,
-                                  fontsize=15, align='center', rot=45, subplots=True)
+    fig, ax = plt.subplots(figsize=(8, 8))
+    results_per_center.plot(kind='bar', color=list_colors, legend=False, fontsize=15, align='center')
     # fig.set_xlabel("Center", fontsize=15, rotation='horizontal')
+    plt.setp(ax.xaxis.get_majorticklabels(), rotation=45, ha="right")  # rotate xticklabels at 45deg and align at end
+    ax.set_xticklabels(centers.values())
     plt.ylabel("CSA ($mm^2$)", fontsize=15)
     plt.grid(axis='y')
     plt.title(contrast)
+    plt.tight_layout()  # make sure everything fits
     plt.savefig('fig_'+contrast+'.png')
     plt.show()
 
