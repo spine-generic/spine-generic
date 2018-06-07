@@ -85,7 +85,7 @@ def main():
     file_output = "results_per_center.csv"
 
     # Initialize dataframe
-    results_per_center = pd.DataFrame(columns=centers, index=vert_levels)
+    results_per_center = pd.DataFrame(index=vert_levels)
     
     # Generate figure and results file for contrast
     if contrast == 't1':
