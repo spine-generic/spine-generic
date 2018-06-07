@@ -3,19 +3,26 @@
 # Automatically generate a figure for generic spine data displaying metric values for a specified contrast (t1, t2, dmri, mt, or gre-me).
 #
 # USAGE:
-# The script should be launched using SCT's python:
-#   ${SCT_DIR}/python/bin/python ${PATH_TO_SPINE_GENERIC}generate_figure.py -c contrast
+# The script should be launched within the "spine_generic" folder, where all data folders are located.
+# To run:
+#   ${SCT_DIR}/python/bin/python ${PATH_TO_SPINE_GENERIC}/generate_figure.py -c "contrast"
 #
 # OUTPUT:
 # results_per_center.csv: metric results for each center
 # Figure displaying results across centers
 #
+# DEPENDENCIES:
+# - SCT
+# 
 # Authors: Stephanie Alley
 # License: https://github.com/neuropoly/sct_pipeline/spine_generic/blob/master/LICENSE
+
+# TODO: make -c mandatory
 
 import os, argparse
 import pandas as pd
 import matplotlib.pyplot as plt
+
 
 def get_parameters():
     parser = argparse.ArgumentParser(description='Generate a figure to display metric values across centers.')
@@ -24,8 +31,9 @@ def get_parameters():
     args = parser.parse_args()
     return args
 
+
 def main():
-	# Data folder containing all centers
+    # Data folder containing all centers
     folder_dir = '/Volumes/projects/generic_spine_procotol/data'
     # Folder name for each center
     folder_list = ['20171128_glen', '20171207_ucl', '20171127_douglas', '20171221_poly', '20171209_oxford']
@@ -129,6 +137,7 @@ def main():
         plt.savefig('gre-me.png')
 
     plt.show()
+
 
 if __name__ == "__main__":
     args = get_parameters()
