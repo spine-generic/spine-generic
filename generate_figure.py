@@ -83,35 +83,38 @@ def main():
     # # Column labels in dataframe
     # centers = ['Ingenia-Glen', 'Achieva-UCL', 'Trio-Douglas', 'Skyra-Polytechnique', 'Prisma-Oxford']
     # Row labels in dataframe
-    if contrast == 't1' or contrast == 't2':
-        vert_levels = ['C2', 'C3', 'C4', 'C5', 'C6', 'C7']
-    elif contrast == 'dmri' or contrast == 'mt':
-        vert_levels = ['C2', 'C3', 'C4', 'C5']
-    elif contrast == 'gre-me':
-        vert_levels = ['C3', 'C4']
+    # if contrast == 't1' or contrast == 't2':
+    #     vert_levels = ['C2', 'C3', 'C4', 'C5', 'C6', 'C7']
+    # elif contrast == 'dmri' or contrast == 'mt':
+    #     vert_levels = ['C2', 'C3', 'C4', 'C5']
+    # elif contrast == 'gre-me':
+    #     vert_levels = ['C3', 'C4']
     # Define colors for each bar in graph
     # colors = ['dodgerblue', 'dodgerblue', 'limegreen', 'limegreen', 'limegreen']
     # Output file containing metric values for all centers
     file_output = "results_per_center.csv"
 
     # Initialize dataframe
-    results_per_center = pd.DataFrame(index=vert_levels)
-    
+    # results_per_center = pd.DataFrame(index=vert_levels)
+    # results_per_center = pd.DataFrame(index=['value'])
+    # results_per_center = pd.DataFrame(index=centers.values(), columns=['value'])
+    results_per_center = pd.Series(index=centers.values())
+
     # Generate figure and results file for contrast
     # if contrast == 't1':
     for folder_center, name_center in centers.iteritems():
         # Read in metric results for contrast
-        data = pd.read_excel(os.path.join(folder_dir, folder_center, contrast, file_metric[contrast]), parse_cols = "G")
+        data = pd.read_excel(os.path.join(folder_dir, folder_center, contrast, file_metric[contrast]), parse_cols="G")
         # Add results to dataframe
-        results_per_center[name_center] = data['MEAN across slices'].values
+        results_per_center[name_center] = data['MEAN across slices'].values[0]
 
     # Write results to file
     results_per_center.to_csv(file_output)
 
     # Generate figure for results
-    fig = results_per_center.plot(kind='bar', color=get_color(name_center), figsize=(8, 8), legend=True,
-                                  fontsize=15, align='center')
-    fig.set_xlabel("Vertebral level", fontsize=15, rotation='horizontal')
+    fig = results_per_center.plot(kind='bar', color=get_color(name_center), figsize=(8, 8), legend=False,
+                                  fontsize=15, align='center', rot=45)
+    # fig.set_xlabel("Center", fontsize=15, rotation='horizontal')
     fig.set_ylabel("CSA ($mm^2$)", fontsize=15)
     plt.title(contrast)
     plt.savefig('fig_'+contrast+'.png')
