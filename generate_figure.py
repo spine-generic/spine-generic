@@ -78,28 +78,12 @@ def main():
     # Data folder containing all centers. Here we assume that user launches the script within the folder that contains
     # all the data.
     folder_dir = os.path.abspath(os.curdir)  # '/Volumes/projects/generic_spine_procotol/data'
-    # # Folder name for each center
-    # folder_list = ['20171128_glen', '20171207_ucl', '20171127_douglas', '20171221_poly', '20171209_oxford']
-    # # Column labels in dataframe
-    # centers = ['Ingenia-Glen', 'Achieva-UCL', 'Trio-Douglas', 'Skyra-Polytechnique', 'Prisma-Oxford']
-    # Row labels in dataframe
-    # if contrast == 't1' or contrast == 't2':
-    #     vert_levels = ['C2', 'C3', 'C4', 'C5', 'C6', 'C7']
-    # elif contrast == 'dmri' or contrast == 'mt':
-    #     vert_levels = ['C2', 'C3', 'C4', 'C5']
-    # elif contrast == 'gre-me':
-    #     vert_levels = ['C3', 'C4']
-    # Define colors for each bar in graph
-    # colors = ['dodgerblue', 'dodgerblue', 'limegreen', 'limegreen', 'limegreen']
-    # Output file containing metric values for all centers
     file_output = "results_per_center.csv"
 
-    # Initialize dataframe
-    # results_per_center = pd.DataFrame(index=vert_levels)
-    # results_per_center = pd.DataFrame(index=['value'])
-    # results_per_center = pd.DataFrame(index=centers.values(), columns=['value'])
+    # Initialize pandas series
     results_per_center = pd.Series(index=centers.values())
 
+    list_colors = []
     # Generate figure and results file for contrast
     # if contrast == 't1':
     for folder_center, name_center in centers.iteritems():
@@ -107,82 +91,19 @@ def main():
         data = pd.read_excel(os.path.join(folder_dir, folder_center, contrast, file_metric[contrast]), parse_cols="G")
         # Add results to dataframe
         results_per_center[name_center] = data['MEAN across slices'].values[0]
+        list_colors.append(get_color(name_center))
 
     # Write results to file
     results_per_center.to_csv(file_output)
 
     # Generate figure for results
-    fig = results_per_center.plot(kind='bar', color=get_color(name_center), figsize=(8, 8), legend=False,
-                                  fontsize=15, align='center', rot=45)
+    fig = results_per_center.plot(kind='bar', color=list_colors, figsize=(8, 4), legend=False,
+                                  fontsize=15, align='center', rot=45, subplots=True)
     # fig.set_xlabel("Center", fontsize=15, rotation='horizontal')
-    fig.set_ylabel("CSA ($mm^2$)", fontsize=15)
+    plt.ylabel("CSA ($mm^2$)", fontsize=15)
+    plt.grid(axis='y')
     plt.title(contrast)
     plt.savefig('fig_'+contrast+'.png')
-    # elif contrast =='t2':
-    #     for folder in folder_list:
-    #         # Read in metric results for contrast
-    #         data = pd.read_excel(os.path.join(folder_dir, folder, contrast, 'csa/csa_mean.xls'), parse_cols = "G")
-    #         # Add results to dataframe
-    #         results_per_center[str(centers[folder_list.index(folder)])] = data['MEAN across slices'].values
-    #
-    #     # Write results to file
-    #     results_per_center.to_csv(file_output)
-    #
-    #     # Generate figure for results
-    #     fig = results_per_center.plot(kind='bar', color=colors, figsize=(8, 8), legend=True, fontsize=15, align='center')
-    #     fig.set_xlabel("Vertebral level", fontsize=15, rotation='horizontal')
-    #     fig.set_ylabel("CSA ($mm^2$)", fontsize=15)
-    #     plt.title('T2w')
-    #     plt.savefig('t2.png')
-    # elif contrast == 'dmri':
-    #     for folder in folder_list:
-    #         # Read in metric results for contrast
-    #         data = pd.read_excel(os.path.join(folder_dir, folder, contrast, 'fa.xls'), parse_cols = "I")
-    #         # Add results to dataframe
-    #         results_per_center[str(centers[folder_list.index(folder)])] = data['Metric value'].values
-    #
-    #     # Write results to file
-    #     results_per_center.to_csv(file_output)
-    #
-    #     # Generate figure for results
-    #     fig = results_per_center.plot(kind='bar', color=colors, figsize=(8, 8), legend=True, fontsize=15, align='center')
-    #     fig.set_xlabel("Vertebral level", fontsize=15, rotation='horizontal')
-    #     fig.set_ylabel("FA", fontsize=15)
-    #     plt.title('DWI')
-    #     plt.savefig('dwi.png')
-    # elif contrast == 'mt':
-    #     for folder in folder_list:
-    #         # Read in metric results for contrast
-    #         data = pd.read_excel(os.path.join(folder_dir, folder, contrast, 'mtr.xls'), parse_cols = "I")
-    #         # Add results to dataframe
-    #         results_per_center[str(centers[folder_list.index(folder)])] = data['Metric value'].values
-    #
-    #     # Write results to file
-    #     results_per_center.to_csv(file_output)
-    #
-    #     # Generate figure for results
-    #     fig = results_per_center.plot(kind='bar', color=colors, figsize=(8, 8), legend=True, fontsize=15, align='center')
-    #     fig.set_xlabel("Vertebral level", fontsize=15, rotation='horizontal')
-    #     fig.set_ylabel("MTR (%)", fontsize=15)
-    #     plt.title('MTR')
-    #     plt.savefig('mt.png')
-    # elif contrast == 'gre-me':
-    #     for folder in folder_list:
-    #         # Read in metric results for contrast
-    #         data = pd.read_excel(os.path.join(folder_dir, folder, contrast, 'csa/csa_mean.xls'), parse_cols = "G")
-    #         # Add results to dataframe
-    #         results_per_center[str(centers[folder_list.index(folder)])] = data['MEAN across slices'].values
-    #
-    #     # Write results to file
-    #     results_per_center.to_csv(file_output)
-    #
-    #     # Generate figure for results
-    #     fig = results_per_center.plot(kind='bar', color=colors, figsize=(8, 8), legend=True, fontsize=15, align='center')
-    #     fig.set_xlabel("Vertebral level", fontsize=15, rotation='horizontal')
-    #     fig.set_ylabel("CSA ($mm^2$)", fontsize=15)
-    #     plt.title('GRE-ME')
-    #     plt.savefig('gre-me.png')
-
     plt.show()
 
 
