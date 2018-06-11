@@ -84,9 +84,9 @@ rm -rf csa_gm
 # Tips: -no-angle 1 because we do not want angle correction (too unstable with GM seg), and t2s data were acquired orthogonal to the cord.
 for i in 3 4
 do
-  sct_process_segmentation -i t2s_gmseg_manual.nii.gz -p csa -vert ${i} -vertfile t1_seg_labeled_reg.nii.gz -ofolder csa_gm
+#  sct_process_segmentation -i t2s_gmseg_manual.nii.gz -p csa -vert ${i} -vertfile t1_seg_labeled_reg.nii.gz -ofolder csa_gm
   # TODO: when (https://github.com/neuropoly/spinalcordtoolbox/issues/1791) is fixed, use the command below instead
-  # sct_process_segmentation -i t2s_gmseg_manual.nii.gz -p csa -no-angle 1 -vert ${i} -vertfile t1_seg_labeled_reg.nii.gz -ofolder csa_gm
+  sct_process_segmentation -i t2s_gmseg_manual.nii.gz -p csa -no-angle 1 -vert ${i} -vertfile t1_seg_labeled_reg.nii.gz -ofolder csa_gm
 done
 # Go to parent folder
 cd ..
