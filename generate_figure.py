@@ -24,35 +24,45 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # Create a dictionary of centers: key: folder name, value: dataframe name
-centers = {'20171128_glen': 'Ingenia-Glen',
-           '20180529_julien-ge': 'MR750w-Juntendo',
-           '20171207_ucl': 'Achieva-UCL',
-           '20180524_julien-philips': 'Achieva-Juntendo',
-           '20171127_douglas': 'Trio-Douglas',
-           '20171221_poly': 'Skyra-Polytechnique',
-           '20171209_oxford': 'Prisma-Oxford',
-           '20171201_mgh-bay3': 'Trio-MGH',
-           '20180509_julien-skyra': 'Skyra-Juntendo',
-           '20180523_julien-prisma': 'Prisma-Juntendo'
-           }
+centers = {
+    'chiba_spine-generic_20180608-750': 'Chiba-750',
+    'juntendo-750w_spine-generic_20180529': 'Juntendo-750w',
+    'tokyo-univ_spine-generic_20180604-750w': 'TokyoUniv-750w',
+    'tokyo-univ_spine-generic_20180604-signa1': 'TokyoUniv-Signa1',
+    'tokyo-univ_spine-generic_20180604-signa2': 'TokyoUniv-Signa2',
+    '20171207_ucl': 'UCL-Achieva',
+    'juntendo-achieva_spine-teneric_20180524': 'Juntendo-Achieva',
+    'glen_spine-generic_20171128': 'Glen-Ingenia',
+    'tokyo-univ_spine-generic_20180604-ingenia': 'TokyoUniv-Ingenia',
+    'chiba_spine-generic_20180608-ingenia': 'Chiba-Ingenia',
+    'mgh-bay3_spine-generic_20171201': 'MGH-Trio',
+    'douglas_spine-generic_20171127': 'Douglas-Trio',
+    'poly_spine-generic_20171221': 'Polytechnique-Skyra',
+    'juntendo-skyra_spine-generic_20180509': 'Juntendo-Skyra',
+    'tokyo-univ_spine-generic_20180604-skyra': 'TokyoUniv-Skyra',
+    'oxford_spine-generic_20171209': 'Oxford-Prisma',
+    'juntendo-prisma_spine-generic_20180523': 'Juntendo-Prisma',
+}
 
 # color to assign to each MRI model for the figure
-colors = {'750': 'black',
-          'HDxt': 'black',
-          'Ingenia': 'dodgerblue',
-          'Achieva': 'dodgerblue',
-          'Trio': 'limegreen',
-          'Skyra': 'limegreen',
-          'Prisma': 'limegreen',
-          }
+colors = {
+    '750': 'black',
+    'Signa': 'black',
+    'Ingenia': 'dodgerblue',
+    'Achieva': 'dodgerblue',
+    'Trio': 'limegreen',
+    'Skyra': 'limegreen',
+    'Prisma': 'limegreen',
+}
 
 # path to metric based on contrast
-file_metric = {'t1': 'csa/csa_mean.xls',
-               't2': 'csa/csa_mean.xls',
-               'dmri': 'fa.xls',
-               'mt': 'mtr.xls',
-               't2s': 'csa/csa_mean.xls'
-               }
+file_metric = {
+    't1': 'csa/csa_mean.xls',
+    't2': 'csa/csa_mean.xls',
+    'dmri': 'fa.xls',
+    'mt': 'mtr.xls',
+    't2s': 'csa/csa_mean.xls',
+}
 
 
 def get_parameters():
