@@ -30,7 +30,7 @@ centers = {
     'tokyo-univ_spine-generic_20180604-750w': 'TokyoUniv-750w',
     'tokyo-univ_spine-generic_20180604-signa1': 'TokyoUniv-Signa1',
     'tokyo-univ_spine-generic_20180604-signa2': 'TokyoUniv-Signa2',
-    '20171207_ucl': 'UCL-Achieva',
+    'ucl_spine-generic_20171207': 'UCL-Achieva',
     'juntendo-achieva_spine-teneric_20180524': 'Juntendo-Achieva',
     'glen_spine-generic_20171128': 'Glen-Ingenia',
     'tokyo-univ_spine-generic_20180604-ingenia': 'TokyoUniv-Ingenia',
