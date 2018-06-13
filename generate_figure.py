@@ -21,6 +21,7 @@
 
 import os, argparse
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 
 # Create a dictionary of centers: key: folder name, value: dataframe name
@@ -69,6 +70,9 @@ def get_parameters():
     parser = argparse.ArgumentParser(description='Generate a figure to display metric values across centers.')
     parser.add_argument("-c", "--contrast",
                         help="Contrast for which figure should be generated.")
+    parser.add_argument("-l", "--levels",
+                        help='Index of vertebral levels to include (will average them all). Separate with ",". '
+                             'Example: -l 0,1,2,3')
     args = parser.parse_args()
     return args
 
@@ -90,6 +94,9 @@ def main():
     folder_dir = os.path.abspath(os.curdir)  # '/Volumes/projects/generic_spine_procotol/data'
     file_output = "results_per_center.csv"
 
+    # parse levels
+    ind_levels = map(int, levels.split(','))  # split string into list and convert to list ot int
+
     # Initialize pandas series
     results_per_center = pd.Series(index=centers.values())
 
@@ -100,7 +107,7 @@ def main():
         # Read in metric results for contrast
         data = pd.read_excel(os.path.join(folder_dir, folder_center, contrast, file_metric[contrast]), parse_cols="G")
         # Add results to dataframe
-        results_per_center[name_center] = data['MEAN across slices'].values[0]
+        results_per_center[name_center] = np.mean(data['MEAN across slices'].values[ind_levels])
         list_colors.append(get_color(name_center))
 
     # Write results to file
@@ -116,11 +123,12 @@ def main():
     plt.grid(axis='y')
     plt.title(contrast)
     plt.tight_layout()  # make sure everything fits
-    plt.savefig('fig_'+contrast+'.png')
-    plt.show()
+    plt.savefig('fig_'+contrast+'_levels'+levels+'.png')
+    # plt.show()
 
 
 if __name__ == "__main__":
     args = get_parameters()
     contrast = args.contrast
+    levels = args.levels
     main()
