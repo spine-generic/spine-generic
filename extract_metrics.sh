@@ -34,7 +34,7 @@ rm -rf csa
 # Compute the CSA of the cord for each vertebral level of interest
 for i in 2 3 4 5 6 7
 do
-  sct_process_segmentation -i t2_seg_manual.nii.gz -p csa -vert ${i} -vertfile t1_seg_labeled_reg.nii.gz -ofolder csa
+  sct_process_segmentation -i t2_seg_manual.nii.gz -p csa -vert ${i} -vertfile t1_seg_labeled_reg.nii.gz -ofolder csa -a hanning
 done
 # Go to parent folder
 cd ..
