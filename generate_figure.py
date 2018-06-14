@@ -92,7 +92,7 @@ file_metric = {
     't2': 'csa/csa_mean.xls',
     'dmri': 'fa.xls',
     'mt': 'mtr.xls',
-    't2s': 'csa/csa_mean.xls',
+    't2s': 'csa_gm/csa_mean.xls',
 }
 
 # contrast-dependent key to dataframe
@@ -151,7 +151,13 @@ def main():
     # if contrast == 't1':
     for folder_center, name_center in centers_ordered.iteritems():
         # Read in metric results for contrast
-        data = pd.read_excel(os.path.join(path_data, folder_center, contrast, file_metric[contrast]))
+        try:
+            data = pd.read_excel(os.path.join(path_data, folder_center, contrast, file_metric[contrast]))
+        except IOError as error:
+            logging.warning(error)
+            logging.warning("Removing this center for the figure generation: {}".format(folder_center))
+            results_per_center = results_per_center.drop('Douglas-Trio')
+
         # Add results to dataframe
         # loop across indexes-- ignore missing levels (if poor coverage)
         data_temp = []
