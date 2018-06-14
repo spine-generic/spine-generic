@@ -28,6 +28,10 @@ import os, argparse
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import logging
+from collections import OrderedDict
+
+log = logging.getLogger()
 
 # Create a dictionary of centers: key: folder name, value: dataframe name
 centers = {
@@ -136,7 +140,6 @@ def main():
     ind_levels = map(int, levels.split(','))  # split string into list and convert to list ot int
 
     # order centers dictionary for custom display
-    from collections import OrderedDict
     centers_ordered = OrderedDict(sorted(centers.items(), key=lambda i: centers_order.index(i[0])))
 
     # Initialize pandas series
@@ -149,7 +152,15 @@ def main():
         # Read in metric results for contrast
         data = pd.read_excel(os.path.join(path_data, folder_center, contrast, file_metric[contrast]))
         # Add results to dataframe
-        results_per_center[name_center] = np.mean(data[key_metric[contrast]].values[ind_levels])
+        # loop across indexes-- ignore missing levels (if poor coverage)
+        data_temp = []
+        for i in ind_levels:
+            try:
+                data_temp.append(data[key_metric[contrast]].values[ind_levels])
+            except IndexError as error:
+                logging.warning(error.__class__.__name__ + ": " + error.message)
+                logging.warning("Folder: "+folder_center+". Level {} is missing.".format(i))
+        results_per_center[name_center] = np.mean(data_temp)
         list_colors.append(get_color(name_center))
 
     # Write results to file
