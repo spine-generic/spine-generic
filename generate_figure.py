@@ -1,11 +1,16 @@
 #!/usr/bin/env python
 #
-# Automatically generate a figure for generic spine data displaying metric values for a specified contrast (t1, t2, dmri, mt, or gre-me).
+# Automatically generate a figure for generic spine data displaying metric values for a specified contrast
+# (t1, t2, dmri, mt, or gre-me). Results (csv and png) are output in the folder specified by -p.
 #
 # USAGE:
-# The script should be launched within the "spine_generic" folder, where all data folders are located.
-# To run:
-#   ${SCT_DIR}/python/bin/python ${PATH_TO_SPINE_GENERIC}/generate_figure.py -c {t1, t2, dmri, mt, t2s}
+#   ${SCT_DIR}/python/bin/python generate_figure.py -p PATH_DATA -c {t1, t2, dmri, mt, t2s} -l IND_LEVELS
+#
+#   Help:
+#   ${SCT_DIR}/python/bin/python generate_figure.py -h
+#
+#   Example:
+#   ${SCT_DIR}/python/bin/python generate_figure.py -p ~/data/spine_generic/ -c t1 -l 0,1
 #
 # OUTPUT:
 # results_per_center.csv: metric results for each center
@@ -89,6 +94,8 @@ file_metric = {
 
 def get_parameters():
     parser = argparse.ArgumentParser(description='Generate a figure to display metric values across centers.')
+    parser.add_argument("-p", "--path",
+                        help="Path that contains all subjects.")
     parser.add_argument("-c", "--contrast",
                         help="Contrast for which figure should be generated.")
     parser.add_argument("-l", "--levels",
@@ -110,10 +117,11 @@ def get_color(center_name):
 
 
 def main():
-    # Data folder containing all centers. Here we assume that user launches the script within the folder that contains
-    # all the data.
-    folder_dir = os.path.abspath(os.curdir)  # '/Volumes/projects/generic_spine_procotol/data'
-    file_output = "results_per_center.csv"
+    # # go to folder that contails all data
+    # os.chdir(path_data)
+    # # list all directories
+    # folder_dir = os.path.abspath(os.curdir)  # '/Volumes/projects/generic_spine_procotol/data'
+    file_output = os.path.join(path_data, 'results_'+contrast+'_levels'+levels+'.csv')
 
     # parse levels
     ind_levels = map(int, levels.split(','))  # split string into list and convert to list ot int
@@ -130,7 +138,7 @@ def main():
     # if contrast == 't1':
     for folder_center, name_center in centers_ordered.iteritems():
         # Read in metric results for contrast
-        data = pd.read_excel(os.path.join(folder_dir, folder_center, contrast, file_metric[contrast]), parse_cols="G")
+        data = pd.read_excel(os.path.join(path_data, folder_center, contrast, file_metric[contrast]), parse_cols="G")
         # Add results to dataframe
         results_per_center[name_center] = np.mean(data['MEAN across slices'].values[ind_levels])
         list_colors.append(get_color(name_center))
@@ -148,12 +156,13 @@ def main():
     plt.grid(axis='y')
     plt.title(contrast)
     plt.tight_layout()  # make sure everything fits
-    plt.savefig('fig_'+contrast+'_levels'+levels+'.png')
+    plt.savefig(os.path.join(path_data, 'fig_'+contrast+'_levels'+levels+'.png'))
     # plt.show()
 
 
 if __name__ == "__main__":
     args = get_parameters()
+    path_data = args.path
     contrast = args.contrast
     levels = args.levels
     main()
