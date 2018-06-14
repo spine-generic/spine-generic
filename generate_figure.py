@@ -110,6 +110,7 @@ def get_parameters():
     parser.add_argument("-p", "--path",
                         help="Path that contains all subjects.")
     parser.add_argument("-c", "--contrast",
+                        choices=['t1', 't2', 'dmri', 'mt', 't2s'],
                         help="Contrast for which figure should be generated.")
     parser.add_argument("-l", "--levels",
                         help='Index of vertebral levels to include (will average them all). Separate with ",". '
@@ -156,7 +157,7 @@ def main():
         data_temp = []
         for i in ind_levels:
             try:
-                data_temp.append(data[key_metric[contrast]].values[ind_levels])
+                data_temp.append(data[key_metric[contrast]].values[i])
             except IndexError as error:
                 logging.warning(error.__class__.__name__ + ": " + error.message)
                 logging.warning("Folder: "+folder_center+". Level {} is missing.".format(i))
