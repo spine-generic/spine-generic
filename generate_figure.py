@@ -45,6 +45,27 @@ centers = {
     'juntendo-prisma_spine-generic_20180523': 'Juntendo-Prisma',
 }
 
+# because dictionaries are unsorted, we need to create another list to sort them
+centers_order = [
+    'chiba_spine-generic_20180608-750',
+    'juntendo-750w_spine-generic_20180529',
+    'tokyo-univ_spine-generic_20180604-750w',
+    'tokyo-univ_spine-generic_20180604-signa1',
+    'tokyo-univ_spine-generic_20180604-signa2',
+    'ucl_spine-generic_20171207',
+    'juntendo-achieva_spine-teneric_20180524',
+    'glen_spine-generic_20171128',
+    'tokyo-univ_spine-generic_20180604-ingenia',
+    'chiba_spine-generic_20180608-ingenia',
+    'mgh-bay3_spine-generic_20171201',
+    'douglas_spine-generic_20171127',
+    'poly_spine-generic_20171221',
+    'juntendo-skyra_spine-generic_20180509',
+    'tokyo-univ_spine-generic_20180604-skyra',
+    'oxford_spine-generic_20171209',
+    'juntendo-prisma_spine-generic_20180523',
+]
+
 # color to assign to each MRI model for the figure
 colors = {
     '750': 'black',
@@ -97,13 +118,17 @@ def main():
     # parse levels
     ind_levels = map(int, levels.split(','))  # split string into list and convert to list ot int
 
+    # order centers dictionary for custom display
+    from collections import OrderedDict
+    centers_ordered = OrderedDict(sorted(centers.items(), key=lambda i: centers_order.index(i[0])))
+
     # Initialize pandas series
-    results_per_center = pd.Series(index=centers.values())
+    results_per_center = pd.Series(index=centers_ordered.values())
 
     list_colors = []
     # Generate figure and results file for contrast
     # if contrast == 't1':
-    for folder_center, name_center in centers.iteritems():
+    for folder_center, name_center in centers_ordered.iteritems():
         # Read in metric results for contrast
         data = pd.read_excel(os.path.join(folder_dir, folder_center, contrast, file_metric[contrast]), parse_cols="G")
         # Add results to dataframe
@@ -114,11 +139,11 @@ def main():
     results_per_center.to_csv(file_output)
 
     # Generate figure for results
-    fig, ax = plt.subplots(figsize=(8, 8))
+    fig, ax = plt.subplots(figsize=(12, 8))
     results_per_center.plot(kind='bar', color=list_colors, legend=False, fontsize=15, align='center')
     # fig.set_xlabel("Center", fontsize=15, rotation='horizontal')
     plt.setp(ax.xaxis.get_majorticklabels(), rotation=45, ha="right")  # rotate xticklabels at 45deg and align at end
-    ax.set_xticklabels(centers.values())
+    ax.set_xticklabels(centers_ordered.values())
     plt.ylabel("CSA ($mm^2$)", fontsize=15)
     plt.grid(axis='y')
     plt.title(contrast)
