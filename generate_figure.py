@@ -113,8 +113,8 @@ def get_parameters():
                         choices=['t1', 't2', 'dmri', 'mt', 't2s'],
                         help="Contrast for which figure should be generated.")
     parser.add_argument("-l", "--levels",
-                        help='Index of vertebral levels to include (will average them all). Separate with ",". '
-                             'Example: -l 0,1,2,3')
+                        help='Vertebral levels to include (will average them all). Separate with ",". If a level is '
+                             'missing it will be ignored in the averaging. Example: -l 2,3,4')
     args = parser.parse_args()
     return args
 
