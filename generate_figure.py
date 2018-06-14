@@ -91,6 +91,15 @@ file_metric = {
     't2s': 'csa/csa_mean.xls',
 }
 
+# contrast-dependent key to dataframe
+key_metric = {
+    't1': 'MEAN across slices',
+    't2': 'MEAN across slices',
+    'dmri': 'Metric value',
+    'mt': 'Metric value',
+    't2s': 'MEAN across slices',
+}
+
 
 def get_parameters():
     parser = argparse.ArgumentParser(description='Generate a figure to display metric values across centers.')
@@ -138,9 +147,9 @@ def main():
     # if contrast == 't1':
     for folder_center, name_center in centers_ordered.iteritems():
         # Read in metric results for contrast
-        data = pd.read_excel(os.path.join(path_data, folder_center, contrast, file_metric[contrast]), parse_cols="G")
+        data = pd.read_excel(os.path.join(path_data, folder_center, contrast, file_metric[contrast]))
         # Add results to dataframe
-        results_per_center[name_center] = np.mean(data['MEAN across slices'].values[ind_levels])
+        results_per_center[name_center] = np.mean(data[key_metric[contrast]].values[ind_levels])
         list_colors.append(get_color(name_center))
 
     # Write results to file
