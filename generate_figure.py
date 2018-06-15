@@ -115,6 +115,25 @@ ylabel = {
     't2s': 'Gray Matter CSA ($mm^2$)',
 }
 
+# ylim for figure
+ylim = {
+    't1': [40, 90],
+    't2': [40, 90],
+    'dmri': [0.4, 0.9],
+    'mt': [30, 65],
+    't2s': [10, 20],
+}
+
+
+# ystep (in yticks) for figure
+ystep = {
+    't1': 5,
+    't2': 5,
+    'dmri': 0.1,
+    'mt': 5,
+    't2s': 1,
+}
+
 
 def get_parameters():
     parser = argparse.ArgumentParser(description='Generate a figure to display metric values across centers.')
@@ -191,6 +210,8 @@ def main():
     plt.setp(ax.xaxis.get_majorticklabels(), rotation=45, ha="right")  # rotate xticklabels at 45deg and align at end
     ax.set_xticklabels(centers_ordered.values())
     plt.ylabel(ylabel[contrast], fontsize=15)
+    plt.ylim(ylim[contrast])
+    plt.yticks(np.arange(ylim[contrast][0], ylim[contrast][1], step=ystep[contrast]))
     plt.grid(axis='y')
     plt.title(contrast)
     plt.tight_layout()  # make sure everything fits
