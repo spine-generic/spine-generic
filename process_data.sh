@@ -9,7 +9,7 @@
 # - (fsleyes for visualization)
 # 
 # Authors: Julien Cohen-Adad, Stephanie Alley
-
+#
 
 # t1
 # ===========================================================================================
@@ -123,7 +123,8 @@ mv warp_template2anat.nii.gz warp_template2dmri.nii.gz
 # Warp template
 sct_warp_template -d dwi_moco_mean.nii.gz -w warp_template2dmri.nii.gz
 # Compute DTI
-sct_dmri_compute_dti -i dmri_crop_moco.nii.gz -bvec bvecs.txt -bval bvals.txt -method restore
+sct_dmri_compute_dti -i dmri_crop_moco.nii.gz -bvec bvecs.txt -bval bvals.txt
+#sct_dmri_compute_dti -i dmri_crop_moco.nii.gz -bvec bvecs.txt -bval bvals.txt -method restore
 # Go back to parent folder
 cd ..
 
