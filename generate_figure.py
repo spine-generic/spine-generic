@@ -50,6 +50,7 @@ centers = {
     'poly_spine-generic_20171221': 'Polytechnique-Skyra',
     'juntendo-skyra_spine-generic_20180509': 'Juntendo-Skyra',
     'tokyo-univ_spine-generic_20180604-skyra': 'TokyoUniv-Skyra',
+    'unf_sct_026': 'UNF-Prisma',
     'oxford_spine-generic_20171209': 'Oxford-Prisma',
     'juntendo-prisma_spine-generic_20180523': 'Juntendo-Prisma',
 }
@@ -71,6 +72,7 @@ centers_order = [
     'poly_spine-generic_20171221',
     'juntendo-skyra_spine-generic_20180509',
     'tokyo-univ_spine-generic_20180604-skyra',
+    'unf_sct_026',
     'oxford_spine-generic_20171209',
     'juntendo-prisma_spine-generic_20180523',
 ]
@@ -102,6 +104,15 @@ key_metric = {
     'dmri': 'Metric value',
     'mt': 'Metric value',
     't2s': 'MEAN across slices',
+}
+
+# ylabel
+ylabel = {
+    't1': 'Cord CSA ($mm^2$)',
+    't2': 'Cord CSA ($mm^2$)',
+    'dmri': 'FA',
+    'mt': 'MTR (%)',
+    't2s': 'Gray Matter CSA ($mm^2$)',
 }
 
 
@@ -179,7 +190,7 @@ def main():
     # fig.set_xlabel("Center", fontsize=15, rotation='horizontal')
     plt.setp(ax.xaxis.get_majorticklabels(), rotation=45, ha="right")  # rotate xticklabels at 45deg and align at end
     ax.set_xticklabels(centers_ordered.values())
-    plt.ylabel("CSA ($mm^2$)", fontsize=15)
+    plt.ylabel(ylabel[contrast], fontsize=15)
     plt.grid(axis='y')
     plt.title(contrast)
     plt.tight_layout()  # make sure everything fits
