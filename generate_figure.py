@@ -183,22 +183,22 @@ def main():
         # Read in metric results for contrast
         try:
             data = pd.read_excel(os.path.join(path_data, folder_center, contrast, file_metric[contrast]))
+            # Add results to dataframe
+            # loop across indexes-- ignore missing levels (if poor coverage)
+            data_temp = []
+            for i in ind_levels:
+                try:
+                    data_temp.append(data[key_metric[contrast]].values[i])
+                except IndexError as error:
+                    logging.warning(error.__class__.__name__ + ": " + error.message)
+                    logging.warning("Folder: " + folder_center + ". Level {} is missing.".format(i))
+            results_per_center[name_center] = np.mean(data_temp)
+            list_colors.append(get_color(name_center))
         except IOError as error:
             logging.warning(error)
             logging.warning("Removing this center for the figure generation: {}".format(folder_center))
-            results_per_center = results_per_center.drop('Douglas-Trio')
-
-        # Add results to dataframe
-        # loop across indexes-- ignore missing levels (if poor coverage)
-        data_temp = []
-        for i in ind_levels:
-            try:
-                data_temp.append(data[key_metric[contrast]].values[i])
-            except IndexError as error:
-                logging.warning(error.__class__.__name__ + ": " + error.message)
-                logging.warning("Folder: "+folder_center+". Level {} is missing.".format(i))
-        results_per_center[name_center] = np.mean(data_temp)
-        list_colors.append(get_color(name_center))
+            results_per_center = results_per_center.drop(name_center)
+            centers_ordered.pop(folder_center)
 
     # Write results to file
     results_per_center.to_csv(file_output)
