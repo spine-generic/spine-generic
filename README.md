@@ -17,74 +17,51 @@ The following metrics are output (per contrast):
 
 ## File structure
 
-To facilitate the collection of data, we used the [BIDS standard](http://bids.neuroimaging.io/). Each proprietary Dicom data were converted to NIFTI format using [dcm2niix](https://www.nitrc.org/plugins/mwiki/index.php/dcm2nii:MainPage) with option to output JSON file alongside each NIFTI file. 
+To facilitate the collection of data, we used the [BIDS standard](http://bids.neuroimaging.io/). Each proprietary Dicom data should be converted to NIFTI format using [dcm2niix](https://www.nitrc.org/plugins/mwiki/index.php/dcm2nii:MainPage) with option to output JSON file alongside each NIFTI file. Each participant is expected to provide a zip file containing the following data:
 
 **BIDS-compatible data structure:**
 ~~~
 center_study/
 └── dataset_description.json
-└── participants.json
 └── participants.tsv
 └── sub-01
     └── anat
-             └── sub-01_T1w.json
              └── sub-01_T1w.nii.gz
-             └── sub-01_acq-ax_T2w.json
-             └── sub-01_acq-ax_T2w.nii.gz
-             └── sub-01_acq-inf_T2w.json
-             └── sub-01_acq-inf_T2w.nii.gz
-             └── sub-01_acq-sag_T2w.json
-             └── sub-01_acq-sag_T2w.nii.gz
-             └── sub-01_acq-sup_T2w.json
-             └── sub-01_acq-sup_T2w.nii.gz
-             └── sub-01_T2star.json
-             └── sub-01_T2star.nii.gz
+             └── sub-01_T1w.json
+             └── sub-01_T2w.nii.gz
+             └── sub-01_T2w.json
+             └── sub-01_acq-ax_MT.nii.gz
+             └── sub-01_acq-ax_MT.json
+             └── sub-01_acq-ax_PD.nii.gz
+             └── sub-01_acq-ax_PD.json
+             └── sub-01_acq-ax_T1w.nii.gz
+             └── sub-01_acq-ax_T1w.json
+             └── sub-01_acq-ax_T2star.nii.gz
+             └── sub-01_acq-ax_T2star.json
     └── dwi
+             └── sub-01_dwi.nii.gz
              └── sub-01_dwi.bval
              └── sub-01_dwi.bvec
              └── sub-01_dwi.json
-             └── sub-01_dwi.nii.gz
 ~~~
 **dataset_description.json:**
 ```json
 {
 "Name": "SCT dataset",
 "BIDSVersion": "1.0.1",
-"InstitutionName" : "name_of_the_institution" ,
-"Manufacturer" : "scanner_model" ,
-"Study" : "name_of_the_study" ,
-"Researcher": "name_of_the_researcher"
-}
-```
-### participants.json
-```json
-{
-    "participant_id": {
-        "LongName": "Participant ID",
-        "Description": "Unique ID corresponding to the Subject number"
-    },
-    "sex": {
-        "LongName": "Participant gender",
-        "Description": "M or F"
-    },
-    "age": {
-        "LongName": "Participant age",
-        "Description": "yy"
-    },
-    "date_of_scan": {
-        "LongName": "Date of scan",
-        "Description": "yyyy-mm-dd"
-    },
+"InstitutionName" : "Name of the institution" ,
+"Manufacturer" : "Scanner model" ,
+"Researcher": "Contact name"
 }
 ```
 
 ### participants.tsv
 
-|participant_id|sex|age|date_of_scan|surname|family_name|pathology|data_id|
-| --- | --- | --- | --- | --- | --- | --- | --- |
-|sub-01|M|-|2013-03-18|John|Doe|HC|amu_2017-virginie_AS|
+|participant_id|sex|age|date_of_scan|
+| --- | --- | --- | --- |
+|sub-01|M|35|2018-12-18|
 
-### sub-XXX__contrast.json
+### sub-XX_contrast.json
 ```
 {
 	"Manufacturer": "Siemens",
@@ -106,8 +83,7 @@ center_study/
 
 where 
 
-- contrast= ["T1w", "T2w", "T2star", "dwi", "fmri", "T1rho", "T1map", "T2map", "FLAIR", "FLASH", "PD", "PDmap", "PDT2", "inplaneT1", "inplaneT2"]
-
+- contrast= ["T1w", "T2w", "T2star", "dwi", "MT", "PD"]
 
 ## How to run
 
