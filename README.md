@@ -1,6 +1,6 @@
 # spine_generic
 
-Processing pipeline for the "spine generic protocol" project 
+Processing pipeline for the "spine generic protocol" project
 
 The following metrics are output (per contrast):
 - t1: Spinal cord CSA profile between C2 and Th1, averaged within each level
@@ -12,8 +12,8 @@ The following metrics are output (per contrast):
 
 ## Dependencies
 
-[SCT v3.2.0](https://github.com/neuropoly/spinalcordtoolbox/releases/tag/v3.2.0) or above.
-
+[SCT v3.2.7](https://github.com/neuropoly/spinalcordtoolbox/releases/tag/v3.2.7) or above.
+This pipeline also relies on [FSLeyes](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FSLeyes) for quality control (QC).
 
 ## File structure
 
@@ -80,10 +80,10 @@ Note, the fields listed below are the mandatory fields. It is fine to have more 
 
 - Download (or `git clone`) this repository.
 - Go to this repository: `cd spine_generic`
-- Export environment variable: ``` export PATH_SPINEGENERIC=`pwd` ```
-- Go to a subject data (e.g. cd PATH_TO_DATA/001)
-- Process data: `${PATH_SPINEGENERIC}/process_data.sh`
-- Compute metrics: `${PATH_SPINEGENERIC}/compute_metrics.sh`
+- Copy the file `parameters_template.sh` and rename it as `parameters.sh`.
+- Edit the file `parameters.sh` and modify the variables according to your needs.
+- Process data: `./run_process.sh process_data.sh`
+- Compute metrics: `./run_process.sh compute_metrics.sh`
 
 ## Contributors
 

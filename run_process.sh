@@ -1,58 +1,62 @@
 #!/bin/bash
 #
-# This is a wrapper to processing scripts, that loops across subjects.
+# Wrapper to processing scripts, which loops across subjects. Data should be
+# organized according to the BIDS structure:
+# https://github.com/sct-pipeline/spine_generic#file-structure
 #
 # Usage:
-#   ./run_process.sh <script> <path_data>
-#     script: the script to run
-#     path_data: the absolute path that contains all subject folders
+#   ./run_process.sh <script>
 #
 # Example:
-#   ./run_process.sh extract_metrics.sh /Users/julien/data/spine_generic/
+#   ./run_process.sh process_data.sh
+#
+# Note:
+#   Make sure to edit the file parameters.sh with the proper list of subjects and variable.
 #
 # NB: add the flag "-x" after "!/bin/bash" for full verbose of commands.
-# Julien Cohen-Adad 2018-06-11
+#
+# Author: Julien Cohen-Adad
 
 # Exit if user presses CTRL+C (Linux) or CMD+C (OSX)
 trap "echo Caught Keyboard Interrupt within script. Exiting now.; exit" INT
 
-# Load parameters
-# source parameters.sh
+# Build color coding (cosmetic stuff)
+Color_Off='\033[0m'  # Text Reset
+Green='\033[0;92m'  # Yellow
+Red='\033[0;91m'  # Red
+On_Black='\033[40m'  # Black
 
-# # Fetch OS type (used to open QC folder)
-# if uname -a | grep -i  darwin > /dev/null 2>&1; then
-#   # OSX
-#   export OPEN_CMD="open"
-# elif uname -a | grep -i  linux > /dev/null 2>&1; then
-#   # Linux
-#   export OPEN_CMD="xdg-open"
-# fi
-
-# Build color coding
-Color_Off='\033[0m'       # Text Reset
-Green='\033[0;92m'       # Yellow
-On_Black='\033[40m'       # Black
+# Load config file
+if [ -e "parameters.sh" ]; then
+  source parameters.sh
+else
+  printf "\n${Red}${On_Black}ERROR: The file parameters.sh was not found. You need to create one for this pipeline to work. Please see README.md.${Color_Off}\n\n"
+  exit 1
+fi
 
 # build syntax for process execution
 CMD=`pwd`/$1
 
-# go to path data
-cd $2
+# Go to path data folder that encloses all subjects' folders
+cd ${PATH_DATA}
 
-# get list of folders in current directory
-SUBJECTS=`ls -d */`
+# If the variable SUBJECTS does not exist (commented), get list of all subject
+# folders from current directory
+if [ -z ${SUBJECTS} ]; then
+  echo "Processing all subjects present in: $PATH_DATA."
+  SUBJECTS=`ls -d */`
+else
+  echo "Processing subjects specified in parameters.sh."
+fi
 
 # Loop across subjects
 for subject in ${SUBJECTS[@]}; do
   # Display stuff
-  printf "${Green}${On_Black}\n===============================\nPROCESSING SUBJECT: ${subject}\n===============================\n${Color_Off}"
-  # echo "==============================="
-  # echo "PROCESSING SUBJECT: ${subject}"
-  # echo "***"
-  # go to subject folder
+  printf "${Green}${On_Black}\n===============================\n\PROCESSING SUBJECT: ${subject}\n===============================\n${Color_Off}"
+  # Go to subject folder
   cd ${subject}
-  # run process
+  # Run process
   $CMD
-  # go back to parent folder
+  # Go back to parent folder
   cd ..
 done
