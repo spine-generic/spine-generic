@@ -45,14 +45,14 @@ site/
              └── sub-01_dwi.json
 ~~~
 **dataset_description.json:**
-```json
+```
 {
-"Name": "Spinal Cord MRI Public Database",
-"BIDSVersion": "1.0.1",
-"InstitutionName" : "Name of the institution",
-"Manufacturer" : "Scanner brand, model",  # Examples: "Siemens, Prisma", "Philips, Achieva"
-"SoftwareVersion" : "Version of MR software",  # Examples: "VE11C", "
-"Researcher": "Researchers who contributed to the dataset"  # Initial and Family name. Separate with ",". Examples: "J. Doe, S. Wonder, J. Pass"
+	"Name": "Spinal Cord MRI Public Database",
+	"BIDSVersion": "1.0.1",
+	"InstitutionName": "Name of the institution",
+	"Manufacturer": "Scanner brand, model",  # Examples: "Siemens, Prisma", "Philips, Achieva"
+	"SoftwareVersion": "Version of MR software",  # Examples: "VE11C", "
+	"Researcher": "Researchers who contributed to the dataset"  # Initial and Family name. Separate with ",". Examples: "J. Doe, S. Wonder, J. Pass"
 }
 ```
 
