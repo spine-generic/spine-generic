@@ -19,7 +19,7 @@ The following metrics are output (per contrast):
 
 To facilitate the collection of data, we used the [BIDS standard](http://bids.neuroimaging.io/). Each proprietary Dicom data should be converted to NIFTI format using [dcm2niix](https://www.nitrc.org/plugins/mwiki/index.php/dcm2nii:MainPage) with option to output JSON file alongside each NIFTI file. Each participant is expected to provide a zip file containing the following data:
 
-**BIDS-compatible data structure:**
+### BIDS-compatible data structure
 ~~~
 site/
 └── dataset_description.json
@@ -44,7 +44,7 @@ site/
              └── sub-01_dwi.bvec
              └── sub-01_dwi.json
 ~~~
-**dataset_description.json:**
+### dataset_description.json
 ```
 {
 	"Name": "Spinal Cord MRI Public Database",
