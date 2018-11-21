@@ -27,11 +27,11 @@ cd anat/
 # ==============================================================================
 # Check if manual segmentation already exists
 if [ -e "${sub}_T1w_seg_manual.nii.gz" ]; then
-  file_seg="${sub}_T1w_seg_manual.nii.gz"
+  file_seg="${sub}_T1w_seg_manual"
 else
   # Segment spinal cord
   sct_deepseg_sc -i "${sub}_T1w.nii.gz" -c t1 -qc ${PATH_QC}
-  file_seg="${sub}_T1w_seg.nii.gz"
+  file_seg="${sub}_T1w_seg"
   # Check segmentation results and do manual corrections if necessary
   # echo "Check segmentation and do manual correction if necessary, then save segmentation as t1_seg_manual.nii.gz"
   # fsleyes t1.nii.gz -cm greyscale t1_seg.nii.gz -cm red -a 70.0 &
@@ -45,15 +45,22 @@ fi
 # Check if manual labels already exists
 if [ ! -e "label_c2c3.nii.gz" ]; then
   # echo "Create manual label at C2-C3 disc."
-  sct_label_utils -i "${sub}_T1w.nii.gz" -create-viewer 3 -o label_c2c3.nii.gz -msg 'Click at the posterior tip of C2-C3 disc, then click "Save and Quit".'
+  sct_label_utils -i ${sub}_T1w.nii.gz -create-viewer 3 -o label_c2c3.nii.gz -msg 'Click at the posterior tip of C2-C3 disc, then click "Save and Quit".'
 fi
 # Generate labeled segmentation
-sct_label_vertebrae -i "${sub}_T1w.nii.gz" -s ${file_seg} -c t2 -initlabel label_c2c3.nii.gz -qc ${PATH_QC}
+sct_label_vertebrae -i ${sub}_T1w.nii.gz -s ${file_seg}.nii.gz -c t2 -initlabel label_c2c3.nii.gz -qc ${PATH_QC}
+# Create labels in the cord at C2 and C5 mid-vertebral levels
+sct_label_utils -i ${file_seg}_labeled.nii.gz -vert-body 2,5 -o labels_vert.nii.gz
+# Register to PAM50 template
+sct_register_to_template -i ${sub}_T1w.nii.gz -s ${file_seg}.nii.gz -l labels_vert.nii.gz -c t1 -qc $PATH_QC
+# Warp template without the white matter atlas (we don't need it at this point)
+sct_warp_template -d ${sub}_T1w.nii.gz -w warp_template2anat.nii.gz -a 0
+
 # sct_process_segmentation -i ${file_seg} -p label-vert -discfile label_disc.nii.gz
 # Rename with fixed name
 # for file in `ls *_labeled.nii.gz` ; do mv "$file" t1_seg_labeled.nii.gz; done
 # Flatten t1 scan (to make nice figures)
-sct_flatten_sagittal -i "${sub}_T1w.nii.gz" -s ${file_seg}
+sct_flatten_sagittal -i ${sub}_T1w.nii.gz -s ${file_seg}.nii.gz
 # Go back to parent folder
 cd ..
 
