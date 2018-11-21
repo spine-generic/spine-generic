@@ -21,7 +21,7 @@ To facilitate the collection of data, we used the [BIDS standard](http://bids.ne
 
 **BIDS-compatible data structure:**
 ~~~
-center_study/
+site/
 └── dataset_description.json
 └── participants.tsv
 └── sub-01
@@ -47,11 +47,12 @@ center_study/
 **dataset_description.json:**
 ```json
 {
-"Name": "SCT dataset",
+"Name": "Spinal Cord MRI Public Database",
 "BIDSVersion": "1.0.1",
-"InstitutionName" : "Name of the institution" ,
-"Manufacturer" : "Scanner model" ,
-"Researcher": "Contact name"
+"InstitutionName" : "Name of the institution",
+"Manufacturer" : "Scanner brand, model",  # Examples: "Siemens, Prisma", "Philips, Achieva"
+"SoftwareVersion" : "Version of MR software",  # Examples: "VE11C", "
+"Researcher": "Researchers who contributed to the dataset"  # Initial and Family name. Separate with ",". Examples: "J. Doe, S. Wonder, J. Pass"
 }
 ```
 
@@ -62,28 +63,18 @@ center_study/
 |sub-01|M|35|2018-12-18|
 
 ### sub-XX_contrast.json
+Where contrast={"T1w", "T2w", "T2star", "dwi", "MT", "PD"}
+Note, the fields listed below are the mandatory fields. It is fine to have more fields. E.g., if you use `dcm2niix` you will likely have more entries.
 ```
 {
-	"Manufacturer": "Siemens",
-	"ManufacturersModelName": "Prisma_fit",
-	"ProcedureStepDescription": "spine_generic",
-	"ProtocolName": "DWI",
-	"ImageType": ["ORIGINAL", "PRIMARY", "DIFFUSION", "NONE", "ND", "MOSA"],
-	"AcquisitionDateTime": "2017-10-27T10:27:9.632812",
-	"MagneticFieldStrength": 3,
-	"FlipAngle": 90,
-	"EchoTime": 0.06,
-	"RepetitionTime": 0.61,
-	"EffectiveEchoSpacing": 0.000939994,
+	"FlipAngle": 90,  # in deg
+	"EchoTime": 0.06,  # in s
+	"RepetitionTime": 0.61,  # in s
 	"PhaseEncodingDirection": "j-",
 	"ConversionSoftware": "dcm2niix",
 	"ConversionSoftwareVersion": "v1.0.20170130 (openJPEG build)",
 }
 ```
-
-where 
-
-- contrast= ["T1w", "T2w", "T2star", "dwi", "MT", "PD"]
 
 ## How to run
 
@@ -102,7 +93,7 @@ Stephanie Alley, Julien Cohen-Adad
 
 The MIT License (MIT)
 
-Copyright (c) 2018 École Polytechnique, Université de Montréal
+Copyright (c) 2018 Polytechnique Montreal, Université de Montréal
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
