@@ -52,11 +52,11 @@ fi
 # Loop across subjects
 for subject in ${SUBJECTS[@]}; do
   # Display stuff
-  printf "${Green}${On_Black}\n===============================\n\PROCESSING SUBJECT: ${subject}\n===============================\n${Color_Off}"
+  printf "${Green}${On_Black}\n==========================\nPROCESSING SUBJECT: ${subject}\n==========================\n${Color_Off}"
   # Go to subject folder
   cd ${subject}
   # Run process
-  $CMD
+  $CMD ${subject}
   # Go back to parent folder
   cd ..
 done
