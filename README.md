@@ -15,9 +15,9 @@ The following metrics are output (per contrast):
 [SCT v3.2.7](https://github.com/neuropoly/spinalcordtoolbox/releases/tag/v3.2.7) or above.
 This pipeline also relies on [FSLeyes](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FSLeyes) for quality control (QC).
 
-## File structure
+## Data collection and organization
 
-To facilitate the collection of data, we used the [BIDS standard](http://bids.neuroimaging.io/). Each proprietary Dicom data should be converted to NIFTI format using [dcm2niix](https://www.nitrc.org/plugins/mwiki/index.php/dcm2nii:MainPage) with option to output JSON file alongside each NIFTI file. Each participant is expected to provide a zip file containing the following data:
+To facilitate the collection of data, we use the [BIDS standard](http://bids.neuroimaging.io/). Each proprietary DICOM data should be converted to NIFTI format using [dcm2niix](https://www.nitrc.org/plugins/mwiki/index.php/dcm2nii:MainPage) with option to output JSON file alongside each NIFTI file. Each participant is expected to provide a zip file containing the following data:
 
 ### BIDS-compatible data structure
 ~~~
@@ -75,6 +75,12 @@ Note, the fields listed below are the mandatory fields. It is fine to have more 
 	"ConversionSoftwareVersion": "v1.0.20170130 (openJPEG build)",
 }
 ```
+
+### Ethics and anonymization
+
+Each subject consented to be scanned and to have their anonymized data put in a publicly-available repository. To prove it, an email from each participant should be sent to the manager of the database (Julien Cohen-Adad). The email should state the following: "I am the subject who volunteered and I give you permission to release the scan freely to the public domain."
+
+Anatomical scans where facial features are visible (T1w) should be "defaced" before being collected. To do so, [FreeSurfer's mri_deface](https://surfer.nmr.mgh.harvard.edu/fswiki/mri_deface ) could be used.
 
 ## How to run
 
