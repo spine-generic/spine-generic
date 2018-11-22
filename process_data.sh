@@ -94,11 +94,20 @@ sct_warp_template -d ${sub}_acq-ax_T1w_crop.nii.gz -w warp_template2axT1w.nii.gz
 # Compute MTR
 sct_compute_mtr -mt0 ${sub}_acq-ax_PD_reg.nii.gz -mt1 ${sub}_acq-ax_MT_reg.nii.gz
 # Compute MTsat
-# TODO
-# sct_compute_mtsat -mt mt1_crop.nii.gz -pd mt0_reg.nii.gz -t1 t1w_reg.nii.gz -trmt 30 -trpd 30 -trt1 15 -famt 9 -fapd 9 -fat1 15
+sct_compute_mtsat -mt ${sub}_acq-ax_MT_reg.nii.gz -pd ${sub}_acq-ax_PD_reg.nii.gz -t1 ${sub}_acq-ax_T1w_crop.nii.gz -trmt 57 -trpd 57 -trt1 15 -famt 9 -fapd 9 -fat1 15
+
+# t2s
+# ==============================================================================
+# Check if manual GM segmentation already exists
+if [ -e "${sub}_acq-ax_T2star_seg_manual.nii.gz" ]; then
+  file_seg="${sub}_acq-ax_T2star_seg_manual"
+else
+  # Segment spinal cord
+  sct_deepseg_gm -i ${sub}_acq-ax_T2star.nii.gz -qc ${PATH_QC}
+  file_seg="${sub}_acq-ax_T2star_seg"
+fi
 # Go back to parent folder
 cd ..
-
 #
 # # dmri
 # # ===========================================================================================
@@ -150,29 +159,3 @@ cd ..
 # cd ..
 #
 #
-
-#
-# # t2s
-# # ===========================================================================================
-# cd t2s
-# # Check if manual cord segmentation already exists
-# if [ -e "t2s_gmseg_manual.nii.gz" ]; then
-#   file_gmseg="t2s_gmseg_manual.nii.gz"
-# else
-#   # Segment gray matter
-#   sct_deepseg_gm -i t2s.nii.gz
-#   file_seg="t2s_gmseg.nii.gz"
-#   # Check segmentation results and do manual corrections if necessary, then save modified segmentation as dwi_moco_mean_seg_manual.nii.gz"
-#   echo "Check segmentation and do manual correction if necessary, then save segmentation as t2_seg_manual.nii.gz"
-#   fsleyes t2s.nii.gz -cm greyscale -a 100.0 t2s_gmseg.nii.gz -cm red -a 70.0 &
-#   # pause process during checking
-#   read -p "Press any key to continue..."
-#   # check if segmentation was modified
-#   if [ -e "t2s_gmseg_manual.nii.gz" ]; then
-#   	file_seg="t2s_gmseg_manual.nii.gz"
-#   fi
-# fi
-# # Bring labeled segmentation to t2s space
-# sct_register_multimodal -i ../t1/t1_seg_labeled.nii.gz -d t2s.nii.gz -identity 1 -x nn
-# # Go back to parent folder
-# cd ..
