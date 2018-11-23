@@ -1,20 +1,19 @@
 #!/bin/bash
 #
-# Process data.
-#
-# This script should be run within the subject's folder.
+# Process data. This script should be run within the subject's folder.
 #
 # Usage:
-#   ./run_process.sh <subject_ID>
+#   ./process_data.sh <subject_ID>
 #
 # Where subject_ID refers to the subject ID according to the BIDS format.
 #
 # Example:
-#   ./run_process.sh sub-03
+#   ./process_data.sh sub-03
 #
 # Authors: Julien Cohen-Adad, Stephanie Alley
 
-# The following global variables are retrieved from parameters.sh but could be overwritten here:
+# The following global variables are retrieved from parameters.sh but could be
+# overwritten here:
 # PATH_QC="~/qc"
 
 # Retrieve subject tag
