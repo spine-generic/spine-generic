@@ -1,14 +1,15 @@
 #!/bin/bash
-# 
-# Process data.
-# 
-# Run script within the subject's folder.
-# 
-# Dependencies: 
-# - SCT v3.2.0 and higher.
-# - FSL (for fslhd)
-# - (fsleyes for visualization)
-# 
+#
+# Extract metrics. This script should be run within the subject's folder.
+#
+# Usage:
+#   ./extract_metrics.sh <subject_ID>
+#
+# Where subject_ID refers to the subject ID according to the BIDS format.
+#
+# Example:
+#   ./extract_metrics.sh sub-03
+#
 # Authors: Julien Cohen-Adad, Stephanie Alley
 
 
