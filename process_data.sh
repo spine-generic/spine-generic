@@ -87,8 +87,8 @@ sct_register_multimodal -i ${sub}_acq-ax_MT.nii.gz -d ${sub}_acq-ax_T1w_crop.nii
 # Register template->T1w_ax (using template-T1w as initial transformation)
 sct_register_multimodal -i $SCT_DIR/data/PAM50/template/PAM50_t1.nii.gz -iseg $SCT_DIR/data/PAM50/template/PAM50_cord.nii.gz -d ${sub}_acq-ax_T1w_crop.nii.gz -dseg ${file_seg}.nii.gz -param step=1,type=seg,algo=slicereg,metric=MeanSquares,smooth=2:step=2,type=im,algo=bsplinesyn,metric=MeanSquares,iter=5,gradStep=0.5 -initwarp warp_template2T1w.nii.gz -initwarpinv warp_T1w2template.nii.gz
 # Rename warping field for clarity
-mv warp_PAM50_t12sub-01_acq-ax_T1w_crop.nii.gz warp_template2axT1w.nii.gz
-mv warp_sub-01_acq-ax_T1w_crop2PAM50_t1.nii.gz warp_axT1w2template.nii.gz
+mv warp_PAM50_t12${sub}_acq-ax_T1w_crop.nii.gz warp_template2axT1w.nii.gz
+mv warp_${sub}_acq-ax_T1w_crop2PAM50_t1.nii.gz warp_axT1w2template.nii.gz
 # Warp template
 sct_warp_template -d ${sub}_acq-ax_T1w_crop.nii.gz -w warp_template2axT1w.nii.gz -ofolder label_axT1w
 # Compute MTR
@@ -106,56 +106,36 @@ else
   sct_deepseg_gm -i ${sub}_acq-ax_T2star.nii.gz -qc ${PATH_QC}
   file_seg="${sub}_acq-ax_T2star_seg"
 fi
+
+# dwi
+# ==============================================================================
+cd ../dwi
+# Separate b=0 and DW images
+sct_dmri_separate_b0_and_dwi -i ${sub}_dwi.nii.gz -bvec ${sub}_dwi.bvec
+# Segment cord (1st pass -- just to get rough centerline)
+sct_propseg -i ${sub}_dwi_dwi_mean.nii.gz -c dwi
+# Create mask to help motion correction and for faster processing
+sct_create_mask -i ${sub}_dwi_dwi_mean.nii.gz -p centerline,${sub}_dwi_dwi_mean_seg.nii.gz -size 30mm
+# Crop data for faster processing
+sct_crop_image -i ${sub}_dwi.nii.gz -m mask_${sub}_dwi_dwi_mean.nii.gz -o ${sub}_dwi_crop.nii.gz
+# Motion correction
+sct_dmri_moco -i ${sub}_dwi_crop.nii.gz -bvec ${sub}_dwi.bvec -x spline
+# Check if manual segmentation already exists
+if [ -e "${sub}_dwi_crop_moco_dwi_mean_seg_manual.nii.gz" ]; then
+  file_seg="${sub}_dwi_crop_moco_dwi_mean_seg_manual"
+else
+  # Segment cord (2nd pass, after motion correction)
+  sct_propseg -i ${sub}_dwi_crop_moco_dwi_mean.nii.gz -c dwi -qc ${PATH_QC}
+  file_seg="${sub}_dwi_crop_moco_dwi_mean_seg"
+fi
+# Register template->dwi (using template-T1w as initial transformation)
+sct_register_multimodal -i $SCT_DIR/data/PAM50/template/PAM50_t1.nii.gz -iseg $SCT_DIR/data/PAM50/template/PAM50_cord.nii.gz -d ${sub}_dwi_crop_moco_dwi_mean.nii.gz -dseg ${file_seg}.nii.gz -param step=1,type=seg,algo=slicereg,metric=MeanSquares,smooth=2:step=2,type=im,algo=bsplinesyn,metric=MeanSquares,iter=5,gradStep=0.5 -initwarp ../anat/warp_template2T1w.nii.gz -initwarpinv ../anat/warp_T1w2template.nii.gz
+# Rename warping field for clarity
+mv warp_PAM50_t12${sub}_dwi_crop_moco_dwi_mean.nii.gz warp_template2dwi.nii.gz
+mv warp_${sub}_dwi_crop_moco_dwi_mean2PAM50_t1.nii.gz warp_dwi2template.nii.gz
+# Warp template
+sct_warp_template -d ${sub}_dwi_crop_moco_dwi_mean.nii.gz -w warp_template2dwi.nii.gz
+# Compute DTI using RESTORE
+sct_dmri_compute_dti -i ${sub}_dwi_crop_moco.nii.gz -bvec ${sub}_dwi.bvec -bval ${sub}_dwi.bval -method restore
 # Go back to parent folder
 cd ..
-#
-# # dmri
-# # ===========================================================================================
-# cd dmri
-# # Separate b=0 and DW images
-# sct_dmri_separate_b0_and_dwi -i dmri.nii.gz -bvec bvecs.txt
-# # Segment cord (1st pass)
-# sct_propseg -i dwi_mean.nii.gz -c dwi
-# # Create mask to aid in motion correction and for faster processing
-# sct_create_mask -i dwi_mean.nii.gz -p centerline,dwi_mean_seg.nii.gz -size 30mm
-# # Crop data for faster processing
-# sct_crop_image -i dmri.nii.gz -m mask_dwi_mean.nii.gz -o dmri_crop.nii.gz
-# # Motion correction
-# sct_dmri_moco -i dmri_crop.nii.gz -bvec bvecs.txt -x spline
-# # Check if manual segmentation already exists
-# if [ -e "dwi_moco_mean_seg_manual.nii.gz" ]; then
-#   file_seg="dwi_moco_mean_seg_manual.nii.gz"
-# else
-#   # Segment cord (2nd pass, after motion correction)
-#   sct_propseg -i dwi_moco_mean.nii.gz -c dwi
-#   file_seg="dwi_moco_mean_seg.nii.gz"
-#   # Check segmentation results and do manual corrections if necessary, then save modified segmentation as dwi_moco_mean_seg_manual.nii.gz"
-#   echo "Check segmentation and do manual correction if necessary, then save segmentation as dwi_moco_mean_seg_manual.nii.gz"
-#   fsleyes dwi_moco_mean.nii.gz -cm greyscale dwi_moco_mean_seg.nii.gz -cm red -a 70.0 &
-#   # pause process during checking
-#   read -p "Press any key to continue..."
-#   # check if segmentation was modified
-#   if [ -e "dwi_moco_mean_seg_manual.nii.gz" ]; then
-#   	file_seg="dwi_moco_mean_seg_manual.nii.gz"
-#   fi
-# fi
-# # create dummy label with value=4
-# sct_label_utils -i dwi_moco_mean.nii.gz -create 1,1,1,4 -o label_dummy.nii.gz
-# # use dummy label to import labels from t1 and keep only value=4 label
-# sct_label_utils -i ../t1/label_disc.nii.gz -remove label_dummy.nii.gz -o label_disc.nii.gz
-# # Register template to dwi
-# # Tips: Only use segmentations.
-# # Tips: First step: slicereg based on images, with large smoothing to capture potential motion between anatomical and dmri.
-# # Tips: Second step: bpslinesyn in order to adapt the shape of the cord to the dmri modality (in case there are distortions between anatomical and dmri).
-# sct_register_to_template -i dwi_moco_mean.nii.gz -s ${file_seg} -ldisc label_disc.nii.gz -ref subject -c t1 -param step=1,type=seg,algo=centermass:step=2,type=seg,algo=bsplinesyn,slicewise=1,iter=3
-# # Rename warping field for clarity
-# mv warp_template2anat.nii.gz warp_template2dmri.nii.gz
-# # Warp template
-# sct_warp_template -d dwi_moco_mean.nii.gz -w warp_template2dmri.nii.gz
-# # Compute DTI
-# sct_dmri_compute_dti -i dmri_crop_moco.nii.gz -bvec bvecs.txt -bval bvals.txt
-# #sct_dmri_compute_dti -i dmri_crop_moco.nii.gz -bvec bvecs.txt -bval bvals.txt -method restore
-# # Go back to parent folder
-# cd ..
-#
-#
