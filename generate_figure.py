@@ -18,8 +18,8 @@
 #
 # DEPENDENCIES:
 # - SCT
-# 
-# Authors: Stephanie Alley
+#
+# Authors: Stephanie Alley, Julien Cohen-Adad
 # License: https://github.com/neuropoly/sct_pipeline/spine_generic/blob/master/LICENSE
 
 # TODO: make -c mandatory
