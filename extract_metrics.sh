@@ -12,82 +12,58 @@
 #
 # Authors: Julien Cohen-Adad, Stephanie Alley
 
+# Retrieve subject tag
+sub=$1
+
+# Go to anat folder where all structural data are located
+cd anat/
 
 # t1
-# ===========================================================================================
-cd t1
-# remove existing folder
-rm -rf csa
+# ==============================================================================
+# Check if manual segmentation already exists
+if [ -e "${sub}_T1w_seg_manual.nii.gz" ]; then
+  file_T1w_seg="${sub}_T1w_seg_manual"
+else
+  file_T1w_seg="${sub}_T1w_seg"
+fi
 # Compute the cord CSA for each vertebral level of interest
-for i in 2 3 4 5 6 7
-do
-  sct_process_segmentation -i t1_seg_manual.nii.gz -p csa -vert ${i} -vertfile t1_seg_labeled.nii.gz -ofolder csa
-done
-# Go to parent folder
-cd ..
-
+sct_process_segmentation -i ${file_T1w_seg}.nii.gz -p csa -vert 2:3 -vertfile ${file_T1w_seg}_labeled.nii.gz -ofolder csa-SC_T1w
 
 # t2
-# ===========================================================================================
-cd t2
-# remove existing folder
-rm -rf csa
-# Compute the CSA of the cord for each vertebral level of interest
-for i in 2 3 4 5 6 7
-do
-  sct_process_segmentation -i t2_seg_manual.nii.gz -p csa -vert ${i} -vertfile t1_seg_labeled_reg.nii.gz -ofolder csa -a hanning
-done
-# Go to parent folder
-cd ..
+# ==============================================================================
+# Check if manual segmentation already exists
+if [ -e "${sub}_T2w_seg_manual.nii.gz" ]; then
+  file_seg="${sub}_T2w_seg_manual"
+else
+  file_seg="${sub}_T2w_seg"
+fi
+# Compute the cord CSA for each vertebral level of interest
+sct_process_segmentation -i ${file_seg}.nii.gz -p csa -vert 2:3 -vertfile ${file_T1w_seg}_labeled.nii.gz -ofolder csa-SC_T2w
 
+# mt
+# ==============================================================================
+# Compute MTR and MTsat in WM between C2 and C5 vertebral levels
+sct_extract_metric -i mtr.nii.gz -f label_axT1w/atlas -l 51 -vert 2:5 -o mtr.xls
+
+# t2s
+# ==============================================================================
+# Check if manual GM segmentation already exists
+if [ -e "${sub}_acq-ax_T2star_seg_manual.nii.gz" ]; then
+  file_GM_seg="${sub}_acq-ax_T2star_gmseg_manual"
+else
+  file_GM_seg="${sub}_acq-ax_T2star_gmseg"
+fi
+# Compute the gray matter CSA between C3 and C4 levels
+# NB: Here we set -no-angle 1 because we do not want angle correction: it is too
+# unstable with GM seg, and t2s data were acquired orthogonal to the cord anyways.
+sct_process_segmentation -i ${file_GM_seg}.nii.gz -p csa -no-angle 1 -vert 3:4 -vertfile ${file_T1w_seg}_labeled.nii.gz -ofolder csa-GM_T2s
 
 # dmri
 # ===========================================================================================
-cd dmri
-# remove existing file
-rm fa.xls
-# get number of slices
-# nz=`fslhd dti_fa.nii.gz.nii.gz | grep -m 1 dim3 | sed -e "s/^dim3           //"`
-# build index from 0->nz-1
-# ind=`seq 0 $((${nz}-1))`
-# Compute FA in WM for each slice
-for i in 2 3 4 5; do
-  sct_extract_metric -i dti_FA.nii.gz -f label/atlas -l 51 -vert ${i} -o fa.xls
-done
-# Go to parent folder
-cd ..
-
-
-# mt
-# ===========================================================================================
-cd mt
-# remove existing file
-rm mtr.xls
-# get number of slices
-# nz=`fslhd mtr.nii.gz.nii.gz | grep -m 1 dim3 | sed -e "s/^dim3           //"`
-# build index from 0->nz-1
-# ind=`seq 0 $((${nz}-1))`
-# Compute MTR in WM for each slice
-for i in 2 3 4 5; do
-  sct_extract_metric -i mtr.nii.gz -f label/atlas -l 51 -vert ${i} -o mtr.xls
-  # sct_extract_metric -i mtr.nii.gz -f label/template/PAM50_wm.nii.gz -z ${i} -o mtr.xls
-done
-# Go to parent folder
-cd ..
-
-
-# t2s
-# ===========================================================================================
-cd t2s
-# remove existing folder
-rm -rf csa_gm
-# Compute the gray matter CSA for each vertebral level of interest
-# Tips: -no-angle 1 because we do not want angle correction (too unstable with GM seg), and t2s data were acquired orthogonal to the cord.
-for i in 3 4
-do
-#  sct_process_segmentation -i t2s_gmseg_manual.nii.gz -p csa -vert ${i} -vertfile t1_seg_labeled_reg.nii.gz -ofolder csa_gm
-  # TODO: when (https://github.com/neuropoly/spinalcordtoolbox/issues/1791) is fixed, use the command below instead
-  sct_process_segmentation -i t2s_gmseg_manual.nii.gz -p csa -no-angle 1 -vert ${i} -vertfile t1_seg_labeled_reg.nii.gz -ofolder csa_gm
-done
+cd ../dwi
+# Compute FA, MD and RD in WM between C2 and C5 vertebral levels
+sct_extract_metric -i dti_FA.nii.gz -f label/atlas -l 51 -vert 2:5 -o fa.xls
+sct_extract_metric -i dti_MD.nii.gz -f label/atlas -l 51 -vert 2:5 -o md.xls
+sct_extract_metric -i dti_RD.nii.gz -f label/atlas -l 51 -vert 2:5 -o rd.xls
 # Go to parent folder
 cd ..

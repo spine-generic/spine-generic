@@ -47,7 +47,7 @@ sct_register_to_template -i ${sub}_T1w.nii.gz -s ${file_seg}.nii.gz -l labels_ve
 mv warp_template2anat.nii.gz warp_template2T1w.nii.gz
 mv warp_anat2template.nii.gz warp_T1w2template.nii.gz
 # Warp template without the white matter atlas (we don't need it at this point)
-sct_warp_template -d ${sub}_T1w.nii.gz -w warp_template2T1w.nii.gz -a 0
+sct_warp_template -d ${sub}_T1w.nii.gz -w warp_template2T1w.nii.gz -a 0 -ofolder label_T1w
 # Flatten scan along R-L direction (to make nice figures)
 sct_flatten_sagittal -i ${sub}_T1w.nii.gz -s ${file_seg}.nii.gz
 
@@ -99,11 +99,11 @@ sct_compute_mtsat -mt ${sub}_acq-ax_MT_reg.nii.gz -pd ${sub}_acq-ax_PD_reg.nii.g
 # ==============================================================================
 # Check if manual GM segmentation already exists
 if [ -e "${sub}_acq-ax_T2star_seg_manual.nii.gz" ]; then
-  file_seg="${sub}_acq-ax_T2star_seg_manual"
+  file_seg="${sub}_acq-ax_T2star_gmseg_manual"
 else
   # Segment spinal cord
   sct_deepseg_gm -i ${sub}_acq-ax_T2star.nii.gz -qc ${PATH_QC}
-  file_seg="${sub}_acq-ax_T2star_seg"
+  file_seg="${sub}_acq-ax_T2star_gmseg"
 fi
 
 # dwi
