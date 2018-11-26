@@ -45,7 +45,7 @@ sct_process_segmentation -i ${file_seg}.nii.gz -p csa -vert 2:3 -vertfile ${file
 # Compute MTR, MTsat and T1 in WM between C2 and C5 vertebral levels
 sct_extract_metric -i mtr.nii.gz -f label_axT1w/atlas -l 51 -vert 2:5 -o mtr.xls
 sct_extract_metric -i mtsat.nii.gz -f label_axT1w/atlas -l 51 -vert 2:5 -o mtsat.xls
-sct_extract_metric -i t1_map.nii.gz -f label_axT1w/atlas -l 51 -vert 2:5 -o t1.xls
+sct_extract_metric -i t1map.nii.gz -f label_axT1w/atlas -l 51 -vert 2:5 -o t1.xls
 
 # t2s
 # ==============================================================================
