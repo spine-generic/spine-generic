@@ -35,7 +35,7 @@ fi
 # Check if manual labels already exists
 if [ ! -e "label_c2c3.nii.gz" ]; then
   # echo "Create manual label at C2-C3 disc."
-  sct_label_utils -i ${sub}_T1w.nii.gz -create-viewer 3 -o label_c2c3.nii.gz -msg 'Click at the posterior tip of C2-C3 disc, then click "Save and Quit".'
+  sct_label_utils -i ${sub}_T1w.nii.gz -create-viewer 3 -o label_c2c3.nii.gz -msg "Click at the posterior tip of C2-C3 disc, then click 'Save and Quit'"
 fi
 # Generate labeled segmentation
 sct_label_vertebrae -i ${sub}_T1w.nii.gz -s ${file_seg}.nii.gz -c t1 -initlabel label_c2c3.nii.gz -qc ${PATH_QC}
