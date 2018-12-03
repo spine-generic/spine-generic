@@ -28,9 +28,9 @@ cd anat/
 # t1
 # ==============================================================================
 file="${sub}_T1w"
-# Reorient to RPI and resample to 0.5x0.5x1mm
+# Reorient to RPI and resample to 1mm iso (supposed to be the effective resolution)
 sct_image -i ${file}.nii.gz -setorient RPI -o ${file}_RPI.nii.gz
-sct_resample -i ${file}_RPI.nii.gz -mm 0.5x0.5x1 -o ${file}_RPI_r.nii.gz
+sct_resample -i ${file}_RPI.nii.gz -mm 1x1x1 -o ${file}_RPI_r.nii.gz
 file="${file}_RPI_r"
 # Check if manual segmentation already exists
 if [ -e "${file}_seg_manual.nii.gz" ]; then
@@ -61,57 +61,65 @@ sct_flatten_sagittal -i ${file}.nii.gz -s ${file_seg}.nii.gz
 
 # t2
 # ==============================================================================
+file="${sub}_T2w"
+# Reorient to RPI and resample to 0.8mm iso (supposed to be the effective resolution)
+sct_image -i ${file}.nii.gz -setorient RPI -o ${file}_RPI.nii.gz
+sct_resample -i ${file}_RPI.nii.gz -mm 0.8x0.8x0.8 -o ${file}_RPI_r.nii.gz
+file="${file}_RPI_r"
 # Check if manual segmentation already exists
-if [ -e "${sub}_T2w_seg_manual.nii.gz" ]; then
-  file_seg="${sub}_T2w_seg_manual"
+if [ -e "${file}_seg_manual.nii.gz" ]; then
+  file_seg="${file}_seg_manual"
 else
   # Segment spinal cord
-  sct_deepseg_sc -i ${sub}_T2w.nii.gz -c t2 -qc ${PATH_PROCESSING}
-  file_seg="${sub}_T2w_seg"
+  sct_deepseg_sc -i ${file}.nii.gz -c t2 -qc ${PATH_PROCESSING}
+  file_seg="${file}_seg"
 fi
 # Flatten scan along R-L direction (to make nice figures)
-sct_flatten_sagittal -i ${sub}_T2w.nii.gz -s ${file_seg}.nii.gz
+sct_flatten_sagittal -i ${file}.nii.gz -s ${file_seg}.nii.gz
 
 # mt
 # ==============================================================================
+file_t1w="${sub}_acq-T1w_MTS"
+file_mton="${sub}_acq-MTon_MTS"
+file_mtoff="${sub}_acq-MToff_MTS"
 # Check if manual segmentation already exists
-if [ -e "${sub}_acq-ax_T1w_seg_manual.nii.gz" ]; then
-  file_seg="${sub}_acq-ax_T1w_seg_manual"
+if [ -e "${file_t1w}_seg_manual.nii.gz" ]; then
+  file_seg="${file_t1w}_seg_manual"
 else
   # Segment spinal cord
-  sct_deepseg_sc -i ${sub}_acq-ax_T1w.nii.gz -c t1 -qc ${PATH_PROCESSING}
-  file_seg="${sub}_acq-ax_T1w_seg"
+  sct_deepseg_sc -i ${file_t1w}.nii.gz -c t1 -qc ${PATH_PROCESSING}
+  file_seg="${file_t1w}_seg"
 fi
 # Create mask
-sct_create_mask -i ${sub}_acq-ax_T1w.nii.gz -p centerline,${file_seg}.nii.gz -size 35mm -o ${sub}_acq-ax_T1w_mask.nii.gz
+sct_create_mask -i ${file_t1w}.nii.gz -p centerline,${file_seg}.nii.gz -size 35mm -o ${file_t1w}_mask.nii.gz
 # Crop data for faster processing
-sct_crop_image -i ${sub}_acq-ax_T1w.nii.gz -m ${sub}_acq-ax_T1w_mask.nii.gz -o ${sub}_acq-ax_T1w_crop.nii.gz
+sct_crop_image -i ${file_t1w}.nii.gz -m ${file_t1w}_mask.nii.gz -o ${file_t1w}_crop.nii.gz
 # Register PD->T1w
 # Tips: here we only use rigid transformation because both images have very similar sequence parameters. We don't want to use SyN/BSplineSyN to avoid introducing spurious deformations.
-sct_register_multimodal -i ${sub}_acq-ax_PD.nii.gz -d ${sub}_acq-ax_T1w_crop.nii.gz -param step=1,type=im,algo=rigid,slicewise=1,metric=CC -x spline
+sct_register_multimodal -i ${file_mtoff}.nii.gz -d ${file_t1w}_crop.nii.gz -param step=1,type=im,algo=rigid,slicewise=1,metric=CC -x spline
 # Register MT->T1w
-sct_register_multimodal -i ${sub}_acq-ax_MT.nii.gz -d ${sub}_acq-ax_T1w_crop.nii.gz -param step=1,type=im,algo=rigid,slicewise=1,metric=CC -x spline
+sct_register_multimodal -i ${file_mton}.nii.gz -d ${file_t1w}_crop.nii.gz -param step=1,type=im,algo=rigid,slicewise=1,metric=CC -x spline
 # Register template->T1w_ax (using template-T1w as initial transformation)
-sct_register_multimodal -i $SCT_DIR/data/PAM50/template/PAM50_t1.nii.gz -iseg $SCT_DIR/data/PAM50/template/PAM50_cord.nii.gz -d ${sub}_acq-ax_T1w_crop.nii.gz -dseg ${file_seg}.nii.gz -param step=1,type=seg,algo=slicereg,metric=MeanSquares,smooth=2:step=2,type=im,algo=bsplinesyn,metric=MeanSquares,iter=5,gradStep=0.5 -initwarp warp_template2T1w.nii.gz -initwarpinv warp_T1w2template.nii.gz
+sct_register_multimodal -i $SCT_DIR/data/PAM50/template/PAM50_t1.nii.gz -iseg $SCT_DIR/data/PAM50/template/PAM50_cord.nii.gz -d ${file_t1w}_crop.nii.gz -dseg ${file_seg}.nii.gz -param step=1,type=seg,algo=slicereg,metric=MeanSquares,smooth=2:step=2,type=im,algo=bsplinesyn,metric=MeanSquares,iter=5,gradStep=0.5 -initwarp warp_template2T1w.nii.gz -initwarpinv warp_T1w2template.nii.gz
 # Rename warping field for clarity
-mv warp_PAM50_t12${sub}_acq-ax_T1w_crop.nii.gz warp_template2axT1w.nii.gz
-mv warp_${sub}_acq-ax_T1w_crop2PAM50_t1.nii.gz warp_axT1w2template.nii.gz
+mv warp_PAM50_t12${file_t1w}_crop.nii.gz warp_template2axT1w.nii.gz
+mv warp_${file_t1w}_crop2PAM50_t1.nii.gz warp_axT1w2template.nii.gz
 # Warp template
-sct_warp_template -d ${sub}_acq-ax_T1w_crop.nii.gz -w warp_template2axT1w.nii.gz -ofolder label_axT1w
+sct_warp_template -d ${file_t1w}_crop.nii.gz -w warp_template2axT1w.nii.gz -ofolder label_axT1w
 # Compute MTR
-sct_compute_mtr -mt0 ${sub}_acq-ax_PD_reg.nii.gz -mt1 ${sub}_acq-ax_MT_reg.nii.gz
+sct_compute_mtr -mt0 ${file_mtoff}_reg.nii.gz -mt1 ${file_mton}_reg.nii.gz
 # Compute MTsat
-sct_compute_mtsat -mt ${sub}_acq-ax_MT_reg.nii.gz -pd ${sub}_acq-ax_PD_reg.nii.gz -t1 ${sub}_acq-ax_T1w_crop.nii.gz -trmt 57 -trpd 57 -trt1 15 -famt 9 -fapd 9 -fat1 15
+sct_compute_mtsat -mt ${file_mton}_reg.nii.gz -pd ${file_mtoff}_reg.nii.gz -t1 ${file_t1w}_crop.nii.gz -trmt 57 -trpd 57 -trt1 15 -famt 9 -fapd 9 -fat1 15
 
 # t2s
 # ==============================================================================
 # Check if manual GM segmentation already exists
-if [ -e "${sub}_acq-ax_T2star_seg_manual.nii.gz" ]; then
-  file_seg="${sub}_acq-ax_T2star_gmseg_manual"
+if [ -e "${sub}_T2star_seg_manual.nii.gz" ]; then
+  file_seg="${sub}_T2star_gmseg_manual"
 else
   # Segment spinal cord
-  sct_deepseg_gm -i ${sub}_acq-ax_T2star.nii.gz -qc ${PATH_PROCESSING}
-  file_seg="${sub}_acq-ax_T2star_gmseg"
+  sct_deepseg_gm -i ${sub}_T2star.nii.gz -qc ${PATH_PROCESSING}
+  file_seg="${sub}_T2star_gmseg"
 fi
 
 # dwi
