@@ -58,9 +58,11 @@ site/
 
 ### participants.tsv
 
-|participant_id|sex|age|date_of_scan|
-| --- | --- | --- | --- |
-|sub-01|M|35|2018-12-18|
+~~~
+id	sex	age	date_of_scan
+sub-01	M	35	2018-12-18
+sub-02	F	30	2018-11-01
+~~~
 
 ### sub-XX_contrast.json
 Where contrast={"T1w", "T2w", "T2star", "dwi", "MT", "PD"}
