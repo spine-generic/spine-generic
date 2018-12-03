@@ -37,26 +37,67 @@ fi
 # build syntax for process execution
 CMD=`pwd`/$1
 
-# Go to path data folder that encloses all subjects' folders
-cd ${PATH_DATA}
+# Go to path data folder that encloses all sites' folders
+# cd ${PATH_DATA}
 
-# If the variable SUBJECTS does not exist (commented), get list of all subject
-# folders from current directory
-if [ -z ${SUBJECTS} ]; then
-  echo "Processing all subjects present in: $PATH_DATA."
-  SUBJECTS=`ls -d */`
+# If the variable SUBJECTS does not exist (commented), get list of all sites
+if [ -z ${SITES} ]; then
+  echo "Processing all sites located in: $PATH_DATA"
+  # Get list of folders (remove full path, only keep last element)
+  SITES=`ls -d ${PATH_DATA}/*/ | xargs -n 1 basename`
 else
-  echo "Processing subjects specified in parameters.sh."
+  echo "Processing sites specified in parameters.sh"
 fi
+echo "--> " ${SITES}
 
-# Loop across subjects
-for subject in ${SUBJECTS[@]}; do
-  # Display stuff
-  printf "${Green}${On_Black}\n==========================\nPROCESSING SUBJECT: ${subject}\n==========================\n${Color_Off}"
-  # Go to subject folder
-  cd ${subject}
-  # Run process
-  $CMD ${subject}
-  # Go back to parent folder
+# If the variable SUBJECTS does not exist (commented), get list of all subjects
+# if [ -z ${SUBJECTS} ]; then
+#   echo "Processing all subjects present in: $PATH_DATA."
+#   SUBJECTS=`ls -d */`
+# else
+#   echo "Processing subjects specified in parameters.sh."
+# fi
+
+# Create processing folder
+# TODO: check if exists before creating
+mkdir ${PATH_PROCESSING}
+
+# Go to processing folder
+cd ${PATH_PROCESSING}
+
+# Loop across sites
+for site in ${SITES[@]}; do
+  # TODO: check if exists before creating
+  mkdir ${site}
+  # Go to site folder
+  cd ${site}
+  # If the variable SUBJECTS does not exist (commented), get list of all subjects
+  if [ -z ${SUBJECTS} ]; then
+    echo "Processing all subjects present in: $PATH_DATA:"
+    # Get list of folders (remove full path, only keep last element)
+    SUBJECTS=`ls -d ${PATH_DATA}/${site}/sub-*/ | xargs -n 1 basename`
+  else
+    echo "Processing subjects specified in parameters.sh:"
+  fi
+  echo "--> " ${SUBJECTS}
+  # Loop across subjects
+  for subject in ${SUBJECTS[@]}; do
+    # TODO: check if exists before creating
+    # mkdir ${subject}
+    # Copy source subject folder to processing folder
+    echo "Copy source data to processing folder..."
+    cp -r ${PATH_DATA}/${site}/${subject} .
+    # Go to subject folder
+    cd ${subject}
+    # Display stuff
+    printf "${Green}${On_Black}\n================================================================================${Color_Off}"
+    printf "${Green}${On_Black}\n PROCESSING: ${site}/${subject}${Color_Off}"
+    printf "${Green}${On_Black}\n================================================================================\n${Color_Off}"
+    # Run process
+    $CMD ${subject}
+    # Go back to site folder
+    cd ..
+  done
+  # Go back to main data folder
   cd ..
 done
