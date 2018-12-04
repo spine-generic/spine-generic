@@ -95,7 +95,7 @@ Anatomical scans where facial features are visible (T1w) should be "defaced" bef
 
 ## Contributors
 
-Stephanie Alley, Julien Cohen-Adad
+[List of contributors](https://github.com/sct-pipeline/spine_generic/graphs/contributors)
 
 ## License
 
