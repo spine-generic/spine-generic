@@ -14,7 +14,7 @@
 
 # The following global variables are retrieved from parameters.sh but could be
 # overwritten here:
-# PATH_PROCESSING="~/qc"
+# PATH_QC="~/qc"
 
 # Exit if user presses CTRL+C (Linux) or CMD+C (OSX)
 trap "echo Caught Keyboard Interrupt within script. Exiting now.; exit" INT
@@ -37,7 +37,7 @@ if [ -e "${file}_seg_manual.nii.gz" ]; then
   file_seg="${file}_seg_manual"
 else
   # Segment spinal cord
-  sct_deepseg_sc -i "${file}.nii.gz" -c t1 -qc ${PATH_PROCESSING}
+  sct_deepseg_sc -i "${file}.nii.gz" -c t1 -qc ${PATH_QC}
   file_seg="${file}_seg"
 fi
 # Check if manual labels already exists
@@ -46,11 +46,11 @@ if [ ! -e "label_c2c3.nii.gz" ]; then
   sct_label_utils -i ${file}.nii.gz -create-viewer 3 -o label_c2c3.nii.gz -msg "Click at the posterior tip of C2-C3 disc, then click 'Save and Quit'"
 fi
 # Generate labeled segmentation
-sct_label_vertebrae -i ${file}.nii.gz -s ${file_seg}.nii.gz -c t1 -initlabel label_c2c3.nii.gz -qc ${PATH_PROCESSING}
+sct_label_vertebrae -i ${file}.nii.gz -s ${file_seg}.nii.gz -c t1 -initlabel label_c2c3.nii.gz -qc ${PATH_QC}
 # Create labels in the cord at C2 and C5 mid-vertebral levels
 sct_label_utils -i ${file_seg}_labeled.nii.gz -vert-body 2,5 -o labels_vert.nii.gz
 # Register to PAM50 template
-sct_register_to_template -i ${file}.nii.gz -s ${file_seg}.nii.gz -l labels_vert.nii.gz -c t1 -param step=1,type=seg,algo=centermassrot:step=2,type=seg,algo=syn,slicewise=1,smooth=0,iter=5:step=3,type=im,algo=syn,slicewise=1,smooth=0,iter=3 -qc "$PATH_PROCESSING"
+sct_register_to_template -i ${file}.nii.gz -s ${file_seg}.nii.gz -l labels_vert.nii.gz -c t1 -param step=1,type=seg,algo=centermassrot:step=2,type=seg,algo=syn,slicewise=1,smooth=0,iter=5:step=3,type=im,algo=syn,slicewise=1,smooth=0,iter=3 -qc "$PATH_QC"
 # Rename warping fields for clarity
 mv warp_template2anat.nii.gz warp_template2T1w.nii.gz
 mv warp_anat2template.nii.gz warp_T1w2template.nii.gz
@@ -71,7 +71,7 @@ if [ -e "${file}_seg_manual.nii.gz" ]; then
   file_seg="${file}_seg_manual"
 else
   # Segment spinal cord
-  sct_deepseg_sc -i ${file}.nii.gz -c t2 -qc ${PATH_PROCESSING}
+  sct_deepseg_sc -i ${file}.nii.gz -c t2 -qc ${PATH_QC}
   file_seg="${file}_seg"
 fi
 # Flatten scan along R-L direction (to make nice figures)
@@ -87,7 +87,7 @@ if [ -e "${file_t1w}_seg_manual.nii.gz" ]; then
   file_seg="${file_t1w}_seg_manual"
 else
   # Segment spinal cord
-  sct_deepseg_sc -i ${file_t1w}.nii.gz -c t1 -qc ${PATH_PROCESSING}
+  sct_deepseg_sc -i ${file_t1w}.nii.gz -c t1 -qc ${PATH_QC}
   file_seg="${file_t1w}_seg"
 fi
 # Create mask
@@ -118,7 +118,7 @@ if [ -e "${sub}_T2star_seg_manual.nii.gz" ]; then
   file_seg="${sub}_T2star_gmseg_manual"
 else
   # Segment spinal cord
-  sct_deepseg_gm -i ${sub}_T2star.nii.gz -qc ${PATH_PROCESSING}
+  sct_deepseg_gm -i ${sub}_T2star.nii.gz -qc ${PATH_QC}
   file_seg="${sub}_T2star_gmseg"
 fi
 
@@ -140,7 +140,7 @@ if [ -e "${sub}_dwi_crop_moco_dwi_mean_seg_manual.nii.gz" ]; then
   file_seg="${sub}_dwi_crop_moco_dwi_mean_seg_manual"
 else
   # Segment cord (2nd pass, after motion correction)
-  sct_propseg -i ${sub}_dwi_crop_moco_dwi_mean.nii.gz -c dwi -qc ${PATH_PROCESSING}
+  sct_propseg -i ${sub}_dwi_crop_moco_dwi_mean.nii.gz -c dwi -qc ${PATH_QC}
   file_seg="${sub}_dwi_crop_moco_dwi_mean_seg"
 fi
 # Register template->dwi (using template-T1w as initial transformation)

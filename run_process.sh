@@ -68,9 +68,9 @@ cd ${PATH_PROCESSING}
 # Loop across sites
 for site in ${SITES[@]}; do
   # TODO: check if exists before creating
-  mkdir ${site}
+  # mkdir ${site}
   # Go to site folder
-  cd ${site}
+  # cd ${site}
   # If the variable SUBJECTS does not exist (commented), get list of all subjects
   if [ -z ${SUBJECTS} ]; then
     echo "Processing all subjects present in: $PATH_DATA:"
@@ -85,13 +85,14 @@ for site in ${SITES[@]}; do
     # TODO: check if exists before creating
     # mkdir ${subject}
     # Copy source subject folder to processing folder
+    # Here, we merge the site+subject into a single folder to facilitate QC
     echo "Copy source data to processing folder..."
-    cp -r ${PATH_DATA}/${site}/${subject} .
-    # Go to subject folder
-    cd ${subject}
+    cp -r ${PATH_DATA}/${site}/${subject} ${site}_${subject}
+    # Go to folder
+    cd ${site}_${subject}
     # Display stuff
     printf "${Green}${On_Black}\n================================================================================${Color_Off}"
-    printf "${Green}${On_Black}\n PROCESSING: ${site}/${subject}${Color_Off}"
+    printf "${Green}${On_Black}\n PROCESSING: ${site}_${subject}${Color_Off}"
     printf "${Green}${On_Black}\n================================================================================\n${Color_Off}"
     # Run process
     $CMD ${subject}
@@ -99,5 +100,5 @@ for site in ${SITES[@]}; do
     cd ..
   done
   # Go back to main data folder
-  cd ..
+  # cd ..
 done
