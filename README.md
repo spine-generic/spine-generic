@@ -30,14 +30,14 @@ site/
              └── sub-01_T1w.json
              └── sub-01_T2w.nii.gz
              └── sub-01_T2w.json
-             └── sub-01_acq-ax_MT.nii.gz
-             └── sub-01_acq-ax_MT.json
-             └── sub-01_acq-ax_PD.nii.gz
-             └── sub-01_acq-ax_PD.json
-             └── sub-01_acq-ax_T1w.nii.gz
-             └── sub-01_acq-ax_T1w.json
-             └── sub-01_acq-ax_T2star.nii.gz
-             └── sub-01_acq-ax_T2star.json
+             └── sub-01_acq-MTon_MTS.nii.gz
+             └── sub-01_acq-MTon_MTS.json
+             └── sub-01_acq-MToff_MTS.nii.gz
+             └── sub-01_acq-MToff_MTS.json
+             └── sub-01_acq-T1w_MTS.nii.gz
+             └── sub-01_acq-T1w_MTS.json
+             └── sub-01_T2star.nii.gz
+             └── sub-01_T2star.json
     └── dwi
              └── sub-01_dwi.nii.gz
              └── sub-01_dwi.bval
