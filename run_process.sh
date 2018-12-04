@@ -86,10 +86,12 @@ for site in ${SITES[@]}; do
     # mkdir ${subject}
     # Copy source subject folder to processing folder
     # Here, we merge the site+subject into a single folder to facilitate QC
+    # Also, we remove the string "/_spineGeneric" to make it lighter
     echo "Copy source data to processing folder..."
-    cp -r ${PATH_DATA}/${site}/${subject} ${site}_${subject}
+    folder_out=${site/_spineGeneric}_${subject}
+    cp -r ${PATH_DATA}/${site}/${subject} ${folder_out}
     # Go to folder
-    cd ${site}_${subject}
+    cd ${folder_out}
     # Display stuff
     printf "${Green}${On_Black}\n================================================================================${Color_Off}"
     printf "${Green}${On_Black}\n PROCESSING: ${site}_${subject}${Color_Off}"
