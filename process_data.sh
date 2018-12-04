@@ -41,12 +41,12 @@ else
   file_seg="${file}_seg"
 fi
 # Check if manual labels already exists
-if [ ! -e "label_c2c3.nii.gz" ]; then
+# if [ ! -e "label_c2c3.nii.gz" ]; then
   # echo "Create manual label at C2-C3 disc."
-  sct_label_utils -i ${file}.nii.gz -create-viewer 3 -o label_c2c3.nii.gz -msg "Click at the posterior tip of C2-C3 disc, then click 'Save and Quit'"
-fi
+  # sct_label_utils -i ${file}.nii.gz -create-viewer 3 -o label_c2c3.nii.gz -msg "Click at the posterior tip of C2-C3 disc, then click 'Save and Quit'"
+# fi
 # Generate labeled segmentation
-sct_label_vertebrae -i ${file}.nii.gz -s ${file_seg}.nii.gz -c t1 -initlabel label_c2c3.nii.gz -qc ${PATH_QC}
+sct_label_vertebrae -i ${file}.nii.gz -s ${file_seg}.nii.gz -c t1 -qc ${PATH_QC}
 # Create labels in the cord at C2 and C5 mid-vertebral levels
 sct_label_utils -i ${file_seg}_labeled.nii.gz -vert-body 2,5 -o labels_vert.nii.gz
 # Register to PAM50 template
