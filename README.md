@@ -3,16 +3,17 @@
 Processing pipeline for the "spine generic protocol" project
 
 The following metrics are output (per contrast):
-- t1: Spinal cord CSA profile between C2 and Th1, averaged within each level
-- t2: Spinal cord CSA profile between C2 and Th1, averaged within each level
-- t2s: Gray matter CSA profile between C3 and C4, averaged within each level
-- dmri: FA in WM across slices
-- mt: MTR in WM across slices
-- mt: MTsat in WM across slices
+- **T1**: Spinal cord CSA averaged between C2 and C3.
+- **T2**: Spinal cord CSA averaged between C2 and C3.
+- **T2s**: Gray matter CSA averaged between C3 and C4.
+- **DWI**: FA in WM averaged between C2 and C5.
+- **MTS**: MTR in WM averaged between C2 and C5. Uses MTon_MTS and MToff_MTS.
+- **MTS**: MTS in WM averaged between C2 and C5. Uses MTon_MTS, MToff_MTS and T1w_MTS.
 
 ## Dependencies
 
-[SCT v3.2.7](https://github.com/neuropoly/spinalcordtoolbox/releases/tag/v3.2.7) or above.
+In its current state, this pipeline uses [SCT development version](https://github.com/neuropoly/spinalcordtoolbox#install-from-github-development). Once the pipeline is finalized, a stable version of SCT will be associated with this pipeline and indicated here. For now, please use the latest development version of SCT.
+
 This pipeline also relies on [FSLeyes](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FSLeyes) for quality control (QC).
 
 ## Data collection and organization
