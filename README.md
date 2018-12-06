@@ -65,13 +65,14 @@ sub-02	F	30	2018-11-01
 ~~~
 
 ### sub-XX_contrast.json
+
 Where contrast={"T1w", "T2w", "T2star", "dwi", "MT", "PD"}
-Note, the fields listed below are the mandatory fields. It is fine to have more fields. E.g., if you use `dcm2niix` you will likely have more entries.
+Note, the fields listed below are the mandatory fields. It is fine to have more fields. E.g., if you use `dcm2niix` you will likely have more entries. EchoTime and RepetitionTime are in seconds.
 ```
 {
-	"FlipAngle": 90,  # in deg
-	"EchoTime": 0.06,  # in s
-	"RepetitionTime": 0.61,  # in s
+	"FlipAngle": 90,
+	"EchoTime": 0.06,
+	"RepetitionTime": 0.61,
 	"PhaseEncodingDirection": "j-",
 	"ConversionSoftware": "dcm2niix",
 	"ConversionSoftwareVersion": "v1.0.20170130 (openJPEG build)",
