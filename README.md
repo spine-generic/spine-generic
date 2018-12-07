@@ -86,6 +86,12 @@ Each subject consented to be scanned and to have their anonymized data put in a 
 
 Anatomical scans where facial features are visible (T1w) should be "defaced" before being collected. To do so, [FreeSurfer's mri_deface](https://surfer.nmr.mgh.harvard.edu/fswiki/mri_deface ) could be used.
 
+## Example datasets (WIP)
+
+We provide two example datasets:
+- Multi-center, single-subject
+- [Multi-center, multi-subjects](https://osf.io/jkxzp/)
+
 ## How to run
 
 - Download (or `git clone`) this repository.
@@ -93,7 +99,6 @@ Anatomical scans where facial features are visible (T1w) should be "defaced" bef
 - Copy the file `parameters_template.sh` and rename it as `parameters.sh`.
 - Edit the file `parameters.sh` and modify the variables according to your needs.
 - Process data: `./run_process.sh process_data.sh`
-- Compute metrics: `./run_process.sh compute_metrics.sh`
 
 ## Contributors
 
