@@ -58,19 +58,18 @@ echo "--> " ${SITES}
 #   echo "Processing subjects specified in parameters.sh."
 # fi
 
-# Create processing folder
-# TODO: check if exists before creating
-mkdir ${PATH_PROCESSING}
+# Create processing folder ("-p" creates parent folders if needed)
+mkdir -p ${PATH_PROCESSING}
+if [ ! -d "$PATH_PROCESSING" ]; then
+  printf "\n${Red}${On_Black}ERROR: Cannot create folder: $PATH_PROCESSING. Exit.${Color_Off}\n\n"
+  exit 1
+fi
 
 # Go to processing folder
 cd ${PATH_PROCESSING}
 
 # Loop across sites
 for site in ${SITES[@]}; do
-  # TODO: check if exists before creating
-  # mkdir ${site}
-  # Go to site folder
-  # cd ${site}
   # If the variable SUBJECTS does not exist (commented), get list of all subjects
   if [ -z ${SUBJECTS} ]; then
     echo "Processing all subjects present in: $PATH_DATA:"
@@ -82,13 +81,11 @@ for site in ${SITES[@]}; do
   echo "--> " ${SUBJECTS}
   # Loop across subjects
   for subject in ${SUBJECTS[@]}; do
-    # TODO: check if exists before creating
-    # mkdir ${subject}
     # Copy source subject folder to processing folder
     # Here, we merge the site+subject into a single folder to facilitate QC
-    # Also, we remove the string "/_spineGeneric" to make it lighter
     echo "Copy source data to processing folder..."
-    folder_out=${site/_spineGeneric}_${subject}
+    # folder_out=${site/_spineGeneric}_${subject}  # OLD STUFF
+    folder_out=${site}_${subject}
     cp -r ${PATH_DATA}/${site}/${subject} ${folder_out}
     # Go to folder
     cd ${folder_out}
@@ -101,6 +98,4 @@ for site in ${SITES[@]}; do
     # Go back to site folder
     cd ..
   done
-  # Go back to main data folder
-  # cd ..
 done
