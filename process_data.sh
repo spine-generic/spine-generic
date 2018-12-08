@@ -166,8 +166,10 @@ mv warp_PAM50_t12${sub}_dwi_crop_moco_dwi_mean.nii.gz warp_template2dwi.nii.gz
 mv warp_${sub}_dwi_crop_moco_dwi_mean2PAM50_t1.nii.gz warp_dwi2template.nii.gz
 # Warp template
 sct_warp_template -d ${sub}_dwi_crop_moco_dwi_mean.nii.gz -w warp_template2dwi.nii.gz
+# Create mask around the spinal cord
+sct_maths -i ${sub}_dwi_crop_moco_dwi_mean_seg.nii.gz -dilate 3,3,0 -o ${sub}_dwi_crop_moco_dwi_mean_seg_dil.nii.gz
 # Compute DTI using RESTORE
-sct_dmri_compute_dti -i ${sub}_dwi_crop_moco.nii.gz -bvec ${sub}_dwi.bvec -bval ${sub}_dwi.bval -method restore
+sct_dmri_compute_dti -i ${sub}_dwi_crop_moco.nii.gz -bvec ${sub}_dwi.bvec -bval ${sub}_dwi.bval -method restore -m ${sub}_dwi_crop_moco_dwi_mean_seg_dil.nii.gz
 # Compute FA, MD and RD in WM between C2 and C5 vertebral levels
 sct_extract_metric -i dti_FA.nii.gz -f label/atlas -l 51 -vert 2:5 -o fa.xls
 sct_extract_metric -i dti_MD.nii.gz -f label/atlas -l 51 -vert 2:5 -o md.xls
