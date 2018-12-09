@@ -52,6 +52,7 @@ site/
 	"BIDSVersion": "1.0.1",
 	"InstitutionName": "Name of the institution",
 	"Manufacturer": "Scanner brand, model",  # Examples: "Siemens, Prisma", "Philips, Achieva"
+	"Coil": "Coil used", # Examples: 64ch+spine, 12ch+4ch neck, neurovascular, etc.
 	"SoftwareVersion": "Version of MR software",  # Examples: "VE11C", "
 	"Researcher": "Researchers who contributed to the dataset"  # Initial and Family name. Separate with ",". Examples: "J. Doe, S. Wonder, J. Pass"
 }
