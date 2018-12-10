@@ -85,7 +85,7 @@ Note, the fields listed below are the mandatory fields. It is fine to have more 
 
 Each subject consented to be scanned and to have their anonymized data put in a publicly-available repository. To prove it, an email from each participant should be sent to the manager of the database (Julien Cohen-Adad). The email should state the following: "I am the subject who volunteered and I give you permission to release the scan freely to the public domain."
 
-Anatomical scans where facial features are visible (T1w) should be "defaced" before being collected. To do so, [FreeSurfer's mri_deface](https://surfer.nmr.mgh.harvard.edu/fswiki/mri_deface ) could be used.
+Anatomical scans where facial features are visible (T1w) could be "defaced" before being collected (at the discretion of the subject). To do so, [FreeSurfer's mri_deface](https://surfer.nmr.mgh.harvard.edu/fswiki/mri_deface ) could be used.
 
 ## Example datasets (WIP)
 
