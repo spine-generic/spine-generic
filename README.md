@@ -18,7 +18,7 @@ This pipeline also relies on [FSLeyes](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FS
 
 ## Data collection and organization
 
-To facilitate the collection of data, we use the [BIDS standard](http://bids.neuroimaging.io/). Each proprietary DICOM data should be converted to NIFTI format using [dcm2niix](https://www.nitrc.org/plugins/mwiki/index.php/dcm2nii:MainPage) with option to output JSON file alongside each NIFTI file. Each participant is expected to provide a zip file containing the following data:
+To facilitate the collection of data, we use the [BIDS standard](http://bids.neuroimaging.io/). Each proprietary DICOM data should be converted to NIFTI format using [dcm2niix](https://www.nitrc.org/plugins/mwiki/index.php/dcm2nii:MainPage) with option to output JSON file alongside each NIFTI file. Each participant is expected to provide a zip file containing the following data shown below. To facilitate the conversion from DICOM folder to BIDS dataset, people can use the [convert_dcm2nii](https://github.com/neuropoly/bids_neuropoly) script.
 
 ### BIDS-compatible data structure
 ~~~
