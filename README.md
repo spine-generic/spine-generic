@@ -51,10 +51,11 @@ site/
 	"Name": "Spinal Cord MRI Public Database",
 	"BIDSVersion": "1.0.1",
 	"InstitutionName": "Name of the institution",
-	"Manufacturer": "Scanner brand, model",  # Examples: "Siemens, Prisma", "Philips, Achieva"
-	"Coil": "Coil used", # Examples: 64ch+spine, 12ch+4ch neck, neurovascular, etc.
-	"SoftwareVersion": "Version of MR software",  # Examples: "VE11C", "
-	"Researcher": "Researchers who contributed to the dataset"  # Initial and Family name. Separate with ",". Examples: "J. Doe, S. Wonder, J. Pass"
+	"Manufacturer": {"Siemens", "GE", "Philips"},
+	"ManufacturersModelName": {"Prisma_fit", "Skyra", "750w", "Achieva", ...},
+	"ReceiveCoilName": {"64ch+spine", "12ch+4ch neck", "neurovascular", ...},
+	"SoftwareVersion": {"VE11C", "DV26.0", "R5.3", ...},
+	"Researcher": "J. Doe, S. Wonder, J. Pass",
 }
 ```
 
