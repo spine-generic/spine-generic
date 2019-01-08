@@ -26,6 +26,10 @@ Green='\033[0;92m'  # Yellow
 Red='\033[0;91m'  # Red
 On_Black='\033[40m'  # Black
 
+# Initialization
+unset SITES
+unset SUBJECTS
+
 # Load config file
 if [ -e "parameters.sh" ]; then
   source parameters.sh
@@ -67,17 +71,23 @@ fi
 
 # Loop across sites
 for site in ${SITES[@]}; do
+  unset SUBJECTS_TMP
   # If the variable SUBJECTS does not exist (commented), get list of all subjects
   if [ -z ${SUBJECTS} ]; then
-    echo "Processing all subjects present in: $PATH_DATA:"
+    printf "\nProcessing all subjects present in: $PATH_DATA/$site:\n"
     # Get list of folders (remove full path, only keep last element)
-    SUBJECTS=`ls -d ${PATH_DATA}/${site}/sub-*/ | xargs -n 1 basename`
+    SUBJECTS_TMP=`ls -d ${PATH_DATA}/${site}/sub-*/ | xargs -n 1 basename`
   else
     echo "Processing subjects specified in parameters.sh:"
+    SUBJECTS_TMP=${SUBJECTS}
   fi
-  echo "--> " ${SUBJECTS}
+  echo "--> " ${SUBJECTS_TMP}
   # Loop across subjects
-  for subject in ${SUBJECTS[@]}; do
+  for subject in ${SUBJECTS_TMP[@]}; do
+    # Display stuff
+    printf "${Green}${On_Black}\n================================================================================${Color_Off}"
+    printf "${Green}${On_Black}\n PROCESSING: ${site}_${subject}${Color_Off}"
+    printf "${Green}${On_Black}\n================================================================================\n${Color_Off}"
     # Copy source subject folder to processing folder
     # Here, we merge the site+subject into a single folder to facilitate QC
     echo "Copy source data to processing folder..."
@@ -85,11 +95,7 @@ for site in ${SITES[@]}; do
     cp -r ${PATH_DATA}/${site}/${subject} ${PATH_PROCESSING}/${folder_out}
     # Go to folder
     cd ${PATH_PROCESSING}/${folder_out}
-    # Display stuff
-    printf "${Green}${On_Black}\n================================================================================${Color_Off}"
-    printf "${Green}${On_Black}\n PROCESSING: ${site}_${subject}${Color_Off}"
-    printf "${Green}${On_Black}\n================================================================================\n${Color_Off}"
     # Run process
-    #$CMD ${subject}
+    $CMD ${subject}
   done
 done
