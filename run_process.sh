@@ -65,9 +65,6 @@ if [ ! -d "$PATH_PROCESSING" ]; then
   exit 1
 fi
 
-# Go to processing folder
-cd ${PATH_PROCESSING}
-
 # Loop across sites
 for site in ${SITES[@]}; do
   # If the variable SUBJECTS does not exist (commented), get list of all subjects
@@ -84,18 +81,15 @@ for site in ${SITES[@]}; do
     # Copy source subject folder to processing folder
     # Here, we merge the site+subject into a single folder to facilitate QC
     echo "Copy source data to processing folder..."
-    # folder_out=${site/_spineGeneric}_${subject}  # OLD STUFF
     folder_out=${site}_${subject}
-    cp -r ${PATH_DATA}/${site}/${subject} ${folder_out}
+    cp -r ${PATH_DATA}/${site}/${subject} ${PATH_PROCESSING}/${folder_out}
     # Go to folder
-    cd ${folder_out}
+    cd ${PATH_PROCESSING}/${folder_out}
     # Display stuff
     printf "${Green}${On_Black}\n================================================================================${Color_Off}"
     printf "${Green}${On_Black}\n PROCESSING: ${site}_${subject}${Color_Off}"
     printf "${Green}${On_Black}\n================================================================================\n${Color_Off}"
     # Run process
-    $CMD ${subject}
-    # Go back to site folder
-    cd ..
+    #$CMD ${subject}
   done
 done
