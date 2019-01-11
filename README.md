@@ -92,7 +92,7 @@ Anatomical scans where facial features are visible (T1w) could be "defaced" befo
 
 We provide two example datasets:
 - Multi-center, single-subject
-- [Multi-center, multi-subjects](https://osf.io/jkxzp/)
+- [Multi-center, multi-subjects](https://osf.io/76jkx/)
 
 ## How to run
 
