@@ -44,7 +44,7 @@ CMD=`pwd`/$1
 # Go to path data folder that encloses all sites' folders
 # cd ${PATH_DATA}
 
-# If the variable SUBJECTS does not exist (commented), get list of all sites
+# If the variable SITES does not exist (commented), get list of all sites
 if [ -z ${SITES} ]; then
   echo "Processing all sites located in: $PATH_DATA"
   # Get list of folders (remove full path, only keep last element)
@@ -53,14 +53,6 @@ else
   echo "Processing sites specified in parameters.sh"
 fi
 echo "--> " ${SITES}
-
-# If the variable SUBJECTS does not exist (commented), get list of all subjects
-# if [ -z ${SUBJECTS} ]; then
-#   echo "Processing all subjects present in: $PATH_DATA."
-#   SUBJECTS=`ls -d */`
-# else
-#   echo "Processing subjects specified in parameters.sh."
-# fi
 
 # Create processing folder ("-p" creates parent folders if needed)
 mkdir -p ${PATH_PROCESSING}
