@@ -28,7 +28,8 @@ On_Black='\033[40m'  # Black
 
 # Initialization
 unset SITES
-unset SUBJECTS
+# unset SUBJECTS
+time_start=$(date +%x_%r)
 
 # Load config file
 if [ -e "parameters.sh" ]; then
@@ -39,10 +40,7 @@ else
 fi
 
 # build syntax for process execution
-CMD=`pwd`/$1
-
-# Go to path data folder that encloses all sites' folders
-# cd ${PATH_DATA}
+task=`pwd`/$1
 
 # If the variable SITES does not exist (commented), get list of all sites
 if [ -z ${SITES} ]; then
@@ -52,7 +50,7 @@ if [ -z ${SITES} ]; then
 else
   echo "Processing sites specified in parameters.sh"
 fi
-echo "--> " ${SITES}
+echo "--> " ${SITES[@]}
 
 # Create processing folder ("-p" creates parent folders if needed)
 mkdir -p ${PATH_PROCESSING}
@@ -61,33 +59,36 @@ if [ ! -d "$PATH_PROCESSING" ]; then
   exit 1
 fi
 
-# Loop across sites
-for site in ${SITES[@]}; do
-  unset SUBJECTS_TMP
-  # If the variable SUBJECTS does not exist (commented), get list of all subjects
-  if [ -z ${SUBJECTS} ]; then
-    printf "\nProcessing all subjects present in: $PATH_DATA/$site:\n"
-    # Get list of folders (remove full path, only keep last element)
-    SUBJECTS_TMP=`ls -d ${PATH_DATA}/${site}/sub-*/ | xargs -n 1 basename`
-  else
-    echo "Processing subjects specified in parameters.sh:"
-    SUBJECTS_TMP=${SUBJECTS}
-  fi
-  echo "--> " ${SUBJECTS_TMP}
-  # Loop across subjects
-  for subject in ${SUBJECTS_TMP[@]}; do
-    # Display stuff
-    printf "${Green}${On_Black}\n================================================================================${Color_Off}"
-    printf "${Green}${On_Black}\n PROCESSING: ${site}_${subject}${Color_Off}"
-    printf "${Green}${On_Black}\n================================================================================\n${Color_Off}"
-    # Copy source subject folder to processing folder
-    # Here, we merge the site+subject into a single folder to facilitate QC
-    echo "Copy source data to processing folder..."
-    folder_out=${site}_${subject}
-    cp -r ${PATH_DATA}/${site}/${subject} ${PATH_PROCESSING}/${folder_out}
-    # Go to folder
-    cd ${PATH_PROCESSING}/${folder_out}
-    # Run process
-    $CMD ${subject}
+# Processing of one subject
+do_one_subject() {
+  local subject="$1"
+  a="${PATH_PROCESSING}/$(basename $(dirname $subject))_$(basename $subject)"
+  echo "rsync -avzh ${subject}/ ${a}/; cd ${a}; ${task} $(basename $subject) ${PATH_QC}"
+}
+
+# Run processing with or without "GNU parallel", depending if it is installed or not
+if [ -x "$(command -v parallel)" ]; then
+  echo 'GNU parallel is installed! Processing subjects in parallel using multiple cores.' >&2
+  for site in ${SITES[@]}; do
+    find ${PATH_DATA}/${site} -mindepth 1 -maxdepth 1 -type d | while read subject; do
+      do_one_subject "$subject"
+    done
+  done \
+  | parallel --halt-on-error soon,fail=1 sh -c "{}"
+else
+  echo 'GNU parallel is not installed. Processing subjects sequentially.' >&2
+  for site in ${SITES[@]}; do
+    find ${PATH_DATA}/${site} -mindepth 1 -maxdepth 1 -type d | while read subject; do
+      do_one_subject "$subject"
+    done
   done
-done
+fi  
+
+# Display stuff
+echo "FINISHED :-)"
+echo "Started: $time_start"
+echo "Ended  : $(date +%x_%r)"
+
+# Display syntax to open QC report on web browser
+echo "To open Quality Control (QC) report on a web-browser, run the following:"
+echo "${open_command} ${PATH_QC}/index.html"

@@ -21,6 +21,7 @@ trap "echo Caught Keyboard Interrupt within script. Exiting now.; exit" INT
 
 # Retrieve subject tag
 sub=$1
+PATH_QC=$2
 
 # Go to anat folder where all structural data are located
 cd anat/
