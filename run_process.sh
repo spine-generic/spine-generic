@@ -26,6 +26,15 @@ Green='\033[0;92m'  # Yellow
 Red='\033[0;91m'  # Red
 On_Black='\033[40m'  # Black
 
+# Fetch OS type (used to open QC folder)
+if uname -a | grep -i  darwin > /dev/null 2>&1; then
+  # OSX
+  export OPEN_CMD="open"
+elif uname -a | grep -i  linux > /dev/null 2>&1; then
+  # Linux
+  export OPEN_CMD="xdg-open"
+fi
+
 # Initialization
 unset SITES
 # unset SUBJECTS
@@ -91,4 +100,4 @@ echo "Ended  : $(date +%x_%r)"
 
 # Display syntax to open QC report on web browser
 echo "To open Quality Control (QC) report on a web-browser, run the following:"
-echo "${open_command} ${PATH_QC}/index.html"
+echo "${OPEN_CMD} ${PATH_QC}/index.html"
