@@ -99,5 +99,5 @@ echo "Started: $time_start"
 echo "Ended  : $(date +%x_%r)"
 
 # Display syntax to open QC report on web browser
-echo "To open Quality Control (QC) report on a web-browser, run the following:"
+echo "To open Quality Control (QC) report on a web-browser, run the following:\n"
 echo "${OPEN_CMD} ${PATH_QC}/index.html"
