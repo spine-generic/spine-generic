@@ -65,23 +65,25 @@ sct_process_segmentation -i ${file_T1w_seg}.nii.gz -vertfile ${file_T1w_seg}_lab
 
 # T2
 # ==============================================================================
-file="${sub}_T2w"
+file_T2="${sub}_T2w"
 # Reorient to RPI and resample to 0.8mm iso (supposed to be the effective resolution)
-sct_image -i ${file}.nii.gz -setorient RPI -o ${file}_RPI.nii.gz
-sct_resample -i ${file}_RPI.nii.gz -mm 0.8x0.8x0.8 -o ${file}_RPI_r.nii.gz
-file="${file}_RPI_r"
+sct_image -i ${file_T2}.nii.gz -setorient RPI -o ${file_T2}_RPI.nii.gz
+sct_resample -i ${file_T2}_RPI.nii.gz -mm 0.8x0.8x0.8 -o ${file_T2}_RPI_r.nii.gz
+file_T2="${file_T2}_RPI_r"
 # Check if manual segmentation already exists
-if [ -e "${file}_seg_manual.nii.gz" ]; then
-  file_T2w_seg="${file}_seg_manual"
+if [ -e "${file_T2}_seg_manual.nii.gz" ]; then
+  file_T2_seg="${file_T2}_seg_manual"
 else
   # Segment spinal cord
-  sct_deepseg_sc -i ${file}.nii.gz -c t2 -qc ${PATH_QC}
-  file_T2w_seg="${file}_seg"
+  sct_deepseg_sc -i ${file_T2}.nii.gz -c t2 -qc ${PATH_QC}
+  file_T2_seg="${file_T2}_seg"
 fi
 # Flatten scan along R-L direction (to make nice figures)
-sct_flatten_sagittal -i ${file}.nii.gz -s ${file_T2w_seg}.nii.gz
+sct_flatten_sagittal -i ${file_T2}.nii.gz -s ${file_T2_seg}.nii.gz
+# Bring vertebral level into T2 space
+sct_apply_transfo -i ${file_T1w_seg}_labeled.nii.gz -d ${file_T2_seg}.nii.gz -o ${file_T1w_seg}_labeled2${file_T2}.nii.gz -identity 1
 # Compute average cord CSA between C2 and C3
-sct_process_segmentation -i ${file_T2w_seg}.nii.gz -p csa -vert 2:3 -vertfile ${file_T1w_seg}_labeled.nii.gz -o ${PATH_PROCESSING}/csa-SC_T2w.csv -append 1
+sct_process_segmentation -i ${file_T2_seg}.nii.gz -p csa -vert 2:3 -vertfile ${file_T1w_seg}_labeled2${file_T2}.nii.gz -o ${PATH_PROCESSING}/csa-SC_T2w.csv -append 1
 
 # MTS
 # ==============================================================================
@@ -117,28 +119,30 @@ sct_compute_mtr -mt0 ${file_mtoff}_reg.nii.gz -mt1 ${file_mton}_reg.nii.gz
 # Compute MTsat
 sct_compute_mtsat -mt ${file_mton}_reg.nii.gz -pd ${file_mtoff}_reg.nii.gz -t1 ${file_t1w}_crop.nii.gz -trmt 57 -trpd 57 -trt1 15 -famt 9 -fapd 9 -fat1 15
 # Extract MTR, MTsat and T1 in WM between C2 and C5 vertebral levels
-sct_extract_metric -i mtr.nii.gz -f label_axT1w/atlas -l 51 -vert 2:5 -o ${PATH_PROCESSING}/MTR.csv -append 1
-sct_extract_metric -i mtsat.nii.gz -f label_axT1w/atlas -l 51 -vert 2:5 -o ${PATH_PROCESSING}/MTsat.csv -append 1
-sct_extract_metric -i t1map.nii.gz -f label_axT1w/atlas -l 51 -vert 2:5 -o ${PATH_PROCESSING}/T1.csv -append 1
+sct_extract_metric -i mtr.nii.gz -f label_axT1w/atlas -l 51 -vert 2:5 -vertfile label_axT1w/template/PAM50_levels.nii.gz -o ${PATH_PROCESSING}/MTR.csv -append 1
+sct_extract_metric -i mtsat.nii.gz -f label_axT1w/atlas -l 51 -vert 2:5 -vertfile label_axT1w/template/PAM50_levels.nii.gz -o ${PATH_PROCESSING}/MTsat.csv -append 1
+sct_extract_metric -i t1map.nii.gz -f label_axT1w/atlas -l 51 -vert 2:5 -vertfile label_axT1w/template/PAM50_levels.nii.gz -o ${PATH_PROCESSING}/T1.csv -append 1
 
 # t2s
 # ==============================================================================
-file="${sub}_T2star"
+file_T2s="${sub}_T2star"
 # Compute root-mean square across 4th dimension (if it exists), corresponding to all echoes in Philips scans.
-sct_maths -i ${file}.nii.gz -rms t -o ${file}_rms.nii.gz
-file="${file}_rms"
+sct_maths -i ${file_T2s}.nii.gz -rms t -o ${file_T2s}_rms.nii.gz
+file_T2s="${file_T2s}_rms"
 # Check if manual GM segmentation already exists
-if [ -e "${file}_gmseg_manual.nii.gz" ]; then
-  file_GM_seg="${file}_gmseg_manual"
+if [ -e "${file_T2s}_gmseg_manual.nii.gz" ]; then
+  file_T2s_seg="${file_T2s}_gmseg_manual"
 else
   # Segment spinal cord
-  sct_deepseg_gm -i ${file}.nii.gz -qc ${PATH_QC}
-  file_GM_seg="${file}_gmseg"
+  sct_deepseg_gm -i ${file_T2s}.nii.gz -qc ${PATH_QC}
+  file_T2s_seg="${file_T2s}_gmseg"
 fi
+# Bring vertebral level into T2s space
+sct_apply_transfo -i ${file_T1w_seg}_labeled.nii.gz -d ${file_T2s_seg}.nii.gz -o ${file_T1w_seg}_labeled2${file_T2s}.nii.gz -identity 1
 # Compute the gray matter CSA between C3 and C4 levels
 # NB: Here we set -no-angle 1 because we do not want angle correction: it is too
 # unstable with GM seg, and t2s data were acquired orthogonal to the cord anyways.
-sct_process_segmentation -i ${file_GM_seg}.nii.gz -p csa -no-angle 1 -vert 3:4 -vertfile ${file_T1w_seg}_labeled.nii.gz -o ${PATH_PROCESSING}/csa-GM_T2s.csv -append 1
+sct_process_segmentation -i ${file_T2s_seg}.nii.gz -p csa -no-angle 1 -vert 3:4 -vertfile ${file_T1w_seg}_labeled2${file_T2s}.nii.gz -o ${PATH_PROCESSING}/csa-GM_T2s.csv -append 1
 
 # DWI
 # ==============================================================================
