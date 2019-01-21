@@ -19,9 +19,10 @@
 # Exit if user presses CTRL+C (Linux) or CMD+C (OSX)
 trap "echo Caught Keyboard Interrupt within script. Exiting now.; exit" INT
 
-# Retrieve subject tag
+# Retrieve input params
 sub=$1
-PATH_QC=$2
+PATH_PROCESSING=$2
+PATH_QC=$3
 
 # Go to anat folder where all structural data are located
 cd anat/
@@ -51,7 +52,7 @@ sct_label_vertebrae -i ${file}.nii.gz -s ${file_T1w_seg}.nii.gz -c t1 -qc ${PATH
 # Create labels in the cord at C2 and C5 mid-vertebral levels
 sct_label_utils -i ${file_T1w_seg}_labeled.nii.gz -vert-body 2,5 -o labels_vert.nii.gz
 # Register to PAM50 template
-sct_register_to_template -i ${file}.nii.gz -s ${file_T1w_seg}.nii.gz -l labels_vert.nii.gz -c t1 -param step=1,type=seg,algo=centermassrot:step=2,type=seg,algo=syn,slicewise=1,smooth=0,iter=5:step=3,type=im,algo=syn,slicewise=1,smooth=0,iter=3 -qc "$PATH_QC"
+sct_register_to_template -i ${file}.nii.gz -s ${file_T1w_seg}.nii.gz -l labels_vert.nii.gz -c t1 -param step=1,type=seg,algo=centermassrot:step=2,type=seg,algo=syn,slicewise=1,smooth=0,iter=5:step=3,type=im,algo=syn,slicewise=1,smooth=0,iter=3 -qc ${PATH_QC}
 # Rename warping fields for clarity
 mv warp_template2anat.nii.gz warp_template2T1w.nii.gz
 mv warp_anat2template.nii.gz warp_T1w2template.nii.gz
@@ -60,7 +61,7 @@ sct_warp_template -d ${file}.nii.gz -w warp_template2T1w.nii.gz -a 0 -ofolder la
 # Flatten scan along R-L direction (to make nice figures)
 sct_flatten_sagittal -i ${file}.nii.gz -s ${file_T1w_seg}.nii.gz
 # Compute average cord CSA between C2 and C3
-sct_process_segmentation -i ${file_T1w_seg}.nii.gz -p csa -vert 2:3 -vertfile ${file_T1w_seg}_labeled.nii.gz -ofolder csa-SC_T1w
+sct_process_segmentation -i ${file_T1w_seg}.nii.gz -p csa -vert 2:3 -o ${PATH_PROCESSING}/csa-SC_T1w.csv -append
 
 # T2
 # ==============================================================================
@@ -80,7 +81,7 @@ fi
 # Flatten scan along R-L direction (to make nice figures)
 sct_flatten_sagittal -i ${file}.nii.gz -s ${file_T2w_seg}.nii.gz
 # Compute average cord CSA between C2 and C3
-sct_process_segmentation -i ${file_T2w_seg}.nii.gz -p csa -vert 2:3 -vertfile ${file_T1w_seg}_labeled.nii.gz -ofolder csa-SC_T2w
+sct_process_segmentation -i ${file_T2w_seg}.nii.gz -p csa -vert 2:3 -vertfile ${file_T1w_seg}_labeled.nii.gz -o ${PATH_PROCESSING}/csa-SC_T2w.csv -append
 
 # MTS
 # ==============================================================================
@@ -116,9 +117,9 @@ sct_compute_mtr -mt0 ${file_mtoff}_reg.nii.gz -mt1 ${file_mton}_reg.nii.gz
 # Compute MTsat
 sct_compute_mtsat -mt ${file_mton}_reg.nii.gz -pd ${file_mtoff}_reg.nii.gz -t1 ${file_t1w}_crop.nii.gz -trmt 57 -trpd 57 -trt1 15 -famt 9 -fapd 9 -fat1 15
 # Extract MTR, MTsat and T1 in WM between C2 and C5 vertebral levels
-sct_extract_metric -i mtr.nii.gz -f label_axT1w/atlas -l 51 -vert 2:5 -o mtr.xls
-sct_extract_metric -i mtsat.nii.gz -f label_axT1w/atlas -l 51 -vert 2:5 -o mtsat.xls
-sct_extract_metric -i t1map.nii.gz -f label_axT1w/atlas -l 51 -vert 2:5 -o t1.xls
+sct_extract_metric -i mtr.nii.gz -f label_axT1w/atlas -l 51 -vert 2:5 -o ${PATH_PROCESSING}/MTR.csv -append
+sct_extract_metric -i mtsat.nii.gz -f label_axT1w/atlas -l 51 -vert 2:5 -o ${PATH_PROCESSING}/MTsat.csv -append
+sct_extract_metric -i t1map.nii.gz -f label_axT1w/atlas -l 51 -vert 2:5 -o ${PATH_PROCESSING}/T1.csv -append
 
 # t2s
 # ==============================================================================
@@ -137,7 +138,7 @@ fi
 # Compute the gray matter CSA between C3 and C4 levels
 # NB: Here we set -no-angle 1 because we do not want angle correction: it is too
 # unstable with GM seg, and t2s data were acquired orthogonal to the cord anyways.
-sct_process_segmentation -i ${file_GM_seg}.nii.gz -p csa -no-angle 1 -vert 3:4 -vertfile ${file_T1w_seg}_labeled.nii.gz -ofolder csa-GM_T2s
+sct_process_segmentation -i ${file_GM_seg}.nii.gz -p csa -no-angle 1 -vert 3:4 -vertfile ${file_T1w_seg}_labeled.nii.gz -o ${PATH_PROCESSING}/csa-GM_T2s.csv -append
 
 # DWI
 # ==============================================================================
@@ -172,8 +173,8 @@ sct_maths -i ${sub}_dwi_crop_moco_dwi_mean_seg.nii.gz -dilate 3,3,0 -o ${sub}_dw
 # Compute DTI using RESTORE
 sct_dmri_compute_dti -i ${sub}_dwi_crop_moco.nii.gz -bvec ${sub}_dwi.bvec -bval ${sub}_dwi.bval -method restore -m ${sub}_dwi_crop_moco_dwi_mean_seg_dil.nii.gz
 # Compute FA, MD and RD in WM between C2 and C5 vertebral levels
-sct_extract_metric -i dti_FA.nii.gz -f label/atlas -l 51 -vert 2:5 -o fa.xls
-sct_extract_metric -i dti_MD.nii.gz -f label/atlas -l 51 -vert 2:5 -o md.xls
-sct_extract_metric -i dti_RD.nii.gz -f label/atlas -l 51 -vert 2:5 -o rd.xls
+sct_extract_metric -i dti_FA.nii.gz -f label/atlas -l 51 -vert 2:5 -o ${PATH_PROCESSING}/DWI_FA.csv -append
+sct_extract_metric -i dti_MD.nii.gz -f label/atlas -l 51 -vert 2:5 -o ${PATH_PROCESSING}/DWI_MD.csv -append
+sct_extract_metric -i dti_RD.nii.gz -f label/atlas -l 51 -vert 2:5 -o ${PATH_PROCESSING}/DWI_RD.csv -append
 # Go back to parent folder
 cd ..

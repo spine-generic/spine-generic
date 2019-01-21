@@ -72,7 +72,7 @@ fi
 do_one_subject() {
   local subject="$1"
   a="${PATH_PROCESSING}/$(basename $(dirname $subject))_$(basename $subject)"
-  echo "rsync -avzh ${subject}/ ${a}/; cd ${a}; ${task} $(basename $subject) ${PATH_QC}"
+  echo "rsync -avzh ${subject}/ ${a}/; cd ${a}; ${task} $(basename $subject) ${PATH_PROCESSING} ${PATH_QC}"
 }
 
 # Run processing with or without "GNU parallel", depending if it is installed or not
