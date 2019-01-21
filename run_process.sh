@@ -69,18 +69,23 @@ if [ ! -d "$PATH_PROCESSING" ]; then
 fi
 
 # Processing of one subject
-do_one_subject() {
+do_one_subject_parallel() {
   local subject="$1"
   a="${PATH_PROCESSING}/$(basename $(dirname $subject))_$(basename $subject)"
   echo "rsync -avzh ${subject}/ ${a}/; cd ${a}; ${task} $(basename $subject) ${PATH_PROCESSING} ${PATH_QC}"
 }
+do_one_subject() {
+  local subject="$1"
+  a="${PATH_PROCESSING}/$(basename $(dirname $subject))_$(basename $subject)"
+  rsync -avzh ${subject}/ ${a}/; cd ${a}; ${task} $(basename $subject) ${PATH_PROCESSING} ${PATH_QC}
+}
 
 # Run processing with or without "GNU parallel", depending if it is installed or not
-if [ -x "$(command -v parallel)" ]; then
+if [ -x "$(command -v parallelss)" ]; then
   echo 'GNU parallel is installed! Processing subjects in parallel using multiple cores.' >&2
   for site in ${SITES[@]}; do
     find ${PATH_DATA}/${site} -mindepth 1 -maxdepth 1 -type d | while read subject; do
-      do_one_subject "$subject"
+      do_one_subject_parallel "$subject"
     done
   done \
   | parallel --halt-on-error soon,fail=1 sh -c "{}"
