@@ -81,7 +81,7 @@ fi
 # Flatten scan along R-L direction (to make nice figures)
 sct_flatten_sagittal -i ${file_T2}.nii.gz -s ${file_T2_seg}.nii.gz
 # Bring vertebral level into T2 space
-sct_apply_transfo -i ${file_T1w_seg}_labeled.nii.gz -d ${file_T2_seg}.nii.gz -o ${file_T1w_seg}_labeled2${file_T2}.nii.gz -identity 1
+sct_register_multimodal -i ${file_T1w_seg}_labeled.nii.gz -d ${file_T2_seg}.nii.gz -o ${file_T1w_seg}_labeled2${file_T2}.nii.gz -identity 1 -x nn
 # Compute average cord CSA between C2 and C3
 sct_process_segmentation -i ${file_T2_seg}.nii.gz -p csa -vert 2:3 -vertfile ${file_T1w_seg}_labeled2${file_T2}.nii.gz -o ${PATH_PROCESSING}/csa-SC_T2w.csv -append 1
 
@@ -138,7 +138,7 @@ else
   file_T2s_seg="${file_T2s}_gmseg"
 fi
 # Bring vertebral level into T2s space
-sct_apply_transfo -i ${file_T1w_seg}_labeled.nii.gz -d ${file_T2s_seg}.nii.gz -o ${file_T1w_seg}_labeled2${file_T2s}.nii.gz -identity 1
+sct_register_multimodal -i ${file_T1w_seg}_labeled.nii.gz -d ${file_T2s_seg}.nii.gz -o ${file_T1w_seg}_labeled2${file_T2s}.nii.gz -identity 1 -x nn
 # Compute the gray matter CSA between C3 and C4 levels
 # NB: Here we set -no-angle 1 because we do not want angle correction: it is too
 # unstable with GM seg, and t2s data were acquired orthogonal to the cord anyways.
