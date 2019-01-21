@@ -81,7 +81,7 @@ do_one_subject() {
 }
 
 # Run processing with or without "GNU parallel", depending if it is installed or not
-if [ -x "$(command -v parallelss)" ]; then
+if [ -x "$(command -v parallel)" ]; then
   echo 'GNU parallel is installed! Processing subjects in parallel using multiple cores.' >&2
   for site in ${SITES[@]}; do
     find ${PATH_DATA}/${site} -mindepth 1 -maxdepth 1 -type d | while read subject; do
