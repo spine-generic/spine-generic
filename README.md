@@ -1,22 +1,10 @@
 # spine_generic
 
-Processing pipeline for the "spine generic protocol" project
-
-The following metrics are output (per contrast):
-- **T1**: Spinal cord CSA averaged between C2 and C3.
-- **T2**: Spinal cord CSA averaged between C2 and C3.
-- **T2s**: Gray matter CSA averaged between C3 and C4.
-- **DWI**: FA in WM averaged between C2 and C5.
-- **MTS**: MTR in WM averaged between C2 and C5. Uses MTon_MTS and MToff_MTS.
-- **MTS**: MTS in WM averaged between C2 and C5. Uses MTon_MTS, MToff_MTS and T1w_MTS.
-
-## Dependencies
-
-In its current state, this pipeline uses [SCT development version](https://github.com/neuropoly/spinalcordtoolbox#install-from-github-development). Once the pipeline is finalized, a stable version of SCT will be associated with this pipeline and indicated here. For now, please use the latest development version of SCT.
-
-This pipeline also relies on [FSLeyes](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FSLeyes) for quality control (QC).
+Description of the publicly-available database and processing pipeline for the "spine generic protocol" project.
 
 ## Data collection and organization
+
+The "Spine Generic" MRI acquisition protocol is available at [this link](https://osf.io/tt4z9/). If your site is interested in participating in this publicly-available database, please contact Julien Cohen-Adad for details. 
 
 To facilitate the collection of data, we use the [BIDS standard](http://bids.neuroimaging.io/). Each proprietary DICOM data should be converted to NIFTI format using [dcm2niix](https://www.nitrc.org/plugins/mwiki/index.php/dcm2nii:MainPage) with option to output JSON file alongside each NIFTI file. Each participant is expected to provide a zip file containing the following data shown below. To facilitate the conversion from DICOM folder to BIDS dataset, people can use the [convert_dcm2nii](https://github.com/neuropoly/bids_neuropoly) script.
 
@@ -94,7 +82,24 @@ We provide two example datasets:
 - Multi-center, single-subject
 - [Multi-center, multi-subjects](https://osf.io/76jkx/)
 
-## How to run
+## Analysis pipeline
+
+The analysis pipeline available in this repository enables to output the following metrics (organized per contrast):
+
+- **T1**: Spinal cord CSA averaged between C2 and C3.
+- **T2**: Spinal cord CSA averaged between C2 and C3.
+- **T2s**: Gray matter CSA averaged between C3 and C4.
+- **DWI**: FA in WM averaged between C2 and C5.
+- **MTS**: MTR in WM averaged between C2 and C5. Uses MTon_MTS and MToff_MTS.
+- **MTS**: MTSat & T1 map in WM averaged between C2 and C5. Uses MTon_MTS, MToff_MTS and T1w_MTS.
+
+### Dependencies
+
+In its current state, this pipeline uses [SCT development version](https://github.com/neuropoly/spinalcordtoolbox#install-from-github-development). Once the pipeline is finalized, a stable version of SCT will be associated with this pipeline and indicated here. For now, please use the latest development version of SCT.
+
+This pipeline also relies on [FSLeyes](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FSLeyes) for quality control (QC).
+
+### How to run
 
 - Download (or `git clone`) this repository.
 - Go to this repository: `cd spine_generic`
@@ -104,7 +109,7 @@ We provide two example datasets:
 
 ## Contributors
 
-[List of contributors](https://github.com/sct-pipeline/spine_generic/graphs/contributors)
+[List of contributors for the analysis pipeline.](https://github.com/sct-pipeline/spine_generic/graphs/contributors)
 
 ## License
 
