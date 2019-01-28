@@ -32,6 +32,19 @@ site/
              └── sub-01_dwi.bval
              └── sub-01_dwi.bvec
              └── sub-01_dwi.json
+└── derivatives
+    └── labels             
+	└── sub-01
+	    └── anat
+		     └── sub-01_T1w_seg-manual.nii.gz
+		     └── sub-01_T1w_labels.nii.gz
+		     └── sub-01_T2w_seg-manual.nii.gz
+		     └── sub-01_T2w_labels.nii.gz
+		     └── sub-01_acq-MTon_MTS_seg-manual.nii.gz
+		     └── sub-01_acq-MToff_MTS_seg-manual.nii.gz
+		     └── sub-01_acq-T1w_MTS_seg-manual.nii.gz
+		     └── sub-01_T2star_seg-manual.nii.gz
+	     
 ~~~
 ### dataset_description.json
 ```
