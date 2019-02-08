@@ -59,35 +59,34 @@ if [ ! -d "$PATH_OUTPUT" ]; then
   exit 1
 fi
 
-# Copy the whole dataset to the ouput, then process and create derivatives only on the copied dataset
-rsync -avzh ${PATH_DATA}/ ${PATH_OUTPUT}
-
 # Processing of one subject
 do_one_subject_parallel() {
   local subject="$1"
-  cd ${PATH_OUTPUT}/${site}
-  ${task} $(basename $subject)
+  cd ${PATH_DATA}/${site}
+  echo "${task} $(basename $subject) ${PATH_OUTPUT}/$site"
 }
 do_one_subject() {
   local subject="$1"
-  cd ${PATH_OUTPUT}/${site}
-  ${task} $(basename $subject)
+  cd ${PATH_DATA}/${site}
+  ${task} $(basename $subject) ${PATH_OUTPUT}/$site
 }
 
 # Run processing with or without "GNU parallel", depending if it is installed or not
 if [ -x "$(command -v parallel)" ]; then
   echo 'GNU parallel is installed! Processing subjects in parallel using multiple cores.' >&2
   for site in ${SITES[@]}; do
-    find ${PATH_OUTPUT}/${site} -mindepth 1 -maxdepth 1 -type d | while read subject; do
-      do_one_subject_parallel "$subject"
+    mkdir -p ${PATH_OUTPUT}/${site}
+    find ${PATH_DATA}/${site} -mindepth 1 -maxdepth 1 -type d | while read subject; do
+      do_one_subject_parallel $subject
     done
   done \
   | parallel --halt-on-error soon,fail=1 sh -c "{}"
 else
   echo 'GNU parallel is not installed. Processing subjects sequentially.' >&2
   for site in ${SITES[@]}; do
-    find ${PATH_OUTPUT}/${site} -mindepth 1 -maxdepth 1 -type d | while read subject; do
-      do_one_subject "$subject"
+    mkdir -p ${PATH_OUTPUT}/${site}
+    find ${PATH_DATA}/${site} -mindepth 1 -maxdepth 1 -type d | while read subject; do
+      do_one_subject $subject
     done
   done
 fi

@@ -16,15 +16,15 @@ trap "echo Caught Keyboard Interrupt within script. Exiting now.; exit" INT
 
 # Retrieve input params
 sub=$1
-
-dir=`pwd`
+PATH_OUTPUT_wSITE=$2
 
 # Create BIDS architecture
-mkdir -p derivatives/labels/${sub}/anat
-ofolder="${dir}/derivatives/labels/${sub}/anat"
+mkdir -p ${PATH_OUTPUT_wSITE}/${sub}/anat
+mkdir -p ${PATH_OUTPUT_wSITE}/derivatives/labels/${sub}/anat
+ofolder_seg="${PATH_OUTPUT_wSITE}/derivatives/labels/${sub}/anat"
+ofolder_reg="${PATH_OUTPUT_wSITE}/${sub}/anat"
 
 # Go to anat folder where all structural data are located
-pwd
 cd ${sub}/anat
 
 
@@ -41,28 +41,39 @@ if [ -e "${file_t1w}_seg_manual.nii.gz" ]; then
   file_seg="${file_t1w}_seg_manual"
 else
   # Segment spinal cord
-  sct_deepseg_sc -i ${file_t1w_mts}.nii.gz -c t1  -ofolder ${ofolder}
+  sct_deepseg_sc -i ${file_t1w_mts}.nii.gz -c t1  -ofolder ${ofolder_seg}
   file_seg="${file_t1w_mts}_seg"
 fi
 
 # Create mask
-sct_create_mask -i ${file_t1w_mts}.nii.gz -p centerline,"${ofolder}/${file_seg}.nii.gz" -size 35mm -o ${file_t1w_mts}_mask.nii.gz
+sct_create_mask -i ${file_t1w_mts}.nii.gz -p centerline,"${ofolder_seg}/${file_seg}.nii.gz" -size 35mm -o ${ofolder_reg}/${file_t1w_mts}_mask.nii.gz
 
 # Registrations to T1w MTS :
 # Tips: here we only use rigid transformation because both images have very similar sequence parameters. We don't want to use SyN/BSplineSyN to avoid introducing spurious deformations.
 # MToff
-sct_register_multimodal -i ${file_mtoff}.nii.gz -d ${file_t1w_mts}.nii.gz  -m ${file_t1w_mts}_mask.nii.gz -param step=1,type=im,algo=rigid,slicewise=1,metric=CC -x spline -ofolder ${ofolder}
+sct_register_multimodal -i ${file_mtoff}.nii.gz -d ${file_t1w_mts}.nii.gz  -m ${ofolder_reg}/${file_t1w_mts}_mask.nii.gz -param step=1,type=im,algo=rigid,slicewise=1,metric=CC -x spline -ofolder ${ofolder_reg}
 # MTon
-sct_register_multimodal -i ${file_mton}.nii.gz -d ${file_t1w_mts}.nii.gz  -m ${file_t1w_mts}_mask.nii.gz -param step=1,type=im,algo=rigid,slicewise=1,metric=CC -x spline -ofolder ${ofolder}
+sct_register_multimodal -i ${file_mton}.nii.gz -d ${file_t1w_mts}.nii.gz  -m ${ofolder_reg}/${file_t1w_mts}_mask.nii.gz -param step=1,type=im,algo=rigid,slicewise=1,metric=CC -x spline -ofolder ${ofolder_reg}
 # T2w
-sct_register_multimodal -i ${file_t2w}.nii.gz -d ${file_t1w_mts}.nii.gz  -m ${file_t1w_mts}_mask.nii.gz -param step=1,type=im,algo=rigid,slicewise=1,metric=CC -x spline -ofolder ${ofolder}
+sct_register_multimodal -i ${file_t2w}.nii.gz -d ${file_t1w_mts}.nii.gz  -m ${ofolder_reg}/${file_t1w_mts}_mask.nii.gz -param step=1,type=im,algo=rigid,slicewise=1,metric=CC -x spline -ofolder ${ofolder_reg}
 # T2star
-sct_register_multimodal -i ${file_t2s}.nii.gz -d ${file_t1w_mts}.nii.gz  -m ${file_t1w_mts}_mask.nii.gz -param step=1,type=im,algo=rigid,slicewise=1,metric=CC -x spline -ofolder ${ofolder}
+sct_register_multimodal -i ${file_t2s}.nii.gz -d ${file_t1w_mts}.nii.gz  -m ${ofolder_reg}/${file_t1w_mts}_mask.nii.gz -param step=1,type=im,algo=rigid,slicewise=1,metric=CC -x spline -ofolder ${ofolder_reg}
 # T1w
-sct_register_multimodal -i ${file_t1w}.nii.gz -d ${file_t1w_mts}.nii.gz  -m ${file_t1w_mts}_mask.nii.gz -param step=1,type=im,algo=rigid,slicewise=1,metric=CC -x spline -ofolder ${ofolder}
+sct_register_multimodal -i ${file_t1w}.nii.gz -d ${file_t1w_mts}.nii.gz  -m ${ofolder_reg}/${file_t1w_mts}_mask.nii.gz -param step=1,type=im,algo=rigid,slicewise=1,metric=CC -x spline -ofolder ${ofolder_reg}
 
 # Delete useless images
-rm "${file_t1w_mts}_mask.nii.gz"
+rm "${ofolder_reg}/${file_t1w_mts}_mask.nii.gz"
+rm "${ofolder_reg}/${file_t1w_mts}_reg.nii.gz"
 rm *image_in_RPI_resampled*
-rm ${ofolder}/*warp* #delete warping fields
-rm ${ofolder}/"${file_t1w_mts}_reg.nii.gz" #delete the t1w MTS registered to the last image (here T1w)
+rm ${ofolder_reg}/*warp* #delete warping fields
+
+# copying the T1w_mts file, which everything else is registered into :
+rsync -avzh "${file_t1w_mts}.nii.gz" ${ofolder_reg}/
+
+# copying the json files :
+rsync -avzh "${file_t1w_mts}.json" ${ofolder_reg}/
+rsync -avzh "${file_mton}.json" ${ofolder_reg}/
+rsync -avzh "${file_mtoff}.json" ${ofolder_reg}/
+rsync -avzh "${file_t2w}.json" ${ofolder_reg}/
+rsync -avzh "${file_t2s}.json" ${ofolder_reg}/
+rsync -avzh "${file_t1w}.json" ${ofolder_reg}/
