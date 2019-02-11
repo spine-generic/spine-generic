@@ -61,22 +61,37 @@ sct_register_multimodal -i ${file_t2s}.nii.gz -d ${file_t1w_mts}.nii.gz -m ${ofo
 # T1w
 sct_register_multimodal -i ${file_t1w}.nii.gz -d ${file_t1w_mts}.nii.gz -m ${ofolder_reg}/${file_t1w_mts}_mask.nii.gz -param step=1,type=im,algo=slicereg,metric=CC,poly=2 -x spline -ofolder ${ofolder_reg}
 
-#TODO:
-crop all volumes to remove the first 3 slices and the last 3 slices
-
-# Delete useless images
-#rm "${ofolder_reg}/${file_t1w_mts}_mask.nii.gz"
-#rm "${ofolder_reg}/${file_t1w_mts}_reg.nii.gz"
-#rm *image_in_RPI_resampled*
-#rm ${ofolder_reg}/*warp* #delete warping fields
-
 # copying the T1w_mts file, which everything else is registered into :
 rsync -avzh "${file_t1w_mts}.nii.gz" ${ofolder_reg}/
 
-# copying the json files :
+# Cropping images to remove first 3 and last 3 slices :
+
+sct_crop_image -i ${ofolder_reg}/${file_mton}_reg.nii.gz -o ${ofolder_reg}/${file_mton}_reg_crop.nii.gz -start 3 -end -3 -dim 2
+sct_crop_image -i ${ofolder_reg}/${file_mtoff}_reg.nii.gz -o ${ofolder_reg}/${file_mtoff}_reg_crop.nii.gz -start 3 -end -3 -dim 2
+sct_crop_image -i ${ofolder_reg}/${file_t2w}_reg.nii.gz -o ${ofolder_reg}/${file_t2w}_reg_crop.nii.gz -start 3 -end -3 -dim 2
+sct_crop_image -i ${ofolder_reg}/${file_t2s}_reg.nii.gz -o ${ofolder_reg}/${file_t2s}_reg_crop.nii.gz -start 3 -end -3 -dim 2
+sct_crop_image -i ${ofolder_reg}/${file_t1w}_reg.nii.gz -o ${ofolder_reg}/${file_t1w}_reg_crop.nii.gz -start 3 -end -3 -dim 2
+sct_crop_image -i ${ofolder_reg}/${file_t1w_mts}_reg.nii.gz -o ${ofolder_reg}/${file_t1w_mts}_reg_crop.nii.gz -start 3 -end -3 -dim 2
+
+# Delete useless images
+# rm "${ofolder_reg}/${file_t1w_mts}_mask.nii.gz"
+# rm "${ofolder_reg}/${file_t1w_mts}_reg.nii.gz"
+# rm *image_in_RPI_resampled*
+# rm ${ofolder_reg}/*warp* #delete warping fields
+# rm ${ofolder_reg}/*_reg.nii.gz #delete "registered but not cropped" images
+# rm ${ofolder_reg}/${file_t1w_mts}.nii.gz
+
+
+# copying the json files and renaming them :
 rsync -avzh "${file_t1w_mts}.json" ${ofolder_reg}/
+mv ${ofolder_reg}/${file_t1w_mts}.json ${ofolder_reg}/${file_t1w_mts}_crop.json #not registered
 rsync -avzh "${file_mton}.json" ${ofolder_reg}/
+mv ${ofolder_reg}/${file_mton}.json ${ofolder_reg}/${file_mton}_reg_crop.json
 rsync -avzh "${file_mtoff}.json" ${ofolder_reg}/
+mv ${ofolder_reg}/${file_mtoff}.json ${ofolder_reg}/${file_mtoff}_reg_crop.json
 rsync -avzh "${file_t2w}.json" ${ofolder_reg}/
+mv ${ofolder_reg}/${file_t2w}.json ${ofolder_reg}/${file_t2w}_reg_crop.json
 rsync -avzh "${file_t2s}.json" ${ofolder_reg}/
+mv ${ofolder_reg}/${file_t2s}.json ${ofolder_reg}/${file_t2s}_reg_crop.json
 rsync -avzh "${file_t1w}.json" ${ofolder_reg}/
+mv ${ofolder_reg}/${file_t1w}.json ${ofolder_reg}/${file_t1w}_reg_crop.json
