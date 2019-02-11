@@ -46,20 +46,20 @@ else
 fi
 
 # Create mask
-sct_create_mask -i ${file_t1w_mts}.nii.gz -p centerline,"${ofolder_seg}/${file_seg}.nii.gz" -size 35mm -o ${ofolder_reg}/${file_t1w_mts}_mask.nii.gz
+sct_create_mask -i ${file_t1w_mts}.nii.gz -p centerline,"${ofolder_seg}/${file_seg}.nii.gz" -size 55mm -o ${ofolder_reg}/${file_t1w_mts}_mask.nii.gz
 
 # Registrations to T1w MTS :
 # Tips: here we only use rigid transformation because both images have very similar sequence parameters. We don't want to use SyN/BSplineSyN to avoid introducing spurious deformations.
 # MToff
-sct_register_multimodal -i ${file_mtoff}.nii.gz -d ${file_t1w_mts}.nii.gz  -m ${ofolder_reg}/${file_t1w_mts}_mask.nii.gz -param step=1,type=im,algo=rigid,slicewise=1,metric=CC -x spline -ofolder ${ofolder_reg}
+sct_register_multimodal -i ${file_mtoff}.nii.gz -d ${file_t1w_mts}.nii.gz -m ${ofolder_reg}/${file_t1w_mts}_mask.nii.gz -param step=1,type=im,algo=slicereg,metric=CC,poly=2 -x spline -ofolder ${ofolder_reg}
 # MTon
-sct_register_multimodal -i ${file_mton}.nii.gz -d ${file_t1w_mts}.nii.gz  -m ${ofolder_reg}/${file_t1w_mts}_mask.nii.gz -param step=1,type=im,algo=rigid,slicewise=1,metric=CC -x spline -ofolder ${ofolder_reg}
+sct_register_multimodal -i ${file_mton}.nii.gz -d ${file_t1w_mts}.nii.gz -m ${ofolder_reg}/${file_t1w_mts}_mask.nii.gz -param step=1,type=im,algo=slicereg,metric=CC,poly=2 -x spline -ofolder ${ofolder_reg}
 # T2w
-sct_register_multimodal -i ${file_t2w}.nii.gz -d ${file_t1w_mts}.nii.gz  -m ${ofolder_reg}/${file_t1w_mts}_mask.nii.gz -param step=1,type=im,algo=rigid,slicewise=1,metric=CC -x spline -ofolder ${ofolder_reg}
+sct_register_multimodal -i ${file_t2w}.nii.gz -d ${file_t1w_mts}.nii.gz -m ${ofolder_reg}/${file_t1w_mts}_mask.nii.gz -param step=1,type=im,algo=slicereg,metric=CC,poly=2 -x spline -ofolder ${ofolder_reg}
 # T2star
-sct_register_multimodal -i ${file_t2s}.nii.gz -d ${file_t1w_mts}.nii.gz  -m ${ofolder_reg}/${file_t1w_mts}_mask.nii.gz -param step=1,type=im,algo=rigid,slicewise=1,metric=CC -x spline -ofolder ${ofolder_reg}
+sct_register_multimodal -i ${file_t2s}.nii.gz -d ${file_t1w_mts}.nii.gz -m ${ofolder_reg}/${file_t1w_mts}_mask.nii.gz -param step=1,type=im,algo=slicereg,metric=CC,poly=2 -x spline -ofolder ${ofolder_reg}
 # T1w
-sct_register_multimodal -i ${file_t1w}.nii.gz -d ${file_t1w_mts}.nii.gz  -m ${ofolder_reg}/${file_t1w_mts}_mask.nii.gz -param step=1,type=im,algo=rigid,slicewise=1,metric=CC -x spline -ofolder ${ofolder_reg}
+sct_register_multimodal -i ${file_t1w}.nii.gz -d ${file_t1w_mts}.nii.gz -m ${ofolder_reg}/${file_t1w_mts}_mask.nii.gz -param step=1,type=im,algo=slicereg,metric=CC,poly=2 -x spline -ofolder ${ofolder_reg}
 
 # Delete useless images
 #rm "${ofolder_reg}/${file_t1w_mts}_mask.nii.gz"
