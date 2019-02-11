@@ -62,10 +62,10 @@ sct_register_multimodal -i ${file_t2s}.nii.gz -d ${file_t1w_mts}.nii.gz  -m ${of
 sct_register_multimodal -i ${file_t1w}.nii.gz -d ${file_t1w_mts}.nii.gz  -m ${ofolder_reg}/${file_t1w_mts}_mask.nii.gz -param step=1,type=im,algo=rigid,slicewise=1,metric=CC -x spline -ofolder ${ofolder_reg}
 
 # Delete useless images
-rm "${ofolder_reg}/${file_t1w_mts}_mask.nii.gz"
-rm "${ofolder_reg}/${file_t1w_mts}_reg.nii.gz"
-rm *image_in_RPI_resampled*
-rm ${ofolder_reg}/*warp* #delete warping fields
+#rm "${ofolder_reg}/${file_t1w_mts}_mask.nii.gz"
+#rm "${ofolder_reg}/${file_t1w_mts}_reg.nii.gz"
+#rm *image_in_RPI_resampled*
+#rm ${ofolder_reg}/*warp* #delete warping fields
 
 # copying the T1w_mts file, which everything else is registered into :
 rsync -avzh "${file_t1w_mts}.nii.gz" ${ofolder_reg}/
