@@ -5,11 +5,11 @@
 
 # Set every other path relative to this path for convenience
 # Do not add "/" at the end. Path should be absolute (i.e. do not use "~")
-export PATH_PARENT="/Users/nipin_local/test"
+export PATH_PARENT="/Users/julien/Desktop"
 
 # Path to the folder site which contains all sites.
 # Do not add "/" at the end. Path should be absolute (i.e. do not use "~")
-export PATH_DATA="${PATH_PARENT}/spineGeneric_multiSubjects"
+export PATH_DATA="${PATH_PARENT}/test"
 
 # List of subjects to analyse. Comment this variable if you want to analyze all
 # sites in the PATH_DATA folder.

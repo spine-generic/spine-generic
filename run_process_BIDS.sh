@@ -62,8 +62,7 @@ fi
 # Processing of one subject
 do_one_subject_parallel() {
   local subject="$1"
-  cd ${PATH_DATA}/${site}
-  echo "${task} $(basename $subject) ${PATH_OUTPUT}/$site"
+  echo "cd ${PATH_DATA}/${site}; ${task} $(basename $subject) ${PATH_OUTPUT}/$site"
 }
 do_one_subject() {
   local subject="$1"
