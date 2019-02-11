@@ -71,7 +71,7 @@ sct_crop_image -i ${ofolder_reg}/${file_mtoff}_reg.nii.gz -o ${ofolder_reg}/${fi
 sct_crop_image -i ${ofolder_reg}/${file_t2w}_reg.nii.gz -o ${ofolder_reg}/${file_t2w}_reg_crop.nii.gz -start 3 -end -3 -dim 2
 sct_crop_image -i ${ofolder_reg}/${file_t2s}_reg.nii.gz -o ${ofolder_reg}/${file_t2s}_reg_crop.nii.gz -start 3 -end -3 -dim 2
 sct_crop_image -i ${ofolder_reg}/${file_t1w}_reg.nii.gz -o ${ofolder_reg}/${file_t1w}_reg_crop.nii.gz -start 3 -end -3 -dim 2
-sct_crop_image -i ${ofolder_reg}/${file_t1w_mts}_reg.nii.gz -o ${ofolder_reg}/${file_t1w_mts}_reg_crop.nii.gz -start 3 -end -3 -dim 2
+sct_crop_image -i ${ofolder_reg}/${file_t1w_mts}.nii.gz -o ${ofolder_reg}/${file_t1w_mts}_crop.nii.gz -start 3 -end -3 -dim 2 #not registered
 
 # Delete useless images
 # rm "${ofolder_reg}/${file_t1w_mts}_mask.nii.gz"
