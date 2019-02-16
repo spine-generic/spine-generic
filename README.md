@@ -19,29 +19,29 @@ ucl_spineGeneric
 ├── participants.json
 ├── participants.tsv
 ├── sub-01
-└── sub-02
-└── sub-03
-└── sub-04
-└── sub-05
+├── sub-02
+├── sub-03
+├── sub-04
+├── sub-05
 └── sub-06
-│   ├── anat
-│   │   ├── sub-06_T1w.json
-│   │   ├── sub-06_T1w.nii.gz
-│   │   ├── sub-06_T2star.json
-│   │   ├── sub-06_T2star.nii.gz
-│   │   ├── sub-06_T2w.json
-│   │   ├── sub-06_T2w.nii.gz
-│   │   ├── sub-06_acq-MToff_MTS.json
-│   │   ├── sub-06_acq-MToff_MTS.nii.gz
-│   │   ├── sub-06_acq-MTon_MTS.json
-│   │   ├── sub-06_acq-MTon_MTS.nii.gz
-│   │   ├── sub-06_acq-T1w_MTS.json
-│   │   └── sub-06_acq-T1w_MTS.nii.gz
-│   └── dwi
-│       ├── sub-06_dwi.bval
-│       ├── sub-06_dwi.bvec
-│       ├── sub-06_dwi.json
-│       └── sub-06_dwi.nii.gz
+    ├── anat
+    │   ├── sub-06_T1w.json
+    │   ├── sub-06_T1w.nii.gz
+    │   ├── sub-06_T2star.json
+    │   ├── sub-06_T2star.nii.gz
+    │   ├── sub-06_T2w.json
+    │   ├── sub-06_T2w.nii.gz
+    │   ├── sub-06_acq-MToff_MTS.json
+    │   ├── sub-06_acq-MToff_MTS.nii.gz
+    │   ├── sub-06_acq-MTon_MTS.json
+    │   ├── sub-06_acq-MTon_MTS.nii.gz
+    │   ├── sub-06_acq-T1w_MTS.json
+    │   └── sub-06_acq-T1w_MTS.nii.gz
+    └── dwi
+        ├── sub-06_dwi.bval
+        ├── sub-06_dwi.bvec
+        ├── sub-06_dwi.json
+        └── sub-06_dwi.nii.gz
 ~~~
 
 To convert your DICOM data folder to the compatible BIDS structure, we provide a script called `convert_dcm2bids.py`. In order to use it, you will first need to install the following applications:
