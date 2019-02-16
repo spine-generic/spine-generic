@@ -61,11 +61,11 @@ def convert_dcm2bids(path_data, subject, path_out='./'):
 
     # Logging conversion dcm2nii
     logging.basicConfig(filename=path_out + '/bids_neuropoly_logger.log', level=logging.INFO)
-    
+
     # Get git hashtag
     script_dir = os.path.dirname(os.path.realpath(__file__))
-    head_path_script_dir, tail_path_script_dir = os.path.split(script_dir)
-    repo = git.Repo(head_path_script_dir)
+    # head_path_script_dir, tail_path_script_dir = os.path.split(script_dir)
+    repo = git.Repo(script_dir)
     sha = repo.head.object.hexsha
     logging.info('System: ' + platform.system() + ', Release: ' + platform.release())
     logging.info('convert_dcm2bids (version: ' + sha + ')\n')
@@ -144,7 +144,7 @@ def convert_dcm2bids(path_data, subject, path_out='./'):
                     # Move
                     shutil.move(nii_file_all_ext, fname_out)
                 break
-    
+
     logging.info('Move data to BIDS output dir: \n'+'\n'.join(msgs))
 
 
