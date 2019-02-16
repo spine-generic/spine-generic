@@ -2,6 +2,9 @@
 
 Description of the publicly-available database and processing pipeline for the "spine generic protocol" project.
 
+- [Data collection and organization](#data-collection-and-organization)
+- [Analysis pipeline](#analysis-pipeline)
+
 ## Data collection and organization
 
 The "Spine Generic" MRI acquisition protocol is available at [this link](https://osf.io/tt4z9/). If your site is interested in participating in this publicly-available database, please contact Julien Cohen-Adad for details. 
