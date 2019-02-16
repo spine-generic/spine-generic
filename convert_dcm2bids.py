@@ -60,11 +60,10 @@ def convert_dcm2bids(path_data, subject, path_out='./'):
         os.makedirs(path_out)
 
     # Logging conversion dcm2nii
-    logging.basicConfig(filename=path_out + '/bids_neuropoly_logger.log', level=logging.INFO)
+    logging.basicConfig(filename=path_out + '/convert_dcm2bids.log', level=logging.INFO)
 
     # Get git hashtag
     script_dir = os.path.dirname(os.path.realpath(__file__))
-    # head_path_script_dir, tail_path_script_dir = os.path.split(script_dir)
     repo = git.Repo(script_dir)
     sha = repo.head.object.hexsha
     logging.info('System: ' + platform.system() + ', Release: ' + platform.release())
