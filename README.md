@@ -7,37 +7,69 @@ Description of the publicly-available database and processing pipeline for the "
 
 ## Data collection and organization
 
-The "Spine Generic" MRI acquisition protocol is available at [this link](https://osf.io/tt4z9/). If your site is interested in participating in this publicly-available database, please contact Julien Cohen-Adad for details. 
+The "Spine Generic" MRI acquisition protocol is available at [this link](https://osf.io/tt4z9/). If your site is interested in participating in this publicly-available database, please contact Julien Cohen-Adad for details.
 
-To facilitate the collection of data, we use the [BIDS standard](http://bids.neuroimaging.io/). Each proprietary DICOM data should be converted to NIFTI format using [dcm2niix](https://www.nitrc.org/plugins/mwiki/index.php/dcm2nii:MainPage) with option to output JSON file alongside each NIFTI file. Each participant is expected to provide a zip file containing the following data shown below. To facilitate the conversion from DICOM folder to BIDS dataset, people can use the [convert_dcm2nii](https://github.com/neuropoly/bids_neuropoly) script.
+### Data conversion: DICOM to BIDS
 
-### BIDS-compatible data structure
+To facilitate the collection, sharing and processing of data, we use the [BIDS standard](http://bids.neuroimaging.io/). An example of the data structure is shown below:
+
 ~~~
-site/
-└── dataset_description.json
-└── participants.tsv
-└── sub-01
-    └── anat
-             └── sub-01_T1w.nii.gz
-             └── sub-01_T1w.json
-             └── sub-01_T2w.nii.gz
-             └── sub-01_T2w.json
-             └── sub-01_acq-MTon_MTS.nii.gz
-             └── sub-01_acq-MTon_MTS.json
-             └── sub-01_acq-MToff_MTS.nii.gz
-             └── sub-01_acq-MToff_MTS.json
-             └── sub-01_acq-T1w_MTS.nii.gz
-             └── sub-01_acq-T1w_MTS.json
-             └── sub-01_T2star.nii.gz
-             └── sub-01_T2star.json
-    └── dwi
-             └── sub-01_dwi.nii.gz
-             └── sub-01_dwi.bval
-             └── sub-01_dwi.bvec
-             └── sub-01_dwi.json
+ucl_spineGeneric
+├── dataset_description.json
+├── participants.json
+├── participants.tsv
+├── sub-01
+└── sub-02
+└── sub-03
+└── sub-04
+└── sub-05
+└── sub-06
+│   ├── anat
+│   │   ├── sub-06_T1w.json
+│   │   ├── sub-06_T1w.nii.gz
+│   │   ├── sub-06_T2star.json
+│   │   ├── sub-06_T2star.nii.gz
+│   │   ├── sub-06_T2w.json
+│   │   ├── sub-06_T2w.nii.gz
+│   │   ├── sub-06_acq-MToff_MTS.json
+│   │   ├── sub-06_acq-MToff_MTS.nii.gz
+│   │   ├── sub-06_acq-MTon_MTS.json
+│   │   ├── sub-06_acq-MTon_MTS.nii.gz
+│   │   ├── sub-06_acq-T1w_MTS.json
+│   │   └── sub-06_acq-T1w_MTS.nii.gz
+│   └── dwi
+│       ├── sub-06_dwi.bval
+│       ├── sub-06_dwi.bvec
+│       ├── sub-06_dwi.json
+│       └── sub-06_dwi.nii.gz
 ~~~
-### dataset_description.json
-```
+
+To convert your DICOM data folder to the compatible BIDS structure, we provide a script called `convert_dcm2bids.py`. In order to use it, you will first need to install the following applications:
+- [Python 2.x or 3.x](https://conda.io/en/latest/miniconda.html) (usually natively installed on Linux and OSX systems)
+- [git](https://git-scm.com/downloads) (usually natively installed on Linux and OSX systems)
+- [dcm2niix](https://www.nitrc.org/plugins/mwiki/index.php/dcm2nii:MainPage) from Chris Rorden.
+
+Then, follow this procedure to install `convert_dcm2bids.py`:
+~~~
+git clone https://github.com/sct-pipeline/spine_generic.git
+cd spine_generic
+pip install -r requirements.txt
+~~~
+
+To convert the DICOM folder of a subject, run the following command:
+~~~
+python convert_dcm2nii.py -d <PATH_DICOM> -s <SUBJECT_ID> -o <PATH_OUT>
+~~~
+
+For example:
+~~~
+python convert_dcm2nii.py -d /Users/julien/Desktop/DICOM_subj3 -s sub-03 -o /Users/julien/milan_spineGeneric
+~~~
+
+Once you've converted all subjects for the study, create the following files and add them to the data structure:
+
+**dataset_description.json** (Pick the correct values depending on your system and environment)
+```json
 {
 	"Name": "Spinal Cord MRI Public Database",
 	"BIDSVersion": "1.0.1",
@@ -50,28 +82,36 @@ site/
 }
 ```
 
-### participants.tsv
+**participants.json** (This file is generic, you don't need to change anything there)
+```json
+{
+    "participant_id": {
+        "LongName": "Participant ID",
+        "Description": "Unique ID"
+    },
+    "sex": {
+        "LongName": "Participant gender",
+        "Description": "M or F"
+    },
+    "age": {
+        "LongName": "Participant age",
+        "Description": "yy"
+    },
+    "date_of_scan": {
+        "LongName": "Date of scan",
+        "Description": "yyyy-mm-dd"
+    }
+}
+```
 
-~~~
+**participants.tsv** (Tab-separated values)
+```
 id	sex	age	date_of_scan
 sub-01	M	35	2018-12-18
 sub-02	F	30	2018-11-01
-~~~
-
-### sub-XX_contrast.json
-
-Where contrast={"T1w", "T2w", "T2star", "dwi", "MT", "PD"}
-Note, the fields listed below are the mandatory fields. It is fine to have more fields. E.g., if you use `dcm2niix` you will likely have more entries. EchoTime and RepetitionTime are in seconds.
 ```
-{
-	"FlipAngle": 90,
-	"EchoTime": 0.06,
-	"RepetitionTime": 0.61,
-	"PhaseEncodingDirection": "j-",
-	"ConversionSoftware": "dcm2niix",
-	"ConversionSoftwareVersion": "v1.0.20170130 (openJPEG build)",
-}
-```
+
+Once you've created the BIDS dataset, zip the entire folder. It is now ready for sharing!
 
 ### Ethics and anonymization
 
