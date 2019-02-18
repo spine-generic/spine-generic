@@ -1,3 +1,12 @@
+#!/usr/bin/env python
+#
+# Script to check if dataset is named correctly for BIDS
+#
+# Usage:
+#   python dataset_validator.py -r PATH_TO_INDIVIDUAL_BIDS_DATASET
+#
+# Authors: Alexandru Foias, Julien Cohen-Adad
+
 from bids_validator import BIDSValidator
 import os, argparse
 
