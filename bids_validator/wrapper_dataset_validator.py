@@ -3,7 +3,7 @@
 # Wrapper to check BIDS datasets within a root
 #
 # Usage:
-#   python wrapper_check_dataset.py -r 
+#   python wrapper_check_dataset.py -r PATH_TO_ROOT_BIDS_DATASETS
 #
 # Authors: Alexandru Foias, Julien Cohen-Adad
 
