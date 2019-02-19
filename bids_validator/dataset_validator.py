@@ -25,7 +25,9 @@ def check_bids_dataset(path_data):
     :param path_data: Path to input BIDS dataset directory
     :return:
     """
+    print '\nNow checking : ' + path_data
     validator = BIDSValidator()
+    flag_warning = False
     for subdir in os.listdir(path_data):
         path_sub_dir = os.path.join(path_data,subdir)
         for r,d,f in os.walk(path_sub_dir):
@@ -35,6 +37,9 @@ def check_bids_dataset(path_data):
                     path_datafile = ('/' + rel_root_path + '/' +  datafile)
                     if (validator.is_bids(path_datafile)) == False and datafile != '.DS_Store':
                         print 'Warning : ' + path_datafile + ' is named incorrectly.'
+                        flag_warning = True
+    if flag_warning == False:
+        print 'No problems found :)'
 
 if __name__ == "__main__":
     args = get_parameters()
