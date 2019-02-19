@@ -25,19 +25,36 @@ def check_bids_dataset(path_data):
     :param path_data: Path to input BIDS dataset directory
     :return:
     """
+
     print '\nNow checking : ' + path_data
+
     validator = BIDSValidator()
     flag_warning = False
+
+    # Check if the dataset has the required files
+    required_files_BIDS = ["dataset_description.json", "participants.tsv","participants.json"]
+    for item in required_files_BIDS:
+        if os.path.isfile(os.path.join(path_data,item)) == False:
+            print 'Warning - missing: /' + item
+            flag_warning = True
+    # Loop within the BIDS dataset to check if is BIDS
     for subdir in os.listdir(path_data):
         path_sub_dir = os.path.join(path_data,subdir)
+        # Check if the top level files are named correctly
+        if os.path.isfile(path_sub_dir):
+            if validator.is_bids('/' + subdir) == False and subdir != '.DS_Store':
+                print 'Warning : ' + '/' + subdir + '  is not BIDS.'
+                flag_warning = True
+        # Check if the files associated to a subject is BIDS
         for r,d,f in os.walk(path_sub_dir):
             if f != []:
                 rel_root_path = '/'.join(r.split('/')[(len(r.split('/'))-2):len(r.split('/'))])
                 for datafile in f:
                     path_datafile = ('/' + rel_root_path + '/' +  datafile)
                     if (validator.is_bids(path_datafile)) == False and datafile != '.DS_Store':
-                        print 'Warning : ' + path_datafile + ' is named incorrectly.'
+                        print 'Warning : ' + path_datafile + ' is not BIDS.'
                         flag_warning = True
+    
     if flag_warning == False:
         print 'No problems found :)'
 
