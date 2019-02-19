@@ -3,7 +3,7 @@
 # Wrapper to check BIDS datasets within a root
 #
 # Usage:
-#   python wrapper_dataset_validator.py -r PATH_TO_ROOT_BIDS_DATASETS
+#   python wrapper_dataset_validator.py -d PATH_TO_ROOT_BIDS_DATASETS
 #
 # Authors: Alexandru Foias, Julien Cohen-Adad
 
@@ -12,7 +12,7 @@ import dataset_validator
 
 def get_parameters():
     parser = argparse.ArgumentParser(description='Wrapper to check BIDS datasets within a root')
-    parser.add_argument('-r', '--path-root-data',
+    parser.add_argument('-d', '--path-root-data',
                         help='Path to input root BIDS datasets directory.',
                         required=True)
     args = parser.parse_args()
