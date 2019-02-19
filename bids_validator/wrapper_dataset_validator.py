@@ -31,7 +31,6 @@ def wrapper_dataset_validator(path_root_data):
     #loop accros the individual BIDS datasets
     for item in list_BIDS_dataset:
         path_bids_dataset = os.path.join(path_root_data,item)
-        print '\n Now checking : ' + path_bids_dataset
         if os.path.isdir(path_bids_dataset):
             #call dataset_validator.py
             dataset_validator.check_bids_dataset(path_bids_dataset)
