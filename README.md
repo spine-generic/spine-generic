@@ -76,13 +76,18 @@ Once you've converted all subjects for the study, create the following files and
 	"Name": "Spinal Cord MRI Public Database",
 	"BIDSVersion": "1.0.1",
 	"InstitutionName": "Name of the institution",
-	"Manufacturer": {"Siemens", "GE", "Philips"},
-	"ManufacturersModelName": {"Prisma_fit", "Skyra", "750w", "Achieva", ...},
-	"ReceiveCoilName": {"64ch+spine", "12ch+4ch neck", "neurovascular", ...},
-	"SoftwareVersion": {"VE11C", "DV26.0", "R5.3", ...},
+	"Manufacturer": "YOUR_VENDOR",
+	"ManufacturersModelName": "YOUR_MODEL",
+	"ReceiveCoilName": "YOUR_COIL",
+	"SoftwareVersion": "YOUR_SOFTWARE",
 	"Researcher": "J. Doe, S. Wonder, J. Pass",
 }
 ```
+Example of possible values:
+- **Manufacturer**: "Siemens", "GE", "Philips"
+- **ManufacturersModelName**: "Prisma_fit", "Skyra", "750w", "Achieva"
+- **ReceiveCoilName**: "64ch+spine", "12ch+4ch neck", "neurovascular"
+- **SoftwareVersion**: "VE11C", "DV26.0", "R5.3", ...
 
 **participants.json** (This file is generic, you don't need to change anything there)
 ```json
