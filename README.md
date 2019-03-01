@@ -1,4 +1,4 @@
-# spine_generic
+# spine-generic
 
 Description of the publicly-available database and processing pipeline for the "spine generic protocol" project.
 
