@@ -51,14 +51,14 @@ To convert your DICOM data folder to the compatible BIDS structure, we provide a
 
 Then, follow this procedure to install `convert_dcm2bids.py`:
 ~~~
-git clone https://github.com/sct-pipeline/spine_generic.git
-cd spine_generic
-pip install -r requirements.txt
+git clone https://github.com/sct-pipeline/spine-generic.git
+cd spine-generic
+sudo pip install -r requirements.txt
 ~~~
 
 To convert the DICOM folder of a subject, run the following command:
 ~~~
-python convert_dcm2nii.py -d <PATH_DICOM> -s <SUBJECT_ID> -o <PATH_OUT>
+python convert_dcm2bids.py -d <PATH_DICOM> -s <SUBJECT_ID> -o <PATH_OUT>
 ~~~
 
 For example:
