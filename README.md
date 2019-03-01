@@ -126,6 +126,8 @@ Each subject consented to be scanned and to have their anonymized data put in a 
 
 Anatomical scans where facial features are visible (T1w) could be "defaced" before being collected (at the discretion of the subject). Because FreeSurfer's `mri_deface` does not work well on those data (which include a big portion of the spine), we recommend to do the defacing manually. It is a very easy procedure that takes less than a minute. To do so, open Fsleyes (as an example, but you could use another MRI editor) and open the T1w scan. Go to **Tools > Edit mode**, Select the pencil with size 100, deface, then save. Below is an example of a defaced subject:
 
+![example_defacing](doc/example_defacing.png)
+
 ## Example datasets (WIP)
 
 We provide two example datasets:
