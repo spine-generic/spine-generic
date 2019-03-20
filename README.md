@@ -88,6 +88,7 @@ Once you've converted all subjects for the study, create the following files and
 	"ReceiveCoilName": "YOUR_COIL",
 	"SoftwareVersion": "YOUR_SOFTWARE",
 	"Researcher": "J. Doe, S. Wonder, J. Pass",
+	"Notes": "Particular notes you might have. E.g.: We don't have the ZOOMit license, unf-prisma/sub-01 and unf-skyra/sub-03 is the same subject.
 }
 ```
 Example of possible values:
