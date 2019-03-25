@@ -81,7 +81,7 @@
         },    
         {
             "dataType": "dwi",
-            "modalityLabel": "b0",
+            "modalityLabel": "acq-b0_dwi",
             "criteria": {
                 "SeriesDescription": "DWI_b0",
                 "ProtocolName": "DWI_b0"
