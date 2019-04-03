@@ -67,7 +67,7 @@ Once you've converted all subjects for the study, create the following files and
 ```json
 {
 	"Name": "Spinal Cord MRI Public Database",
-	"BIDSVersion": "1.0.1",
+	"BIDSVersion": "1.2.0",
 	"InstitutionName": "Name of the institution",
 	"Manufacturer": "YOUR_VENDOR",
 	"ManufacturersModelName": "YOUR_MODEL",
@@ -83,7 +83,7 @@ Example of possible values:
 - **ReceiveCoilName**: "64ch+spine", "12ch+4ch neck", "neurovascular"
 - **SoftwareVersion**: "VE11C", "DV26.0", "R5.3", ...
 
-**participants.json** (This file is generic, you don't need to change anything there)
+**participants.json** (This file is generic, you don't need to change anything there. Just create a new file with this content)
 ```json
 {
     "participant_id": {
@@ -112,7 +112,7 @@ sub-01	M	35	2018-12-18
 sub-02	F	30	2018-11-01
 ```
 
-Once you've created the BIDS dataset, zip the entire folder. It is now ready for sharing!
+Once you've created the BIDS dataset, remove any temp folders (e.g., `tmp_dcm2bids/`) and zip the entire folder. It is now ready for sharing!
 
 ### Ethics and anonymization
 
