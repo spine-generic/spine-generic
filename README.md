@@ -7,7 +7,7 @@ Description of the publicly-available database and processing pipeline for the "
 
 ## Data collection and organization
 
-The "Spine Generic" MRI acquisition protocol is available at [this link](https://osf.io/tt4z9/). If your site is interested in participating in this publicly-available database, please contact Julien Cohen-Adad for details.
+The "Spine Generic" MRI acquisition protocol is available at [this link](https://osf.io/tt4z9/). Each site scanned six healthy subjects (3 men, 3 women), aged between 20 and 40 y.o. Note: there is a flexibility here, and if you wish to scan more than 6 subjects, you are welcome to. If your site is interested in participating in this publicly-available database, please contact Julien Cohen-Adad for details.
 
 ### Data conversion: DICOM to BIDS
 
