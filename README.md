@@ -112,7 +112,7 @@ sub-01	M	35	2018-12-18
 sub-02	F	30	2018-11-01
 ```
 
-Once you've created the BIDS dataset, remove any temp folders (e.g., `tmp_dcm2bids/`) and zip the entire folder. It is now ready for sharing!
+Once you've created the BIDS dataset, remove any temp folders (e.g., `tmp_dcm2bids/`) and zip the entire folder. It is now ready for sharing! You could send it to Julien Cohen-Adad via any cloud-based method (Gdrive, Dropbox, etc.).
 
 ### Ethics and anonymization
 
