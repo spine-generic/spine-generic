@@ -36,18 +36,36 @@ PATH_LOG=$5
 # FUNCTIONS
 # ==============================================================================
 
-# Check if manual segmentation already exists. If it does, copy it locally. If it does not, perform seg.
+# Check if manual label already exists. If it does, copy it locally. If it does
+# not, perform labeling.
+label_if_does_not_exist(){
+  local file="$1"
+  local file_seg="$2"
+  # Update global variable with segmentation file name
+  FILELABEL="${file}_labels"
+  if [ -e "${PATH_SEGMANUAL}/${SITE}/${file}_labels-manual.nii.gz" ]; then
+    rsync -avzh "${PATH_SEGMANUAL}/${SITE}/${file}_labels-manual.nii.gz" ${FILELABEL}.nii.gz
+  else
+    # Generate labeled segmentation
+    sct_label_vertebrae -i ${file}.nii.gz -s ${file_seg}.nii.gz -c t1 -qc ${PATH_QC}
+    # Create labels in the cord at C2 and C5 mid-vertebral levels (only if it does not exist)
+    sct_label_utils -i ${file_seg}_labeled.nii.gz -vert-body 2,5 -o ${FILELABEL}.nii.gz
+  fi
+}
+
+# Check if manual segmentation already exists. If it does, copy it locally. If
+# it does not, perform seg.
 segment_if_does_not_exist(){
   local file="$1"
   local contrast="$2"
-  if [ -e "${PATH_SEGMANUAL}/${SITE}/${file}_seg-manual.nii.gz" ]; then
-    rsync -avzh "${PATH_SEGMANUAL}/${SITE}/${file}_seg-manual.nii.gz" ${file}_seg.nii.gz
+  # Update global variable with segmentation file name
+  FILESEG="${file}_seg"
+  if [ -e "${PATH_SEGMANUAL}/${SITE}/${FILESEG}-manual.nii.gz" ]; then
+    rsync -avzh "${PATH_SEGMANUAL}/${SITE}/${FILESEG}-manual.nii.gz" ${FILESEG}.nii.gz
   else
     # Segment spinal cord
     sct_deepseg_sc -i ${file}.nii.gz -c $contrast -qc ${PATH_QC} -qc-dataset ${SITE} -qc-subject ${SUBJECT}
   fi
-  # Update global variable with segmentation file name
-  FILESEG="${file}_seg"
 }
 
 
@@ -67,16 +85,9 @@ file="${file_t1}_RPI_r"
 # Segment spinal cord (only if it does not exist)
 segment_if_does_not_exist $file_t1 "t1"
 file_t1_seg=$FILESEG
-
-# Check if manual labels already exists
-# if [ ! -e "label_c2c3.nii.gz" ]; then
-  # echo "Create manual label at C2-C3 disc."
-  # sct_label_utils -i ${file}.nii.gz -create-viewer 3 -o label_c2c3.nii.gz -msg "Click at the posterior tip of C2-C3 disc, then click 'Save and Quit'"
-# fi
-# Generate labeled segmentation
-sct_label_vertebrae -i ${file_t1}.nii.gz -s ${file_t1_seg}.nii.gz -c t1 -qc ${PATH_QC}
-# Create labels in the cord at C2 and C5 mid-vertebral levels
-sct_label_utils -i ${file_t1_seg}_labeled.nii.gz -vert-body 2,5 -o labels_vert.nii.gz
+# Create labels in the cord at C2 and C5 mid-vertebral levels (only if it does not exist)
+label_if_does_not_exist ${file_t1} ${file_t1_seg}
+file_label=$FILELABEL
 # Register to PAM50 template
 sct_register_to_template -i ${file_t1}.nii.gz -s ${file_t1_seg}.nii.gz -l labels_vert.nii.gz -c t1 -param step=1,type=seg,algo=centermassrot:step=2,type=seg,algo=syn,slicewise=1,smooth=0,iter=5:step=3,type=im,algo=syn,slicewise=1,smooth=0,iter=3 -qc ${PATH_QC}
 # Rename warping fields for clarity
