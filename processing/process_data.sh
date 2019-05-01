@@ -59,7 +59,7 @@ cd ${SUBJECT}/anat/
 
 # T1w
 # ------------------------------------------------------------------------------
-file_t2="${SUBJECT}_T1w"
+file_t1="${SUBJECT}_T1w"
 # Reorient to RPI and resample to 1mm iso (supposed to be the effective resolution)
 sct_image -i ${file_t1}.nii.gz -setorient RPI -o ${file_t1}_RPI.nii.gz
 sct_resample -i ${file_t1}_RPI.nii.gz -mm 1x1x1 -o ${file_t1}_RPI_r.nii.gz
