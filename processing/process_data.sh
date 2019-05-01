@@ -48,8 +48,8 @@ label_if_does_not_exist(){
   else
     # Generate labeled segmentation
     sct_label_vertebrae -i ${file}.nii.gz -s ${file_seg}.nii.gz -c t1 -qc ${PATH_QC} -qc-dataset ${SITE} -qc-subject ${SUBJECT}
-    # Create labels in the cord at C2 and C5 mid-vertebral levels (only if it does not exist)
-    sct_label_utils -i ${file_seg}_labeled.nii.gz -vert-body 2,5 -o ${FILELABEL}.nii.gz
+    # Create labels in the cord at C3 and C5 mid-vertebral levels
+    sct_label_utils -i ${file_seg}_labeled.nii.gz -vert-body 3,5 -o ${FILELABEL}.nii.gz
   fi
 }
 
