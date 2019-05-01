@@ -106,7 +106,7 @@ file_t1_seg=$FILESEG
 label_if_does_not_exist ${file_t1} ${file_t1_seg}
 file_label=$FILELABEL
 # Register to PAM50 template
-sct_register_to_template -i ${file_t1}.nii.gz -s ${file_t1_seg}.nii.gz -l labels_vert.nii.gz -c t1 -param step=1,type=seg,algo=centermassrot:step=2,type=seg,algo=syn,slicewise=1,smooth=0,iter=5:step=3,type=im,algo=syn,slicewise=1,smooth=0,iter=3 -qc ${PATH_QC} -qc-dataset ${SITE} -qc-subject ${SUBJECT}
+sct_register_to_template -i ${file_t1}.nii.gz -s ${file_t1_seg}.nii.gz -l ${file_label}.nii.gz -c t1 -param step=1,type=seg,algo=centermassrot:step=2,type=seg,algo=syn,slicewise=1,smooth=0,iter=5:step=3,type=im,algo=syn,slicewise=1,smooth=0,iter=3 -qc ${PATH_QC} -qc-dataset ${SITE} -qc-subject ${SUBJECT}
 # Rename warping fields for clarity
 mv warp_template2anat.nii.gz warp_template2T1w.nii.gz
 mv warp_anat2template.nii.gz warp_T1w2template.nii.gz
