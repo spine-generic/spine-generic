@@ -3,11 +3,11 @@
 
 # Set every other path relative to this path for convenience
 # Do not add "/" at the end. Path should be absolute (i.e. do not use "~")
-export PATH_PARENT="/Users/julien/data"
+export PATH_PARENT="/Users/julien/spineGeneric_multiSubjects"
 
 # Path to the folder site which contains all sites.
 # Do not add "/" at the end. Path should be absolute (i.e. do not use "~")
-export PATH_DATA="${PATH_PARENT}/spineGeneric_multiSubjects"
+export PATH_DATA="${PATH_PARENT}/data"
 
 # List of subjects to analyse. Comment this variable if you want to analyze all
 # sites in the PATH_DATA folder.
@@ -17,12 +17,12 @@ export PATH_DATA="${PATH_PARENT}/spineGeneric_multiSubjects"
 
 # Paths to where to save the new dataset.
 # Do not add "/" at the end. Path should be absolute (i.e. do not use "~")
-export PATH_OUTPUT="${PATH_PARENT}/spineGeneric/results"
-export PATH_QC="${PATH_PARENT}/spineGeneric/qc"
-export PATH_LOG="${PATH_PARENT}/spineGeneric/log"
+export PATH_OUTPUT="${PATH_PARENT}/results"
+export PATH_QC="${PATH_PARENT}/qc"
+export PATH_LOG="${PATH_PARENT}/log"
 
 # Location of manually-corrected segmentations
-export PATH_SEGMANUAL="${PATH_PARENT}/spineGeneric/seg_manual"
+export PATH_SEGMANUAL="${PATH_PARENT}/seg_manual"
 
 # Number of jobs for parallel processing
 export JOBS=20
