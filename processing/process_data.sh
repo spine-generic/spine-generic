@@ -98,7 +98,7 @@ sct_resample -i ${file_t2}_RPI.nii.gz -mm 0.8x0.8x0.8 -o ${file_t2}_RPI_r.nii.gz
 file_t2="${file_t2}_RPI_r"
 # Segment spinal cord (only if it does not exist)
 segment_if_does_not_exist $file_t2 "t2"
-file_te_seg=$FILESEG
+file_t2_seg=$FILESEG
 # Flatten scan along R-L direction (to make nice figures)
 sct_flatten_sagittal -i ${file_t2}.nii.gz -s ${file_t2_seg}.nii.gz
 # Bring vertebral level into T2 space
