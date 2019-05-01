@@ -64,7 +64,7 @@ and upload the log file. We will offer support.
 Once you've converted all subjects for the study, create the following files and add them to the data structure:
 
 **dataset_description.json** (Pick the correct values depending on your system and environment)
-```json
+```
 {
 	"Name": "Spinal Cord MRI Public Database",
 	"BIDSVersion": "1.2.0",
@@ -77,6 +77,7 @@ Once you've converted all subjects for the study, create the following files and
 	"Notes": "Particular notes you might have. E.g.: We don't have the ZOOMit license, unf-prisma/sub-01 and unf-skyra/sub-03 is the same subject.
 }
 ```
+
 Example of possible values:
 - **Manufacturer**: "Siemens", "GE", "Philips"
 - **ManufacturersModelName**: "Prisma_fit", "Skyra", "750w", "Achieva"
@@ -147,11 +148,32 @@ This pipeline also relies on [FSLeyes](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FS
 
 ### How to run
 
-- Download (or `git clone`) this repository.
-- Go to this repository: `cd spine_generic`
-- Copy the file `parameters_template.sh` and rename it as `parameters.sh`.
-- Edit the file `parameters.sh` and modify the variables according to your needs.
-- Process data: `./run_process.sh process_data.sh`
+Download (or `git clone`) this repository:
+~~~
+git clone https://github.com/sct-pipeline/spine-generic.git
+~~~
+
+Go to this repository:
+~~~
+cd spine-generic/processing
+~~~
+
+Copy and rename the parameter file:
+~~~
+cp parameters_template.sh parameters.sh
+~~~
+
+Edit the parameter file and modify the variables according to your needs:
+~~~
+edit parameters.sh
+~~~
+
+Launch processing
+~~~
+./run_process.sh process_data.sh
+~~~
+
+TODO: explain: QC, edit files and move them to MANUALSEG FOLDER
 
 ## Contributors
 
