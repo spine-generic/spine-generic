@@ -173,7 +173,31 @@ Launch processing
 ./run_process.sh process_data.sh
 ~~~
 
-TODO: explain: QC, edit files and move them to MANUALSEG FOLDER
+After the processing is run, check your Quality Control (QC) report, by opening
+double clicking on the file `qc/index.html`. Use the "Search" feature of the QC
+report to quickly jump to segmentations or labeling results.
+
+If you spot issues with the **segmentation**, identify the segmentation file, open
+it with an editor (e.g., [FSLeyes](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FSLeyes)),
+modify it (Tools > Edit Mode) and save it (Overlay > Save > Save to new file) with suffix `-manual`. Example: `sub-01_T2w_RPI_r_seg-manual.nii.gz`. Then, move the file to the folder you defined
+under the variable `PATH_SEGMANUAL` in the file `parameters.sh`. Important: the manual segmentation
+should be copied under a subfolder named after the site, e.g. `spineGeneric_unf/`
+
+Similarly, if you spot issues with the **vertebral labeling**, manually create labels in the cord at C2 and C5 mid-vertebral levels using the following command (you need to be in the appropriate folder before running the command):
+~~~
+sct_label_utils -i IMAGE -create-viewer 3,5 -o IMAGE_labels-manual.nii.gz
+~~~
+Example:
+~~~
+sct_label_utils -i sub-01_T1w.nii.gz -create-viewer 3,5 -o sub-01_T1w_labels-manual.nii.gz
+mv sub-01_T1w_labels-manual.nii.gz ${PATH_SEGMANUAL}/spineGeneric_unf/
+~~~
+
+Once you've corrected all the necessary files, re-run the whole process. Now, when the manual file exists,
+the script will use it in the processing:
+~~~
+./run_process.sh process_data.sh
+~~~
 
 ## Contributors
 
