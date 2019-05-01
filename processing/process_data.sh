@@ -62,6 +62,7 @@ segment_if_does_not_exist(){
   FILESEG="${file}_seg"
   if [ -e "${PATH_SEGMANUAL}/${SITE}/${FILESEG}-manual.nii.gz" ]; then
     rsync -avzh "${PATH_SEGMANUAL}/${SITE}/${FILESEG}-manual.nii.gz" ${FILESEG}.nii.gz
+    sct_qc -i ${file}.nii.gz -s ${FILESEG}.nii.gz -p sct_deepseg_sc -qc ${PATH_QC} -qc-dataset ${SITE} -qc-subject ${SUBJECT}
   else
     # Segment spinal cord
     sct_deepseg_sc -i ${file}.nii.gz -c $contrast -qc ${PATH_QC} -qc-dataset ${SITE} -qc-subject ${SUBJECT}
@@ -77,6 +78,7 @@ segment_gm_if_does_not_exist(){
   FILESEG="${file}_seg"
   if [ -e "${PATH_SEGMANUAL}/${SITE}/${FILESEG}-manual.nii.gz" ]; then
     rsync -avzh "${PATH_SEGMANUAL}/${SITE}/${FILESEG}-manual.nii.gz" ${FILESEG}.nii.gz
+    sct_qc -i ${file}.nii.gz -s ${FILESEG}.nii.gz -p sct_deepseg_gm -qc ${PATH_QC} -qc-dataset ${SITE} -qc-subject ${SUBJECT}
   else
     # Segment spinal cord
     sct_deepseg_gm -i ${file}.nii.gz -qc ${PATH_QC} -qc-dataset ${SITE} -qc-subject ${SUBJECT}
