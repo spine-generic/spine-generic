@@ -156,7 +156,7 @@ sct_register_multimodal -i ${file_t1_seg}_labeled.nii.gz -d ${file_t2s_seg}.nii.
 # Compute the gray matter CSA between C3 and C4 levels
 # NB: Here we set -no-angle 1 because we do not want angle correction: it is too
 # unstable with GM seg, and t2s data were acquired orthogonal to the cord anyways.
-sct_process_segmentation -i ${file_t2s_seg}.nii.gz -no-angle 1 -vert 3:4 -vertfile ${file_t1_seg}_labeled2${file_t2s}.nii.gz -o ${PATH_OUTPUT}/csa-GM_T2s.csv -append 1
+sct_process_segmentation -i ${file_t2s_seg}.nii.gz -angle-corr 0 -vert 3:4 -vertfile ${file_t1_seg}_labeled2${file_t2s}.nii.gz -o ${PATH_OUTPUT}/csa-GM_T2s.csv -append 1
 
 # DWI
 # ------------------------------------------------------------------------------
@@ -174,7 +174,7 @@ sct_dmri_moco -i ${SUBJECT}_dwi_crop.nii.gz -bvec ${SUBJECT}_dwi.bvec -x spline
 file_dwi=${SUBJECT}_dwi_crop_moco
 file_dwi_mean=${SUBJECT}_dwi_crop_moco_dwi_mean
 # Segment spinal cord (only if it does not exist)
-segment_if_does_not_exist ${SUBJECT}_dwi_crop_moco_dwi_mean.nii.gz "dwi"
+segment_if_does_not_exist ${file_dwi_mean} "dwi"
 file_dwi_seg=$FILESEG
 # Register template->dwi (using template-T1w as initial transformation)
 sct_register_multimodal -i $SCT_DIR/data/PAM50/template/PAM50_t1.nii.gz -iseg $SCT_DIR/data/PAM50/template/PAM50_cord.nii.gz -d ${file_dwi_mean}.nii.gz -dseg ${file_dwi_seg}.nii.gz -param step=1,type=seg,algo=slicereg,metric=MeanSquares,smooth=2:step=2,type=im,algo=bsplinesyn,metric=MeanSquares,iter=5,gradStep=0.5 -initwarp ../anat/warp_template2T1w.nii.gz -initwarpinv ../anat/warp_T1w2template.nii.gz
@@ -184,7 +184,7 @@ mv warp_${file_dwi_mean}2PAM50_t1.nii.gz warp_dwi2template.nii.gz
 # Warp template
 sct_warp_template -d ${file_dwi_mean}.nii.gz -w warp_template2dwi.nii.gz
 # Create mask around the spinal cord (for faster computing)
-sct_maths -i ${file_dwi_seg}.nii.gz -dilate 3,3,0 -o ${file_dwi_seg}_dil.nii.gz
+sct_maths -i ${file_dwi_seg}.nii.gz -dilate 3,3,3 -o ${file_dwi_seg}_dil.nii.gz
 # Compute DTI using RESTORE
 sct_dmri_compute_dti -i ${file_dwi}.nii.gz -bvec ${SUBJECT}_dwi.bvec -bval ${SUBJECT}_dwi.bval -method restore -m ${file_dwi_seg}_dil.nii.gz
 # Compute FA, MD and RD in WM between C2 and C5 vertebral levels
