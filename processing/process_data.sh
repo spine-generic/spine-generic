@@ -47,7 +47,7 @@ label_if_does_not_exist(){
     rsync -avzh "${PATH_SEGMANUAL}/${SITE}/${file}_labels-manual.nii.gz" ${FILELABEL}.nii.gz
   else
     # Generate labeled segmentation
-    sct_label_vertebrae -i ${file}.nii.gz -s ${file_seg}.nii.gz -c t1 -qc ${PATH_QC}
+    sct_label_vertebrae -i ${file}.nii.gz -s ${file_seg}.nii.gz -c t1 -qc ${PATH_QC} -qc-dataset ${SITE} -qc-subject ${SUBJECT}
     # Create labels in the cord at C2 and C5 mid-vertebral levels (only if it does not exist)
     sct_label_utils -i ${file_seg}_labeled.nii.gz -vert-body 2,5 -o ${FILELABEL}.nii.gz
   fi
@@ -65,6 +65,21 @@ segment_if_does_not_exist(){
   else
     # Segment spinal cord
     sct_deepseg_sc -i ${file}.nii.gz -c $contrast -qc ${PATH_QC} -qc-dataset ${SITE} -qc-subject ${SUBJECT}
+  fi
+}
+
+# Check if manual segmentation already exists. If it does, copy it locally. If
+# it does not, perform seg.
+segment_gm_if_does_not_exist(){
+  local file="$1"
+  local contrast="$2"
+  # Update global variable with segmentation file name
+  FILESEG="${file}_seg"
+  if [ -e "${PATH_SEGMANUAL}/${SITE}/${FILESEG}-manual.nii.gz" ]; then
+    rsync -avzh "${PATH_SEGMANUAL}/${SITE}/${FILESEG}-manual.nii.gz" ${FILESEG}.nii.gz
+  else
+    # Segment spinal cord
+    sct_deepseg_gm -i ${file}.nii.gz -qc ${PATH_QC} -qc-dataset ${SITE} -qc-subject ${SUBJECT}
   fi
 }
 
@@ -89,7 +104,7 @@ file_t1_seg=$FILESEG
 label_if_does_not_exist ${file_t1} ${file_t1_seg}
 file_label=$FILELABEL
 # Register to PAM50 template
-sct_register_to_template -i ${file_t1}.nii.gz -s ${file_t1_seg}.nii.gz -l labels_vert.nii.gz -c t1 -param step=1,type=seg,algo=centermassrot:step=2,type=seg,algo=syn,slicewise=1,smooth=0,iter=5:step=3,type=im,algo=syn,slicewise=1,smooth=0,iter=3 -qc ${PATH_QC}
+sct_register_to_template -i ${file_t1}.nii.gz -s ${file_t1_seg}.nii.gz -l labels_vert.nii.gz -c t1 -param step=1,type=seg,algo=centermassrot:step=2,type=seg,algo=syn,slicewise=1,smooth=0,iter=5:step=3,type=im,algo=syn,slicewise=1,smooth=0,iter=3 -qc ${PATH_QC} -qc-dataset ${SITE} -qc-subject ${SUBJECT}
 # Rename warping fields for clarity
 mv warp_template2anat.nii.gz warp_template2T1w.nii.gz
 mv warp_anat2template.nii.gz warp_T1w2template.nii.gz
@@ -143,7 +158,7 @@ sct_register_multimodal -i $SCT_DIR/data/PAM50/template/PAM50_t1.nii.gz -iseg $S
 mv warp_PAM50_t12${file_t1w}.nii.gz warp_template2axT1w.nii.gz
 mv warp_${file_t1w}2PAM50_t1.nii.gz warp_axT1w2template.nii.gz
 # Warp template
-sct_warp_template -d ${file_t1w}.nii.gz -w warp_template2axT1w.nii.gz -ofolder label_axT1w
+sct_warp_template -d ${file_t1w}.nii.gz -w warp_template2axT1w.nii.gz -ofolder label_axT1w -qc ${PATH_QC} -qc-dataset ${SITE} -qc-subject ${SUBJECT}
 # Compute MTR
 sct_compute_mtr -mt0 ${file_mtoff}.nii.gz -mt1 ${file_mton}.nii.gz
 # Compute MTsat
@@ -159,8 +174,8 @@ file_t2s="${SUBJECT}_T2star"
 # Compute root-mean square across 4th dimension (if it exists), corresponding to all echoes in Philips scans.
 sct_maths -i ${file_t2s}.nii.gz -rms t -o ${file_t2s}_rms.nii.gz
 file_t2s="${file_t2s}_rms"
-# Segment spinal cord (only if it does not exist)
-segment_if_does_not_exist $file_t2s "t2s"
+# Segment gray matter (only if it does not exist)
+segment_gm_if_does_not_exist $file_t2s "t2s"
 file_t2s_seg=$FILESEG
 # Bring vertebral level into T2s space
 sct_register_multimodal -i ${file_t1_seg}_labeled.nii.gz -d ${file_t2s_seg}.nii.gz -o ${file_t1_seg}_labeled2${file_t2s}.nii.gz -identity 1 -x nn
@@ -193,7 +208,7 @@ sct_register_multimodal -i $SCT_DIR/data/PAM50/template/PAM50_t1.nii.gz -iseg $S
 mv warp_PAM50_t12${file_dwi_mean}.nii.gz warp_template2dwi.nii.gz
 mv warp_${file_dwi_mean}2PAM50_t1.nii.gz warp_dwi2template.nii.gz
 # Warp template
-sct_warp_template -d ${file_dwi_mean}.nii.gz -w warp_template2dwi.nii.gz
+sct_warp_template -d ${file_dwi_mean}.nii.gz -w warp_template2dwi.nii.gz -qc ${PATH_QC} -qc-dataset ${SITE} -qc-subject ${SUBJECT}
 # Create mask around the spinal cord (for faster computing)
 sct_maths -i ${file_dwi_seg}.nii.gz -dilate 3,3,3 -o ${file_dwi_seg}_dil.nii.gz
 # Compute DTI using RESTORE
