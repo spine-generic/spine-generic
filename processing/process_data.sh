@@ -51,11 +51,11 @@ segment_if_does_not_exist(){
 }
 
 
-# SCRIPT START HERE
+# SCRIPT STARTS HERE
 # ==============================================================================
 
 # Go to anat folder where all structural data are located
-cd anat/
+cd ${SUBJECT}/anat/
 
 # T1w
 # ------------------------------------------------------------------------------
