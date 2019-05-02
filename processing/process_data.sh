@@ -98,7 +98,7 @@ file_t1="${SUBJECT}_T1w"
 # Reorient to RPI and resample to 1mm iso (supposed to be the effective resolution)
 sct_image -i ${file_t1}.nii.gz -setorient RPI -o ${file_t1}_RPI.nii.gz
 sct_resample -i ${file_t1}_RPI.nii.gz -mm 1x1x1 -o ${file_t1}_RPI_r.nii.gz
-file="${file_t1}_RPI_r"
+file_t1="${file_t1}_RPI_r"
 # Segment spinal cord (only if it does not exist)
 segment_if_does_not_exist $file_t1 "t1"
 file_t1_seg=$FILESEG
