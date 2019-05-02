@@ -190,6 +190,7 @@ sct_label_utils -i IMAGE -create-viewer 3,5 -o IMAGE_labels-manual.nii.gz
 Example:
 ~~~
 sct_label_utils -i sub-01_T1w.nii.gz -create-viewer 3,5 -o sub-01_T1w_labels-manual.nii.gz
+mkdir ${PATH_SEGMANUAL}/spineGeneric_unf/
 mv sub-01_T1w_labels-manual.nii.gz ${PATH_SEGMANUAL}/spineGeneric_unf/
 ~~~
 
