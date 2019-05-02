@@ -139,6 +139,21 @@ sct_process_segmentation -i ${file_t2_seg}.nii.gz -vert 2:3 -vertfile ${file_t1_
 file_t1w="${SUBJECT}_acq-T1w_MTS"
 file_mton="${SUBJECT}_acq-MTon_MTS"
 file_mtoff="${SUBJECT}_acq-MToff_MTS"
+# Grab TR and FA from the 3 files
+FA_t1w=`grep 'FlipAngle' "$file_t1w" | sed 's/^.*: //'`
+FA_t1w="${FA_t1w:0:1}"
+FA_mton=`grep 'FlipAngle' "$file_mton" | sed 's/^.*: //'`
+FA_mton="${FA_mton:0:1}"
+FA_mtoff=`grep 'FlipAngle' "$file_mtoff" | sed 's/^.*: //'`
+FA_mtoff="${FA_mtoff:0:1}"
+
+TR_t1w=`grep 'RepetitionTime' "$file_t1w" | sed 's/^.*: //'`
+TR_t1w="${TR_t1w:0:1}"
+TR_mton=`grep 'RepetitionTime' "$file_mton" | sed 's/^.*: //'`
+TR_mton="${TR_mton:0:1}"
+TR_mtoff=`grep 'RepetitionTime' "$file_mtoff" | sed 's/^.*: //'`
+TR_mtoff="${TR_mtoff:0:1}"
+
 # Segment spinal cord (only if it does not exist)
 segment_if_does_not_exist $file_t1w "t1"
 file_t1w_seg=$FILESEG
@@ -164,7 +179,7 @@ sct_warp_template -d ${file_t1w}.nii.gz -w warp_template2axT1w.nii.gz -ofolder l
 # Compute MTR
 sct_compute_mtr -mt0 ${file_mtoff}.nii.gz -mt1 ${file_mton}.nii.gz
 # Compute MTsat
-sct_compute_mtsat -mt ${file_mton}.nii.gz -pd ${file_mtoff}.nii.gz -t1 ${file_t1w}.nii.gz -trmt 57 -trpd 57 -trt1 15 -famt 9 -fapd 9 -fat1 15
+sct_compute_mtsat -mt ${file_mton}.nii.gz -pd ${file_mtoff}.nii.gz -t1 ${file_t1w}.nii.gz -trmt $TR_mton -trpd $TR_mtoff -trt1 $TR_t1w -famt $FA_mton -fapd $FA_mtoff -fat1 $FA_t1w
 # Extract MTR, MTsat and T1 in WM between C2 and C5 vertebral levels
 sct_extract_metric -i mtr.nii.gz -f label_axT1w/atlas -l 51 -vert 2:5 -vertfile label_axT1w/template/PAM50_levels.nii.gz -o ${PATH_OUTPUT}/MTR.csv -append 1
 sct_extract_metric -i mtsat.nii.gz -f label_axT1w/atlas -l 51 -vert 2:5 -vertfile label_axT1w/template/PAM50_levels.nii.gz -o ${PATH_OUTPUT}/MTsat.csv -append 1
