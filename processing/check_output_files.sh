@@ -37,6 +37,6 @@ FILES_TO_CHECK=(
 )
 for file in ${FILES_TO_CHECK[@]}; do
   if [ ! -e $file ]; then
-    echo "${file} does not exist" >> $PATH_LOG/_error_check_input_files.log
+    echo "${file} does not exist" >> $PATH_LOG/_error_check_output_files.log
   fi
 done
