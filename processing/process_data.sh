@@ -75,7 +75,7 @@ segment_gm_if_does_not_exist(){
   local file="$1"
   local contrast="$2"
   # Update global variable with segmentation file name
-  FILESEG="${file}_seg"
+  FILESEG="${file}_gmseg"
   if [ -e "${PATH_SEGMANUAL}/${SITE}/${FILESEG}-manual.nii.gz" ]; then
     rsync -avzh "${PATH_SEGMANUAL}/${SITE}/${FILESEG}-manual.nii.gz" ${FILESEG}.nii.gz
     sct_qc -i ${file}.nii.gz -s ${FILESEG}.nii.gz -p sct_deepseg_gm -qc ${PATH_QC} -qc-dataset ${SITE} -qc-subject ${SUBJECT}
@@ -176,11 +176,11 @@ file_t2s="${SUBJECT}_T2star"
 # Compute root-mean square across 4th dimension (if it exists), corresponding to all echoes in Philips scans.
 sct_maths -i ${file_t2s}.nii.gz -rms t -o ${file_t2s}_rms.nii.gz
 file_t2s="${file_t2s}_rms"
+# Bring vertebral level into T2s space
+sct_register_multimodal -i ${file_t1_seg}_labeled.nii.gz -d ${file_t2s}.nii.gz -o ${file_t1_seg}_labeled2${file_t2s}.nii.gz -identity 1 -x nn
 # Segment gray matter (only if it does not exist)
 segment_gm_if_does_not_exist $file_t2s "t2s"
 file_t2s_seg=$FILESEG
-# Bring vertebral level into T2s space
-sct_register_multimodal -i ${file_t1_seg}_labeled.nii.gz -d ${file_t2s_seg}.nii.gz -o ${file_t1_seg}_labeled2${file_t2s}.nii.gz -identity 1 -x nn
 # Compute the gray matter CSA between C3 and C4 levels
 # NB: Here we set -no-angle 1 because we do not want angle correction: it is too
 # unstable with GM seg, and t2s data were acquired orthogonal to the cord anyways.
