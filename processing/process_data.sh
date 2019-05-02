@@ -3,7 +3,7 @@
 # Process data. This script should be run within the subject's folder.
 #
 # Usage:
-#   ./process_data.sh <subject_ID>
+#   ./process_data.sh <SUBJECT> <SITE> <PATH_OUTPUT> <PATH_QC> <PATH_LOG>
 #
 # Where subject_ID refers to the subject ID according to the BIDS format.
 #
