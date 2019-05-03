@@ -49,7 +49,7 @@ else
 fi
 
 # build syntax for process execution
-task=`pwd`/$1
+task="`pwd`/$1"
 
 # If the variable SITES does not exist (commented), get list of all sites
 if [ -z ${SITES} ]; then
@@ -72,7 +72,9 @@ if [ -x "$(command -v parallel)" ]; then
     mkdir -p ${PATH_OUTPUT}/${site}
     find ${PATH_DATA}/${site} -mindepth 1 -maxdepth 1 -type d | while read site_subject; do
       subject=`basename $site_subject`
-      echo "cd ${PATH_DATA}/${site}; ${task} $(basename $subject) $site $PATH_OUTPUT $PATH_QC $PATH_LOG 2>&1 | tee ${PATH_LOG}/${site}_${subject}.log"
+      # echo "cd ${PATH_DATA}/${site}; ${task} $(basename $subject) $site $PATH_OUTPUT $PATH_QC $PATH_LOG 2>&1 | tee ${PATH_LOG}/${site}_${subject}.log ; test ${PIPESTATUS[0]} -eq 0 ; echo $?"  #if [ ! $? -eq 0 ]; then mv ${PATH_LOG}/${site}_${subject}.log ${PATH_LOG}/err.${site}_${subject}.log; fi"
+      # echo "cd ${PATH_DATA}/${site}; ${task} $(basename $subject) $site $PATH_OUTPUT $PATH_QC $PATH_LOG 2>&1 | tee ${PATH_LOG}/${site}_${subject}.log ; echo $?"  #if [ ! $? -eq 0 ]; then mv ${PATH_LOG}/${site}_${subject}.log ${PATH_LOG}/err.${site}_${subject}.log; fi"
+      echo "./_run_with_log.sh ${task} $(basename $subject) $site $PATH_OUTPUT $PATH_QC $PATH_LOG"  #if [ ! $? -eq 0 ]; then mv ${PATH_LOG}/${site}_${subject}.log ${PATH_LOG}/err.${site}_${subject}.log; fi"
     done
   done \
   | parallel -j ${JOBS} --halt-on-error soon,fail=1 bash -c "{}"
@@ -83,7 +85,10 @@ else
     find ${PATH_DATA}/${site} -mindepth 1 -maxdepth 1 -type d | while read site_subject; do
       subject=`basename $site_subject`
       cd ${PATH_DATA}/${site}
-      ${task} $(basename $subject) $site $PATH_OUTPUT $PATH_QC $PATH_LOG 2>&1 | tee ${PATH_LOG}/${site}_${subject}.log
+      ${task} $(basename $subject) $site $PATH_OUTPUT $PATH_QC $PATH_LOG 2>&1 | tee ${PATH_LOG}/${site}_${subject}.log ; test ${PIPESTATUS[0]} -eq 0
+      if [ ! $? -eq 0 ]; then
+        mv ${PATH_LOG}/${site}_${subject}.log ${PATH_LOG}/err.${site}_${subject}.log
+      fi
     done
   done
 fi
