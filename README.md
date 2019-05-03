@@ -179,7 +179,7 @@ A first quality control consists in opening the .csv results under `results/` fo
 and spot values that are abnormality different than the group average.
 
 Identify the site/subject/contrast associated with the abnormal value, and look at the
-segmentation (or data). If the segmentation is clearly wrong, fix it (see [Quality Control (Slow)](.quality-control-slow). If the data look ugly (lots of artifact, motion, etc.), report it under a new file: `qc_report/$site_$subject_$contrast.txt`
+segmentation (or data). If the segmentation is clearly wrong, fix it (see [Quality Control (Slow)](#quality-control-slow). If the data look ugly (lots of artifact, motion, etc.), report it under a new file: `qc_report/$site_$subject_$contrast.txt`
 
 ### Quality Control (Slow)
 
