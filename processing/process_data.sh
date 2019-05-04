@@ -85,6 +85,12 @@ segment_gm_if_does_not_exist(){
   fi
 }
 
+get_field_from_json(){
+  local file="$1"
+  local field="$2"
+  echo `grep $field $file | sed 's/[^0-9]*//g'`
+}
+
 
 # SCRIPT STARTS HERE
 # ==============================================================================
@@ -139,13 +145,13 @@ sct_process_segmentation -i ${file_t2_seg}.nii.gz -vert 2:3 -vertfile ${file_t1_
 file_t1w="${SUBJECT}_acq-T1w_MTS"
 file_mton="${SUBJECT}_acq-MTon_MTS"
 file_mtoff="${SUBJECT}_acq-MToff_MTS"
-# Grab TR and FA from the 3 files
-FA_t1w=`grep 'FlipAngle' "${file_t1w}.json" | sed 's/[^0-9]*//g'`
-FA_mton=`grep 'FlipAngle' "${file_mton}.json" | sed 's/[^0-9]*//g'`
-FA_mtoff=`grep 'FlipAngle' "${file_mtoff}.json" | sed 's/[^0-9]*//g'`
-TR_t1w=`grep 'RepetitionTime' "${file_t1w}.json" | sed 's/[^0-9]*//g'`
-TR_mton=`grep 'RepetitionTime' "${file_mton}.json" | sed 's/[^0-9]*//g'`
-TR_mtoff=`grep 'RepetitionTime' "${file_mtoff}.json" | sed 's/[^0-9]*//g'`
+# Fetch TR and FA from the json files
+FA_t1w=$(get_field_from_json ${file_t1w}.json FlipAngle)
+FA_mton=$(get_field_from_json ${file_mton}.json FlipAngle)
+FA_mtoff=$(get_field_from_json ${file_mtoff}.json FlipAngle)
+TR_t1w=$(get_field_from_json ${file_t1w}.json RepetitionTime)
+TR_mton=$(get_field_from_json ${file_mton}.json RepetitionTime)
+TR_mtoff=$(get_field_from_json ${file_mtoff}.json RepetitionTime)
 # Segment spinal cord (only if it does not exist)
 segment_if_does_not_exist $file_t1w "t1"
 file_t1w_seg=$FILESEG
