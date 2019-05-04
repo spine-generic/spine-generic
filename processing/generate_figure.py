@@ -19,19 +19,24 @@
 # DEPENDENCIES:
 # - SCT
 #
-# Authors: Stephanie Alley, Julien Cohen-Adad
-# License: https://github.com/neuropoly/sct_pipeline/spine_generic/blob/master/LICENSE
+# Author: Julien Cohen-Adad
 
 # TODO: make -c mandatory
 
 import os, argparse
+import glob
+import csv
 import pandas as pd
+
 import numpy as np
-import matplotlib.pyplot as plt
 import logging
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+from matplotlib.figure import Figure
+import matplotlib.colors as color
 from collections import OrderedDict
 
-log = logging.getLogger()
+
+logger = logging.getLogger(__name__)
 
 # Create a dictionary of centers: key: folder name, value: dataframe name
 centers = {
@@ -88,22 +93,30 @@ colors = {
     'Prisma': 'limegreen',
 }
 
-# path to metric based on contrast
-file_metric = {
-    't1': 'csa/csa_mean.xls',
-    't2': 'csa/csa_mean.xls',
-    'dmri': 'fa.xls',
-    'mt': 'mtr.xls',
-    't2s': 'csa_gm/csa_mean.xls',
+# fetch contrast based on csv file
+file_to_metric = {
+    'csa-SC_T1w.csv': 'CSA_SC(T1)',
+    'csa-SC_T2w.csv': 'CSA_SC(T2)',
+    'csa-GM_T2s.csv': 'CSA_GM(T2s)',
+    'DWI_FA.csv': 'FA(DWI)',
+    'DWI_MD.csv': 'MD(DWI)',
+    'DWI_RD.csv': 'RD(DWI)',
+    'MTR.csv': 'MTR',
+    'MTsat.csv': 'MTsat',
+    'T1.csv': 'T1',
 }
 
-# contrast-dependent key to dataframe
-key_metric = {
-    't1': 'MEAN across slices',
-    't2': 'MEAN across slices',
-    'dmri': 'Metric value',
-    'mt': 'Metric value',
-    't2s': 'MEAN across slices',
+# fetch metric field
+metric_to_field = {
+    'CSA_SC(T1)': 'MEAN(area)',
+    'CSA_SC(T2)': 'MEAN(area)',
+    'CSA_GM(T2s)': 'MEAN(area)',
+    'FA(DWI)': 'WA()',
+    'MD(DWI)': 'WA()',
+    'RD(DWI)': 'WA()',
+    'MTR': 'WA()',
+    'MTsat': 'WA()',
+    'T1': 'WA()',
 }
 
 # ylabel
@@ -135,6 +148,30 @@ ystep = {
 }
 
 
+def aggregate_per_site(dict_results, metric):
+    """
+    Aggregate metrics per site
+    :param dict_results:
+    :param metric: Metric type
+    :return:
+    """
+    results_agg = {}
+    # Fetch specific field for the selected metric
+    metric_field = metric_to_field[metric]
+    # Loop across lines and fill dict of aggregated results
+    for i in range(len(dict_results)):
+        site, subject = parse_filename(dict_results[i]['Filename'])
+        # cluster values per site
+        if not site in results_agg.keys():
+            # initialize list
+            results_agg[site] = []
+        # add value for site (ignore None)
+        value = dict_results[i][metric_field]
+        if not value == 'None':
+            results_agg[site].append(float(value))
+    return results_agg
+
+
 def get_parameters():
     parser = argparse.ArgumentParser(description='Generate a figure to display metric values across centers.')
     parser.add_argument("-p", "--path",
@@ -161,10 +198,74 @@ def get_color(center_name):
 
 
 def main():
-    # # go to folder that contails all data
-    # os.chdir(path_data)
-    # # list all directories
-    # folder_dir = os.path.abspath(os.curdir)  # '/Volumes/projects/generic_spine_procotol/data'
+    # TODO: make "results" an input param
+
+    # fetch all .csv result files
+    csv_files = glob.glob(os.path.join(path_data, 'results/*.csv'))
+
+    # loop across results and generate figure
+    for csv_file in csv_files:
+
+        # Open CSV file and create dict
+        logger.info('Opening: '+csv_file)
+        dict_results = []
+        with open(csv_file, newline='') as f_csv:
+            reader = csv.DictReader(f_csv)
+            for row in reader:
+                dict_results.append(row)
+
+        # Fetch metric name
+        _, csv_file_small = os.path.split(csv_file)
+        metric = file_to_metric[csv_file_small]
+
+        # Fetch mean, std, etc. per site
+        results_agg = aggregate_per_site(dict_results, metric)
+
+        sites = list(results_agg.keys())
+        val_mean = [np.mean(values_per_site) for values_per_site in list(results_agg.values())]
+        val_std = [np.std(values_per_site) for values_per_site in list(results_agg.values())]
+
+        # Create figure from dict results
+        fig = Figure()
+        fig.set_size_inches(12, 5, forward=True)
+        FigureCanvas(fig)
+        # ax = fig.add_axes((0, 0, 1, 1))
+        ax = fig.add_subplot(111)
+        ax.bar(range(len(sites)),
+               val_mean,
+               tick_label=sites)
+        # ax.set_xticklabels(sites)
+        ax.get_xaxis().set_visible(True)
+
+        fig.savefig('fig.png', format='png', bbox_inches=None, dpi=300)
+
+        # ax.imshow(img, cmap='gray', interpolation=self.interpolation, aspect=float(aspect_img))
+        ax.bar(range(len(sites)), val_mean,
+               tick_label=)
+        plt.bar(*zip(*D.items()))
+        ax.plot(kind='bar', color=list_colors, legend=False, fontsize=15, align='center')
+
+        self._add_orientation_label(ax)
+        ax.get_xaxis().set_visible(False)
+        ax.get_yaxis().set_visible(False)
+        self._save(fig, self.qc_report.qc_params.abs_bkg_img_path(), dpi=self.qc_report.qc_params.dpi)
+
+
+        fig, ax = plt.subplots(figsize=(12, 8))
+        results_per_center.plot(kind='bar', color=list_colors, legend=False, fontsize=15, align='center')
+        # fig.set_xlabel("Center", fontsize=15, rotation='horizontal')
+        plt.setp(ax.xaxis.get_majorticklabels(), rotation=45, ha="right")  # rotate xticklabels at 45deg and align at end
+        ax.set_xticklabels(centers_ordered.values())
+        plt.ylabel(ylabel[contrast], fontsize=15)
+        plt.ylim(ylim[contrast])
+        plt.yticks(np.arange(ylim[contrast][0], ylim[contrast][1], step=ystep[contrast]))
+        plt.grid(axis='y')
+        plt.title(contrast)
+        plt.tight_layout()  # make sure everything fits
+        plt.savefig(os.path.join(path_data, 'fig_'+contrast+'_levels'+levels+'.png'))
+        # plt.show()
+
+
     file_output = os.path.join(path_data, 'results_'+contrast+'_levels'+levels+'.csv')
 
     # parse levels
@@ -203,20 +304,17 @@ def main():
     # Write results to file
     results_per_center.to_csv(file_output)
 
-    # Generate figure for results
-    fig, ax = plt.subplots(figsize=(12, 8))
-    results_per_center.plot(kind='bar', color=list_colors, legend=False, fontsize=15, align='center')
-    # fig.set_xlabel("Center", fontsize=15, rotation='horizontal')
-    plt.setp(ax.xaxis.get_majorticklabels(), rotation=45, ha="right")  # rotate xticklabels at 45deg and align at end
-    ax.set_xticklabels(centers_ordered.values())
-    plt.ylabel(ylabel[contrast], fontsize=15)
-    plt.ylim(ylim[contrast])
-    plt.yticks(np.arange(ylim[contrast][0], ylim[contrast][1], step=ystep[contrast]))
-    plt.grid(axis='y')
-    plt.title(contrast)
-    plt.tight_layout()  # make sure everything fits
-    plt.savefig(os.path.join(path_data, 'fig_'+contrast+'_levels'+levels+'.png'))
-    # plt.show()
+
+def parse_filename(filename):
+    """
+    Get site and subject from filename
+    :param filename:
+    :return: site, subject
+    """
+    path, file = os.path.split(filename)
+    site = path.split(os.sep)[-3].strip('_spineGeneric')
+    subject = path.split(os.sep)[-2]
+    return site, subject
 
 
 if __name__ == "__main__":
