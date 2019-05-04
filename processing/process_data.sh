@@ -85,6 +85,12 @@ segment_gm_if_does_not_exist(){
   fi
 }
 
+get_field_from_json(){
+  local file="$1"
+  local field="$2"
+  echo `grep $field $file | sed 's/[^0-9]*//g'`
+}
+
 
 # SCRIPT STARTS HERE
 # ==============================================================================
@@ -139,6 +145,13 @@ sct_process_segmentation -i ${file_t2_seg}.nii.gz -vert 2:3 -vertfile ${file_t1_
 file_t1w="${SUBJECT}_acq-T1w_MTS"
 file_mton="${SUBJECT}_acq-MTon_MTS"
 file_mtoff="${SUBJECT}_acq-MToff_MTS"
+# Fetch TR and FA from the json files
+FA_t1w=$(get_field_from_json ${file_t1w}.json FlipAngle)
+FA_mton=$(get_field_from_json ${file_mton}.json FlipAngle)
+FA_mtoff=$(get_field_from_json ${file_mtoff}.json FlipAngle)
+TR_t1w=$(get_field_from_json ${file_t1w}.json RepetitionTime)
+TR_mton=$(get_field_from_json ${file_mton}.json RepetitionTime)
+TR_mtoff=$(get_field_from_json ${file_mtoff}.json RepetitionTime)
 # Segment spinal cord (only if it does not exist)
 segment_if_does_not_exist $file_t1w "t1"
 file_t1w_seg=$FILESEG
@@ -164,7 +177,7 @@ sct_warp_template -d ${file_t1w}.nii.gz -w warp_template2axT1w.nii.gz -ofolder l
 # Compute MTR
 sct_compute_mtr -mt0 ${file_mtoff}.nii.gz -mt1 ${file_mton}.nii.gz
 # Compute MTsat
-sct_compute_mtsat -mt ${file_mton}.nii.gz -pd ${file_mtoff}.nii.gz -t1 ${file_t1w}.nii.gz -trmt 57 -trpd 57 -trt1 15 -famt 9 -fapd 9 -fat1 15
+sct_compute_mtsat -mt ${file_mton}.nii.gz -pd ${file_mtoff}.nii.gz -t1 ${file_t1w}.nii.gz -trmt $TR_mton -trpd $TR_mtoff -trt1 $TR_t1w -famt $FA_mton -fapd $FA_mtoff -fat1 $FA_t1w
 # Extract MTR, MTsat and T1 in WM between C2 and C5 vertebral levels
 sct_extract_metric -i mtr.nii.gz -f label_axT1w/atlas -l 51 -vert 2:5 -vertfile label_axT1w/template/PAM50_levels.nii.gz -o ${PATH_OUTPUT}/MTR.csv -append 1
 sct_extract_metric -i mtsat.nii.gz -f label_axT1w/atlas -l 51 -vert 2:5 -vertfile label_axT1w/template/PAM50_levels.nii.gz -o ${PATH_OUTPUT}/MTsat.csv -append 1
@@ -214,7 +227,7 @@ sct_warp_template -d ${file_dwi_mean}.nii.gz -w warp_template2dwi.nii.gz -qc ${P
 # Create mask around the spinal cord (for faster computing)
 sct_maths -i ${file_dwi_seg}.nii.gz -dilate 3,3,3 -o ${file_dwi_seg}_dil.nii.gz
 # Compute DTI using RESTORE
-sct_dmri_compute_dti -i ${file_dwi}.nii.gz -bvec ${SUBJECT}_dwi.bvec -bval ${SUBJECT}_dwi.bval -method restore -m ${file_dwi_seg}_dil.nii.gz
+sct_dmri_compute_dti -i ${file_dwi}.nii.gz -bvec ${SUBJECT}_dwi.bvec -bval ${SUBJECT}_dwi.bval -method standard -m ${file_dwi_seg}_dil.nii.gz
 # Compute FA, MD and RD in WM between C2 and C5 vertebral levels
 sct_extract_metric -i dti_FA.nii.gz -f label/atlas -l 51 -vert 2:5 -o ${PATH_OUTPUT}/DWI_FA.csv -append 1
 sct_extract_metric -i dti_MD.nii.gz -f label/atlas -l 51 -vert 2:5 -o ${PATH_OUTPUT}/DWI_MD.csv -append 1
