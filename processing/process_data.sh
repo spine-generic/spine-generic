@@ -140,20 +140,12 @@ file_t1w="${SUBJECT}_acq-T1w_MTS"
 file_mton="${SUBJECT}_acq-MTon_MTS"
 file_mtoff="${SUBJECT}_acq-MToff_MTS"
 # Grab TR and FA from the 3 files
-FA_t1w=`grep 'FlipAngle' "$file_t1w" | sed 's/^.*: //'`
-FA_t1w="${FA_t1w:0:1}"
-FA_mton=`grep 'FlipAngle' "$file_mton" | sed 's/^.*: //'`
-FA_mton="${FA_mton:0:1}"
-FA_mtoff=`grep 'FlipAngle' "$file_mtoff" | sed 's/^.*: //'`
-FA_mtoff="${FA_mtoff:0:1}"
-
-TR_t1w=`grep 'RepetitionTime' "$file_t1w" | sed 's/^.*: //'`
-TR_t1w="${TR_t1w:0:1}"
-TR_mton=`grep 'RepetitionTime' "$file_mton" | sed 's/^.*: //'`
-TR_mton="${TR_mton:0:1}"
-TR_mtoff=`grep 'RepetitionTime' "$file_mtoff" | sed 's/^.*: //'`
-TR_mtoff="${TR_mtoff:0:1}"
-
+FA_t1w=`grep 'FlipAngle' "${file_t1w}.json" | sed 's/[^0-9]*//g'`
+FA_mton=`grep 'FlipAngle' "${file_mton}.json" | sed 's/[^0-9]*//g'`
+FA_mtoff=`grep 'FlipAngle' "${file_mtoff}.json" | sed 's/[^0-9]*//g'`
+TR_t1w=`grep 'RepetitionTime' "${file_t1w}.json" | sed 's/[^0-9]*//g'`
+TR_mton=`grep 'RepetitionTime' "${file_mton}.json" | sed 's/[^0-9]*//g'`
+TR_mtoff=`grep 'RepetitionTime' "${file_mtoff}.json" | sed 's/[^0-9]*//g'`
 # Segment spinal cord (only if it does not exist)
 segment_if_does_not_exist $file_t1w "t1"
 file_t1w_seg=$FILESEG
