@@ -229,7 +229,7 @@ sct_warp_template -d ${file_dwi_mean}.nii.gz -w warp_template2dwi.nii.gz -qc ${P
 # Create mask around the spinal cord (for faster computing)
 sct_maths -i ${file_dwi_seg}.nii.gz -dilate 3,3,3 -o ${file_dwi_seg}_dil.nii.gz
 # Compute DTI using RESTORE
-sct_dmri_compute_dti -i ${file_dwi}.nii.gz -bvec ${SUBJECT}_dwi.bvec -bval ${SUBJECT}_dwi.bval -method restore -m ${file_dwi_seg}_dil.nii.gz
+sct_dmri_compute_dti -i ${file_dwi}.nii.gz -bvec ${SUBJECT}_dwi.bvec -bval ${SUBJECT}_dwi.bval -method standard -m ${file_dwi_seg}_dil.nii.gz
 # Compute FA, MD and RD in WM between C2 and C5 vertebral levels
 sct_extract_metric -i dti_FA.nii.gz -f label/atlas -l 51 -vert 2:5 -o ${PATH_OUTPUT}/DWI_FA.csv -append 1
 sct_extract_metric -i dti_MD.nii.gz -f label/atlas -l 51 -vert 2:5 -o ${PATH_OUTPUT}/DWI_MD.csv -append 1
