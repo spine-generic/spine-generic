@@ -17,6 +17,7 @@
 
 import os
 import argparse
+import tqdm
 import sys
 import glob
 import csv
@@ -152,7 +153,8 @@ def aggregate_per_site(dict_results, metric, path_data):
     # Fetch specific field for the selected metric
     metric_field = metric_to_field[metric]
     # Loop across lines and fill dict of aggregated results
-    for i in range(len(dict_results)):
+    for i in tqdm.tqdm(range(len(dict_results)), unit='iter', unit_scale=False, desc="Parse json files", ascii=False,
+                       ncols=80):
         filename = dict_results[i]['Filename']
         logger.debug('Filename: '+filename)
         # Fetch metadata for the site
@@ -224,7 +226,7 @@ def main():
     for csv_file in csv_files:
 
         # Open CSV file and create dict
-        logger.info('Processing: '+csv_file)
+        logger.info('\nProcessing: '+csv_file)
         dict_results = []
         with open(csv_file, newline='') as f_csv:
             reader = csv.DictReader(f_csv)
@@ -284,7 +286,9 @@ def main():
         # plt.yticks(np.arange(ylim[contrast][0], ylim[contrast][1], step=ystep[contrast]))
         # plt.title(contrast)
         plt.tight_layout()  # make sure everything fits
-        plt.savefig(os.path.join(path_data, 'results/fig_'+metric+'.png'))
+        fname_fig = os.path.join(path_data, 'results/fig_'+metric+'.png')
+        plt.savefig(fname_fig)
+        logger.info('Created: '+fname_fig)
 
 
 def parse_filename(filename):
