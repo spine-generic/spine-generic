@@ -182,6 +182,7 @@ def aggregate_per_site(dict_results, metric, path_data):
         if not site in results_agg.keys():
             # if this is a new site, initialize sub-dict
             results_agg[site] = {}
+            results_agg[site]['site'] = site  # need to duplicate in order to be able to sort using vendor AND site with Pandas
             results_agg[site]['vendor'] = dataset_description['Manufacturer']
             results_agg[site]['model'] = dataset_description['ManufacturersModelName']
             results_agg[site]['val'] = []
@@ -279,10 +280,10 @@ def main():
             plt.ion()
 
         # Sort values per vendor
-        site_sorted = df.sort_values(by='vendor').index.values
-        vendor_sorted = df.sort_values(by='vendor')['vendor'].values
-        mean_sorted = df.sort_values(by='vendor')['mean'].values
-        std_sorted = df.sort_values(by='vendor')['std'].values
+        site_sorted = df.sort_values(by=['vendor', 'site']).index.values
+        vendor_sorted = df['vendor'][site_sorted].values
+        mean_sorted = df['mean'][site_sorted].values
+        std_sorted = df['std'][site_sorted].values
 
         # Scale values (for display)
         mean_sorted = mean_sorted * scaling_factor[metric]
