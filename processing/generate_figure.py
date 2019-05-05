@@ -15,7 +15,8 @@
 #
 # Author: Julien Cohen-Adad
 
-import os, argparse
+import os
+import argparse
 import sys
 import glob
 import csv
@@ -59,29 +60,8 @@ centers = {
     'juntendo-prisma_spine-generic_20180523': 'Juntendo-Prisma',
 }
 
-# because dictionaries are unsorted, we need to create another list to sort them
-centers_order = [
-    'chiba_spine-generic_20180608-750',
-    'juntendo-750w_spine-generic_20180529',
-    'tokyo-univ_spine-generic_20180604-750w',
-    'tokyo-univ_spine-generic_20180604-signa1',
-    'tokyo-univ_spine-generic_20180604-signa2',
-    'ucl_spine-generic_20171207',
-    'juntendo-achieva_spine-teneric_20180524',
-    'glen_spine-generic_20171128',
-    'tokyo-univ_spine-generic_20180604-ingenia',
-    'chiba_spine-generic_20180608-ingenia',
-    'mgh-bay3_spine-generic_20171201',
-    'douglas_spine-generic_20171127',
-    'poly_spine-generic_20171221',
-    'juntendo-skyra_spine-generic_20180509',
-    'tokyo-univ_spine-generic_20180604-skyra',
-    'unf_sct_026',
-    'oxford_spine-generic_20171209',
-    'juntendo-prisma_spine-generic_20180523',
-]
-
 # color to assign to each MRI model for the figure
+# TODO: choose slightly different color based on MRI model (within vendor)
 vendor_to_color = {
     'GE': 'black',
     'Philips': 'dodgerblue',
@@ -222,22 +202,16 @@ def compute_statistics(df):
 
 
 def get_parameters():
-    parser = argparse.ArgumentParser(description='Generate a figure to display metric values across centers.')
-    parser.add_argument("-p", "--path",
-                        help="Path that contains all subjects.")
+    parser = argparse.ArgumentParser(
+        description='Generate figures for the spine-generic dataset. Figures are output in the sub-folder "results/" '
+                    'of the path specified by the input path (-p). The input path should include subfolders "data/" '
+                    '(which has all the processed data) and "results/".')
+    parser.add_argument('-p', '--path',
+                        required=True,
+                        help='Path to spineGeneric parent folder, which contains folders "data/" and "results/" '
+                             'sub-folders.')
     args = parser.parse_args()
     return args
-
-
-def get_color(list_vendor):
-    """
-    Find color based on vendor
-    :param list_vendor: should include MRI vendor model
-    :return: str: color for colorbar
-    """
-    for system, color in colors.iteritems():
-        if system in center_name:
-            return color
 
 
 def main():
@@ -280,6 +254,7 @@ def main():
             plt.ion()
 
         # Sort values per vendor
+        # TODO: sort per model
         site_sorted = df.sort_values(by=['vendor', 'site']).index.values
         vendor_sorted = df['vendor'][site_sorted].values
         mean_sorted = df['mean'][site_sorted].values
@@ -293,14 +268,15 @@ def main():
         list_colors = [vendor_to_color[i] for i in vendor_sorted]
 
         # Create figure and plot bar graph
-        fig, ax = plt.subplots(figsize=(12, 8))
+        fig, ax = plt.subplots(figsize=(15, 8))
         # TODO: show only superior part of STD
         plt.grid(axis='y')
-        plt.bar(range(df.shape[0]), mean_sorted, tick_label=site_sorted, yerr=std_sorted, color=list_colors)
+        plt.bar(range(len(site_sorted)), height=mean_sorted, width=0.5, tick_label=site_sorted, yerr=std_sorted, color=list_colors)
+        # TODO: Display ManufacturersModelName in vertical, embedded in each bar
         plt.setp(ax.xaxis.get_majorticklabels(), rotation=45, ha="right")  # rotate xticklabels at 45deg, align at end
-        # ax.set_xticklabels(sites)
+        plt.xlim([-1, len(site_sorted)])
+        # ax.set_xticklabels(site_sorted)
         # ax.get_xaxis().set_visible(True)
-        # fig.set_xlabel("Center", fontsize=15, rotation='horizontal')
         ax.tick_params(labelsize=15)
         plt.ylabel(metric_to_label[metric], fontsize=15)
 
