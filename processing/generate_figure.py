@@ -90,41 +90,54 @@ vendor_to_color = {
 
 # fetch contrast based on csv file
 file_to_metric = {
-    'csa-SC_T1w.csv': 'CSA_SC(T1)',
-    'csa-SC_T2w.csv': 'CSA_SC(T2)',
-    'csa-GM_T2s.csv': 'CSA_GM(T2s)',
-    'DWI_FA.csv': 'FA(DWI)',
-    'DWI_MD.csv': 'MD(DWI)',
-    'DWI_RD.csv': 'RD(DWI)',
-    'MTR.csv': 'MTR',
-    'MTsat.csv': 'MTsat',
-    'T1.csv': 'T1',
+    'csa-SC_T1w.csv': 'csa_t1',
+    'csa-SC_T2w.csv': 'csa_t2',
+    'csa-GM_T2s.csv': 'csa_gm',
+    'DWI_FA.csv': 'fa',
+    'DWI_MD.csv': 'md',
+    'DWI_RD.csv': 'md',
+    'MTR.csv': 'mtr',
+    'MTsat.csv': 'mtsat',
+    'T1.csv': 't1',
 }
 
 # fetch metric field
 metric_to_field = {
-    'CSA_SC(T1)': 'MEAN(area)',
-    'CSA_SC(T2)': 'MEAN(area)',
-    'CSA_GM(T2s)': 'MEAN(area)',
-    'FA(DWI)': 'WA()',
-    'MD(DWI)': 'WA()',
-    'RD(DWI)': 'WA()',
-    'MTR': 'WA()',
-    'MTsat': 'WA()',
-    'T1': 'WA()',
+    'csa_t1': 'MEAN(area)',
+    'csa_t2': 'MEAN(area)',
+    'csa_gm': 'MEAN(area)',
+    'fa': 'WA()',
+    'md': 'WA()',
+    'md': 'WA()',
+    'mtr': 'WA()',
+    'mtsat': 'WA()',
+    't1': 'WA()',
 }
 
 # fetch metric field
 metric_to_label = {
-    'CSA_SC(T1)': 'Cord CSA ($mm^2$)',
-    'CSA_SC(T2)': 'Cord CSA ($mm^2$)',
-    'CSA_GM(T2s)': 'Gray Matter CSA ($mm^2$)',
-    'FA(DWI)': 'Fractional anisotropy',
-    'MD(DWI)': 'Mean diffusivity',  # TODO: add units
-    'RD(DWI)': 'Radial diffusivity',  # TODO: add units
-    'MTR': 'Magnetization transfer ratio [%]',
-    'MTsat': 'Magnetization transfer saturation',
-    'T1': 'T1 [ms]',
+    'csa_t1': 'Cord CSA from T1w [$mm^2$]',
+    'csa_t2': 'Cord CSA from T2w [$mm^2$]',
+    'csa_gm': 'Gray Matter CSA [$mm^2$]',
+    'fa': 'Fractional anisotropy',
+    'md': 'Mean diffusivity [$mm^2.s^-1]',
+    'md': 'Radial diffusivity [$mm^2.s^-1]',
+    'mtr': 'Magnetization transfer ratio [%]',
+    'mtsat': 'Magnetization transfer saturation [a.u.]',
+    't1': 'T1 [ms]',
+}
+
+# scaling factor (for display)
+scaling_factor = {
+    'csa_t1': 1,
+    'csa_t2': 1,
+    'csa_gm': 1,
+    'fa': 1,
+    'md': 1000,
+    'md': 1000,
+    'mtr': 1,
+    'mtsat': 1,
+    't1': 1000,
 }
 
 # ylim for figure
@@ -271,6 +284,10 @@ def main():
         mean_sorted = df.sort_values(by='vendor')['mean'].values
         std_sorted = df.sort_values(by='vendor')['std'].values
 
+        # Scale values (for display)
+        mean_sorted = mean_sorted * scaling_factor[metric]
+        std_sorted = std_sorted * scaling_factor[metric]
+
         # Get color based on vendor
         list_colors = [vendor_to_color[i] for i in vendor_sorted]
 
@@ -283,6 +300,7 @@ def main():
         # ax.set_xticklabels(sites)
         # ax.get_xaxis().set_visible(True)
         # fig.set_xlabel("Center", fontsize=15, rotation='horizontal')
+        ax.tick_params(labelsize=15)
         plt.ylabel(metric_to_label[metric], fontsize=15)
 
         # plt.ylim(ylim[contrast])
@@ -290,42 +308,6 @@ def main():
         # plt.title(contrast)
         plt.tight_layout()  # make sure everything fits
         plt.savefig(os.path.join(path_data, 'results/fig_'+metric+'.png'))
-
-    # parse levels
-    ind_levels = map(int, levels.split(','))  # split string into list and convert to list ot int
-
-    # order centers dictionary for custom display
-    centers_ordered = OrderedDict(sorted(centers.items(), key=lambda i: centers_order.index(i[0])))
-
-    # Initialize pandas series
-    results_per_center = pd.Series(index=centers_ordered.values())
-
-    list_colors = []
-    # Generate figure and results file for contrast
-    # if contrast == 't1':
-    for folder_center, name_center in centers_ordered.iteritems():
-        # Read in metric results for contrast
-        try:
-            data = pd.read_excel(os.path.join(path_data, folder_center, contrast, file_metric[contrast]))
-            # Add results to dataframe
-            # loop across indexes-- ignore missing levels (if poor coverage)
-            data_temp = []
-            for i in ind_levels:
-                try:
-                    data_temp.append(data[key_metric[contrast]].values[i])
-                except IndexError as error:
-                    logging.warning(error.__class__.__name__ + ": " + error.message)
-                    logging.warning("Folder: " + folder_center + ". Level {} is missing.".format(i))
-            results_per_center[name_center] = np.mean(data_temp)
-            list_colors.append(get_color(name_center))
-        except IOError as error:
-            logging.warning(error)
-            logging.warning("Removing this center for the figure generation: {}".format(folder_center))
-            results_per_center = results_per_center.drop(name_center)
-            centers_ordered.pop(folder_center)
-
-    # Write results to file
-    results_per_center.to_csv(file_output)
 
 
 def parse_filename(filename):
