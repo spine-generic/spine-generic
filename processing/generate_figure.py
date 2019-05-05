@@ -16,8 +16,10 @@
 # Author: Julien Cohen-Adad
 
 import os, argparse
+import sys
 import glob
 import csv
+import json
 import pandas as pd
 
 import numpy as np
@@ -26,11 +28,16 @@ import matplotlib.pyplot as plt
 from collections import OrderedDict
 
 
+# Initialize logging
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)  # default: logging.INFO
+hdlr = logging.StreamHandler(sys.stdout)
+# fmt = logging.Formatter()
+# fmt.format = _format_wrap(fmt.format)
+# hdlr.setFormatter(fmt)
+logging.root.addHandler(hdlr)
 
-DEBUG = True
-
-# Create a dictionary of centers: key: folder name, value: dataframe name
+# Create a dictionary of centers: key: folder name, val: dataframe name
 centers = {
     'chiba_spine-generic_20180608-750': 'Chiba-750',
     'juntendo-750w_spine-generic_20180529': 'Juntendo-750w',
@@ -75,14 +82,10 @@ centers_order = [
 ]
 
 # color to assign to each MRI model for the figure
-colors = {
-    '750': 'black',
-    'Signa': 'black',
-    'Ingenia': 'dodgerblue',
-    'Achieva': 'dodgerblue',
-    'Trio': 'limegreen',
-    'Skyra': 'limegreen',
-    'Prisma': 'limegreen',
+vendor_to_color = {
+    'GE': 'black',
+    'Philips': 'dodgerblue',
+    'Siemens': 'limegreen',
 }
 
 # fetch contrast based on csv file
@@ -111,13 +114,17 @@ metric_to_field = {
     'T1': 'WA()',
 }
 
-# ylabel
-ylabel = {
-    't1': 'Cord CSA ($mm^2$)',
-    't2': 'Cord CSA ($mm^2$)',
-    'dmri': 'FA',
-    'mt': 'MTR (%)',
-    't2s': 'Gray Matter CSA ($mm^2$)',
+# fetch metric field
+metric_to_label = {
+    'CSA_SC(T1)': 'Cord CSA ($mm^2$)',
+    'CSA_SC(T2)': 'Cord CSA ($mm^2$)',
+    'CSA_GM(T2s)': 'Gray Matter CSA ($mm^2$)',
+    'FA(DWI)': 'Fractional anisotropy',
+    'MD(DWI)': 'Mean diffusivity',  # TODO: add units
+    'RD(DWI)': 'Radial diffusivity',  # TODO: add units
+    'MTR': 'Magnetization transfer ratio [%]',
+    'MTsat': 'Magnetization transfer saturation',
+    'T1': 'T1 [ms]',
 }
 
 # ylim for figure
@@ -154,26 +161,50 @@ def aggregate_per_site(dict_results, metric, path_data):
     # Loop across lines and fill dict of aggregated results
     for i in range(len(dict_results)):
         filename = dict_results[i]['Filename']
-        site, subject = parse_filename(filename)
+        logger.debug('Filename: '+filename)
+        # Fetch metadata for the site
+        dataset_description = read_dataset_description(filename, path_data)
         # cluster values per site
+        site, subject = parse_filename(filename)
         if not site in results_agg.keys():
-            # initialize list
+            # if this is a new site, initialize sub-dict
             results_agg[site] = {}
-            results_agg[site]['vendor'] = fetch_vendor(filename)
-            results_agg[site]['value'] = []
-        # add value for site (ignore None)
-        value = dict_results[i][metric_field]
-        if not value == 'None':
-            results_agg[site]['value'].append(float(value))
+            results_agg[site]['vendor'] = dataset_description['Manufacturer']
+            results_agg[site]['model'] = dataset_description['ManufacturersModelName']
+            results_agg[site]['val'] = []
+        # add val for site (ignore None)
+        val = dict_results[i][metric_field]
+        if not val == 'None':
+            results_agg[site]['val'].append(float(val))
     return results_agg
 
 
-def fetch_vendor(filename):
-    """Fetch vendor by looking at the json file, associated with the input filename"""
-    path, file = os.path.split(filename)
-    site = path.split(os.sep)[-3].replace('_spineGeneric', '')
-    subject = path.split(os.sep)[-2]
-
+def compute_statistics(df):
+    """
+    Compute statistics such as mean, std, COV, etc.
+    :param df Pandas structure
+    """
+    vendors = ['GE', 'Philips', 'Siemens']
+    mean_per_row = []
+    std_per_row = []
+    stats = {}
+    for site in df.index:
+        mean_per_row.append(np.mean(df['val'][site]))
+        std_per_row.append(np.std(df['val'][site]))
+    # Update Dataframe
+    df['mean'] = mean_per_row
+    df['std'] = std_per_row
+    df['cov'] = np.array(std_per_row) / np.array(mean_per_row)
+    # Compute intra-vendor COV
+    for vendor in vendors:
+        # init dict
+        if not 'cov' in stats.keys():
+            stats['cov'] = {}
+        # fetch vals for specific vendor
+        val_per_vendor = df['mean'][df['vendor'] == vendor].values
+        # compute COV
+        stats['cov'][vendor] = np.std(val_per_vendor) / np.mean(val_per_vendor)
+    return df, stats
 
 
 def get_parameters():
@@ -184,10 +215,10 @@ def get_parameters():
     return args
 
 
-def get_color(center_name):
+def get_color(list_vendor):
     """
-    Find color based on MRI system
-    :param center_name: should include MRI vendor model
+    Find color based on vendor
+    :param list_vendor: should include MRI vendor model
     :return: str: color for colorbar
     """
     for system, color in colors.iteritems():
@@ -205,7 +236,7 @@ def main():
     for csv_file in csv_files:
 
         # Open CSV file and create dict
-        logger.info('Opening: '+csv_file)
+        logger.info('Processing: '+csv_file)
         dict_results = []
         with open(csv_file, newline='') as f_csv:
             reader = csv.DictReader(f_csv)
@@ -220,60 +251,45 @@ def main():
         results_dict = aggregate_per_site(dict_results, metric, path_data)
 
         # Make it a pandas structure (easier for manipulations)
-        results = pd.DataFrame.from_dict(results_agg, orient='index')
+        df = pd.DataFrame.from_dict(results_dict, orient='index')
 
-        sites = list(results_agg.keys())
-        val_mean = [np.mean(values_per_site) for values_per_site in list(results_agg.values())]
-        val_std = [np.std(values_per_site) for values_per_site in list(results_agg.values())]
+        # Compute statistics
+        df, stats = compute_statistics(df)
 
+        # sites = list(results_agg.keys())
+        # val_mean = [np.mean(values_per_site) for values_per_site in list(results_agg.values())]
+        # val_std = [np.std(values_per_site) for values_per_site in list(results_agg.values())]
 
-        if DEBUG:
+        if logger.level == 10:
             import matplotlib
             matplotlib.use('TkAgg')
             plt.ion()
 
-        # Create figure from dict results
+        # Sort values per vendor
+        site_sorted = df.sort_values(by='vendor').index.values
+        vendor_sorted = df.sort_values(by='vendor')['vendor'].values
+        mean_sorted = df.sort_values(by='vendor')['mean'].values
+        std_sorted = df.sort_values(by='vendor')['std'].values
+
+        # Get color based on vendor
+        list_colors = [vendor_to_color[i] for i in vendor_sorted]
+
+        # Create figure and plot bar graph
         fig, ax = plt.subplots(figsize=(12, 8))
-
-
-        # fig = Figure()
-        # fig.set_size_inches(12, 5, forward=True)
-        # FigureCanvas(fig)
-        # ax = fig.add_axes((0, 0, 1, 1))
-        # ax = fig.add_subplot(111)
-        list_colors = ['yellow', 'red']
-        # TODO: sort per vendor
-        plt.bar(range(len(sites)), val_mean, tick_label=sites, yerr=val_std, colors=list_colors)
+        # TODO: show only superior part of STD
+        plt.grid(axis='y')
+        plt.bar(range(df.shape[0]), mean_sorted, tick_label=site_sorted, yerr=std_sorted, color=list_colors)
         plt.setp(ax.xaxis.get_majorticklabels(), rotation=45, ha="right")  # rotate xticklabels at 45deg, align at end
         # ax.set_xticklabels(sites)
         # ax.get_xaxis().set_visible(True)
-        plt.grid(axis='y')
-        plt.tight_layout()  # make sure everything fits
-
-        if DEBUG:
-            plt.show()
-
-        fig.savefig('fig.png', format='png', bbox_inches=None, dpi=300)
-
-        # ax.imshow(img, cmap='gray', interpolation=self.interpolation, aspect=float(aspect_img))
-        # ax.bar(range(len(sites)), val_mean,
-        #        tick_label=)
-        # plt.bar(*zip(*D.items()))
-        # ax.plot(kind='bar', color=list_colors, legend=False, fontsize=15, align='center')
-
-        fig, ax = plt.subplots(figsize=(12, 8))
-        results_per_center.plot(kind='bar', color=list_colors, legend=False, fontsize=15, align='center')
         # fig.set_xlabel("Center", fontsize=15, rotation='horizontal')
-        ax.set_xticklabels(centers_ordered.values())
-        plt.ylabel(ylabel[contrast], fontsize=15)
-        plt.ylim(ylim[contrast])
-        plt.yticks(np.arange(ylim[contrast][0], ylim[contrast][1], step=ystep[contrast]))
-        plt.title(contrast)
-        plt.savefig(os.path.join(path_data, 'fig_'+contrast+'_levels'+levels+'.png'))
-        plt.show()
+        plt.ylabel(metric_to_label[metric], fontsize=15)
 
-
-    file_output = os.path.join(path_data, 'results_'+contrast+'_levels'+levels+'.csv')
+        # plt.ylim(ylim[contrast])
+        # plt.yticks(np.arange(ylim[contrast][0], ylim[contrast][1], step=ystep[contrast]))
+        # plt.title(contrast)
+        plt.tight_layout()  # make sure everything fits
+        plt.savefig(os.path.join(path_data, 'results/fig_'+metric+'.png'))
 
     # parse levels
     ind_levels = map(int, levels.split(','))  # split string into list and convert to list ot int
@@ -322,6 +338,15 @@ def parse_filename(filename):
     site = path.split(os.sep)[-3].replace('_spineGeneric', '')
     subject = path.split(os.sep)[-2]
     return site, subject
+
+
+def read_dataset_description(filename, path_data):
+    """Read dataset_description.json file associated with the input filename and output dict"""
+    path, file = os.path.split(filename)
+    fname_dataset_description = os.path.join(path_data, 'data', path.split(os.sep)[-3], 'dataset_description.json')
+    with open(fname_dataset_description, 'r+') as fjson:
+        dataset_description = json.load(fjson)
+    return dataset_description
 
 
 if __name__ == "__main__":
