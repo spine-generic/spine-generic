@@ -1,27 +1,19 @@
 #!/usr/bin/env python
 #
-# Automatically generate a figure for generic spine data displaying metric values for a specified contrast
-# (t1, t2, dmri, mt, or gre-me). Results (csv and png) are output in the folder specified by -p.
+# Generate figures for the spine-generic dataset. Figures are output in the sub-folder /results of the path specified
+# by -p.
+# IMPORTANT: the input path (-p) should include subfolders data/ (has all the processed data) and results/
 #
 # USAGE:
-#   ${SCT_DIR}/python/bin/python generate_figure.py -p PATH_DATA -c {t1, t2, dmri, mt, t2s} -l IND_LEVELS
-#
-#   Help:
-#   ${SCT_DIR}/python/bin/python generate_figure.py -h
+#   ${SCT_DIR}/python/bin/python generate_figure.py -p PATH_DATA
 #
 #   Example:
-#   ${SCT_DIR}/python/bin/python generate_figure.py -p ~/data/spine_generic/ -c t1 -l 0,1
-#
-# OUTPUT:
-# results_per_center.csv: metric results for each center
-# Figure displaying results across centers
+#   ${SCT_DIR}/python/bin/python generate_figure.py -p /home/bob/spine_generic/
 #
 # DEPENDENCIES:
-# - SCT
+#   SCT
 #
 # Author: Julien Cohen-Adad
-
-# TODO: make -c mandatory
 
 import os, argparse
 import glob
@@ -148,11 +140,12 @@ ystep = {
 }
 
 
-def aggregate_per_site(dict_results, metric):
+def aggregate_per_site(dict_results, metric, path_data):
     """
     Aggregate metrics per site
     :param dict_results:
     :param metric: Metric type
+    :param path_data: Path that contains results/ and data/ folders
     :return:
     """
     results_agg = {}
@@ -160,28 +153,33 @@ def aggregate_per_site(dict_results, metric):
     metric_field = metric_to_field[metric]
     # Loop across lines and fill dict of aggregated results
     for i in range(len(dict_results)):
-        site, subject = parse_filename(dict_results[i]['Filename'])
+        filename = dict_results[i]['Filename']
+        site, subject = parse_filename(filename)
         # cluster values per site
         if not site in results_agg.keys():
             # initialize list
-            results_agg[site] = []
+            results_agg[site] = {}
+            results_agg[site]['vendor'] = fetch_vendor(filename)
+            results_agg[site]['value'] = []
         # add value for site (ignore None)
         value = dict_results[i][metric_field]
         if not value == 'None':
-            results_agg[site].append(float(value))
+            results_agg[site]['value'].append(float(value))
     return results_agg
+
+
+def fetch_vendor(filename):
+    """Fetch vendor by looking at the json file, associated with the input filename"""
+    path, file = os.path.split(filename)
+    site = path.split(os.sep)[-3].replace('_spineGeneric', '')
+    subject = path.split(os.sep)[-2]
+
 
 
 def get_parameters():
     parser = argparse.ArgumentParser(description='Generate a figure to display metric values across centers.')
     parser.add_argument("-p", "--path",
                         help="Path that contains all subjects.")
-    parser.add_argument("-c", "--contrast",
-                        choices=['t1', 't2', 'dmri', 'mt', 't2s'],
-                        help="Contrast for which figure should be generated.")
-    parser.add_argument("-l", "--levels",
-                        help='Vertebral levels to include (will average them all). Separate with ",". If a level is '
-                             'missing it will be ignored in the averaging. Example: -l 2,3,4')
     args = parser.parse_args()
     return args
 
@@ -219,7 +217,10 @@ def main():
         metric = file_to_metric[csv_file_small]
 
         # Fetch mean, std, etc. per site
-        results_agg = aggregate_per_site(dict_results, metric)
+        results_dict = aggregate_per_site(dict_results, metric, path_data)
+
+        # Make it a pandas structure (easier for manipulations)
+        results = pd.DataFrame.from_dict(results_agg, orient='index')
 
         sites = list(results_agg.keys())
         val_mean = [np.mean(values_per_site) for values_per_site in list(results_agg.values())]
@@ -240,10 +241,14 @@ def main():
         # FigureCanvas(fig)
         # ax = fig.add_axes((0, 0, 1, 1))
         # ax = fig.add_subplot(111)
-        plt.bar(range(len(sites)), val_mean, tick_label=sites)
+        list_colors = ['yellow', 'red']
+        # TODO: sort per vendor
+        plt.bar(range(len(sites)), val_mean, tick_label=sites, yerr=val_std, colors=list_colors)
         plt.setp(ax.xaxis.get_majorticklabels(), rotation=45, ha="right")  # rotate xticklabels at 45deg, align at end
         # ax.set_xticklabels(sites)
         # ax.get_xaxis().set_visible(True)
+        plt.grid(axis='y')
+        plt.tight_layout()  # make sure everything fits
 
         if DEBUG:
             plt.show()
@@ -263,9 +268,7 @@ def main():
         plt.ylabel(ylabel[contrast], fontsize=15)
         plt.ylim(ylim[contrast])
         plt.yticks(np.arange(ylim[contrast][0], ylim[contrast][1], step=ystep[contrast]))
-        plt.grid(axis='y')
         plt.title(contrast)
-        plt.tight_layout()  # make sure everything fits
         plt.savefig(os.path.join(path_data, 'fig_'+contrast+'_levels'+levels+'.png'))
         plt.show()
 
@@ -324,6 +327,4 @@ def parse_filename(filename):
 if __name__ == "__main__":
     args = get_parameters()
     path_data = args.path
-    contrast = args.contrast
-    levels = args.levels
     main()
