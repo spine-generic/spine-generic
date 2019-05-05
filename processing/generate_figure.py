@@ -30,13 +30,13 @@ import pandas as pd
 
 import numpy as np
 import logging
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-from matplotlib.figure import Figure
-import matplotlib.colors as color
+import matplotlib.pyplot as plt
 from collections import OrderedDict
 
 
 logger = logging.getLogger(__name__)
+
+DEBUG = True
 
 # Create a dictionary of centers: key: folder name, value: dataframe name
 centers = {
@@ -225,36 +225,40 @@ def main():
         val_mean = [np.mean(values_per_site) for values_per_site in list(results_agg.values())]
         val_std = [np.std(values_per_site) for values_per_site in list(results_agg.values())]
 
+
+        if DEBUG:
+            import matplotlib
+            matplotlib.use('TkAgg')
+            plt.ion()
+
         # Create figure from dict results
-        fig = Figure()
-        fig.set_size_inches(12, 5, forward=True)
-        FigureCanvas(fig)
+        fig, ax = plt.subplots(figsize=(12, 8))
+
+
+        # fig = Figure()
+        # fig.set_size_inches(12, 5, forward=True)
+        # FigureCanvas(fig)
         # ax = fig.add_axes((0, 0, 1, 1))
-        ax = fig.add_subplot(111)
-        ax.bar(range(len(sites)),
-               val_mean,
-               tick_label=sites)
+        # ax = fig.add_subplot(111)
+        plt.bar(range(len(sites)), val_mean, tick_label=sites)
+        plt.setp(ax.xaxis.get_majorticklabels(), rotation=45, ha="right")  # rotate xticklabels at 45deg, align at end
         # ax.set_xticklabels(sites)
-        ax.get_xaxis().set_visible(True)
+        # ax.get_xaxis().set_visible(True)
+
+        if DEBUG:
+            plt.show()
 
         fig.savefig('fig.png', format='png', bbox_inches=None, dpi=300)
 
         # ax.imshow(img, cmap='gray', interpolation=self.interpolation, aspect=float(aspect_img))
-        ax.bar(range(len(sites)), val_mean,
-               tick_label=)
-        plt.bar(*zip(*D.items()))
-        ax.plot(kind='bar', color=list_colors, legend=False, fontsize=15, align='center')
-
-        self._add_orientation_label(ax)
-        ax.get_xaxis().set_visible(False)
-        ax.get_yaxis().set_visible(False)
-        self._save(fig, self.qc_report.qc_params.abs_bkg_img_path(), dpi=self.qc_report.qc_params.dpi)
-
+        # ax.bar(range(len(sites)), val_mean,
+        #        tick_label=)
+        # plt.bar(*zip(*D.items()))
+        # ax.plot(kind='bar', color=list_colors, legend=False, fontsize=15, align='center')
 
         fig, ax = plt.subplots(figsize=(12, 8))
         results_per_center.plot(kind='bar', color=list_colors, legend=False, fontsize=15, align='center')
         # fig.set_xlabel("Center", fontsize=15, rotation='horizontal')
-        plt.setp(ax.xaxis.get_majorticklabels(), rotation=45, ha="right")  # rotate xticklabels at 45deg and align at end
         ax.set_xticklabels(centers_ordered.values())
         plt.ylabel(ylabel[contrast], fontsize=15)
         plt.ylim(ylim[contrast])
@@ -263,7 +267,7 @@ def main():
         plt.title(contrast)
         plt.tight_layout()  # make sure everything fits
         plt.savefig(os.path.join(path_data, 'fig_'+contrast+'_levels'+levels+'.png'))
-        # plt.show()
+        plt.show()
 
 
     file_output = os.path.join(path_data, 'results_'+contrast+'_levels'+levels+'.csv')
@@ -312,7 +316,7 @@ def parse_filename(filename):
     :return: site, subject
     """
     path, file = os.path.split(filename)
-    site = path.split(os.sep)[-3].strip('_spineGeneric')
+    site = path.split(os.sep)[-3].replace('_spineGeneric', '')
     subject = path.split(os.sep)[-2]
     return site, subject
 
