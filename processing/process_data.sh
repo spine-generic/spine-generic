@@ -247,7 +247,7 @@ FILES_TO_CHECK=(
   "anat/mtsat.nii.gz"
   "anat/t1map.nii.gz"
   "anat/${SUBJECT}_T2star_rms_gmseg.nii.gz"
-  "anat/${SUBJECT}_T1w_seg_labeled2T2${SUBJECT}_star_rms.nii.gz"
+  "anat/${SUBJECT}_T1w_seg_labeled2${SUBJECT}_T2star_rms.nii.gz"
   "dwi/dti_FA.nii.gz"
   "dwi/dti_MD.nii.gz"
   "dwi/dti_RD.nii.gz"
