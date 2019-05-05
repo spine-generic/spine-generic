@@ -80,7 +80,7 @@ Once you've converted all subjects for the study, create the following files and
 
 Example of possible values:
 - **Manufacturer**: "Siemens", "GE", "Philips"
-- **ManufacturersModelName**: "Prisma_fit", "Skyra", "750w", "Achieva"
+- **ManufacturersModelName**: "Prisma", "Prisma-fit", "Skyra", "750w", "Achieva"
 - **ReceiveCoilName**: "64ch+spine", "12ch+4ch neck", "neurovascular"
 - **SoftwareVersion**: "VE11C", "DV26.0", "R5.3", ...
 
