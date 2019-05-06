@@ -175,18 +175,19 @@ def aggregate_per_site(dict_results, metric, path_data):
     return results_agg
 
 
-def label_bar_model(bar_plot, model_lst):
+def label_bar_model(ax, bar_plot, model_lst):
     """
     Add ManufacturersModelName embedded in each bar.
+    :param ax Matplotlib axes
     :param bar_plot Matplotlib object
     :param model_lst sorted list of model names
     """
     for idx,rect in enumerate(bar_plot):
         height = rect.get_height()
-        ax.text(rect.get_x() + rect.get_width()/2., 0.1,
-                model_lst[idx],
+        ax.text(rect.get_x() + rect.get_width()/2., 0.1 * height,
+                model_lst[idx], color='white',
                 ha='center', va='bottom', rotation=90)
-
+    return ax
 
 def compute_statistics(df):
     """
@@ -288,7 +289,7 @@ def main():
         # TODO: show only superior part of STD
         plt.grid(axis='y')
         bar_plot = plt.bar(range(len(site_sorted)), height=mean_sorted, width=0.5, tick_label=site_sorted, yerr=std_sorted, color=list_colors)
-        label_bar_model(bar_plot, model_sorted)  # add ManufacturersModelName embedded in each bar 
+        ax = label_bar_model(ax, bar_plot, model_sorted)  # add ManufacturersModelName embedded in each bar
         plt.setp(ax.xaxis.get_majorticklabels(), rotation=45, ha="right")  # rotate xticklabels at 45deg, align at end
         plt.xlim([-1, len(site_sorted)])
         # ax.set_xticklabels(site_sorted)
