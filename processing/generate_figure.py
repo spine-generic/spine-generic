@@ -185,7 +185,7 @@ def label_bar_model(ax, bar_plot, model_lst):
     for idx,rect in enumerate(bar_plot):
         height = rect.get_height()
         ax.text(rect.get_x() + rect.get_width()/2., 0.1 * height,
-                model_lst[idx], color='white',
+                model_lst[idx], color='white', weight='bold',
                 ha='center', va='bottom', rotation=90)
     return ax
 
