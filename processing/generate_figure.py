@@ -61,6 +61,23 @@ centers = {
     'juntendo-prisma_spine-generic_20180523': 'Juntendo-Prisma',
 }
 
+# flag emoji dictionary: key: site, value: emoji code
+flags = {
+    'chiba': ':flag-jp:',
+    'juntendo-750w': ':flag-jp:',
+    'tokyo-univ': ':flag-jp:',
+    'ucl': ':flag-uk:',
+    'juntendo-achieva': ':flag-jp:',
+    'glen': ':question:',
+    'mgh-bay3': ':flag-us:',
+    'douglas': ':question:',
+    'poly': ':flag-ca:',
+    'juntendo-skyra': ':flag-jp:',
+    'unf': ':flag-ca:',
+    'oxford': ':flag-uk:',
+    'juntendo-prisma': ':flag-jp:',
+}
+
 # color to assign to each MRI model for the figure
 # TODO: choose slightly different color based on MRI model (within vendor)
 vendor_to_color = {
