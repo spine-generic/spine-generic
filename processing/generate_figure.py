@@ -25,8 +25,10 @@ import json
 import pandas as pd
 
 import numpy as np
+from scipy import ndimage
 import logging
 import matplotlib.pyplot as plt
+from matplotlib.offsetbox import OffsetImage,AnnotationBbox
 from collections import OrderedDict
 
 
@@ -61,21 +63,47 @@ centers = {
     'juntendo-prisma_spine-generic_20180523': 'Juntendo-Prisma',
 }
 
-# flag emoji dictionary: key: site, value: emoji code
+# country dictionary: key: site, value: country name
 flags = {
-    'chiba': ':flag-jp:',
-    'juntendo-750w': ':flag-jp:',
-    'tokyo-univ': ':flag-jp:',
-    'ucl': ':flag-uk:',
-    'juntendo-achieva': ':flag-jp:',
-    'glen': ':question:',
-    'mgh-bay3': ':flag-us:',
-    'douglas': ':question:',
-    'poly': ':flag-ca:',
-    'juntendo-skyra': ':flag-jp:',
-    'unf': ':flag-ca:',
-    'oxford': ':flag-uk:',
-    'juntendo-prisma': ':flag-jp:',
+    'chiba': 'japan',
+    'juntendo-750w': 'japan',
+    'ucl': 'uk',
+    'juntendo-achieva': 'japan',
+    'glen': 'somewhere',
+    'douglas': 'somewhere',
+    'poly': 'canada',
+    'juntendo-skyra': 'japan',
+    'unf': 'canada',
+    'oxford': 'uk',
+    'juntendo-prisma': 'japan',
+    'brno': 'somewhere',
+    'perform': 'somewhere',
+    'stanford': 'us',
+    'tokyo-750w': 'japan',
+    'nottwil': 'ch',
+    'sherbrooke': 'canada',
+    'tokyo-ingenia': 'japan',
+    'vuiis-achieva': 'us',
+    'vuiis-ingenia': 'us',
+    'amu': 'france',
+    'balgrist': 'ch',
+    'barcelona': 'spain',
+    'brno-prisma': 'somewhere',
+    'cardiff': 'uk',
+    'geneva': 'ch',
+    'hamburg': 'germany',
+    'mgh': 'us',
+    'milan': 'italy',
+    'mni': 'canada',
+    'mpicbs': 'somewhere',
+    'nwu': 'south-africa',
+    'oxford-fmrib': 'uk',
+    'oxford-ohba': 'uk',
+    'queensland': 'australia',
+    'strasbourg': 'france',
+    'tehran': 'iran',
+    'tokyo-skyra': 'japan',
+    'vall-hebron': 'spain'
 }
 
 # color to assign to each MRI model for the figure
@@ -206,6 +234,34 @@ def label_bar_model(ax, bar_plot, model_lst):
                 ha='center', va='bottom', rotation=90)
     return ax
 
+
+def get_flag(name):
+    """
+    Get the flag of a country from the folder flags.
+    :param name Name of the country
+    """
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'flags', '{}.png'.format(name))
+    im = plt.imread(path)
+    return im
+
+
+def offset_flag(coord, name, ax):
+    """
+    Add flag images to the plot.
+    :param coord Coordinate of the xtick
+    :param name Name of the country
+    :param ax Matplotlib ax
+    """
+    img = get_flag(name)
+    img_rot = ndimage.rotate(img, 45)
+    im = OffsetImage(img_rot, zoom=0.2)
+    im.image.axes = ax
+
+    ab = AnnotationBbox(im, (coord, 0), frameon=False, pad=0, xycoords='data')
+
+    ax.add_artist(ab)
+    return ax
+
 def compute_statistics(df):
     """
     Compute statistics such as mean, std, COV, etc.
@@ -309,10 +365,12 @@ def main():
         ax = label_bar_model(ax, bar_plot, model_sorted)  # add ManufacturersModelName embedded in each bar
         plt.setp(ax.xaxis.get_majorticklabels(), rotation=45, ha="right")  # rotate xticklabels at 45deg, align at end
         plt.xlim([-1, len(site_sorted)])
-        # ax.set_xticklabels(site_sorted)
+        ax.set_xticklabels([s + '   ' for s in site_sorted])  # spaces are added after the site name to allow space for flag
         # ax.get_xaxis().set_visible(True)
         ax.tick_params(labelsize=15)
         plt.ylabel(metric_to_label[metric], fontsize=15)
+        for i, c in enumerate(site_sorted):  # add flag
+            ax = offset_flag(i, flags[c], ax)
 
         # plt.ylim(ylim[contrast])
         # plt.yticks(np.arange(ylim[contrast][0], ylim[contrast][1], step=ystep[contrast]))
