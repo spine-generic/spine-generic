@@ -361,7 +361,8 @@ def main():
         fig, ax = plt.subplots(figsize=(15, 8))
         # TODO: show only superior part of STD
         plt.grid(axis='y')
-        bar_plot = plt.bar(range(len(site_sorted)), height=mean_sorted, width=0.5, tick_label=site_sorted, yerr=std_sorted, color=list_colors)
+        bar_plot = plt.bar(range(len(site_sorted)), height=mean_sorted, width=0.5,
+                           tick_label=site_sorted, yerr=[[0 for v in std_sorted], std_sorted], color=list_colors)
         ax = label_bar_model(ax, bar_plot, model_sorted)  # add ManufacturersModelName embedded in each bar
         plt.setp(ax.xaxis.get_majorticklabels(), rotation=45, ha="right")  # rotate xticklabels at 45deg, align at end
         plt.xlim([-1, len(site_sorted)])
