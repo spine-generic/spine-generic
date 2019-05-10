@@ -121,7 +121,7 @@ sct_warp_template -d ${file_t1}.nii.gz -w warp_template2T1w.nii.gz -a 0 -ofolder
 # Flatten scan along R-L direction (to make nice figures)
 sct_flatten_sagittal -i ${file_t1}.nii.gz -s ${file_t1_seg}.nii.gz
 # Compute average cord CSA between C2 and C3
-sct_process_segmentation -i ${file_t1_seg}.nii.gz -vert 2:3 -o ${PATH_OUTPUT}/csa-SC_T1w.csv -append 1
+sct_process_segmentation -i ${file_t1_seg}.nii.gz -vert 2:3 -vertfile label_T1w/template/PAM50_levels.nii.gz -o ${PATH_OUTPUT}/csa-SC_T1w.csv -append 1
 
 # T2
 # ------------------------------------------------------------------------------
