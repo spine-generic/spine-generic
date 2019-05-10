@@ -187,17 +187,27 @@ After the processing is run, check your Quality Control (QC) report, by opening
 double clicking on the file `qc/index.html`. Use the "Search" feature of the QC
 report to quickly jump to segmentations or labeling results.
 
-If you spot issues with the **segmentation**, identify the segmentation file, open
+#### Segmentation
+
+If you spot issues (missing pixels, leaking), identify the segmentation file, open
 it with an editor (e.g., [FSLeyes](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FSLeyes)),
 modify it (Tools > Edit Mode) and save it (Overlay > Save > Save to new file) with suffix `-manual`. Example: `sub-01_T2w_RPI_r_seg-manual.nii.gz`. Then, move the file to the folder you defined
 under the variable `PATH_SEGMANUAL` in the file `parameters.sh`. Important: the manual segmentation
-should be copied under a subfolder named after the site, e.g. `spineGeneric_unf/`.
+should be copied under a subfolder named after the site, e.g. `seg_manual/spineGeneric_unf/sub-01_T2w_RPI_r_seg-manual.nii.gz`. The files to look for are:
 
-**Important:** For the interest of time, you don't need to fix __all__ slices of the segmentation,
-because the metrics are only extracted between C2 and C5. So, for example, if the segmentation at the
-top (or bottom) slices looks wrong, don't worry about it.
+| Segmentation  | Associated image  | Relevant levels | Used for |
+|:---|:---|:---|---|
+| sub-XX_T1w_RPI_r_seg.nii.gz | sub-XX_T1w_RPI_r.nii.gz | C2-C3 | CSA |
+| sub-XX_T2w_RPI_r_seg.nii.gz | sub-XX_T2w_RPI_r.nii.gz | C2-C3 | CSA |
+| sub-XX_T2star_rms_gmseg.nii.gz | sub-XX_T2star_rms.nii.gz | C3-C4 | CSA |
+| sub-XX_acq-T1w_MTS_seg.nii.gz | sub-XX_acq-T1w_MTS.nii.gz | C2-C5 | Template registration |
 
-Similarly, if you spot issues with the **vertebral labeling**, manually create labels in the cord at C2 and C5 mid-vertebral levels using the following command (you need to be in the appropriate folder before running the command):
+**Note:** For the interest of time, you don't need to fix *all* slices of the segmentation but only the ones listed
+in the "Relevant levels" column of the table above.
+
+#### Vertebral labeling
+
+If you spot issues (wrong labeling), manually create labels in the cord at C2 and C5 mid-vertebral levels using the following command (you need to be in the appropriate folder before running the command):
 ~~~
 sct_label_utils -i IMAGE -create-viewer 3,5 -o IMAGE_labels-manual.nii.gz
 ~~~
@@ -208,8 +218,7 @@ mkdir ${PATH_SEGMANUAL}/spineGeneric_unf/
 mv sub-01_T1w_labels-manual.nii.gz ${PATH_SEGMANUAL}/spineGeneric_unf/
 ~~~
 Then, move the file to the folder you defined
-under the variable `PATH_SEGMANUAL` in the file `parameters.sh`. Important: the manual label
-should be copied under a subfolder named after the site, e.g. `spineGeneric_unf/`.
+under the variable `PATH_SEGMANUAL` in the file `parameters.sh`, as done for the segmentation.
 
 Once you've corrected all the necessary files, re-run the whole process. Now, when the manual file exists,
 the script will use it in the processing:
