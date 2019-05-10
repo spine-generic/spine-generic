@@ -121,7 +121,7 @@ sct_warp_template -d ${file_t1}.nii.gz -w warp_template2T1w.nii.gz -a 0 -ofolder
 # Flatten scan along R-L direction (to make nice figures)
 sct_flatten_sagittal -i ${file_t1}.nii.gz -s ${file_t1_seg}.nii.gz
 # Compute average cord CSA between C2 and C3
-sct_process_segmentation -i ${file_t1_seg}.nii.gz -vertfile ${file_t1_seg}_labeled.nii.gz -vert 2:3 -o ${PATH_OUTPUT}/csa-SC_T1w.csv -append 1
+sct_process_segmentation -i ${file_t1_seg}.nii.gz -vert 2:3 -o ${PATH_OUTPUT}/csa-SC_T1w.csv -append 1
 
 # T2
 # ------------------------------------------------------------------------------
@@ -136,9 +136,9 @@ file_t2_seg=$FILESEG
 # Flatten scan along R-L direction (to make nice figures)
 sct_flatten_sagittal -i ${file_t2}.nii.gz -s ${file_t2_seg}.nii.gz
 # Bring vertebral level into T2 space
-sct_register_multimodal -i ${file_t1_seg}_labeled.nii.gz -d ${file_t2_seg}.nii.gz -o ${file_t1_seg}_labeled2${file_t2}.nii.gz -identity 1 -x nn
+sct_register_multimodal -i label_T1w/template/PAM50_levels.nii.gz -d ${file_t2_seg}.nii.gz -o PAM50_levels2${file_t2}.nii.gz -identity 1 -x nn
 # Compute average cord CSA between C2 and C3
-sct_process_segmentation -i ${file_t2_seg}.nii.gz -vert 2:3 -vertfile ${file_t1_seg}_labeled2${file_t2}.nii.gz -o ${PATH_OUTPUT}/csa-SC_T2w.csv -append 1
+sct_process_segmentation -i ${file_t2_seg}.nii.gz -vert 2:3 -vertfile PAM50_levels2${file_t2}.nii.gz -o ${PATH_OUTPUT}/csa-SC_T2w.csv -append 1
 
 # MTS
 # ------------------------------------------------------------------------------
@@ -190,14 +190,14 @@ file_t2s="${SUBJECT}_T2star"
 sct_maths -i ${file_t2s}.nii.gz -rms t -o ${file_t2s}_rms.nii.gz
 file_t2s="${file_t2s}_rms"
 # Bring vertebral level into T2s space
-sct_register_multimodal -i ${file_t1_seg}_labeled.nii.gz -d ${file_t2s}.nii.gz -o ${file_t1_seg}_labeled2${file_t2s}.nii.gz -identity 1 -x nn
+sct_register_multimodal -i label_T1w/template/PAM50_levels.nii.gz -d ${file_t2s}.nii.gz -o PAM50_levels2${file_t2s}.nii.gz -identity 1 -x nn
 # Segment gray matter (only if it does not exist)
 segment_gm_if_does_not_exist $file_t2s "t2s"
 file_t2s_seg=$FILESEG
 # Compute the gray matter CSA between C3 and C4 levels
 # NB: Here we set -no-angle 1 because we do not want angle correction: it is too
 # unstable with GM seg, and t2s data were acquired orthogonal to the cord anyways.
-sct_process_segmentation -i ${file_t2s_seg}.nii.gz -angle-corr 0 -vert 3:4 -vertfile ${file_t1_seg}_labeled2${file_t2s}.nii.gz -o ${PATH_OUTPUT}/csa-GM_T2s.csv -append 1
+sct_process_segmentation -i ${file_t2s_seg}.nii.gz -angle-corr 0 -vert 3:4 -vertfile PAM50_levels2${file_t2s}.nii.gz -o ${PATH_OUTPUT}/csa-GM_T2s.csv -append 1
 
 # DWI
 # ------------------------------------------------------------------------------
@@ -239,15 +239,12 @@ cd ..
 # ------------------------------------------------------------------------------
 FILES_TO_CHECK=(
   "anat/${SUBJECT}_T1w_RPI_r_seg.nii.gz"
-  "anat/${SUBJECT}_T1w_RPI_r_seg_labeled.nii.gz"
   "anat/${SUBJECT}_T2w_RPI_r_seg.nii.gz"
-  "anat/${SUBJECT}_T1w_RPI_r_seg_labeled2${SUBJECT}_T2w_RPI_r.nii.gz"
   "anat/label_axT1w/template/PAM50_levels.nii.gz"
   "anat/mtr.nii.gz"
   "anat/mtsat.nii.gz"
   "anat/t1map.nii.gz"
   "anat/${SUBJECT}_T2star_rms_gmseg.nii.gz"
-  "anat/${SUBJECT}_T1w_seg_labeled2${SUBJECT}_T2star_rms.nii.gz"
   "dwi/dti_FA.nii.gz"
   "dwi/dti_MD.nii.gz"
   "dwi/dti_RD.nii.gz"
