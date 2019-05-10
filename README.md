@@ -207,6 +207,9 @@ sct_label_utils -i sub-01_T1w.nii.gz -create-viewer 3,5 -o sub-01_T1w_labels-man
 mkdir ${PATH_SEGMANUAL}/spineGeneric_unf/
 mv sub-01_T1w_labels-manual.nii.gz ${PATH_SEGMANUAL}/spineGeneric_unf/
 ~~~
+Then, move the file to the folder you defined
+under the variable `PATH_SEGMANUAL` in the file `parameters.sh`. Important: the manual label
+should be copied under a subfolder named after the site, e.g. `spineGeneric_unf/`.
 
 Once you've corrected all the necessary files, re-run the whole process. Now, when the manual file exists,
 the script will use it in the processing:
