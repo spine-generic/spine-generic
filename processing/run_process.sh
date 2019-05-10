@@ -36,8 +36,6 @@ create_folder() {
 }
 
 # Initialization
-unset SITES
-# unset SUBJECTS
 time_start=$(date +%x_%r)
 
 # Load config file
@@ -51,16 +49,6 @@ fi
 # build syntax for process execution
 task="`pwd`/$1"
 
-# If the variable SITES does not exist (commented), get list of all sites
-if [ -z ${SITES} ]; then
-  echo "Processing all sites located in: $PATH_DATA"
-  # Get list of folders (remove full path, only keep last element)
-  SITES=`ls -d ${PATH_DATA}/*/ | xargs -n 1 basename`
-else
-  echo "Processing sites specified in parameters.sh"
-fi
-echo "--> " ${SITES[@]}
-
 # Create folders
 create_folder $PATH_LOG
 create_folder $PATH_OUTPUT
@@ -68,28 +56,21 @@ create_folder $PATH_OUTPUT
 # Run processing with or without "GNU parallel", depending if it is installed or not
 if [ -x "$(command -v parallel)" ]; then
   echo 'GNU parallel is installed! Processing subjects in parallel using multiple cores.' >&2
-  for site in ${SITES[@]}; do
-    mkdir -p ${PATH_OUTPUT}/${site}
-    find ${PATH_DATA}/${site} -mindepth 1 -maxdepth 1 -type d | while read site_subject; do
-      subject=`basename $site_subject`
-      # echo "cd ${PATH_DATA}/${site}; ${task} $(basename $subject) $site $PATH_OUTPUT $PATH_QC $PATH_LOG 2>&1 | tee ${PATH_LOG}/${site}_${subject}.log ; test ${PIPESTATUS[0]} -eq 0 ; echo $?"  #if [ ! $? -eq 0 ]; then mv ${PATH_LOG}/${site}_${subject}.log ${PATH_LOG}/err.${site}_${subject}.log; fi"
-      # echo "cd ${PATH_DATA}/${site}; ${task} $(basename $subject) $site $PATH_OUTPUT $PATH_QC $PATH_LOG 2>&1 | tee ${PATH_LOG}/${site}_${subject}.log ; echo $?"  #if [ ! $? -eq 0 ]; then mv ${PATH_LOG}/${site}_${subject}.log ${PATH_LOG}/err.${site}_${subject}.log; fi"
-      echo "./_run_with_log.sh ${task} $(basename $subject) $site $PATH_OUTPUT $PATH_QC $PATH_LOG"  #if [ ! $? -eq 0 ]; then mv ${PATH_LOG}/${site}_${subject}.log ${PATH_LOG}/err.${site}_${subject}.log; fi"
-    done
+  find ${PATH_DATA} -mindepth 1 -maxdepth 1 -type d | while read path_subject; do
+    subject=`basename $path_subject`
+    echo "./_run_with_log.sh $task $subject $PATH_OUTPUT $PATH_QC $PATH_LOG"
   done \
   | parallel -j ${JOBS} --halt-on-error soon,fail=1 bash -c "{}"
 else
   echo 'GNU parallel is not installed. Processing subjects sequentially.' >&2
-  for site in ${SITES[@]}; do
-    mkdir -p ${PATH_OUTPUT}/${site}
-    find ${PATH_DATA}/${site} -mindepth 1 -maxdepth 1 -type d | while read site_subject; do
-      subject=`basename $site_subject`
-      cd ${PATH_DATA}/${site}
-      ${task} $(basename $subject) $site $PATH_OUTPUT $PATH_QC $PATH_LOG 2>&1 | tee ${PATH_LOG}/${site}_${subject}.log ; test ${PIPESTATUS[0]} -eq 0
-      if [ ! $? -eq 0 ]; then
-        mv ${PATH_LOG}/${site}_${subject}.log ${PATH_LOG}/err.${site}_${subject}.log
-      fi
-    done
+  find ${PATH_DATA} -mindepth 1 -maxdepth 1 -type d | while read path_subject; do
+    subject=`basename $path_subject`
+    echo "./_run_with_log.sh $task $subject $PATH_OUTPUT $PATH_QC $PATH_LOG"
+    # cd ${PATH_DATA}
+    # ${task} $(basename $subject) $site $PATH_OUTPUT $PATH_QC $PATH_LOG 2>&1 | tee ${PATH_LOG}/${site}_${subject}.log ; test ${PIPESTATUS[0]} -eq 0
+    # if [ ! $? -eq 0 ]; then
+    #   mv ${PATH_LOG}/${site}_${subject}.log ${PATH_LOG}/err.${site}_${subject}.log
+    # fi
   done
 fi
 
