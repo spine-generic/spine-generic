@@ -43,6 +43,7 @@ label_if_does_not_exist(){
   # Update global variable with segmentation file name
   FILELABEL="${file}_labels"
   if [ -e "${PATH_SEGMANUAL}/${file}_labels-manual.nii.gz" ]; then
+    echo "Found manual label: ${PATH_SEGMANUAL}/${file}_labels-manual.nii.gz"
     rsync -avzh "${PATH_SEGMANUAL}/${file}_labels-manual.nii.gz" ${FILELABEL}.nii.gz
   else
     # Generate labeled segmentation
@@ -60,6 +61,7 @@ segment_if_does_not_exist(){
   # Update global variable with segmentation file name
   FILESEG="${file}_seg"
   if [ -e "${PATH_SEGMANUAL}/${FILESEG}-manual.nii.gz" ]; then
+    echo "Found manual segmentation: ${PATH_SEGMANUAL}/${FILESEG}-manual.nii.gz"
     rsync -avzh "${PATH_SEGMANUAL}/${FILESEG}-manual.nii.gz" ${FILESEG}.nii.gz
     sct_qc -i ${file}.nii.gz -s ${FILESEG}.nii.gz -p sct_deepseg_sc -qc ${PATH_QC} -qc-subject ${SUBJECT}
   else
@@ -76,11 +78,12 @@ segment_gm_if_does_not_exist(){
   # Update global variable with segmentation file name
   FILESEG="${file}_gmseg"
   if [ -e "${PATH_SEGMANUAL}/${FILESEG}-manual.nii.gz" ]; then
+    echo "Found manual segmentation: ${PATH_SEGMANUAL}/${FILESEG}-manual.nii.gz"
     rsync -avzh "${PATH_SEGMANUAL}/${FILESEG}-manual.nii.gz" ${FILESEG}.nii.gz
     sct_qc -i ${file}.nii.gz -s ${FILESEG}.nii.gz -p sct_deepseg_gm -qc ${PATH_QC} -qc-subject ${SUBJECT}
   else
     # Segment spinal cord
-    sct_deepseg_gm -i ${file}.nii.gz -qc ${PATH_QC} -qc-dataset -qc-subject ${SUBJECT}
+    sct_deepseg_gm -i ${file}.nii.gz -qc ${PATH_QC} -qc-subject ${SUBJECT}
   fi
 }
 
