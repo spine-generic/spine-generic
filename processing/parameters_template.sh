@@ -5,15 +5,9 @@
 # Do not add "/" at the end. Path should be absolute (i.e. do not use "~")
 export PATH_PARENT="/Users/julien/spineGeneric_multiSubjects"
 
-# Path to the folder site which contains all sites.
+# Path to the folder containing the BIDS dataset.
 # Do not add "/" at the end. Path should be absolute (i.e. do not use "~")
 export PATH_DATA="${PATH_PARENT}/data"
-
-# List of subjects to analyse. Comment this variable if you want to analyze all
-# sites in the PATH_DATA folder.
-#export SITES=(
-#	"amu_spineGeneric"
-#)
 
 # Paths to where to save the new dataset.
 # Do not add "/" at the end. Path should be absolute (i.e. do not use "~")
