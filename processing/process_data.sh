@@ -3,7 +3,7 @@
 # Process data. This script should be run within the subject's folder.
 #
 # Usage:
-#   ./process_data.sh <SUBJECT> <SITE> <PATH_OUTPUT> <PATH_QC> <PATH_LOG>
+#   ./process_data.sh <SUBJECT> <PATH_OUTPUT> <PATH_QC> <PATH_LOG>
 #
 # Where subject_ID refers to the subject ID according to the BIDS format.
 #
@@ -27,10 +27,9 @@ trap "echo Caught Keyboard Interrupt within script. Exiting now.; exit" INT
 
 # Retrieve input params
 SUBJECT=$1
-SITE=$2
-PATH_OUTPUT=$3
-PATH_QC=$4
-PATH_LOG=$5
+PATH_OUTPUT=$2
+PATH_QC=$3
+PATH_LOG=$4
 
 
 # FUNCTIONS
@@ -43,11 +42,11 @@ label_if_does_not_exist(){
   local file_seg="$2"
   # Update global variable with segmentation file name
   FILELABEL="${file}_labels"
-  if [ -e "${PATH_SEGMANUAL}/${SITE}/${file}_labels-manual.nii.gz" ]; then
-    rsync -avzh "${PATH_SEGMANUAL}/${SITE}/${file}_labels-manual.nii.gz" ${FILELABEL}.nii.gz
+  if [ -e "${PATH_SEGMANUAL}/${file}_labels-manual.nii.gz" ]; then
+    rsync -avzh "${PATH_SEGMANUAL}/${file}_labels-manual.nii.gz" ${FILELABEL}.nii.gz
   else
     # Generate labeled segmentation
-    sct_label_vertebrae -i ${file}.nii.gz -s ${file_seg}.nii.gz -c t1 -qc ${PATH_QC} -qc-dataset ${SITE} -qc-subject ${SUBJECT}
+    sct_label_vertebrae -i ${file}.nii.gz -s ${file_seg}.nii.gz -c t1 -qc ${PATH_QC} -qc-subject ${SUBJECT}
     # Create labels in the cord at C3 and C5 mid-vertebral levels
     sct_label_utils -i ${file_seg}_labeled.nii.gz -vert-body 3,5 -o ${FILELABEL}.nii.gz
   fi
@@ -60,12 +59,12 @@ segment_if_does_not_exist(){
   local contrast="$2"
   # Update global variable with segmentation file name
   FILESEG="${file}_seg"
-  if [ -e "${PATH_SEGMANUAL}/${SITE}/${FILESEG}-manual.nii.gz" ]; then
-    rsync -avzh "${PATH_SEGMANUAL}/${SITE}/${FILESEG}-manual.nii.gz" ${FILESEG}.nii.gz
-    sct_qc -i ${file}.nii.gz -s ${FILESEG}.nii.gz -p sct_deepseg_sc -qc ${PATH_QC} -qc-dataset ${SITE} -qc-subject ${SUBJECT}
+  if [ -e "${PATH_SEGMANUAL}/${FILESEG}-manual.nii.gz" ]; then
+    rsync -avzh "${PATH_SEGMANUAL}/${FILESEG}-manual.nii.gz" ${FILESEG}.nii.gz
+    sct_qc -i ${file}.nii.gz -s ${FILESEG}.nii.gz -p sct_deepseg_sc -qc ${PATH_QC} -qc-subject ${SUBJECT}
   else
     # Segment spinal cord
-    sct_deepseg_sc -i ${file}.nii.gz -c $contrast -qc ${PATH_QC} -qc-dataset ${SITE} -qc-subject ${SUBJECT}
+    sct_deepseg_sc -i ${file}.nii.gz -c $contrast -qc ${PATH_QC} -qc-subject ${SUBJECT}
   fi
 }
 
@@ -76,12 +75,12 @@ segment_gm_if_does_not_exist(){
   local contrast="$2"
   # Update global variable with segmentation file name
   FILESEG="${file}_gmseg"
-  if [ -e "${PATH_SEGMANUAL}/${SITE}/${FILESEG}-manual.nii.gz" ]; then
-    rsync -avzh "${PATH_SEGMANUAL}/${SITE}/${FILESEG}-manual.nii.gz" ${FILESEG}.nii.gz
-    sct_qc -i ${file}.nii.gz -s ${FILESEG}.nii.gz -p sct_deepseg_gm -qc ${PATH_QC} -qc-dataset ${SITE} -qc-subject ${SUBJECT}
+  if [ -e "${PATH_SEGMANUAL}/${FILESEG}-manual.nii.gz" ]; then
+    rsync -avzh "${PATH_SEGMANUAL}/${FILESEG}-manual.nii.gz" ${FILESEG}.nii.gz
+    sct_qc -i ${file}.nii.gz -s ${FILESEG}.nii.gz -p sct_deepseg_gm -qc ${PATH_QC} -qc-subject ${SUBJECT}
   else
     # Segment spinal cord
-    sct_deepseg_gm -i ${file}.nii.gz -qc ${PATH_QC} -qc-dataset ${SITE} -qc-subject ${SUBJECT}
+    sct_deepseg_gm -i ${file}.nii.gz -qc ${PATH_QC} -qc-dataset -qc-subject ${SUBJECT}
   fi
 }
 
@@ -112,7 +111,7 @@ file_t1_seg=$FILESEG
 label_if_does_not_exist ${file_t1} ${file_t1_seg}
 file_label=$FILELABEL
 # Register to PAM50 template
-sct_register_to_template -i ${file_t1}.nii.gz -s ${file_t1_seg}.nii.gz -l ${file_label}.nii.gz -c t1 -param step=1,type=seg,algo=centermassrot:step=2,type=seg,algo=syn,slicewise=1,smooth=0,iter=5:step=3,type=im,algo=syn,slicewise=1,smooth=0,iter=3 -qc ${PATH_QC} -qc-dataset ${SITE} -qc-subject ${SUBJECT}
+sct_register_to_template -i ${file_t1}.nii.gz -s ${file_t1_seg}.nii.gz -l ${file_label}.nii.gz -c t1 -param step=1,type=seg,algo=centermassrot:step=2,type=seg,algo=syn,slicewise=1,smooth=0,iter=5:step=3,type=im,algo=syn,slicewise=1,smooth=0,iter=3 -qc ${PATH_QC} -qc-subject ${SUBJECT}
 # Rename warping fields for clarity
 mv warp_template2anat.nii.gz warp_template2T1w.nii.gz
 mv warp_anat2template.nii.gz warp_T1w2template.nii.gz
@@ -173,7 +172,7 @@ sct_register_multimodal -i $SCT_DIR/data/PAM50/template/PAM50_t1.nii.gz -iseg $S
 mv warp_PAM50_t12${file_t1w}.nii.gz warp_template2axT1w.nii.gz
 mv warp_${file_t1w}2PAM50_t1.nii.gz warp_axT1w2template.nii.gz
 # Warp template
-sct_warp_template -d ${file_t1w}.nii.gz -w warp_template2axT1w.nii.gz -ofolder label_axT1w -qc ${PATH_QC} -qc-dataset ${SITE} -qc-subject ${SUBJECT}
+sct_warp_template -d ${file_t1w}.nii.gz -w warp_template2axT1w.nii.gz -ofolder label_axT1w -qc ${PATH_QC} -qc-subject ${SUBJECT}
 # Compute MTR
 sct_compute_mtr -mt0 ${file_mtoff}.nii.gz -mt1 ${file_mton}.nii.gz
 # Compute MTsat
@@ -223,7 +222,7 @@ sct_register_multimodal -i $SCT_DIR/data/PAM50/template/PAM50_t1.nii.gz -iseg $S
 mv warp_PAM50_t12${file_dwi_mean}.nii.gz warp_template2dwi.nii.gz
 mv warp_${file_dwi_mean}2PAM50_t1.nii.gz warp_dwi2template.nii.gz
 # Warp template
-sct_warp_template -d ${file_dwi_mean}.nii.gz -w warp_template2dwi.nii.gz -qc ${PATH_QC} -qc-dataset ${SITE} -qc-subject ${SUBJECT}
+sct_warp_template -d ${file_dwi_mean}.nii.gz -w warp_template2dwi.nii.gz -qc ${PATH_QC} -qc-subject ${SUBJECT}
 # Create mask around the spinal cord (for faster computing)
 sct_maths -i ${file_dwi_seg}.nii.gz -dilate 3,3,3 -o ${file_dwi_seg}_dil.nii.gz
 # Compute DTI using RESTORE
@@ -252,6 +251,6 @@ FILES_TO_CHECK=(
 )
 for file in ${FILES_TO_CHECK[@]}; do
   if [ ! -e $file ]; then
-    echo "${SITE}/${SUBJECT}/${file} does not exist" >> $PATH_LOG/_error_check_output_files.log
+    echo "${SUBJECT}/${file} does not exist" >> $PATH_LOG/_error_check_output_files.log
   fi
 done
