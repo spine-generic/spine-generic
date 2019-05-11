@@ -263,7 +263,11 @@ def offset_flag(coord, name, ax):
     return ax
 
 
-def add_stats_per_vendor(ax, x_i, x_j, mean, std, cov, f, color):
+def add_stats_per_vendor(ax, x_i, x_j, y_max, mean, std, cov, f, color):
+    # add stats as strings
+    txt = "{0:.2f} $\pm$ {1:.2f} ({2:.2f}%)".format(mean * f, std * f, cov * 100.)
+    ax.annotate(txt, xy = (np.mean([x_i, x_j]), y_max), va='center', ha='center',
+        bbox=dict(edgecolor='none', fc=color, alpha=0.3))
     # add rectangle for variance
     rect = patches.Rectangle((x_i, (mean - std) * f), x_j - x_i, 2 * std * f,
                              edgecolor=None, facecolor=color, alpha=0.3)
@@ -396,9 +400,11 @@ def main():
         x_init_vendor = 0
         for vendor in list(OrderedDict.fromkeys(vendor_sorted)):
             n_site = list(vendor_sorted).count(vendor)
+            i_max = x_init_vendor+np.argmax(mean_sorted[x_init_vendor:x_init_vendor+n_site])
             ax = add_stats_per_vendor(ax=ax,
                                       x_i=x_init_vendor-0.5,
                                       x_j=x_init_vendor+n_site-1+0.5,
+                                      y_max=mean_sorted[i_max]+std_sorted[i_max] * 1.2,
                                       mean=stats['mean'][vendor],
                                       std=stats['std'][vendor],
                                       cov=stats['cov'][vendor],
