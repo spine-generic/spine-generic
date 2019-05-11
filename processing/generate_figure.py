@@ -283,8 +283,15 @@ def compute_statistics(df):
         # init dict
         if not 'cov' in stats.keys():
             stats['cov'] = {}
+        if not 'mean' in stats.keys():
+            stats['mean'] = {}
+        if not 'std' in stats.keys():
+            stats['std'] = {}
         # fetch vals for specific vendor
         val_per_vendor = df['mean'][df['vendor'] == vendor].values
+
+        stats['mean'][vendor] = np.mean(val_per_vendor)
+        stats['std'][vendor] = np.std(val_per_vendor)
         # compute COV
         stats['cov'][vendor] = np.std(val_per_vendor) / np.mean(val_per_vendor)
     return df, stats
@@ -349,7 +356,7 @@ def main():
         mean_sorted = df['mean'][site_sorted].values
         std_sorted = df['std'][site_sorted].values
         model_sorted = df['model'][site_sorted].values
-
+        print(stats)
         # Scale values (for display)
         mean_sorted = mean_sorted * scaling_factor[metric]
         std_sorted = std_sorted * scaling_factor[metric]
