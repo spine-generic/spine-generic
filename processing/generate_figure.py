@@ -26,11 +26,11 @@ import pandas as pd
 
 import numpy as np
 from scipy import ndimage
+from collections import OrderedDict
 import logging
 import matplotlib.pyplot as plt
 from matplotlib.offsetbox import OffsetImage,AnnotationBbox
-from collections import OrderedDict
-
+import matplotlib.patches as patches
 
 # Initialize logging
 logger = logging.getLogger(__name__)
@@ -262,6 +262,17 @@ def offset_flag(coord, name, ax):
     ax.add_artist(ab)
     return ax
 
+
+def add_stats_per_vendor(ax, x_i, x_j, mean, std, cov, f, color):
+    # add rectangle for variance
+    rect = patches.Rectangle((x_i, (mean - std) * f), x_j - x_i, 2 * std * f,
+                             edgecolor=None, facecolor=color, alpha=0.3)
+    ax.add_patch(rect)
+    # add dashed line for mean value
+    ax.plot([x_i, x_j], [mean * f, mean * f], "k--", alpha=0.5)
+    return ax
+
+
 def compute_statistics(df):
     """
     Compute statistics such as mean, std, COV, etc.
@@ -356,7 +367,7 @@ def main():
         mean_sorted = df['mean'][site_sorted].values
         std_sorted = df['std'][site_sorted].values
         model_sorted = df['model'][site_sorted].values
-        print(stats)
+
         # Scale values (for display)
         mean_sorted = mean_sorted * scaling_factor[metric]
         std_sorted = std_sorted * scaling_factor[metric]
@@ -377,8 +388,23 @@ def main():
         # ax.get_xaxis().set_visible(True)
         ax.tick_params(labelsize=15)
         plt.ylabel(metric_to_label[metric], fontsize=15)
-        for i, c in enumerate(site_sorted):  # add flag
+
+        # add country flag of each site
+        for i, c in enumerate(site_sorted):
             ax = offset_flag(i, flags[c], ax)
+
+        x_init_vendor = 0
+        for vendor in list(OrderedDict.fromkeys(vendor_sorted)):
+            n_site = list(vendor_sorted).count(vendor)
+            ax = add_stats_per_vendor(ax=ax,
+                                      x_i=x_init_vendor-0.5,
+                                      x_j=x_init_vendor+n_site-1+0.5,
+                                      mean=stats['mean'][vendor],
+                                      std=stats['std'][vendor],
+                                      cov=stats['cov'][vendor],
+                                      f=scaling_factor[metric],
+                                      color=list_colors[x_init_vendor])
+            x_init_vendor += n_site
 
         # plt.ylim(ylim[contrast])
         # plt.yticks(np.arange(ylim[contrast][0], ylim[contrast][1], step=ystep[contrast]))
