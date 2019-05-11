@@ -264,6 +264,18 @@ def offset_flag(coord, name, ax):
 
 
 def add_stats_per_vendor(ax, x_i, x_j, y_max, mean, std, cov, f, color):
+    """"
+    Add stats per vendor to the plot.
+    :param ax
+    :param x_i coordinate where current vendor is starting
+    :param x_j coordinate where current vendor is ending
+    :param y_max top of the higher bar of the current vendor
+    :param mean
+    :param std
+    :param cov
+    :param f scaling factor
+    :param color
+    """
     # add stats as strings
     txt = "{0:.2f} $\pm$ {1:.2f} ({2:.2f}%)".format(mean * f, std * f, cov * 100.)
     ax.annotate(txt, xy = (np.mean([x_i, x_j]), y_max), va='center', ha='center',
@@ -397,14 +409,18 @@ def main():
         for i, c in enumerate(site_sorted):
             ax = offset_flag(i, flags[c], ax)
 
+        # add stats per vendor
         x_init_vendor = 0
+        height_bar = [rect.get_height() for idx,rect in enumerate(bar_plot)]
+        i_max = np.argmax(height_bar)
+        y_max = height_bar[i_max]+std_sorted[i_max] # used to display stats
         for vendor in list(OrderedDict.fromkeys(vendor_sorted)):
             n_site = list(vendor_sorted).count(vendor)
             i_max = x_init_vendor+np.argmax(mean_sorted[x_init_vendor:x_init_vendor+n_site])
             ax = add_stats_per_vendor(ax=ax,
                                       x_i=x_init_vendor-0.5,
                                       x_j=x_init_vendor+n_site-1+0.5,
-                                      y_max=mean_sorted[i_max]+std_sorted[i_max] * 1.2,
+                                      y_max=y_max,
                                       mean=stats['mean'][vendor],
                                       std=stats['std'][vendor],
                                       cov=stats['cov'][vendor],
