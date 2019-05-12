@@ -67,7 +67,7 @@ if [ -z ${ONLY_PROCESS_THESE_SUBJECTS} ]; then
 else
   # Prepend PATH_DATA to each subject
   echo "Only processing: ${ONLY_PROCESS_THESE_SUBJECTS[*]}"
-  list_path_subject=( "${ONLY_PROCESS_THESE_SUBJECTS[@]/#/${PATH_DATA}}" )
+  list_path_subject=( "${ONLY_PROCESS_THESE_SUBJECTS[@]/#/${PATH_DATA}/}" )
 fi
 
 # Run processing with or without "GNU parallel", depending if it is installed or not
