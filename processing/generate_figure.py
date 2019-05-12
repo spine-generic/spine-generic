@@ -227,8 +227,8 @@ def label_bar_model(ax, bar_plot, model_lst):
     :param bar_plot Matplotlib object
     :param model_lst sorted list of model names
     """
+    height = bar_plot[0].get_height() # in order to align all the labels along y-axis
     for idx,rect in enumerate(bar_plot):
-        height = rect.get_height()
         ax.text(rect.get_x() + rect.get_width()/2., 0.1 * height,
                 model_lst[idx], color='white', weight='bold',
                 ha='center', va='bottom', rotation=90)
