@@ -25,10 +25,12 @@ import json
 import pandas as pd
 
 import numpy as np
+from scipy import ndimage
+from collections import OrderedDict
 import logging
 import matplotlib.pyplot as plt
-from collections import OrderedDict
-
+from matplotlib.offsetbox import OffsetImage,AnnotationBbox
+import matplotlib.patches as patches
 
 # Initialize logging
 logger = logging.getLogger(__name__)
@@ -59,6 +61,48 @@ centers = {
     'unf_sct_026': 'UNF-Prisma',
     'oxford_spine-generic_20171209': 'Oxford-Prisma',
     'juntendo-prisma_spine-generic_20180523': 'Juntendo-Prisma',
+}
+
+# country dictionary: key: site, value: country name
+flags = {
+    'chiba': 'japan',
+    'juntendo-750w': 'japan',
+    'ucl': 'uk',
+    'juntendo-achieva': 'japan',
+    'douglas': 'somewhere',
+    'poly': 'canada',
+    'juntendo-skyra': 'japan',
+    'unf': 'canada',
+    'oxford': 'uk',
+    'juntendo-prisma': 'japan',
+    'brno': 'cz',
+    'perform': 'canada',
+    'stanford': 'us',
+    'tokyo-750w': 'japan',
+    'nottwil': 'ch',
+    'sherbrooke': 'canada',
+    'tokyo-ingenia': 'japan',
+    'vuiis-achieva': 'us',
+    'vuiis-ingenia': 'us',
+    'amu': 'france',
+    'balgrist': 'ch',
+    'barcelona': 'spain',
+    'brno-prisma': 'cz',
+    'cardiff': 'uk',
+    'geneva': 'ch',
+    'hamburg': 'germany',
+    'mgh': 'us',
+    'milan': 'italy',
+    'mni': 'canada',
+    'mpicbs': 'germany',
+    'nwu': 'us',
+    'oxford-fmrib': 'uk',
+    'oxford-ohba': 'uk',
+    'queensland': 'australia',
+    'strasbourg': 'france',
+    'tehran': 'iran',
+    'tokyo-skyra': 'japan',
+    'vall-hebron': 'spain'
 }
 
 # color to assign to each MRI model for the figure
@@ -175,6 +219,75 @@ def aggregate_per_site(dict_results, metric, path_data):
     return results_agg
 
 
+def label_bar_model(ax, bar_plot, model_lst):
+    """
+    Add ManufacturersModelName embedded in each bar.
+    :param ax Matplotlib axes
+    :param bar_plot Matplotlib object
+    :param model_lst sorted list of model names
+    """
+    height = bar_plot[0].get_height() # in order to align all the labels along y-axis
+    for idx,rect in enumerate(bar_plot):
+        ax.text(rect.get_x() + rect.get_width()/2., 0.1 * height,
+                model_lst[idx], color='white', weight='bold',
+                ha='center', va='bottom', rotation=90)
+    return ax
+
+
+def get_flag(name):
+    """
+    Get the flag of a country from the folder flags.
+    :param name Name of the country
+    """
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'flags', '{}.png'.format(name))
+    im = plt.imread(path)
+    return im
+
+
+def offset_flag(coord, name, ax):
+    """
+    Add flag images to the plot.
+    :param coord Coordinate of the xtick
+    :param name Name of the country
+    :param ax Matplotlib ax
+    """
+    img = get_flag(name)
+    img_rot = ndimage.rotate(img, 45)
+    im = OffsetImage(img_rot, zoom=0.2)
+    im.image.axes = ax
+
+    ab = AnnotationBbox(im, (coord, 0), frameon=False, pad=0, xycoords='data')
+
+    ax.add_artist(ab)
+    return ax
+
+
+def add_stats_per_vendor(ax, x_i, x_j, y_max, mean, std, cov, f, color):
+    """"
+    Add stats per vendor to the plot.
+    :param ax
+    :param x_i coordinate where current vendor is starting
+    :param x_j coordinate where current vendor is ending
+    :param y_max top of the higher bar of the current vendor
+    :param mean
+    :param std
+    :param cov
+    :param f scaling factor
+    :param color
+    """
+    # add stats as strings
+    txt = "{0:.2f} $\pm$ {1:.2f} ({2:.2f}%)".format(mean * f, std * f, cov * 100.)
+    ax.annotate(txt, xy = (np.mean([x_i, x_j]), y_max), va='center', ha='center',
+        bbox=dict(edgecolor='none', fc=color, alpha=0.3))
+    # add rectangle for variance
+    rect = patches.Rectangle((x_i, (mean - std) * f), x_j - x_i, 2 * std * f,
+                             edgecolor=None, facecolor=color, alpha=0.3)
+    ax.add_patch(rect)
+    # add dashed line for mean value
+    ax.plot([x_i, x_j], [mean * f, mean * f], "k--", alpha=0.5)
+    return ax
+
+
 def compute_statistics(df):
     """
     Compute statistics such as mean, std, COV, etc.
@@ -196,8 +309,15 @@ def compute_statistics(df):
         # init dict
         if not 'cov' in stats.keys():
             stats['cov'] = {}
+        if not 'mean' in stats.keys():
+            stats['mean'] = {}
+        if not 'std' in stats.keys():
+            stats['std'] = {}
         # fetch vals for specific vendor
         val_per_vendor = df['mean'][df['vendor'] == vendor].values
+
+        stats['mean'][vendor] = np.mean(val_per_vendor)
+        stats['std'][vendor] = np.std(val_per_vendor)
         # compute COV
         stats['cov'][vendor] = np.std(val_per_vendor) / np.mean(val_per_vendor)
     return df, stats
@@ -261,6 +381,7 @@ def main():
         vendor_sorted = df['vendor'][site_sorted].values
         mean_sorted = df['mean'][site_sorted].values
         std_sorted = df['std'][site_sorted].values
+        model_sorted = df['model'][site_sorted].values
 
         # Scale values (for display)
         mean_sorted = mean_sorted * scaling_factor[metric]
@@ -273,14 +394,38 @@ def main():
         fig, ax = plt.subplots(figsize=(15, 8))
         # TODO: show only superior part of STD
         plt.grid(axis='y')
-        plt.bar(range(len(site_sorted)), height=mean_sorted, width=0.5, tick_label=site_sorted, yerr=std_sorted, color=list_colors)
-        # TODO: Display ManufacturersModelName in vertical, embedded in each bar
+        bar_plot = plt.bar(range(len(site_sorted)), height=mean_sorted, width=0.5,
+                           tick_label=site_sorted, yerr=[[0 for v in std_sorted], std_sorted], color=list_colors)
+        ax = label_bar_model(ax, bar_plot, model_sorted)  # add ManufacturersModelName embedded in each bar
         plt.setp(ax.xaxis.get_majorticklabels(), rotation=45, ha="right")  # rotate xticklabels at 45deg, align at end
         plt.xlim([-1, len(site_sorted)])
-        # ax.set_xticklabels(site_sorted)
+        ax.set_xticklabels([s + '   ' for s in site_sorted])  # spaces are added after the site name to allow space for flag
         # ax.get_xaxis().set_visible(True)
         ax.tick_params(labelsize=15)
         plt.ylabel(metric_to_label[metric], fontsize=15)
+
+        # add country flag of each site
+        for i, c in enumerate(site_sorted):
+            ax = offset_flag(i, flags[c], ax)
+
+        # add stats per vendor
+        x_init_vendor = 0
+        height_bar = [rect.get_height() for idx,rect in enumerate(bar_plot)]
+        i_max = np.argmax(height_bar)
+        y_max = height_bar[i_max]+std_sorted[i_max] # used to display stats
+        for vendor in list(OrderedDict.fromkeys(vendor_sorted)):
+            n_site = list(vendor_sorted).count(vendor)
+            i_max = x_init_vendor+np.argmax(mean_sorted[x_init_vendor:x_init_vendor+n_site])
+            ax = add_stats_per_vendor(ax=ax,
+                                      x_i=x_init_vendor-0.5,
+                                      x_j=x_init_vendor+n_site-1+0.5,
+                                      y_max=y_max,
+                                      mean=stats['mean'][vendor],
+                                      std=stats['std'][vendor],
+                                      cov=stats['cov'][vendor],
+                                      f=scaling_factor[metric],
+                                      color=list_colors[x_init_vendor])
+            x_init_vendor += n_site
 
         # plt.ylim(ylim[contrast])
         # plt.yticks(np.arange(ylim[contrast][0], ylim[contrast][1], step=ystep[contrast]))
