@@ -26,6 +26,8 @@ Green='\033[0;92m'  # Yellow
 Red='\033[0;91m'  # Red
 On_Black='\033[40m'  # Black
 
+# Functions
+# =============================================================================
 create_folder() {
   local folder="$1"
   mkdir -p $folder  # "-p" creates parent folders if needed
@@ -34,6 +36,10 @@ create_folder() {
     exit 1
   fi
 }
+
+
+# Script starts here
+# =============================================================================
 
 # Initialization
 time_start=$(date +%x_%r)
@@ -53,24 +59,30 @@ task="`pwd`/$1"
 create_folder $PATH_LOG
 create_folder $PATH_OUTPUT
 
+# Build list of folders to process
+# if variable ONLY_PROCESS_THESE_SUBJECTS does not exist, fetch all folders in directory
+if [ -z ${ONLY_PROCESS_THESE_SUBJECTS} ]; then
+  # Look into PATH_DATA and fetch all folders
+  list_path_subject=`find ${PATH_DATA} -mindepth 1 -maxdepth 1 -type d`
+else
+  # Prepend PATH_DATA to each subject
+  echo "Only processing: ${ONLY_PROCESS_THESE_SUBJECTS[*]}"
+  list_path_subject=( "${ONLY_PROCESS_THESE_SUBJECTS[@]/#/${PATH_DATA}}" )
+fi
+
 # Run processing with or without "GNU parallel", depending if it is installed or not
-if [ -x "$(command -v parallel)" ]; then
+if [ -x "$(command -v parallel__)" ]; then
   echo 'GNU parallel is installed! Processing subjects in parallel using multiple cores.' >&2
-  find ${PATH_DATA} -mindepth 1 -maxdepth 1 -type d | while read path_subject; do
+  for path_subject in ${list_path_subject[@]}; do
     subject=`basename $path_subject`
-    echo "./_run_with_log.sh $task $subject $PATH_OUTPUT $PATH_QC $PATH_LOG"
+    # echo "./_run_with_log.sh $task $subject $PATH_OUTPUT $PATH_QC $PATH_LOG"
   done \
   | parallel -j ${JOBS} --halt-on-error soon,fail=1 bash -c "{}"
 else
   echo 'GNU parallel is not installed. Processing subjects sequentially.' >&2
-  find ${PATH_DATA} -mindepth 1 -maxdepth 1 -type d | while read path_subject; do
+  for path_subject in ${list_path_subject[@]}; do
     subject=`basename $path_subject`
     echo "./_run_with_log.sh $task $subject $PATH_OUTPUT $PATH_QC $PATH_LOG"
-    # cd ${PATH_DATA}
-    # ${task} $(basename $subject) $site $PATH_OUTPUT $PATH_QC $PATH_LOG 2>&1 | tee ${PATH_LOG}/${site}_${subject}.log ; test ${PIPESTATUS[0]} -eq 0
-    # if [ ! $? -eq 0 ]; then
-    #   mv ${PATH_LOG}/${site}_${subject}.log ${PATH_LOG}/err.${site}_${subject}.log
-    # fi
   done
 fi
 
