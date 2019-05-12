@@ -82,7 +82,7 @@ else
   echo 'GNU parallel is not installed. Processing subjects sequentially.' >&2
   for path_subject in ${list_path_subject[@]}; do
     subject=`basename $path_subject`
-    echo "./_run_with_log.sh $task $subject $PATH_OUTPUT $PATH_QC $PATH_LOG"
+    ./_run_with_log.sh $task $subject $PATH_OUTPUT $PATH_QC $PATH_LOG
   done
 fi
 
