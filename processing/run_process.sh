@@ -71,11 +71,11 @@ else
 fi
 
 # Run processing with or without "GNU parallel", depending if it is installed or not
-if [ -x "$(command -v parallel__)" ]; then
+if [ -x "$(command -v parallel)" ]; then
   echo 'GNU parallel is installed! Processing subjects in parallel using multiple cores.' >&2
   for path_subject in ${list_path_subject[@]}; do
     subject=`basename $path_subject`
-    # echo "./_run_with_log.sh $task $subject $PATH_OUTPUT $PATH_QC $PATH_LOG"
+    echo "./_run_with_log.sh $task $subject $PATH_OUTPUT $PATH_QC $PATH_LOG"
   done \
   | parallel -j ${JOBS} --halt-on-error soon,fail=1 bash -c "{}"
 else
