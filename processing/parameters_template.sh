@@ -18,6 +18,12 @@ export PATH_LOG="${PATH_PARENT}/log"
 # Location of manually-corrected segmentations
 export PATH_SEGMANUAL="${PATH_PARENT}/seg_manual"
 
+# If you only want to process specific subjects, uncomment and list them here:
+# export ONLY_PROCESS_THESE_SUBJECTS=(
+#   "sub-amu01"
+#   "sub-amu02"
+# )
+
 # Number of jobs for parallel processing
 export JOBS=20
 
