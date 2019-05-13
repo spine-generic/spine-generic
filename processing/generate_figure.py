@@ -34,7 +34,7 @@ import matplotlib.patches as patches
 
 # Initialize logging
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)  # default: logging.INFO
+logger.setLevel(logging.INFO)  # default: logging.DEBUG, logging.INFO
 hdlr = logging.StreamHandler(sys.stdout)
 # fmt = logging.Formatter()
 # fmt.format = _format_wrap(fmt.format)
@@ -65,44 +65,46 @@ centers = {
 
 # country dictionary: key: site, value: country name
 flags = {
-    'chiba': 'japan',
-    'juntendo-750w': 'japan',
-    'ucl': 'uk',
-    'juntendo-achieva': 'japan',
-    'douglas': 'somewhere',
-    'poly': 'canada',
-    'juntendo-skyra': 'japan',
-    'unf': 'canada',
-    'oxford': 'uk',
-    'juntendo-prisma': 'japan',
-    'brno': 'cz',
-    'perform': 'canada',
-    'stanford': 'us',
-    'tokyo-750w': 'japan',
-    'nottwil': 'ch',
-    'sherbrooke': 'canada',
-    'tokyo-ingenia': 'japan',
-    'vuiis-achieva': 'us',
-    'vuiis-ingenia': 'us',
     'amu': 'france',
     'balgrist': 'ch',
     'barcelona': 'spain',
-    'brno-prisma': 'cz',
+    'brno': 'cz',
+    'brnoPrisma': 'cz',
     'cardiff': 'uk',
+    'chiba': 'japan',
+    'douglas': 'canada',
+    'dresden': 'germany',
+    'juntendo750w': 'japan',
+    'juntendoAchieva': 'japan',
+    'juntendoSkyra': 'japan',
+    'juntendoPrisma': 'japan',
     'geneva': 'ch',
     'hamburg': 'germany',
     'mgh': 'us',
     'milan': 'italy',
     'mni': 'canada',
     'mpicbs': 'germany',
+    'nottwil': 'ch',
     'nwu': 'us',
-    'oxford-fmrib': 'uk',
-    'oxford-ohba': 'uk',
+    'oxfordFmrib': 'uk',
+    'oxfordOhba': 'uk',
+    'perform': 'canada',
+    'poly': 'canada',
     'queensland': 'australia',
+    'sapienza': 'italy',
+    'sherbrooke': 'canada',
+    'stanford': 'us',
     'strasbourg': 'france',
     'tehran': 'iran',
-    'tokyo-skyra': 'japan',
-    'vall-hebron': 'spain'
+    'tokyo': 'japan',
+    'tokyo750w': 'japan',
+    'tokyoSkyra': 'japan',
+    'tokyoIngenia': 'japan',
+    'ucl': 'uk',
+    'unf': 'canada',
+    'vallHebron': 'spain',
+    'vuiisAchieva': 'us',
+    'vuiisIngenia': 'us',
 }
 
 # color to assign to each MRI model for the figure
@@ -185,32 +187,40 @@ ystep = {
 }
 
 
-def aggregate_per_site(dict_results, metric, path_data):
+def aggregate_per_site(dict_results, metric):
     """
     Aggregate metrics per site
     :param dict_results:
     :param metric: Metric type
-    :param path_data: Path that contains results/ and data/ folders
     :return:
     """
-    results_agg = {}
+    # Build Panda DF of participants based on participants.tsv file
+    participants = pd.read_csv(os.path.join(path_data, 'participants.tsv'), sep="\t")
+
     # Fetch specific field for the selected metric
     metric_field = metric_to_field[metric]
+    # Build a dictionary that aggregates values per site
+    results_agg = {}
     # Loop across lines and fill dict of aggregated results
-    for i in tqdm.tqdm(range(len(dict_results)), unit='iter', unit_scale=False, desc="Parse json files", ascii=False,
+    for i in tqdm.tqdm(range(len(dict_results)), unit='iter', unit_scale=False, desc="Loop across subjects", ascii=False,
                        ncols=80):
         filename = dict_results[i]['Filename']
         logger.debug('Filename: '+filename)
         # Fetch metadata for the site
-        dataset_description = read_dataset_description(filename, path_data)
+        # dataset_description = read_dataset_description(filename, path_data)
         # cluster values per site
-        site, subject = parse_filename(filename)
+        subject = fetch_subject(filename)
+        # Fetch index of row corresponding to subject
+        rowIndex = participants[participants['participant_id'] == subject].index
+        # Add column "val" with metric value
+        participants.loc[rowIndex, 'val'] = dict_results[i][metric_field]
+        site = participants['institution_id'][rowIndex].get_values()[0]
         if not site in results_agg.keys():
             # if this is a new site, initialize sub-dict
             results_agg[site] = {}
             results_agg[site]['site'] = site  # need to duplicate in order to be able to sort using vendor AND site with Pandas
-            results_agg[site]['vendor'] = dataset_description['Manufacturer']
-            results_agg[site]['model'] = dataset_description['ManufacturersModelName']
+            results_agg[site]['vendor'] = participants['manufacturer'][rowIndex].get_values()[0]
+            results_agg[site]['model'] = participants['manufacturers_model_name'][rowIndex].get_values()[0]
             results_agg[site]['val'] = []
         # add val for site (ignore None)
         val = dict_results[i][metric_field]
@@ -325,13 +335,15 @@ def compute_statistics(df):
 
 def get_parameters():
     parser = argparse.ArgumentParser(
-        description='Generate figures for the spine-generic dataset. Figures are output in the sub-folder "results/" '
-                    'of the path specified by the input path (-p). The input path should include subfolders "data/" '
-                    '(which has all the processed data) and "results/".')
-    parser.add_argument('-p', '--path',
+        description='Generate figures for the spine-generic dataset. Figures are output in the sub-folder specified by '
+                    'flag -r.')
+    parser.add_argument('-r', '--result',
                         required=True,
-                        help='Path to spineGeneric parent folder, which contains folders "data/" and "results/" '
-                             'sub-folders.')
+                        help='Path to results data, which contains all the output csv files.')
+    parser.add_argument('-d', '--data',
+                        required=True,
+                        help='Path to the input BIDS dataset, which contains the tsv file used for building the '
+                             'site-specific figures.')
     args = parser.parse_args()
     return args
 
@@ -340,7 +352,7 @@ def main():
     # TODO: make "results" an input param
 
     # fetch all .csv result files
-    csv_files = glob.glob(os.path.join(path_data, 'results/*.csv'))
+    csv_files = glob.glob(os.path.join(path_result, '*.csv'))
 
     # loop across results and generate figure
     for csv_file in csv_files:
@@ -358,7 +370,7 @@ def main():
         metric = file_to_metric[csv_file_small]
 
         # Fetch mean, std, etc. per site
-        results_dict = aggregate_per_site(dict_results, metric, path_data)
+        results_dict = aggregate_per_site(dict_results, metric)
 
         # Make it a pandas structure (easier for manipulations)
         df = pd.DataFrame.from_dict(results_dict, orient='index')
@@ -399,7 +411,7 @@ def main():
         ax = label_bar_model(ax, bar_plot, model_sorted)  # add ManufacturersModelName embedded in each bar
         plt.setp(ax.xaxis.get_majorticklabels(), rotation=45, ha="right")  # rotate xticklabels at 45deg, align at end
         plt.xlim([-1, len(site_sorted)])
-        ax.set_xticklabels([s + '   ' for s in site_sorted])  # spaces are added after the site name to allow space for flag
+        ax.set_xticklabels([s + '   ' for s in site_sorted])  # add space after the site name to allow space for flag
         # ax.get_xaxis().set_visible(True)
         ax.tick_params(labelsize=15)
         plt.ylabel(metric_to_label[metric], fontsize=15)
@@ -431,33 +443,24 @@ def main():
         # plt.yticks(np.arange(ylim[contrast][0], ylim[contrast][1], step=ystep[contrast]))
         # plt.title(contrast)
         plt.tight_layout()  # make sure everything fits
-        fname_fig = os.path.join(path_data, 'results/fig_'+metric+'.png')
+        fname_fig = os.path.join(path_result, 'fig_'+metric+'.png')
         plt.savefig(fname_fig)
         logger.info('Created: '+fname_fig)
 
 
-def parse_filename(filename):
+def fetch_subject(filename):
     """
-    Get site and subject from filename
+    Get subject from filename
     :param filename:
-    :return: site, subject
+    :return: subject
     """
     path, file = os.path.split(filename)
-    site = path.split(os.sep)[-3].replace('_spineGeneric', '')
     subject = path.split(os.sep)[-2]
-    return site, subject
-
-
-def read_dataset_description(filename, path_data):
-    """Read dataset_description.json file associated with the input filename and output dict"""
-    path, file = os.path.split(filename)
-    fname_dataset_description = os.path.join(path_data, 'data', path.split(os.sep)[-3], 'dataset_description.json')
-    with open(fname_dataset_description, 'r+') as fjson:
-        dataset_description = json.load(fjson)
-    return dataset_description
+    return subject
 
 
 if __name__ == "__main__":
     args = get_parameters()
-    path_data = args.path
+    path_data = args.data
+    path_result = args.result
     main()
