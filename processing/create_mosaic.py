@@ -50,18 +50,18 @@ def get_parameters():
     parser = argparse.ArgumentParser(
         description='Create a mosaic of images from different 3D data (param: -p), \
                     with axial or sagittal view (param: -ax_sag).')
-    parser.add_argument('-p', '--path_lst',
+    parser.add_argument('-i', '--input',
                         required=True,
                         help='List of paths to 3D images, separeted by comma.')
     parser.add_argument('-c', '--contrast',
                         required=True,
                         choices=['t2', 't2s', 't1'],
                         help='Contrast-like of the input images.')
-    parser.add_argument('-ax_sag', '--ax_sag',
+    parser.add_argument('-p', '--plane',
                         required=False,
                         default='ax',
-                        choices=['ax','sag'],
-                        help='Define the view of the samples:\
+                        choices=['ax', 'sag'],
+                        help='Define the visualisation plane of the samples:\
                         ax --> axial view ; \
                         sag --> sagittal view')
     parser.add_argument('-n', '--n_slice',
