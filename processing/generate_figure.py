@@ -21,7 +21,6 @@ import tqdm
 import sys
 import glob
 import csv
-import json
 import pandas as pd
 
 import numpy as np
@@ -32,9 +31,13 @@ import matplotlib.pyplot as plt
 from matplotlib.offsetbox import OffsetImage,AnnotationBbox
 import matplotlib.patches as patches
 
+
+# Initialize global variables
+DISPLAY_INDIVIDUAL_SUBJECT = True
+
 # Initialize logging
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)  # default: logging.DEBUG, logging.INFO
+logger.setLevel(logging.DEBUG)  # default: logging.DEBUG, logging.INFO
 hdlr = logging.StreamHandler(sys.stdout)
 # fmt = logging.Formatter()
 # fmt.format = _format_wrap(fmt.format)
@@ -120,9 +123,9 @@ file_to_metric = {
     'csa-SC_T1w.csv': 'csa_t1',
     'csa-SC_T2w.csv': 'csa_t2',
     'csa-GM_T2s.csv': 'csa_gm',
-    'DWI_FA.csv': 'fa',
-    'DWI_MD.csv': 'md',
-    'DWI_RD.csv': 'md',
+    'DWI_FA.csv': 'dti_fa',
+    'DWI_MD.csv': 'dti_md',
+    'DWI_RD.csv': 'dti_rd',
     'MTR.csv': 'mtr',
     'MTsat.csv': 'mtsat',
     'T1.csv': 't1',
@@ -133,9 +136,9 @@ metric_to_field = {
     'csa_t1': 'MEAN(area)',
     'csa_t2': 'MEAN(area)',
     'csa_gm': 'MEAN(area)',
-    'fa': 'WA()',
-    'md': 'WA()',
-    'md': 'WA()',
+    'dti_fa': 'WA()',
+    'dti_md': 'WA()',
+    'dti_rd': 'WA()',
     'mtr': 'WA()',
     'mtsat': 'WA()',
     't1': 'WA()',
@@ -146,9 +149,9 @@ metric_to_label = {
     'csa_t1': 'Cord CSA from T1w [$mm^2$]',
     'csa_t2': 'Cord CSA from T2w [$mm^2$]',
     'csa_gm': 'Gray Matter CSA [$mm^2$]',
-    'fa': 'Fractional anisotropy',
-    'md': 'Mean diffusivity [$mm^2.s^-1]',
-    'md': 'Radial diffusivity [$mm^2.s^-1]',
+    'dti_fa': 'Fractional anisotropy',
+    'dti_md': 'Mean diffusivity [$mm^2.s^-1]',
+    'dti_rd': 'Radial diffusivity [$mm^2.s^-1]',
     'mtr': 'Magnetization transfer ratio [%]',
     'mtsat': 'Magnetization transfer saturation [a.u.]',
     't1': 'T1 [ms]',
@@ -159,32 +162,32 @@ scaling_factor = {
     'csa_t1': 1,
     'csa_t2': 1,
     'csa_gm': 1,
-    'fa': 1,
-    'md': 1000,
-    'md': 1000,
+    'dti_fa': 1,
+    'dti_md': 1000,
+    'dti_rd': 1000,
     'mtr': 1,
     'mtsat': 1,
     't1': 1000,
 }
 
-# ylim for figure
-ylim = {
-    't1': [40, 90],
-    't2': [40, 90],
-    'dmri': [0.4, 0.9],
-    'mt': [30, 65],
-    't2s': [10, 20],
-}
-
-
-# ystep (in yticks) for figure
-ystep = {
-    't1': 5,
-    't2': 5,
-    'dmri': 0.1,
-    'mt': 5,
-    't2s': 1,
-}
+# # ylim for figure
+# ylim = {
+#     't1': [40, 90],
+#     't2': [40, 90],
+#     'dmri': [0.4, 0.9],
+#     'mt': [30, 65],
+#     't2s': [10, 20],
+# }
+#
+#
+# # ystep (in yticks) for figure
+# ystep = {
+#     't1': 5,
+#     't2': 5,
+#     'dmri': 0.1,
+#     'mt': 5,
+#     't2s': 1,
+# }
 
 
 def aggregate_per_site(dict_results, metric):
@@ -408,6 +411,12 @@ def main():
         plt.grid(axis='y')
         bar_plot = plt.bar(range(len(site_sorted)), height=mean_sorted, width=0.5,
                            tick_label=site_sorted, yerr=[[0 for v in std_sorted], std_sorted], color=list_colors)
+
+        if DISPLAY_INDIVIDUAL_SUBJECT:
+            for site in site_sorted:
+                index = list(site_sorted).index(site)
+                val = df['val'][site]
+                plt.plot([index] * len(val), val, 'r.')
         ax = label_bar_model(ax, bar_plot, model_sorted)  # add ManufacturersModelName embedded in each bar
         plt.setp(ax.xaxis.get_majorticklabels(), rotation=45, ha="right")  # rotate xticklabels at 45deg, align at end
         plt.xlim([-1, len(site_sorted)])
