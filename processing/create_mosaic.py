@@ -30,20 +30,32 @@ def main():
     print(tmp_folder_path)
     # copy files to the tmp folder
     path_tmp_dct = {}
-    for i, f in enumerate(path_im_lst):
-        # Todo: add possibility to input the name of the colums (instead of 001, 002...etc.)
+    for i, file in enumerate(path_im_lst):
+        # Todo: add possibility to input the name of the columns (instead of 001, 002...etc.)
         new_filename = str(i).zfill(2)
-        sct.copy(f, os.path.join(tmp_folder_path, new_filename+'.nii.gz'))
-        path_tmp_dct[new_filename] = {'im': new_filename+'.nii.gz'}
+        sct.copy(file, os.path.join(tmp_folder_path, new_filename +'.nii.gz'))
+        sct.copy(path_seg_lst[i], os.path.join(tmp_folder_path, new_filename + '_seg.nii.gz'))
+        # Values of following dictionnary is another dictionnary with keys 'im' and 'seg' having values of the filenames
+        # if plane is sag, keys are only 'im'
+        if plane == 'ax':
+            path_tmp_dct[new_filename] = {'im': new_filename + '.nii.gz', 'seg': new_filename + '_seg.nii.gz'}
+        elif plane == 'sag':
+            path_tmp_dct[new_filename] = {'im': new_filename + '.nii.gz'}
+        else:
+            raise Exception('Plane should be ax or sag')
+            # not supposed to happen because it is checked in the parser
     tmp_folder.chdir()
 
-    # detect centerline
-    for f in path_tmp_dct.keys():
-        ctr_fname = f+'_ctr.nii.gz'
-        ctr = detect_centerline(Image(path_tmp_dct[f]['im']), contrast)
-        ctr.save(ctr_fname)
-        path_tmp_dct[f]['ctr'] = ctr_fname
-    print(path_tmp_dct)
+    for file in path_tmp_dct.keys():
+        # 2 differents scenarios :
+        if plane == 'ax':
+            1
+        elif plane == 'sag':
+            1
+        else:
+            raise Exception('Plane should be ax or sag')
+            # not supposed to happen because it is checked in the parser
+
 
 
 def get_parameters():
