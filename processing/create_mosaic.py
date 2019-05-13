@@ -6,7 +6,7 @@
 #   ${SCT_DIR}/python/bin/python XX
 #
 #   Example:
-#   ${SCT_DIR}/python/bin/python XX
+#   ${SCT_DIR}/python/bin/python create_mosaic.py -p t2_unf.nii.gz,t2_milan.nii.gz -c t2 -ax_sag 4 -n 3
 #
 # DEPENDENCIES:
 #   SCT
@@ -31,17 +31,18 @@ def main():
     # copy files to the tmp folder
     path_tmp_dct = {}
     for i, f in enumerate(path_im_lst):
+        # Todo: add possibility to input the name of the colums (instead of 001, 002...etc.)
         new_filename = str(i).zfill(2)
         sct.copy(f, os.path.join(tmp_folder_path, new_filename+'.nii.gz'))
-        path_tmp_dct[new_filename] = [new_filename+'.nii.gz']
+        path_tmp_dct[new_filename] = {'im': new_filename+'.nii.gz'}
     tmp_folder.chdir()
 
     # detect centerline
     for f in path_tmp_dct.keys():
         ctr_fname = f+'_ctr.nii.gz'
-        ctr = detect_centerline(Image(path_tmp_dct[f][0]), contrast)
+        ctr = detect_centerline(Image(path_tmp_dct[f]['im']), contrast)
         ctr.save(ctr_fname)
-        path_tmp_dct[f].append(ctr_fname)
+        path_tmp_dct[f]['ctr'] = ctr_fname
     print(path_tmp_dct)
 
 
