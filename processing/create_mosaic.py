@@ -52,7 +52,10 @@ def get_parameters():
                     with axial or sagittal view (param: -ax_sag).')
     parser.add_argument('-i', '--input',
                         required=True,
-                        help='List of paths to 3D images, separeted by comma.')
+                        help='List of paths to 3D images, separated by comma.')
+    parser.add_argument('-s', '--segmentation',
+                        required=False,
+                        help='List of paths to the segmentations, separeted by comma (required if plane is ax)')
     parser.add_argument('-c', '--contrast',
                         required=True,
                         choices=['t2', 't2s', 't1'],
@@ -74,8 +77,14 @@ def get_parameters():
 
 if __name__ == "__main__":
     args = get_parameters()
-    path_im_lst = args.path_lst.split(',')
+    path_im_lst = args.input.split(',')
     contrast = args.contrast
-    ax_sag = args.ax_sag
-    n_slice = args.n_slice
+    plane = args.plane
+    if plane == 'ax':
+        path_seg_lst = args.segmentation.split(',')
+        if len(path_im_lst) != len(path_seg_lst):
+            raise Exception("Number of segmentations provided is not the same as the number of images")
+        n_slice = args.n_slice
+    else:
+        n_slice = 1
     main()
