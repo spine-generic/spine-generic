@@ -17,6 +17,7 @@ import glob
 import argparse
 import sys
 import numpy as np
+import nibabel as nib
 import matplotlib.pyplot as plt
 from skimage.exposure import equalize_adapthist
 
@@ -50,6 +51,8 @@ def equalized(a):
 
 
 def main():
+    # find all the images of insterest and store the mid slice in slice_lst
+    slice_lst = []
     for x in os.walk(i_folder):
         for file in glob.glob(os.path.join(x[0],"*"+im_suffixe)):
             file_seg = file.split('.nii.gz')[0]+'_'+seg_suffixe
@@ -71,6 +74,19 @@ def main():
 
             # histogram equalization using CLAHE
             slice_cur = equalized(mid_slice)
+
+            slice_lst.append(slice_cur)
+
+    # create a new Image object containing the samples to display
+    affine = np.eye(4)
+    data = np.vstack(slice_lst)
+    nii = nib.nifti1.Nifti1Image(data, affine)
+    img = Image(data, hdr=nii.header, dim=nii.header.get_data_shape())
+
+    # create mosaic
+    qcslice_final = qcslice.Axial([img])
+    mosaic = qcslice_final.mosaic(nb_column=3, size=img.dim[0])[0]
+
 
 def get_parameters():
     parser = argparse.ArgumentParser(
