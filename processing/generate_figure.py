@@ -265,7 +265,7 @@ def get_flag(name):
     return im
 
 
-def offset_flag(coord, name, ax):
+def add_flag(coord, name, ax):
     """
     Add flag images to the plot.
     :param coord Coordinate of the xtick
@@ -442,7 +442,7 @@ def main():
 
         # add country flag of each site
         for i, c in enumerate(site_sorted):
-            ax = offset_flag(i, flags[c], ax)
+            ax = add_flag(i, flags[c], ax)
 
         # add stats per vendor
         x_init_vendor = 0
