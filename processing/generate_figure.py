@@ -298,8 +298,8 @@ def add_stats_per_vendor(ax, x_i, x_j, y_max, mean, std, cov_intra, cov_inter, f
     :param color
     """
     # add stats as strings
-    txt = "{0:.2f} $\pm$ {1:.2f}\nCOV intra:{2:.2f}%, inter:{2:.2f}%".format(mean * f, std * f, cov_intra * 100.,
-                                                                         cov_inter * 100.)
+    txt = "{0:.2f} $\pm$ {1:.2f}\nCOV intra:{2:.2f}%, inter:{3:.2f}%".\
+        format(mean * f, std * f, cov_intra * 100., cov_inter * 100.)
     ax.annotate(txt, xy = (np.mean([x_i, x_j]), y_max), va='center', ha='center',
         bbox=dict(edgecolor='none', fc=color, alpha=0.3))
     # add rectangle for variance
