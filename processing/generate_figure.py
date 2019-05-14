@@ -36,12 +36,18 @@ import matplotlib.patches as patches
 DISPLAY_INDIVIDUAL_SUBJECT = True
 # List subject to remove, associated with contrast
 SUBJECTS_TO_REMOVE = [
-#     {'subject': 'sub-amu03', 'metric': 'mtr'}
-    # {'subject': 'sub-geneva02', 'metric': 'dti_fa',
-    # {'subject': 'sub-tehranS04', 'metric': 'mtr'},
-    # {'subject': 'sub-oxfordFmrib01', 'metric': 'mtr'},
-    # {'subject': 'sub-queensland04', 'metric': 'mtr'},
-    # {'subject': 'sub-perform02', 'metric': 'mtr'},
+    {'subject': 'sub-oxfordFmrib04', 'metric': 'csa_t2'},
+    {'subject': 'sub-oxfordFmrib01', 'metric': 'dti_fa'},
+    {'subject': 'sub-queensland04', 'metric': 'dti_fa'},
+    {'subject': 'sub-perform02', 'metric': 'dti_fa'},
+    {'subject': 'sub-tehranS04', 'metric': 'mtr'},
+    {'subject': 'sub-geneva02', 'metric': 'mtr'},
+    {'subject': 'sub-tehranS04', 'metric': 'mtsat'},
+    {'subject': 'sub-geneva02', 'metric': 'mtsat'},
+    {'subject': 'sub-sapienza03', 'metric': 't1'},
+    {'subject': 'sub-sapienza04', 'metric': 't1'},
+    {'subject': 'sub-sapienza05', 'metric': 't1'},
+    {'subject': 'sub-sapienza06', 'metric': 't1'},
 ]
 
 # Initialize logging
