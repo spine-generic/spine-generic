@@ -283,7 +283,7 @@ def offset_flag(coord, name, ax):
     return ax
 
 
-def add_stats_per_vendor(ax, x_i, x_j, y_max, mean, std, cov, f, color):
+def add_stats_per_vendor(ax, x_i, x_j, y_max, mean, std, cov_intra, cov_inter, f, color):
     """"
     Add stats per vendor to the plot.
     :param ax
@@ -292,12 +292,14 @@ def add_stats_per_vendor(ax, x_i, x_j, y_max, mean, std, cov, f, color):
     :param y_max top of the higher bar of the current vendor
     :param mean
     :param std
-    :param cov
+    :param cov_intra
+    :param cov_inter
     :param f scaling factor
     :param color
     """
     # add stats as strings
-    txt = "{0:.2f} $\pm$ {1:.2f} ({2:.2f}%)".format(mean * f, std * f, cov * 100.)
+    txt = "{0:.2f} $\pm$ {1:.2f}\nCOV intra:{2:.2f}%, inter:{2:.2f}%".format(mean * f, std * f, cov_intra * 100.,
+                                                                         cov_inter * 100.)
     ax.annotate(txt, xy = (np.mean([x_i, x_j]), y_max), va='center', ha='center',
         bbox=dict(edgecolor='none', fc=color, alpha=0.3))
     # add rectangle for variance
@@ -328,8 +330,10 @@ def compute_statistics(df):
     # Compute intra-vendor COV
     for vendor in vendors:
         # init dict
-        if not 'cov' in stats.keys():
-            stats['cov'] = {}
+        if not 'cov_inter' in stats.keys():
+            stats['cov_inter'] = {}
+        if not 'cov_intra' in stats.keys():
+            stats['cov_intra'] = {}
         if not 'mean' in stats.keys():
             stats['mean'] = {}
         if not 'std' in stats.keys():
@@ -339,8 +343,11 @@ def compute_statistics(df):
 
         stats['mean'][vendor] = np.mean(val_per_vendor)
         stats['std'][vendor] = np.std(val_per_vendor)
-        # compute COV
-        stats['cov'][vendor] = np.std(val_per_vendor) / np.mean(val_per_vendor)
+        # compute inter-subject COV
+        stats['cov_inter'][vendor] = np.std(val_per_vendor) / np.mean(val_per_vendor)
+        # compute intra-subject COV (averaged across subjects, within vendor)
+        stats['cov_intra'][vendor] = \
+            np.mean(df['std'][df['vendor'] == vendor].values / df['mean'][df['vendor'] == vendor].values)
     return df, stats
 
 
@@ -444,14 +451,15 @@ def main():
         y_max = height_bar[i_max]+std_sorted[i_max] # used to display stats
         for vendor in list(OrderedDict.fromkeys(vendor_sorted)):
             n_site = list(vendor_sorted).count(vendor)
-            i_max = x_init_vendor+np.argmax(mean_sorted[x_init_vendor:x_init_vendor+n_site])
+            # i_max = x_init_vendor+np.argmax(mean_sorted[x_init_vendor:x_init_vendor+n_site])
             ax = add_stats_per_vendor(ax=ax,
                                       x_i=x_init_vendor-0.5,
                                       x_j=x_init_vendor+n_site-1+0.5,
                                       y_max=y_max,
                                       mean=stats['mean'][vendor],
                                       std=stats['std'][vendor],
-                                      cov=stats['cov'][vendor],
+                                      cov_intra=stats['cov_intra'][vendor],
+                                      cov_inter=stats['cov_inter'][vendor],
                                       f=scaling_factor[metric],
                                       color=list_colors[x_init_vendor])
             x_init_vendor += n_site
