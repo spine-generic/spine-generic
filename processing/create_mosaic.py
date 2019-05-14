@@ -55,10 +55,11 @@ def main():
     slice_lst = []
     for x in os.walk(i_folder):
         for file in glob.glob(os.path.join(x[0],"*"+im_suffixe)):
-            file_seg = file.split('.nii.gz')[0]+'_'+seg_suffixe
 
             # load data
             if plane == 'ax':
+                file_seg = file.split('.nii.gz')[0]+'_'+seg_suffixe
+
                 qcslice_cur = qcslice.Axial([Image(file), Image(file_seg)])
                 center_x_lst, center_y_lst = qcslice_cur.get_center()  # find seg center of mass
                 mid_slice_idx = int(qcslice_cur.get_dim(qcslice_cur._images[0]) // 2)  # find index of the mid slice
@@ -66,7 +67,7 @@ def main():
                 # crop image around SC seg
                 mid_slice = qcslice_cur.crop(mid_slice,
                                             int(center_x_lst[mid_slice_idx]), int(center_y_lst[mid_slice_idx]),
-                                            40, 40)
+                                            30, 30)
             else:
                 qcslice_cur = qcslice.Sagittal([Image(file)])
                 mid_slice_idx = int(qcslice_cur.get_dim(qcslice_cur._images[0]) // 2)  # find index of the mid slice
@@ -79,16 +80,21 @@ def main():
 
     # create a new Image object containing the samples to display
     affine = np.eye(4)
-    data = np.vstack(slice_lst)
+    data = np.stack(slice_lst, axis=-1)
     nii = nib.nifti1.Nifti1Image(data, affine)
     img = Image(data, hdr=nii.header, dim=nii.header.get_data_shape())
-
+    img.save("test.nii.gz")
     # create mosaic
-    qcslice_final = qcslice.Axial([img])
-    mosaic = qcslice_final.mosaic(nb_column=3, size=img.dim[0])[0]
+    qcslice_final = qcslice.Axial([img], p_resample=None)
+    mosaic = qcslice_final.mosaic(nb_column=nb_row, size=int(qcslice_final._images[0].data.shape[1]//2))[0]  # nb_row represents the nb_colum here since we do a flip(rot90(.)) in the plt.imshow
 
     # save mosaic
-    np.save(o_fname, mosaic)
+    plt.figure()
+    plt.subplot(1, 1, 1)
+    plt.axis("off")
+    plt.imshow(np.fliplr(np.rot90(mosaic, k=3)), interpolation='nearest', cmap='gray', aspect='auto')
+    plt.savefig(o_fname, dpi=300, bbox_inches='tight', pad_inches=0)
+    plt.close()
 
 
 def get_parameters():
@@ -110,6 +116,10 @@ def get_parameters():
                         help='Define the visualisation plane of the samples:\
                         ax --> axial view ; \
                         sag --> sagittal view')
+    parser.add_argument('-n', '--nb_row',
+                        required=False,
+                        default=1,
+                        help='Number of rows in the output image.')
     parser.add_argument('-o', '--output',
                         required=False,
                         default='mosaic.png',
@@ -124,5 +134,6 @@ if __name__ == "__main__":
     i_folder = args.input_folder
     seg_suffixe = args.segmentation
     plane = args.plane
+    nb_row = int(args.nb_row)
     o_fname = args.output
     main()
