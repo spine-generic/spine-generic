@@ -26,6 +26,31 @@ import spinalcordtoolbox.reports.slice as qcslice
 import sct_utils as sct
 
 
+def add_slice(matrix, i, column, size_x, size_y, patch):
+    start_col = (i % column) * size_y * 2
+    end_col = start_col + size_y
+
+    start_row = int(i / column) * size_x * 2
+    end_row = start_row + size_x
+
+    matrix[start_row:end_row, start_col:end_col] = patch
+    return matrix
+
+
+def mosaic(images, n_col, n_row=1):
+        dim_x, dim_y, dim_z = images.shape
+
+        matrix_sz = (int(dim_y * 2 * nb_row), int(dim_x * 2 * nb_column))
+
+        centers_x, centers_y = int(dim_x // 2), int(dim_y // 2)
+
+        matrix = np.zeros(matrix_sz)
+        for i in range(dim_z):
+            matrix = add_slice(matrix, i, nb_col, dim_x, dim_y, images[:,:,i])
+
+    return matrices
+
+
 def equalized(a):
     """
     Perform histogram equalization using CLAHE.
@@ -89,9 +114,9 @@ def main():
     nii = nib.nifti1.Nifti1Image(data, affine)
     img = Image(data, hdr=nii.header, dim=nii.header.get_data_shape())
     img.save("test.nii.gz")
+
     # create mosaic
-    qcslice_final = qcslice.Axial([img], p_resample=None)
-    mosaic = qcslice_final.mosaic(nb_column=nb_row, size=int(qcslice_final._images[0].data.shape[1]//2))[0]  # nb_row represents the nb_colum here since we do a flip(rot90(.)) in the plt.imshow
+    mosaic = mosaic(img.data, nb_col, nb_row)
 
     # save mosaic
     plt.figure()
