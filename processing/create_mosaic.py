@@ -20,13 +20,27 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from spinalcordtoolbox.image import Image
+import spinalcordtoolbox.reports.slice as qcslice
+from spinalcordtoolbox.reports.qc.QcImage import equalized
 import sct_utils as sct
 
 
 def main():
-
-    pass
-
+    for x in os.walk(i_folder):
+        for file in glob.glob(os.path.join(x[0],"*"+im_suffixe)):
+            file_seg = file.split('.nii.gz')[0]+'_'+seg_suffixe
+            if plane == 'ax':
+                qcslice_cur = qcslice.Axial([Image(file), Image(file_seg)])
+                center_x_lst, center_y_lst = qcslice_cur.get_center()
+                mid_slice_idx = int(qcslice_cur.get_dim(qcslice_cur._images[0]) // 2)
+                mid_slice = qcslice_cur.get_slice(qcslice_cur._images[0].data, mid_slice_idx)
+                mid_slice = qcslice_cur.crop(mid_slice,
+                                            int(center_x_lst[mid_slice_idx]), int(center_y_lst[mid_slice_idx]),
+                                            40, 40)
+           else:
+                qcslice_cur = qcslice.Axial([Image(file)])
+                mid_slice_idx = int(qcslice_cur.get_dim(qcslice_cur._images[0]) // 2)
+                mid_slice = qcslice_cur.get_slice(qcslice_cur._images[0].data, mid_slice_idx)
 
 def get_parameters():
     parser = argparse.ArgumentParser(
