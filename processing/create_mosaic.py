@@ -6,72 +6,40 @@
 #   ${SCT_DIR}/python/bin/python XX
 #
 #   Example:
-#   ${SCT_DIR}/python/bin/python create_mosaic.py -p t2_unf.nii.gz,t2_milan.nii.gz -c t2 -ax_sag 4 -n 3
+#     XX
 #
 # DEPENDENCIES:
 #   SCT
 #
 
 import os
+import glob
 import argparse
 import sys
 import numpy as np
 import matplotlib.pyplot as plt
 
 from spinalcordtoolbox.image import Image
-from spinalcordtoolbox.centerline.optic import detect_centerline
 import sct_utils as sct
 
 
 def main():
-    # create temporary folder with intermediate results
-    tmp_folder = sct.TempFolder(verbose=1)
-    tmp_folder_path = tmp_folder.get_path()
-    print(tmp_folder_path)
-    # copy files to the tmp folder
-    path_tmp_dct = {}
-    for i, file in enumerate(path_im_lst):
-        # Todo: add possibility to input the name of the columns (instead of 001, 002...etc.)
-        new_filename = str(i).zfill(2)
-        sct.copy(file, os.path.join(tmp_folder_path, new_filename +'.nii.gz'))
-        sct.copy(path_seg_lst[i], os.path.join(tmp_folder_path, new_filename + '_seg.nii.gz'))
-        # Values of following dictionnary is another dictionnary with keys 'im' and 'seg' having values of the filenames
-        # if plane is sag, keys are only 'im'
-        if plane == 'ax':
-            path_tmp_dct[new_filename] = {'im': new_filename + '.nii.gz', 'seg': new_filename + '_seg.nii.gz'}
-        elif plane == 'sag':
-            path_tmp_dct[new_filename] = {'im': new_filename + '.nii.gz'}
-        else:
-            raise Exception('Plane should be ax or sag')
-            # not supposed to happen because it is checked in the parser
-    tmp_folder.chdir()
 
-    for file in path_tmp_dct.keys():
-        # 2 differents scenarios :
-        if plane == 'ax':
-            1
-        elif plane == 'sag':
-            1
-        else:
-            raise Exception('Plane should be ax or sag')
-            # not supposed to happen because it is checked in the parser
-
+    pass
 
 
 def get_parameters():
     parser = argparse.ArgumentParser(
-        description='Create a mosaic of images from different 3D data (param: -p), \
-                    with axial or sagittal view (param: -ax_sag).')
+        description='Create a mosaic of images from different 3D data')
     parser.add_argument('-i', '--input',
                         required=True,
-                        help='List of paths to 3D images, separated by comma.')
+                        help='Suffixe of the input data.')
+    parser.add_argument('-ifolder', '--input_folder',
+                        required=True,
+                        help='Folder with BIDS format.')
     parser.add_argument('-s', '--segmentation',
                         required=False,
-                        help='List of paths to the segmentations, separeted by comma (required if plane is ax)')
-    parser.add_argument('-c', '--contrast',
-                        required=True,
-                        choices=['t2', 't2s', 't1'],
-                        help='Contrast-like of the input images.')
+                        help='Suffixe of the segmentation data. Required if plane is ax.')
     parser.add_argument('-p', '--plane',
                         required=False,
                         default='ax',
@@ -79,24 +47,14 @@ def get_parameters():
                         help='Define the visualisation plane of the samples:\
                         ax --> axial view ; \
                         sag --> sagittal view')
-    parser.add_argument('-n', '--n_slice',
-                        required=False,
-                        default=1,
-                        help='Number of displayed samples. Note that if ax_sag=sag, then n is forced to 1.')
     args = parser.parse_args()
     return args
 
 
 if __name__ == "__main__":
     args = get_parameters()
-    path_im_lst = args.input.split(',')
-    contrast = args.contrast
+    im_suffixe = args.input
+    i_folder = args.input_folder
+    seg_suffixe = args.segmentation
     plane = args.plane
-    if plane == 'ax':
-        path_seg_lst = args.segmentation.split(',')
-        if len(path_im_lst) != len(path_seg_lst):
-            raise Exception("Number of segmentations provided is not the same as the number of images")
-        n_slice = args.n_slice
-    else:
-        n_slice = 1
     main()
