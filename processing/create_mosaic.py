@@ -87,19 +87,22 @@ def main():
     qcslice_final = qcslice.Axial([img])
     mosaic = qcslice_final.mosaic(nb_column=3, size=img.dim[0])[0]
 
+    # save mosaic
+    np.save(o_fname, mosaic)
+
 
 def get_parameters():
     parser = argparse.ArgumentParser(
         description='Create a mosaic of images from different 3D data')
     parser.add_argument('-i', '--input',
                         required=True,
-                        help='Suffixe of the input data.')
+                        help='Suffixe of the input data. Example: "T1w.nii.gz"')
     parser.add_argument('-ifolder', '--input_folder',
                         required=True,
                         help='Folder with BIDS format.')
     parser.add_argument('-s', '--segmentation',
                         required=False,
-                        help='Suffixe of the segmentation data. Required if plane is ax.')
+                        help='Suffixe of the segmentation data. Required if plane is ax. Example: "seg.nii.gz"')
     parser.add_argument('-p', '--plane',
                         required=False,
                         default='ax',
@@ -107,6 +110,10 @@ def get_parameters():
                         help='Define the visualisation plane of the samples:\
                         ax --> axial view ; \
                         sag --> sagittal view')
+    parser.add_argument('-o', '--output',
+                        required=False,
+                        default='mosaic.png',
+                        help='Output fname.')
     args = parser.parse_args()
     return args
 
@@ -117,4 +124,5 @@ if __name__ == "__main__":
     i_folder = args.input_folder
     seg_suffixe = args.segmentation
     plane = args.plane
+    o_fname = args.output
     main()
