@@ -54,20 +54,24 @@ def main():
     # find all the images of insterest and store the mid slice in slice_lst
     slice_lst = []
     for x in os.walk(i_folder):
-        for file in glob.glob(os.path.join(x[0], im_string)):
-
+        for file in glob.glob(os.path.join(x[0], '*'+im_string)):
+            print(file)
             # load data
             if plane == 'ax':
-                file_seg = file.split('.nii.gz')[0]+'_seg.nii.gz'
+                file_seg = file.split('.nii.gz')[0]+'_'+seg_string
 
                 qcslice_cur = qcslice.Axial([Image(file), Image(file_seg)])
+                print('load')
                 center_x_lst, center_y_lst = qcslice_cur.get_center()  # find seg center of mass
+                print('center')
                 mid_slice_idx = int(qcslice_cur.get_dim(qcslice_cur._images[0]) // 2)  # find index of the mid slice
                 mid_slice = qcslice_cur.get_slice(qcslice_cur._images[0].data, mid_slice_idx)  # get the mid slice
+                print('get_slice')
                 # crop image around SC seg
                 mid_slice = qcslice_cur.crop(mid_slice,
                                             int(center_x_lst[mid_slice_idx]), int(center_y_lst[mid_slice_idx]),
                                             30, 30)
+                print('crop')
             else:
                 qcslice_cur = qcslice.Sagittal([Image(file)])
                 mid_slice_idx = int(qcslice_cur.get_dim(qcslice_cur._images[0]) // 2)  # find index of the mid slice
@@ -76,6 +80,7 @@ def main():
             # histogram equalization using CLAHE
             slice_cur = equalized(mid_slice)
 
+            print(x[0])
             slice_lst.append(slice_cur)
 
     # create a new Image object containing the samples to display
@@ -116,7 +121,10 @@ def get_parameters():
                         help='Define the visualisation plane of the samples:\
                         ax --> axial view ; \
                         sag --> sagittal view')
-    parser.add_argument('-n', '--nb_row',
+    parser.add_argument('-col', '--col',
+                        required=True,
+                        help='Number of columns in the output image.')
+    parser.add_argument('-row', '--row',
                         required=False,
                         default=1,
                         help='Number of rows in the output image.')
@@ -134,6 +142,7 @@ if __name__ == "__main__":
     i_folder = args.input_folder
     seg_string = args.segmentation
     plane = args.plane
+    nb_column = int(args.nb_col)
     nb_row = int(args.nb_row)
     o_fname = args.output
     main()
