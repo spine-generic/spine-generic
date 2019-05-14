@@ -54,11 +54,11 @@ def main():
     # find all the images of insterest and store the mid slice in slice_lst
     slice_lst = []
     for x in os.walk(i_folder):
-        for file in glob.glob(os.path.join(x[0],"*"+im_suffixe)):
+        for file in glob.glob(os.path.join(x[0], im_string)):
 
             # load data
             if plane == 'ax':
-                file_seg = file.split('.nii.gz')[0]+'_'+seg_suffixe
+                file_seg = file.split('.nii.gz')[0]+'_seg.nii.gz'
 
                 qcslice_cur = qcslice.Axial([Image(file), Image(file_seg)])
                 center_x_lst, center_y_lst = qcslice_cur.get_center()  # find seg center of mass
@@ -102,13 +102,13 @@ def get_parameters():
         description='Create a mosaic of images from different 3D data')
     parser.add_argument('-i', '--input',
                         required=True,
-                        help='Suffixe of the input data. Example: "T1w.nii.gz"')
+                        help="Unix like input data, may contain '*' wildcard Example: '*T1w.nii.gz' ")
     parser.add_argument('-ifolder', '--input_folder',
                         required=True,
                         help='Folder with BIDS format.')
     parser.add_argument('-s', '--segmentation',
                         required=False,
-                        help='Suffixe of the segmentation data. Required if plane is ax. Example: "seg.nii.gz"')
+                        help="Unix like seg data, may contain '*' wildcard Example: '*T1w.nii.gz' ")
     parser.add_argument('-p', '--plane',
                         required=False,
                         default='ax',
@@ -130,9 +130,9 @@ def get_parameters():
 
 if __name__ == "__main__":
     args = get_parameters()
-    im_suffixe = args.input
+    im_string = args.input
     i_folder = args.input_folder
-    seg_suffixe = args.segmentation
+    seg_string = args.segmentation
     plane = args.plane
     nb_row = int(args.nb_row)
     o_fname = args.output
