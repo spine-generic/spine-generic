@@ -476,13 +476,11 @@ def main():
 
         # add stats per vendor
         x_init_vendor = 0
-        height_bar = [rect.get_height() for idx,rect in enumerate(bar_plot)]
-        i_max = np.argmax(height_bar)
+        # height_bar = [rect.get_height() for idx,rect in enumerate(bar_plot)]
         # y_max = height_bar[i_max]+std_sorted[i_max]  # used to display stats
         y_max = ax.get_ylim()[1] * 95 / 100  # stat will be located at the top 95% of the graph
         for vendor in list(OrderedDict.fromkeys(vendor_sorted)):
             n_site = list(vendor_sorted).count(vendor)
-            # i_max = x_init_vendor+np.argmax(mean_sorted[x_init_vendor:x_init_vendor+n_site])
             ax = add_stats_per_vendor(ax=ax,
                                       x_i=x_init_vendor-0.5,
                                       x_j=x_init_vendor+n_site-1+0.5,
@@ -495,9 +493,6 @@ def main():
                                       color=list_colors[x_init_vendor])
             x_init_vendor += n_site
 
-        # plt.ylim(ylim[contrast])
-        # plt.yticks(np.arange(ylim[contrast][0], ylim[contrast][1], step=ystep[contrast]))
-        # plt.title(contrast)
         plt.tight_layout()  # make sure everything fits
         fname_fig = os.path.join(path_result, 'fig_'+metric+'.png')
         plt.savefig(fname_fig)
