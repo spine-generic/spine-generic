@@ -247,31 +247,6 @@ def aggregate_per_site(dict_results, metric):
     return results_agg
 
 
-def label_bar_model(ax, bar_plot, model_lst):
-    """
-    Add ManufacturersModelName embedded in each bar.
-    :param ax Matplotlib axes
-    :param bar_plot Matplotlib object
-    :param model_lst sorted list of model names
-    """
-    height = bar_plot[0].get_height() # in order to align all the labels along y-axis
-    for idx,rect in enumerate(bar_plot):
-        ax.text(rect.get_x() + rect.get_width()/2., 0.1 * height,
-                model_lst[idx], color='white', weight='bold',
-                ha='center', va='bottom', rotation=90)
-    return ax
-
-
-def get_flag(name):
-    """
-    Get the flag of a country from the folder flags.
-    :param name Name of the country
-    """
-    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'flags', '{}.png'.format(name))
-    im = plt.imread(path)
-    return im
-
-
 def add_flag(coord, name, ax):
     """
     Add flag images to the plot.
@@ -279,7 +254,16 @@ def add_flag(coord, name, ax):
     :param name Name of the country
     :param ax Matplotlib ax
     """
-    img = get_flag(name)
+    def _get_flag(name):
+        """
+        Get the flag of a country from the folder flags.
+        :param name Name of the country
+        """
+        path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'flags', '{}.png'.format(name))
+        im = plt.imread(path)
+        return im
+
+    img = _get_flag(name)
     img_rot = ndimage.rotate(img, 45)
     im = OffsetImage(img_rot.clip(0, 1), zoom=0.2)
     im.image.axes = ax
@@ -358,6 +342,17 @@ def compute_statistics(df):
     return df, stats
 
 
+def fetch_subject(filename):
+    """
+    Get subject from filename
+    :param filename:
+    :return: subject
+    """
+    path, file = os.path.split(filename)
+    subject = path.split(os.sep)[-2]
+    return subject
+
+
 def get_parameters():
     parser = argparse.ArgumentParser(
         description='Generate figures for the spine-generic dataset. Figures are output in the sub-folder specified by '
@@ -371,6 +366,34 @@ def get_parameters():
                              'site-specific figures.')
     args = parser.parse_args()
     return args
+
+
+def label_bar_model(ax, bar_plot, model_lst):
+    """
+    Add ManufacturersModelName embedded in each bar.
+    :param ax Matplotlib axes
+    :param bar_plot Matplotlib object
+    :param model_lst sorted list of model names
+    """
+    height = bar_plot[0].get_height() # in order to align all the labels along y-axis
+    for idx,rect in enumerate(bar_plot):
+        ax.text(rect.get_x() + rect.get_width()/2., 0.1 * height,
+                model_lst[idx], color='white', weight='bold',
+                ha='center', va='bottom', rotation=90)
+    return ax
+
+
+def remove_subject(subject, metric):
+    """
+    Check if subject should be removed
+    :param subject:
+    :param metric:
+    :return: Bool
+    """
+    for subject_to_remove in SUBJECTS_TO_REMOVE:
+        if subject_to_remove['subject'] == subject and subject_to_remove['metric'] == metric:
+            return True
+    return False
 
 
 def main():
@@ -479,30 +502,6 @@ def main():
         fname_fig = os.path.join(path_result, 'fig_'+metric+'.png')
         plt.savefig(fname_fig)
         logger.info('Created: '+fname_fig)
-
-
-def fetch_subject(filename):
-    """
-    Get subject from filename
-    :param filename:
-    :return: subject
-    """
-    path, file = os.path.split(filename)
-    subject = path.split(os.sep)[-2]
-    return subject
-
-
-def remove_subject(subject, metric):
-    """
-    Check if subject should be removed
-    :param subject:
-    :param metric:
-    :return: Bool
-    """
-    for subject_to_remove in SUBJECTS_TO_REMOVE:
-        if subject_to_remove['subject'] == subject and subject_to_remove['metric'] == metric:
-            return True
-    return False
 
 
 if __name__ == "__main__":
