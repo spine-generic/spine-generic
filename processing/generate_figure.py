@@ -274,7 +274,7 @@ def add_flag(coord, name, ax):
     """
     img = get_flag(name)
     img_rot = ndimage.rotate(img, 45)
-    im = OffsetImage(img_rot, zoom=0.2)
+    im = OffsetImage(img_rot.clip(0, 1), zoom=0.2)
     im.image.axes = ax
 
     ab = AnnotationBbox(im, (coord, 0), frameon=False, pad=0, xycoords='data')
