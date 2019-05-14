@@ -437,7 +437,7 @@ def main():
 
         # Sort values per vendor
         # TODO: sort per model
-        site_sorted = df.sort_values(by=['vendor', 'site']).index.values
+        site_sorted = df.sort_values(by=['vendor', 'model', 'site']).index.values
         vendor_sorted = df['vendor'][site_sorted].values
         mean_sorted = df['mean'][site_sorted].values
         std_sorted = df['std'][site_sorted].values
