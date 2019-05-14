@@ -448,7 +448,8 @@ def main():
         x_init_vendor = 0
         height_bar = [rect.get_height() for idx,rect in enumerate(bar_plot)]
         i_max = np.argmax(height_bar)
-        y_max = height_bar[i_max]+std_sorted[i_max] # used to display stats
+        # y_max = height_bar[i_max]+std_sorted[i_max]  # used to display stats
+        y_max = ax.get_ylim()[1] * 95 / 100  # stat will be located at the top 95% of the graph
         for vendor in list(OrderedDict.fromkeys(vendor_sorted)):
             n_site = list(vendor_sorted).count(vendor)
             # i_max = x_init_vendor+np.argmax(mean_sorted[x_init_vendor:x_init_vendor+n_site])
