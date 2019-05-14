@@ -5,10 +5,10 @@
 # IMPORTANT: the input path (-p) should include subfolders data/ (has all the processed data) and results/
 #
 # USAGE:
-#   ${SCT_DIR}/python/bin/python generate_figure.py -p PATH_DATA
+#   ${SCT_DIR}/python/bin/python generate_figure.py -d PATH_DATA -r PATH_RESULTS
 #
 #   Example:
-#   ${SCT_DIR}/python/bin/python generate_figure.py -p /home/bob/spine_generic/
+#   ${SCT_DIR}/python/bin/python generate_figure.py -p /home/bob/spine_generic/data -r /home/bob/spine_generic/results
 #
 # DEPENDENCIES:
 #   SCT
@@ -34,14 +34,20 @@ import matplotlib.patches as patches
 
 # Initialize global variables
 DISPLAY_INDIVIDUAL_SUBJECT = True
+# List subject to remove, associated with contrast
+SUBJECTS_TO_REMOVE = [
+#     {'subject': 'sub-amu03', 'metric': 'mtr'}
+    # {'subject': 'sub-geneva02', 'metric': 'dti_fa',
+    # {'subject': 'sub-tehranS04', 'metric': 'mtr'},
+    # {'subject': 'sub-oxfordFmrib01', 'metric': 'mtr'},
+    # {'subject': 'sub-queensland04', 'metric': 'mtr'},
+    # {'subject': 'sub-perform02', 'metric': 'mtr'},
+]
 
 # Initialize logging
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)  # default: logging.DEBUG, logging.INFO
+logger.setLevel(logging.INFO)  # default: logging.DEBUG, logging.INFO
 hdlr = logging.StreamHandler(sys.stdout)
-# fmt = logging.Formatter()
-# fmt.format = _format_wrap(fmt.format)
-# hdlr.setFormatter(fmt)
 logging.root.addHandler(hdlr)
 
 # Create a dictionary of centers: key: folder name, val: dataframe name
@@ -213,22 +219,24 @@ def aggregate_per_site(dict_results, metric):
         # dataset_description = read_dataset_description(filename, path_data)
         # cluster values per site
         subject = fetch_subject(filename)
-        # Fetch index of row corresponding to subject
-        rowIndex = participants[participants['participant_id'] == subject].index
-        # Add column "val" with metric value
-        participants.loc[rowIndex, 'val'] = dict_results[i][metric_field]
-        site = participants['institution_id'][rowIndex].get_values()[0]
-        if not site in results_agg.keys():
-            # if this is a new site, initialize sub-dict
-            results_agg[site] = {}
-            results_agg[site]['site'] = site  # need to duplicate in order to be able to sort using vendor AND site with Pandas
-            results_agg[site]['vendor'] = participants['manufacturer'][rowIndex].get_values()[0]
-            results_agg[site]['model'] = participants['manufacturers_model_name'][rowIndex].get_values()[0]
-            results_agg[site]['val'] = []
-        # add val for site (ignore None)
-        val = dict_results[i][metric_field]
-        if not val == 'None':
-            results_agg[site]['val'].append(float(val))
+        # check if subject needs to be discarded
+        if not remove_subject(subject, metric):
+            # Fetch index of row corresponding to subject
+            rowIndex = participants[participants['participant_id'] == subject].index
+            # Add column "val" with metric value
+            participants.loc[rowIndex, 'val'] = dict_results[i][metric_field]
+            site = participants['institution_id'][rowIndex].get_values()[0]
+            if not site in results_agg.keys():
+                # if this is a new site, initialize sub-dict
+                results_agg[site] = {}
+                results_agg[site]['site'] = site  # need to duplicate in order to be able to sort using vendor AND site with Pandas
+                results_agg[site]['vendor'] = participants['manufacturer'][rowIndex].get_values()[0]
+                results_agg[site]['model'] = participants['manufacturers_model_name'][rowIndex].get_values()[0]
+                results_agg[site]['val'] = []
+            # add val for site (ignore None)
+            val = dict_results[i][metric_field]
+            if not val == 'None':
+                results_agg[site]['val'].append(float(val))
     return results_agg
 
 
@@ -466,6 +474,19 @@ def fetch_subject(filename):
     path, file = os.path.split(filename)
     subject = path.split(os.sep)[-2]
     return subject
+
+
+def remove_subject(subject, metric):
+    """
+    Check if subject should be removed
+    :param subject:
+    :param metric:
+    :return: Bool
+    """
+    for subject_to_remove in SUBJECTS_TO_REMOVE:
+        if subject_to_remove['subject'] == subject and subject_to_remove['metric'] == metric:
+            return True
+    return False
 
 
 if __name__ == "__main__":
