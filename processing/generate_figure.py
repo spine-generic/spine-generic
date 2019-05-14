@@ -56,27 +56,6 @@ logger.setLevel(logging.INFO)  # default: logging.DEBUG, logging.INFO
 hdlr = logging.StreamHandler(sys.stdout)
 logging.root.addHandler(hdlr)
 
-# Create a dictionary of centers: key: folder name, val: dataframe name
-centers = {
-    'chiba_spine-generic_20180608-750': 'Chiba-750',
-    'juntendo-750w_spine-generic_20180529': 'Juntendo-750w',
-    'tokyo-univ_spine-generic_20180604-750w': 'TokyoUniv-750w',
-    'tokyo-univ_spine-generic_20180604-signa1': 'TokyoUniv-Signa1',
-    'tokyo-univ_spine-generic_20180604-signa2': 'TokyoUniv-Signa2',
-    'ucl_spine-generic_20171207': 'UCL-Achieva',
-    'juntendo-achieva_spine-teneric_20180524': 'Juntendo-Achieva',
-    'glen_spine-generic_20171128': 'Glen-Ingenia',
-    'tokyo-univ_spine-generic_20180604-ingenia': 'TokyoUniv-Ingenia',
-    'chiba_spine-generic_20180608-ingenia': 'Chiba-Ingenia',
-    'mgh-bay3_spine-generic_20171201': 'MGH-Trio',
-    'douglas_spine-generic_20171127': 'Douglas-Trio',
-    'poly_spine-generic_20171221': 'Polytechnique-Skyra',
-    'juntendo-skyra_spine-generic_20180509': 'Juntendo-Skyra',
-    'tokyo-univ_spine-generic_20180604-skyra': 'TokyoUniv-Skyra',
-    'unf_sct_026': 'UNF-Prisma',
-    'oxford_spine-generic_20171209': 'Oxford-Prisma',
-    'juntendo-prisma_spine-generic_20180523': 'Juntendo-Prisma',
-}
 
 # country dictionary: key: site, value: country name
 flags = {
@@ -162,8 +141,8 @@ metric_to_label = {
     'csa_t2': 'Cord CSA from T2w [$mm^2$]',
     'csa_gm': 'Gray Matter CSA [$mm^2$]',
     'dti_fa': 'Fractional anisotropy',
-    'dti_md': 'Mean diffusivity [$mm^2.s^-1]',
-    'dti_rd': 'Radial diffusivity [$mm^2.s^-1]',
+    'dti_md': 'Mean diffusivity [$mm^2.s^-1$]',
+    'dti_rd': 'Radial diffusivity [$mm^2.s^-1$]',
     'mtr': 'Magnetization transfer ratio [%]',
     'mtsat': 'Magnetization transfer saturation [a.u.]',
     't1': 'T1 [ms]',
@@ -182,6 +161,28 @@ scaling_factor = {
     't1': 1000,
 }
 
+# OLD STUFF FOR SINGLE CENTER
+# # Create a dictionary of centers: key: folder name, val: dataframe name
+# centers = {
+#     'chiba_spine-generic_20180608-750': 'Chiba-750',
+#     'juntendo-750w_spine-generic_20180529': 'Juntendo-750w',
+#     'tokyo-univ_spine-generic_20180604-750w': 'TokyoUniv-750w',
+#     'tokyo-univ_spine-generic_20180604-signa1': 'TokyoUniv-Signa1',
+#     'tokyo-univ_spine-generic_20180604-signa2': 'TokyoUniv-Signa2',
+#     'ucl_spine-generic_20171207': 'UCL-Achieva',
+#     'juntendo-achieva_spine-teneric_20180524': 'Juntendo-Achieva',
+#     'glen_spine-generic_20171128': 'Glen-Ingenia',
+#     'tokyo-univ_spine-generic_20180604-ingenia': 'TokyoUniv-Ingenia',
+#     'chiba_spine-generic_20180608-ingenia': 'Chiba-Ingenia',
+#     'mgh-bay3_spine-generic_20171201': 'MGH-Trio',
+#     'douglas_spine-generic_20171127': 'Douglas-Trio',
+#     'poly_spine-generic_20171221': 'Polytechnique-Skyra',
+#     'juntendo-skyra_spine-generic_20180509': 'Juntendo-Skyra',
+#     'tokyo-univ_spine-generic_20180604-skyra': 'TokyoUniv-Skyra',
+#     'unf_sct_026': 'UNF-Prisma',
+#     'oxford_spine-generic_20171209': 'Oxford-Prisma',
+#     'juntendo-prisma_spine-generic_20180523': 'Juntendo-Prisma',
+# }
 # # ylim for figure
 # ylim = {
 #     't1': [40, 90],
