@@ -37,15 +37,15 @@ def get_mosaic(images, n_col, n_row=1):
     dim_x, dim_y, dim_z = images.shape
 
     matrix_sz = (int(dim_x * nb_row), int(dim_y * nb_column))
-
+    print(matrix_sz, dim_x, dim_y)
     matrix = np.zeros(matrix_sz)
     for i in range(dim_z):
         start_col = (i % n_col) * dim_y
         end_col = start_col + dim_y
 
-        start_row = int(i / n_row) * dim_x
+        start_row = int(i / n_col) * dim_x
         end_row = start_row + dim_x
-
+        print(i, start_row, end_row, start_col, end_col)
         matrix[start_row:end_row, start_col:end_col] = images[:, :, i]
 
     return matrix
@@ -123,7 +123,7 @@ def main():
     plt.figure()
     plt.subplot(1, 1, 1)
     plt.axis("off")
-    plt.imshow(np.rot90(mosaic, k=1), interpolation='nearest', cmap='gray', aspect='auto')
+    plt.imshow(np.rot90(mosaic, k=1), interpolation='nearest', cmap='gray', aspect='equal')
     plt.savefig(o_fname, dpi=300, bbox_inches='tight', pad_inches=0)
     plt.close()
 
