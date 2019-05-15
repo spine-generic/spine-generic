@@ -80,23 +80,19 @@ def main():
     slice_lst = []
     for x in os.walk(i_folder):
         for file in glob.glob(os.path.join(x[0], 'sub*'+im_string)):  # prefixe sub: to prevent from fetching warp files
-            print(file)
+            print('Loading: '+file)
             # load data
             if plane == 'ax':
                 file_seg = file.split('.nii.gz')[0]+'_'+seg_string
 
                 qcslice_cur = qcslice.Axial([Image(file), Image(file_seg)])
-                print('load')
                 center_x_lst, center_y_lst = qcslice_cur.get_center()  # find seg center of mass
-                print('center')
                 mid_slice_idx = int(qcslice_cur.get_dim(qcslice_cur._images[0]) // 2)  # find index of the mid slice
                 mid_slice = qcslice_cur.get_slice(qcslice_cur._images[0].data, mid_slice_idx)  # get the mid slice
-                print('get_slice')
                 # crop image around SC seg
                 mid_slice = qcslice_cur.crop(mid_slice,
                                             int(center_x_lst[mid_slice_idx]), int(center_y_lst[mid_slice_idx]),
                                             30, 30)
-                print('crop')
             else:
                 qcslice_cur = qcslice.Sagittal([Image(file)])
                 mid_slice_idx = int(qcslice_cur.get_dim(qcslice_cur._images[0]) // 2)  # find index of the mid slice
@@ -105,7 +101,6 @@ def main():
             # histogram equalization using CLAHE
             slice_cur = equalized(mid_slice)
 
-            print(x[0])
             slice_lst.append(slice_cur)
 
     # create a new Image object containing the samples to display
