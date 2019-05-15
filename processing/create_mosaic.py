@@ -26,27 +26,19 @@ import spinalcordtoolbox.reports.slice as qcslice
 import sct_utils as sct
 
 
-def add_slice(matrix, i, column, size_x, size_y, patch):
-    start_col = (i % column) * size_y * 2
-    end_col = start_col + size_y
-
-    start_row = int(i / column) * size_x * 2
-    end_row = start_row + size_x
-
-    matrix[start_row:end_row, start_col:end_col] = patch
-    return matrix
-
-
 def get_mosaic(images, n_col, n_row=1):
     dim_x, dim_y, dim_z = images.shape
-
-    matrix_sz = (int(dim_y * 2 * nb_row), int(dim_x * 2 * nb_column))
-
-    centers_x, centers_y = int(dim_x // 2), int(dim_y // 2)
+    matrix_sz = (int(dim_y * nb_row), int(dim_x * nb_column))
 
     matrix = np.zeros(matrix_sz)
     for i in range(dim_z):
-        matrix = add_slice(matrix, i, n_col, dim_x, dim_y, images[:,:,i])
+        start_col = (i % n_col) * dim_y
+        end_col = start_col + dim_y
+
+        start_row = int(i / n_col) * dim_x
+        end_row = start_row + dim_x
+
+        matrix[start_row:end_row, start_col:end_col] = images[:, :, i]
 
     return matrix
 
@@ -80,7 +72,7 @@ def main():
     slice_lst = []
     for x in os.walk(i_folder):
         for file in glob.glob(os.path.join(x[0], 'sub*'+im_string)):  # prefixe sub: to prevent from fetching warp files
-            print('Loading: '+file)
+            print('\nLoading: '+file)
             # load data
             if plane == 'ax':
                 file_seg = file.split('.nii.gz')[0]+'_'+seg_string
@@ -101,7 +93,10 @@ def main():
             # histogram equalization using CLAHE
             slice_cur = equalized(mid_slice)
 
-            slice_lst.append(slice_cur)
+            if len(np.unique(slice_cur)):  # do not display empty slices
+                slice_lst.append(slice_cur)
+            else:
+                print('\tEmpty slice')
 
     # create a new Image object containing the samples to display
     affine = np.eye(4)
@@ -119,7 +114,7 @@ def main():
     plt.figure()
     plt.subplot(1, 1, 1)
     plt.axis("off")
-    plt.imshow(np.fliplr(np.rot90(mosaic, k=3)), interpolation='nearest', cmap='gray', aspect='auto')
+    plt.imshow(np.rot90(np.fliplr(mosaic), k=3), interpolation='nearest', cmap='gray', aspect='auto')
     plt.savefig(o_fname, dpi=300, bbox_inches='tight', pad_inches=0)
     plt.close()
 
