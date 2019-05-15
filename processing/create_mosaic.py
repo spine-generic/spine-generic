@@ -37,7 +37,7 @@ def add_slice(matrix, i, column, size_x, size_y, patch):
     return matrix
 
 
-def mosaic(images, n_col, n_row=1):
+def get_mosaic(images, n_col, n_row=1):
     dim_x, dim_y, dim_z = images.shape
 
     matrix_sz = (int(dim_y * 2 * nb_row), int(dim_x * 2 * nb_column))
@@ -46,7 +46,7 @@ def mosaic(images, n_col, n_row=1):
 
     matrix = np.zeros(matrix_sz)
     for i in range(dim_z):
-        matrix = add_slice(matrix, i, nb_col, dim_x, dim_y, images[:,:,i])
+        matrix = add_slice(matrix, i, n_col, dim_x, dim_y, images[:,:,i])
 
     return matrix
 
@@ -105,13 +105,15 @@ def main():
 
     # create a new Image object containing the samples to display
     affine = np.eye(4)
+    print(slice_lst[0].shape)
     data = np.stack(slice_lst, axis=-1)
     nii = nib.nifti1.Nifti1Image(data, affine)
     img = Image(data, hdr=nii.header, dim=nii.header.get_data_shape())
+    print(img.data.shape)
     img.save("test.nii.gz")
 
     # create mosaic
-    mosaic = mosaic(img.data, nb_col, nb_row)
+    mosaic = get_mosaic(img.data, nb_column, nb_row)
 
     # save mosaic
     plt.figure()
