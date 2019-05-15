@@ -74,10 +74,10 @@ def equalized(a):
 
 
 def main():
-    # find all the images of insterest and store the mid slice in slice_lst
+    # find all the images of interest and store the mid slice in slice_lst
     slice_lst = []
     for x in os.walk(i_folder):
-        for file in glob.glob(os.path.join(x[0], 'sub*'+im_string)):  # prefixe sub: to prevent from fetching warp files
+        for file in glob.glob(os.path.join(x[0], 'sub' + im_string)):  # prefixe sub: to prevent from fetching warp files
             print('\nLoading: '+file)
             # load data
             if plane == 'ax':
@@ -133,13 +133,16 @@ def get_parameters():
         description='Create a mosaic of images from different 3D data')
     parser.add_argument('-i', '--input',
                         required=True,
-                        help="Unix like input data, may contain '*' wildcard Example: '*T1w.nii.gz' ")
+                        help="Unix like input data, may contain '*' wildcard Example: '*T1w.nii.gz', This is used to"
+                             "specify the type of image you want in the mosaic."
+                             "Script will search for 'sub{your_input}")
     parser.add_argument('-ifolder', '--input_folder',
                         required=True,
                         help='Folder with BIDS format.')
     parser.add_argument('-s', '--segmentation',
                         required=False,
-                        help="Unix like seg data, may contain '*' wildcard Example: '*T1w.nii.gz' ")
+                        help="Segmentation suffix, the string appended to the filename before .nii.gz, "
+                             "Example: '_seg.nii.gz', '_seg_manual.nii.gz' ")
     parser.add_argument('-p', '--plane',
                         required=False,
                         default='ax',
