@@ -21,7 +21,8 @@ import nibabel as nib
 import matplotlib.pyplot as plt
 from skimage.exposure import equalize_adapthist, rescale_intensity
 from skimage.transform import resize
-sys.path.append(os.path.join(sys.path[-1], "scripts"))
+from spinalcordtoolbox.utils import __sct_dir__
+sys.path.append(os.path.join(__sct_dir__, "scripts"))
 from spinalcordtoolbox.image import Image
 import spinalcordtoolbox.reports.slice as qcslice
 import sct_utils as sct
