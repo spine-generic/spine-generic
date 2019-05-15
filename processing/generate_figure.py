@@ -454,6 +454,7 @@ def main():
         fig, ax = plt.subplots(figsize=(15, 8))
         # TODO: show only superior part of STD
         plt.grid(axis='y')
+        ax.set_axisbelow(True)
         bar_plot = plt.bar(range(len(site_sorted)), height=mean_sorted, width=0.5,
                            tick_label=site_sorted, yerr=[[0 for v in std_sorted], std_sorted], color=list_colors)
 
@@ -468,6 +469,8 @@ def main():
         ax.set_xticklabels([s + ' ' for s in site_sorted])  # add space after the site name to allow space for flag
         # ax.get_xaxis().set_visible(True)
         ax.tick_params(labelsize=15)
+        # plt.ylim(ylim[contrast])
+        # plt.yticks(np.arange(ylim[contrast][0], ylim[contrast][1], step=ystep[contrast]))
         plt.ylabel(metric_to_label[metric], fontsize=15)
 
         # add country flag of each site
