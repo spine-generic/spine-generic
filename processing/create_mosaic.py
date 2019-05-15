@@ -19,11 +19,17 @@ import sys
 import numpy as np
 import nibabel as nib
 import matplotlib.pyplot as plt
-from skimage.exposure import equalize_adapthist
+from skimage.exposure import equalize_adapthist, rescale_intensity
 
 from spinalcordtoolbox.image import Image
 import spinalcordtoolbox.reports.slice as qcslice
 import sct_utils as sct
+
+
+def scale_intensity(data, out_min=0, out_max=255):
+    """Scale intensity of data in a range defined by [out_min, out_max], based on the 2nd and 98th percentiles."""
+    p2, p98 = np.percentile(data, (2, 98))
+    return rescale_intensity(data, in_range=(p2, p98), out_range=(out_min, out_max))
 
 
 def get_mosaic(images, n_col, n_row=1):
@@ -46,8 +52,6 @@ def get_mosaic(images, n_col, n_row=1):
 def equalized(a):
     """
     Perform histogram equalization using CLAHE.
-
-    Note: function copied/pasted from spinalcordtoolbox.reports.qc
     """
     winsize = 16
     min_, max_ = a.min(), a.max()
@@ -90,22 +94,21 @@ def main():
                 mid_slice_idx = int(qcslice_cur.get_dim(qcslice_cur._images[0]) // 2)  # find index of the mid slice
                 mid_slice = qcslice_cur.get_slice(qcslice_cur._images[0].data, mid_slice_idx)  # get the mid slice
 
-            # histogram equalization using CLAHE
-            slice_cur = equalized(mid_slice)
+            if len(np.unique(mid_slice)):  # do not display empty slices
+                # histogram equalization using CLAHE
+                slice_cur = equalized(mid_slice)
+                # scale intensities of all slices (ie of all subjects) in a common range of values
+                slice_cur = scale_intensity(slice_cur)
 
-            if len(np.unique(slice_cur)):  # do not display empty slices
                 slice_lst.append(slice_cur)
             else:
                 print('\tEmpty slice')
 
     # create a new Image object containing the samples to display
     affine = np.eye(4)
-    print(slice_lst[0].shape)
     data = np.stack(slice_lst, axis=-1)
     nii = nib.nifti1.Nifti1Image(data, affine)
     img = Image(data, hdr=nii.header, dim=nii.header.get_data_shape())
-    print(img.data.shape)
-    img.save("test.nii.gz")
 
     # create mosaic
     mosaic = get_mosaic(img.data, nb_column, nb_row)
@@ -114,7 +117,7 @@ def main():
     plt.figure()
     plt.subplot(1, 1, 1)
     plt.axis("off")
-    plt.imshow(np.rot90(np.fliplr(mosaic), k=3), interpolation='nearest', cmap='gray', aspect='auto')
+    plt.imshow(np.rot90(mosaic, k=1), interpolation='nearest', cmap='gray', aspect='auto')
     plt.savefig(o_fname, dpi=300, bbox_inches='tight', pad_inches=0)
     plt.close()
 
