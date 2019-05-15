@@ -35,8 +35,9 @@ def scale_intensity(data, out_min=0, out_max=255):
 
 def get_mosaic(images, n_col, n_row=1):
     dim_x, dim_y, dim_z = images.shape
-    matrix_sz = (int(dim_y * nb_row), int(dim_x * nb_column))
-
+    print(dim_x, dim_y)
+    matrix_sz = (int(dim_x * nb_row), int(dim_y * nb_column))
+    print(matrix_sz)
     matrix = np.zeros(matrix_sz)
     for i in range(dim_z):
         start_col = (i % n_col) * dim_y
@@ -44,7 +45,7 @@ def get_mosaic(images, n_col, n_row=1):
 
         start_row = int(i / n_col) * dim_x
         end_row = start_row + dim_x
-
+        print(start_row, end_row, start_col, end_col)
         matrix[start_row:end_row, start_col:end_col] = images[:, :, i]
 
     return matrix
