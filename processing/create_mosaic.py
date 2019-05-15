@@ -38,17 +38,17 @@ def add_slice(matrix, i, column, size_x, size_y, patch):
 
 
 def mosaic(images, n_col, n_row=1):
-        dim_x, dim_y, dim_z = images.shape
+    dim_x, dim_y, dim_z = images.shape
 
-        matrix_sz = (int(dim_y * 2 * nb_row), int(dim_x * 2 * nb_column))
+    matrix_sz = (int(dim_y * 2 * nb_row), int(dim_x * 2 * nb_column))
 
-        centers_x, centers_y = int(dim_x // 2), int(dim_y // 2)
+    centers_x, centers_y = int(dim_x // 2), int(dim_y // 2)
 
-        matrix = np.zeros(matrix_sz)
-        for i in range(dim_z):
-            matrix = add_slice(matrix, i, nb_col, dim_x, dim_y, images[:,:,i])
+    matrix = np.zeros(matrix_sz)
+    for i in range(dim_z):
+        matrix = add_slice(matrix, i, nb_col, dim_x, dim_y, images[:,:,i])
 
-    return matrices
+    return matrix
 
 
 def equalized(a):
@@ -79,7 +79,7 @@ def main():
     # find all the images of insterest and store the mid slice in slice_lst
     slice_lst = []
     for x in os.walk(i_folder):
-        for file in glob.glob(os.path.join(x[0], '*'+im_string)):
+        for file in glob.glob(os.path.join(x[0], 'sub*'+im_string)):  # prefixe sub: to prevent from fetching warp files
             print(file)
             # load data
             if plane == 'ax':
@@ -167,7 +167,7 @@ if __name__ == "__main__":
     i_folder = args.input_folder
     seg_string = args.segmentation
     plane = args.plane
-    nb_column = int(args.nb_col)
-    nb_row = int(args.nb_row)
+    nb_column = int(args.col)
+    nb_row = int(args.row)
     o_fname = args.output
     main()
