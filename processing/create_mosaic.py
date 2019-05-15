@@ -20,6 +20,7 @@ import numpy as np
 import nibabel as nib
 import matplotlib.pyplot as plt
 from skimage.exposure import equalize_adapthist, rescale_intensity
+from skimage.transform import resize
 
 from spinalcordtoolbox.image import Image
 import spinalcordtoolbox.reports.slice as qcslice
@@ -99,6 +100,12 @@ def main():
                 slice_cur = equalized(mid_slice)
                 # scale intensities of all slices (ie of all subjects) in a common range of values
                 slice_cur = scale_intensity(slice_cur)
+
+                # resize all sag_slices with the shape of the first loaded slice
+                if len(slice_lst) and plane == "sag":
+                    slice_cur = resize(slice_cur, sag_size, anti_aliasing=True)
+                else:
+                    sag_size = slice_cur.shape
 
                 slice_lst.append(slice_cur)
             else:
