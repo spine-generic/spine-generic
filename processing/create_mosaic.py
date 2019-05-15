@@ -43,7 +43,7 @@ def get_mosaic(images, n_col, n_row=1):
         start_col = (i % n_col) * dim_y
         end_col = start_col + dim_y
 
-        start_row = int(i / n_row) * dim_x
+        start_row = int(i / n_col) * dim_x
         end_row = start_row + dim_x
 
         matrix[start_row:end_row, start_col:end_col] = images[:, :, i]
@@ -81,7 +81,7 @@ def main():
             print('\nLoading: '+file)
             # load data
             if plane == 'ax':
-                file_seg = file.split('.nii.gz')[0]+'_'+seg_string
+                file_seg = file.split('.nii.gz')[0] + seg_string
 
                 qcslice_cur = qcslice.Axial([Image(file), Image(file_seg)])
                 center_x_lst, center_y_lst = qcslice_cur.get_center()  # find seg center of mass
@@ -142,7 +142,8 @@ def get_parameters():
     parser.add_argument('-s', '--segmentation',
                         required=False,
                         help="Segmentation suffix, the string appended to the filename before .nii.gz, "
-                             "Example: '_seg.nii.gz', '_seg_manual.nii.gz' ")
+                             "Example: '_seg.nii.gz', '_seg_manual.nii.gz' ",
+                        default="_seg.nii.gz")
     parser.add_argument('-p', '--plane',
                         required=False,
                         default='ax',
