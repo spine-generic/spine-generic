@@ -35,9 +35,9 @@ def scale_intensity(data, out_min=0, out_max=255):
 
 def get_mosaic(images, n_col, n_row=1):
     dim_x, dim_y, dim_z = images.shape
-    print(dim_x, dim_y)
+
     matrix_sz = (int(dim_x * nb_row), int(dim_y * nb_column))
-    print(matrix_sz)
+
     matrix = np.zeros(matrix_sz)
     for i in range(dim_z):
         start_col = (i % n_col) * dim_y
@@ -45,7 +45,7 @@ def get_mosaic(images, n_col, n_row=1):
 
         start_row = int(i / n_col) * dim_x
         end_row = start_row + dim_x
-        print(start_row, end_row, start_col, end_col)
+
         matrix[start_row:end_row, start_col:end_col] = images[:, :, i]
 
     return matrix
@@ -92,25 +92,23 @@ def main():
                                             int(center_x_lst[mid_slice_idx]), int(center_y_lst[mid_slice_idx]),
                                             30, 30)
             else:
-                qcslice_cur = qcslice.Sagittal([Image(file)])
-                mid_slice_idx = int(qcslice_cur.get_dim(qcslice_cur._images[0]) // 2)  # find index of the mid slice
-                mid_slice = qcslice_cur.get_slice(qcslice_cur._images[0].data, mid_slice_idx)  # get the mid slice
+                sag_im = Image(file).change_orientation('RPI')
+                mid_slice_idx = int(sag_im.dim[0] // 2)
+                mid_slice = sag_im.data[mid_slice_idx, :, :]
+                del sag_im
 
-            if len(np.unique(mid_slice)):  # do not display empty slices
-                # histogram equalization using CLAHE
-                slice_cur = equalized(mid_slice)
-                # scale intensities of all slices (ie of all subjects) in a common range of values
-                slice_cur = scale_intensity(slice_cur)
+            # histogram equalization using CLAHE
+            slice_cur = equalized(mid_slice)
+            # scale intensities of all slices (ie of all subjects) in a common range of values
+            slice_cur = scale_intensity(slice_cur)
 
-                # resize all sag_slices with the shape of the first loaded slice
-                if len(slice_lst) and plane == "sag":
-                    slice_cur = resize(slice_cur, sag_size, anti_aliasing=True)
-                else:
-                    sag_size = slice_cur.shape
-
-                slice_lst.append(slice_cur)
+            # resize all sag_slices with the shape of the first loaded slice
+            if len(slice_lst) and plane == "sag":
+                slice_cur = resize(slice_cur, sag_size, anti_aliasing=True)
             else:
-                print('\tEmpty slice')
+                sag_size = slice_cur.shape
+
+            slice_lst.append(slice_cur)
 
     # create a new Image object containing the samples to display
     affine = np.eye(4)
