@@ -44,7 +44,7 @@ def get_mosaic(images, n_col, n_row=1):
         start_col = (i % n_col) * dim_y
         end_col = start_col + dim_y
 
-        start_row = int(i / n_col) * dim_x
+        start_row = int(i % n_row) * dim_x
         end_row = start_row + dim_x
 
         matrix[start_row:end_row, start_col:end_col] = images[:, :, i]
