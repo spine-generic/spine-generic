@@ -165,7 +165,7 @@ def get_parameters():
                         required=False,
                         help="Segmentation suffix, the string appended to the filename before .nii.gz, "
                              "Example: '_seg.nii.gz', '_seg_manual.nii.gz' ",
-                        default="_seg.nii.gz")
+                        default="*_seg.nii.gz")
     parser.add_argument('-p', '--plane',
                         required=False,
                         default='ax',
