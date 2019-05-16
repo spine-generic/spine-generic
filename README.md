@@ -11,50 +11,50 @@ The "Spine Generic" MRI acquisition protocol is available at [this link](https:/
 
 ### Data conversion: DICOM to BIDS
 
-To facilitate the collection, sharing and processing of data, we use the [BIDS standard](http://bids.neuroimaging.io/). An example of the data structure is shown below:
+To facilitate the collection, sharing and processing of data, we use the [BIDS standard](http://bids.neuroimaging.io/). An example of the data structure for one center is shown below:
 
 ~~~
-ucl_spineGeneric
+spineGeneric_multiSubjects
 ├── dataset_description.json
 ├── participants.json
 ├── participants.tsv
-├── sub-01
-├── sub-02
-├── sub-03
-├── sub-04
-├── sub-05
-└── sub-06
+├── sub-ucl01
+├── sub-ucl02
+├── sub-ucl03
+├── sub-ucl04
+├── sub-ucl05
+└── sub-ucl06
     ├── anat
-    │   ├── sub-06_T1w.json
-    │   ├── sub-06_T1w.nii.gz
-    │   ├── sub-06_T2star.json
-    │   ├── sub-06_T2star.nii.gz
-    │   ├── sub-06_T2w.json
-    │   ├── sub-06_T2w.nii.gz
-    │   ├── sub-06_acq-MToff_MTS.json
-    │   ├── sub-06_acq-MToff_MTS.nii.gz
-    │   ├── sub-06_acq-MTon_MTS.json
-    │   ├── sub-06_acq-MTon_MTS.nii.gz
-    │   ├── sub-06_acq-T1w_MTS.json
-    │   └── sub-06_acq-T1w_MTS.nii.gz
+    │   ├── sub-ucl06_T1w.json
+    │   ├── sub-ucl06_T1w.nii.gz
+    │   ├── sub-ucl06_T2star.json
+    │   ├── sub-ucl06_T2star.nii.gz
+    │   ├── sub-ucl06_T2w.json
+    │   ├── sub-ucl06_T2w.nii.gz
+    │   ├── sub-ucl06_acq-MToff_MTS.json
+    │   ├── sub-ucl06_acq-MToff_MTS.nii.gz
+    │   ├── sub-ucl06_acq-MTon_MTS.json
+    │   ├── sub-ucl06_acq-MTon_MTS.nii.gz
+    │   ├── sub-ucl06_acq-T1w_MTS.json
+    │   └── sub-ucl06_acq-T1w_MTS.nii.gz
     └── dwi
-        ├── sub-06_dwi.bval
-        ├── sub-06_dwi.bvec
-        ├── sub-06_dwi.json
-        └── sub-06_dwi.nii.gz
+        ├── sub-ucl06_dwi.bval
+        ├── sub-ucl06_dwi.bvec
+        ├── sub-ucl06_dwi.json
+        └── sub-ucl06_dwi.nii.gz
 ~~~
 
 To convert your DICOM data folder to the compatible BIDS structure, we ask you
 to install [dcm2bids](https://github.com/cbedetti/Dcm2Bids#install). Once installed,
 [download this config file](https://raw.githubusercontent.com/sct-pipeline/spine-generic/master/config_spine.txt) (click File>Save to save the file), then convert your Dicom folder using the following
-command (replace xx with subject number):
+command (replace xx with your center and subject number):
 ~~~
 dcm2bids -d <PATH_DICOM> -p sub-xx -c config_spine.txt -o CENTER_spineGeneric
 ~~~
 
 For example:
 ~~~
-dcm2bids -d /Users/julien/Desktop/DICOM_subj3 -p sub-03 -c ~/Desktop/config_spine.txt -o milan_spineGeneric
+dcm2bids -d /Users/julien/Desktop/DICOM_subj3 -p sub-milan03 -c ~/Desktop/config_spine.txt -o milan_spineGeneric
 ~~~
 
 A log file is generated under `tmp_dcm2bids/log/`. If you encounter any problem while
@@ -108,9 +108,13 @@ Example of possible values:
 
 **participants.tsv** (Tab-separated values)
 ```
-id	sex	age	date_of_scan
-sub-01	M	35	2018-12-18
-sub-02	F	30	2018-11-01
+participant_id	sex	age	date_of_scan	institution_id	institution	manufacturer	manufacturers_model_name	receive_coil_name	software_versions	researcher
+sub-unf01	F	24	2018-12-07	unf	Neuroimaging Functional Unit (UNF), CRIUGM, Polytechnique Montreal	Siemens	Prisma-fit	HeadNeck_64	syngo_MR_E11	J. Cohen-Adad, A. Foias
+sub-unf02	M	29	2018-12-07	unf	Neuroimaging Functional Unit (UNF), CRIUGM, Polytechnique Montreal	Siemens	Prisma-fit	HeadNeck_64	syngo_MR_E11	J. Cohen-Adad, A. Foias
+sub-unf03	M	22	2018-12-07	unf	Neuroimaging Functional Unit (UNF), CRIUGM, Polytechnique Montreal	Siemens	Prisma-fit	HeadNeck_64	syngo_MR_E11	J. Cohen-Adad, A. Foias
+sub-unf04	M	31	2018-12-07	unf	Neuroimaging Functional Unit (UNF), CRIUGM, Polytechnique Montreal	Siemens	Prisma-fit	HeadNeck_64	syngo_MR_E11	J. Cohen-Adad, A. Foias
+sub-unf05	F	23	2019-01-11	unf	Neuroimaging Functional Unit (UNF), CRIUGM, Polytechnique Montreal	Siemens	Prisma-fit	HeadNeck_64	syngo_MR_E11	J. Cohen-Adad, A. Foias
+sub-unf06	F	27	2019-01-11	unf	Neuroimaging Functional Unit (UNF), CRIUGM, Polytechnique Montreal	Siemens	Prisma-fit	HeadNeck_64	syngo_MR_E11	J. Cohen-Adad, A. Foias
 ```
 
 Once you've created the BIDS dataset, remove any temp folders (e.g., `tmp_dcm2bids/`) and zip the entire folder. It is now ready for sharing! You could send it to Julien Cohen-Adad via any cloud-based method (Gdrive, Dropbox, etc.).
