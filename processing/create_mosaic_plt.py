@@ -21,13 +21,13 @@ import nibabel as nib
 import matplotlib.pyplot as plt
 from skimage.exposure import equalize_adapthist, rescale_intensity
 from skimage.transform import resize
+from matplotlib.offsetbox import OffsetImage, AnnotationBbox
+
 from spinalcordtoolbox.utils import __sct_dir__
 sys.path.append(os.path.join(__sct_dir__, "scripts"))
 from spinalcordtoolbox.image import Image
 import spinalcordtoolbox.reports.slice as qcslice
 import sct_utils as sct
-
-affine = np.eye(4)
 
 
 def scale_intensity(data, out_min=0, out_max=255):
@@ -36,22 +36,22 @@ def scale_intensity(data, out_min=0, out_max=255):
     return rescale_intensity(data, in_range=(p2, p98), out_range=(out_min, out_max))
 
 
-def get_mosaic(images, n_col, n_row=1):
+def get_mosaic_size(images, n_col, n_row):
     dim_x, dim_y, dim_z = images.shape
 
     matrix_sz = (int(dim_x * nb_row), int(dim_y * nb_column))
 
-    matrix = np.zeros(matrix_sz)
-    for i in range(dim_z):
-        start_col = (i % n_col) * dim_y
-        end_col = start_col + dim_y
+    return matrix_sz
 
-        start_row = int(np.floor(i/n_col) % n_row) * dim_x
-        end_row = start_row + dim_x
 
-        matrix[start_row:end_row, start_col:end_col] = images[:, :, i]
+def get_image_idx(idx, n_col, n_row, dim_x, dim_y):
+    start_col = (idx % n_col) * dim_y
+    end_col = start_col + dim_y
 
-    return matrix
+    start_row = int(np.floor(idx/n_col) % n_row) * dim_x
+    end_row = start_row + dim_x
+
+    return start_row, end_row, start_col, end_col
 
 
 def equalized(a):
@@ -76,6 +76,19 @@ def equalized(a):
     return np.array(c * (max_ - min_) + min_, dtype=a.dtype)
 
 
+def add_img2plot(ax, img, x, y):
+    imagebox = OffsetImage(img, cmap='gray')
+    imagebox.image.axes = ax
+
+    ab = AnnotationBbox(imagebox, (x,y),
+                        xycoords='axes pixels',
+                        frameon=False, pad=0.0, box_alignment=(0.0, 0.0))
+                        #boxcoords="offset points")
+
+    ax.add_artist(ab)
+    return ax
+
+
 def main():
     # find all the images of interest and store the mid slice in slice_lst
     slice_lst = []
@@ -86,21 +99,13 @@ def main():
             if plane == 'ax':
                 file_seg = file.split('.nii.gz')[0] + seg_string
 
-                # workaround to save some time
-                img, seg = Image(file).change_orientation('RPI'), Image(file_seg).change_orientation('RPI')
-                mid_slice_idx = int(float(img.dim[2]) // 2)
-                nii_mid = nib.nifti1.Nifti1Image(img.data[:, :, mid_slice_idx], affine)
-                nii_mid_seg = nib.nifti1.Nifti1Image(seg.data[:, :, mid_slice_idx], affine)
-                img_mid = Image(img.data[:, :, mid_slice_idx], hdr=nii_mid.header, dim=nii_mid.header.get_data_shape())
-                seg_mid = Image(seg.data[:, :, mid_slice_idx], hdr=nii_mid_seg.header, dim=nii_mid_seg.header.get_data_shape())
-                del img, seg
-
-                qcslice_cur = qcslice.Axial([img_mid, seg_mid])
+                qcslice_cur = qcslice.Axial([Image(file), Image(file_seg)])
                 center_x_lst, center_y_lst = qcslice_cur.get_center()  # find seg center of mass
-                mid_slice = qcslice_cur.get_slice(qcslice_cur._images[0].data, 0)  # get the mid slice
+                mid_slice_idx = int(qcslice_cur.get_dim(qcslice_cur._images[0]) // 2)  # find index of the mid slice
+                mid_slice = qcslice_cur.get_slice(qcslice_cur._images[0].data, mid_slice_idx)  # get the mid slice
                 # crop image around SC seg
                 mid_slice = qcslice_cur.crop(mid_slice,
-                                            int(center_x_lst[0]), int(center_y_lst[0]),
+                                            int(center_x_lst[mid_slice_idx]), int(center_y_lst[mid_slice_idx]),
                                             30, 30)
             else:
                 sag_im = Image(file).change_orientation('RSP')
@@ -122,10 +127,12 @@ def main():
             slice_lst.append(slice_cur)
 
     # create a new Image object containing the samples to display
+    affine = np.eye(4)
     data = np.stack(slice_lst, axis=-1)
     nii = nib.nifti1.Nifti1Image(data, affine)
     img = Image(data, hdr=nii.header, dim=nii.header.get_data_shape())
 
+    my_dpi = 300
     nb_img = img.data.shape[2]
     nb_items_mosaic = nb_column * nb_row
     nb_mosaic = np.ceil(float(nb_img) / (nb_items_mosaic))
@@ -139,14 +146,18 @@ def main():
         # create mosaic
         idx_end = (i+1)*nb_items_mosaic if (i+1)*nb_items_mosaic <= nb_img else nb_img
         data_mosaic = img.data[:, :, i*(nb_items_mosaic) : idx_end]
-        mosaic = get_mosaic(data_mosaic, nb_column, nb_row)
+        mosaic_size = get_mosaic_size(data_mosaic, nb_column, nb_row)
 
         # save mosaic
-        plt.figure()
-        plt.subplot(1, 1, 1)
+        plt.figure(figsize=mosaic_size)
+        fig, ax = plt.subplots()
         plt.axis("off")
-        plt.imshow(mosaic, interpolation='nearest', cmap='gray', aspect='equal')
-        plt.savefig(fname_out, dpi=300, bbox_inches='tight', pad_inches=0)
+        for ii in range(data_mosaic.shape[2]):
+            x_start, x_end, y_start, y_end = get_image_idx(ii, nb_column, nb_row, data_mosaic.shape[0], data_mosaic.shape[1])
+            print(x_start, y_start)
+            ax = add_img2plot(ax, data_mosaic[:, :, ii], x_start, y_start)
+        # plt.imshow(mosaic, interpolation='bilinear', cmap='gray', aspect='equal')
+        plt.savefig(fname_out, dpi=my_dpi, bbox_inches='tight', pad_inches=0)
         plt.close()
 
 
