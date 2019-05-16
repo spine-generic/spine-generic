@@ -11,37 +11,37 @@ The "Spine Generic" MRI acquisition protocol is available at [this link](https:/
 
 ### Data conversion: DICOM to BIDS
 
-To facilitate the collection, sharing and processing of data, we use the [BIDS standard](http://bids.neuroimaging.io/). An example of the data structure is shown below:
+To facilitate the collection, sharing and processing of data, we use the [BIDS standard](http://bids.neuroimaging.io/). An example of the data structure for one center is shown below:
 
 ~~~
-ucl_spineGeneric
+spineGeneric_multiSubjects
 ├── dataset_description.json
 ├── participants.json
 ├── participants.tsv
-├── sub-01
-├── sub-02
-├── sub-03
-├── sub-04
-├── sub-05
-└── sub-06
+├── sub-ucl01
+├── sub-ucl02
+├── sub-ucl03
+├── sub-ucl04
+├── sub-ucl05
+└── sub-ucl06
     ├── anat
-    │   ├── sub-06_T1w.json
-    │   ├── sub-06_T1w.nii.gz
-    │   ├── sub-06_T2star.json
-    │   ├── sub-06_T2star.nii.gz
-    │   ├── sub-06_T2w.json
-    │   ├── sub-06_T2w.nii.gz
-    │   ├── sub-06_acq-MToff_MTS.json
-    │   ├── sub-06_acq-MToff_MTS.nii.gz
-    │   ├── sub-06_acq-MTon_MTS.json
-    │   ├── sub-06_acq-MTon_MTS.nii.gz
-    │   ├── sub-06_acq-T1w_MTS.json
-    │   └── sub-06_acq-T1w_MTS.nii.gz
+    │   ├── sub-ucl06_T1w.json
+    │   ├── sub-ucl06_T1w.nii.gz
+    │   ├── sub-ucl06_T2star.json
+    │   ├── sub-ucl06_T2star.nii.gz
+    │   ├── sub-ucl06_T2w.json
+    │   ├── sub-ucl06_T2w.nii.gz
+    │   ├── sub-ucl06_acq-MToff_MTS.json
+    │   ├── sub-ucl06_acq-MToff_MTS.nii.gz
+    │   ├── sub-ucl06_acq-MTon_MTS.json
+    │   ├── sub-ucl06_acq-MTon_MTS.nii.gz
+    │   ├── sub-ucl06_acq-T1w_MTS.json
+    │   └── sub-ucl06_acq-T1w_MTS.nii.gz
     └── dwi
-        ├── sub-06_dwi.bval
-        ├── sub-06_dwi.bvec
-        ├── sub-06_dwi.json
-        └── sub-06_dwi.nii.gz
+        ├── sub-ucl06_dwi.bval
+        ├── sub-ucl06_dwi.bvec
+        ├── sub-ucl06_dwi.json
+        └── sub-ucl06_dwi.nii.gz
 ~~~
 
 To convert your DICOM data folder to the compatible BIDS structure, we ask you
