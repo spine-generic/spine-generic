@@ -84,7 +84,7 @@ def main():
             print('\nLoading: '+file)
             # load data
             if plane == 'ax':
-                file_seg = file.split('.nii.gz')[0] + seg_string
+                file_seg = glob.glob(os.path.join(x[0], 'sub'+seg_string))[0]
 
                 # workaround to save some time
                 img, seg = Image(file).change_orientation('RPI'), Image(file_seg).change_orientation('RPI')
