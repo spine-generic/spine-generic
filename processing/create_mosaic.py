@@ -54,11 +54,10 @@ def get_mosaic(images, n_col, n_row=1):
     return matrix
 
 
-def equalized(a):
+def equalized(a, winsize):
     """
     Perform histogram equalization using CLAHE.
     """
-    winsize = 16
     min_, max_ = a.min(), a.max()
     b = (np.float32(a) - min_) / (max_ - min_)
     b[b >= 1] = 1  # 1+eps numerical error may happen (#1691)
@@ -109,7 +108,7 @@ def main():
                 del sag_im
 
             # histogram equalization using CLAHE
-            slice_cur = equalized(mid_slice)
+            slice_cur = equalized(mid_slice, winsize)
             # scale intensities of all slices (ie of all subjects) in a common range of values
             slice_cur = scale_intensity(slice_cur)
 
@@ -180,6 +179,10 @@ def get_parameters():
                         required=False,
                         default=1,
                         help='Number of rows in the output image.')
+    parser.add_argument('-wsize', '--winsize_CLAHE',
+                        required=False,
+                        default=16,
+                        help='Winsize for the equalisation using CLAHE algorithm')
     parser.add_argument('-o', '--output',
                         required=False,
                         default='mosaic.png',
@@ -196,5 +199,6 @@ if __name__ == "__main__":
     plane = args.plane
     nb_column = int(args.col)
     nb_row = int(args.row)
+    winsize = args.winsize_CLAHE
     o_fname = args.output
     main()
