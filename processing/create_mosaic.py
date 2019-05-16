@@ -27,6 +27,8 @@ from spinalcordtoolbox.image import Image
 import spinalcordtoolbox.reports.slice as qcslice
 import sct_utils as sct
 
+affine = np.eye(4)
+
 
 def scale_intensity(data, out_min=0, out_max=255):
     """Scale intensity of data in a range defined by [out_min, out_max], based on the 2nd and 98th percentiles."""
@@ -84,13 +86,21 @@ def main():
             if plane == 'ax':
                 file_seg = file.split('.nii.gz')[0] + seg_string
 
-                qcslice_cur = qcslice.Axial([Image(file), Image(file_seg)])
+                # workaround to save some time
+                img, seg = Image(file).change_orientation('RPI'), Image(file_seg).change_orientation('RPI')
+                mid_slice_idx = int(float(img.dim[2]) // 2)
+                nii_mid = nib.nifti1.Nifti1Image(img.data[:, :, mid_slice_idx], affine)
+                nii_mid_seg = nib.nifti1.Nifti1Image(seg.data[:, :, mid_slice_idx], affine)
+                img_mid = Image(img.data[:, :, mid_slice_idx], hdr=nii_mid.header, dim=nii_mid.header.get_data_shape())
+                seg_mid = Image(seg.data[:, :, mid_slice_idx], hdr=nii_mid_seg.header, dim=nii_mid_seg.header.get_data_shape())
+                del img, seg
+
+                qcslice_cur = qcslice.Axial([img_mid, seg_mid])
                 center_x_lst, center_y_lst = qcslice_cur.get_center()  # find seg center of mass
-                mid_slice_idx = int(qcslice_cur.get_dim(qcslice_cur._images[0]) // 2)  # find index of the mid slice
-                mid_slice = qcslice_cur.get_slice(qcslice_cur._images[0].data, mid_slice_idx)  # get the mid slice
+                mid_slice = qcslice_cur.get_slice(qcslice_cur._images[0].data, 0)  # get the mid slice
                 # crop image around SC seg
                 mid_slice = qcslice_cur.crop(mid_slice,
-                                            int(center_x_lst[mid_slice_idx]), int(center_y_lst[mid_slice_idx]),
+                                            int(center_x_lst[0]), int(center_y_lst[0]),
                                             30, 30)
             else:
                 sag_im = Image(file).change_orientation('RSP')
@@ -112,7 +122,6 @@ def main():
             slice_lst.append(slice_cur)
 
     # create a new Image object containing the samples to display
-    affine = np.eye(4)
     data = np.stack(slice_lst, axis=-1)
     nii = nib.nifti1.Nifti1Image(data, affine)
     img = Image(data, hdr=nii.header, dim=nii.header.get_data_shape())
