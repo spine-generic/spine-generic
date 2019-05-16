@@ -113,11 +113,11 @@ def main():
             # scale intensities of all slices (ie of all subjects) in a common range of values
             slice_cur = scale_intensity(slice_cur)
 
-            # resize all sag_slices with the shape of the first loaded slice
-            if len(slice_lst) and plane == "sag":
-                slice_cur = resize(slice_cur, sag_size, anti_aliasing=True)
+            # resize all slices with the shape of the first loaded slice
+            if len(slice_lst):
+                slice_cur = resize(slice_cur, slice_size, anti_aliasing=True)
             else:
-                sag_size = slice_cur.shape
+                slice_size = slice_cur.shape
 
             slice_lst.append(slice_cur)
 
