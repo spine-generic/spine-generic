@@ -93,7 +93,7 @@ def main():
                                             int(center_x_lst[mid_slice_idx]), int(center_y_lst[mid_slice_idx]),
                                             30, 30)
             else:
-                sag_im = Image(file).change_orientation('RPI')
+                sag_im = Image(file).change_orientation('RSP')
                 mid_slice_idx = int(sag_im.dim[0] // 2)
                 mid_slice = sag_im.data[mid_slice_idx, :, :]
                 del sag_im
@@ -124,7 +124,7 @@ def main():
     plt.figure()
     plt.subplot(1, 1, 1)
     plt.axis("off")
-    plt.imshow(np.rot90(mosaic, k=1), interpolation='nearest', cmap='gray', aspect='equal')
+    plt.imshow(mosaic, interpolation='nearest', cmap='gray', aspect='equal')
     plt.savefig(o_fname, dpi=300, bbox_inches='tight', pad_inches=0)
     plt.close()
 
