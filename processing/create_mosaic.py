@@ -199,6 +199,6 @@ if __name__ == "__main__":
     plane = args.plane
     nb_column = int(args.col)
     nb_row = int(args.row)
-    winsize = args.winsize_CLAHE
+    winsize = int(args.winsize_CLAHE)
     o_fname = args.output
     main()
