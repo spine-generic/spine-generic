@@ -145,7 +145,7 @@ def main():
         plt.figure()
         plt.subplot(1, 1, 1)
         plt.axis("off")
-        plt.imshow(mosaic, interpolation='nearest', cmap='gray', aspect='equal')
+        plt.imshow(mosaic, interpolation='bilinear', cmap='gray', aspect='equal')
         plt.savefig(fname_out, dpi=300, bbox_inches='tight', pad_inches=0)
         plt.close()
 
