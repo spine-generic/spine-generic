@@ -25,6 +25,8 @@ export PATH_SEGMANUAL="${PATH_PARENT}/seg_manual"
 # )
 
 # Number of jobs for parallel processing
+# To know the number of available cores, run: getconf _NPROCESSORS_ONLN
+# We recommend not using more than half the number of available cores.
 export JOBS=20
 
 # Number of jobs for ANTs routine. Set to 1 if ANTs functions crash when CPU saturates.
