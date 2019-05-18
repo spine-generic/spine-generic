@@ -146,9 +146,12 @@ The analysis pipeline available in this repository enables to output the followi
 
 ### Dependencies
 
-In its current state, this pipeline uses [SCT development version](https://github.com/neuropoly/spinalcordtoolbox#install-from-github-development). Once the pipeline is finalized, a stable version of SCT will be associated with this pipeline and indicated here. For now, please use the latest development version of SCT.
+MANDATORY:
+- This pipeline has beed tested using [SCT 4.0.0-beta.4](https://github.com/neuropoly/spinalcordtoolbox/releases/tag/4.0.0-beta.4).
 
-This pipeline also relies on [FSLeyes](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FSLeyes) for quality control (QC).
+OPTIONAL:
+- For correcting segmentations, you can use [FSLeyes](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FSLeyes).
+- For processing multiple subjects in parallel, you can use [GNU parallel](https://www.gnu.org/software/parallel/)
 
 ### How to run
 
