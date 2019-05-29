@@ -25,6 +25,7 @@ from spinalcordtoolbox.utils import __sct_dir__
 sys.path.append(os.path.join(__sct_dir__, "scripts"))
 from spinalcordtoolbox.image import Image
 import spinalcordtoolbox.reports.slice as qcslice
+from spinalcordtoolbox.resampling import resample_nipy
 import sct_utils as sct
 
 affine = np.eye(4)
@@ -103,6 +104,8 @@ def main():
                                             30, 30)
             else:
                 sag_im = Image(file).change_orientation('RSP')
+                if not np.isclose(sag_im.dim[5], sag_im.dim[6]):  # in case data is anisotropic
+                    sag_im = resample_nipy(sag_im.copy(), new_size=[sag_im.dim[4], sag_im.dim[5], sag_im.dim[5]], new_size_type='mm')
                 mid_slice_idx = int(sag_im.dim[0] // 2)
                 mid_slice = sag_im.data[mid_slice_idx, :, :]
                 del sag_im
