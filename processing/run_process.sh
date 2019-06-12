@@ -5,14 +5,10 @@
 # https://github.com/sct-pipeline/spine_generic#file-structure
 #
 # Usage:
-#   ./run_process.sh <script>
+#   ./run_process.sh <parameters> <script>
 #
 # Example:
-#   ./run_process.sh process_data.sh
-#
-# Note:
-#   Make sure to copy the file parameters_template.sh into parameters.sh and
-#   edit it with the proper list of subjects and variable.
+#   ./run_process.sh parameters.sh process_data.sh
 #
 # Author: Julien Cohen-Adad
 
@@ -41,19 +37,20 @@ create_folder() {
 # Script starts here
 # =============================================================================
 
+# Check number of input params
+if [ "$#" -ne 2 ]; then
+    echo "Wrong number of input parameters. Correct usage is: ./run_process.sh <parameters> <script>"
+    exit 1
+fi
+
 # Initialization
 time_start=$(date +%x_%r)
 
 # Load config file
-if [ -e "parameters.sh" ]; then
-  source parameters.sh
-else
-  printf "\n${Red}${On_Black}ERROR: The file parameters.sh was not found. You need to create one for this pipeline to work.${Color_Off}\n\n"
-  exit 1
-fi
+source $1
 
 # build syntax for process execution
-task="`pwd`/$1"
+task="`pwd`/$2"
 
 # Create folders
 create_folder $PATH_LOG
