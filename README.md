@@ -177,7 +177,7 @@ edit parameters.sh
 
 Launch processing
 ~~~
-./run_process.sh process_data.sh
+./run_process.sh parameters.sh process_data.sh
 ~~~
 
 ### Quality Control (Rapid)
