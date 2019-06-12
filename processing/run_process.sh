@@ -44,6 +44,7 @@ if [ "$#" -ne 2 ]; then
 fi
 
 # Initialization
+PATH_SCRIPT="$( cd "$(dirname "$0")" ; pwd -P )"
 time_start=$(date +%x_%r)
 
 # Load config file
@@ -72,14 +73,14 @@ if [ -x "$(command -v parallel)" ]; then
   echo 'GNU parallel is installed! Processing subjects in parallel using multiple cores.' >&2
   for path_subject in ${list_path_subject[@]}; do
     subject=`basename $path_subject`
-    echo "./_run_with_log.sh $task $subject $PATH_OUTPUT $PATH_QC $PATH_LOG"
+    echo "${PATH_SCRIPT}/_run_with_log.sh $task $subject $PATH_OUTPUT $PATH_QC $PATH_LOG"
   done \
   | parallel -j ${JOBS} --halt-on-error soon,fail=1 bash -c "{}"
 else
   echo 'GNU parallel is not installed. Processing subjects sequentially.' >&2
   for path_subject in ${list_path_subject[@]}; do
     subject=`basename $path_subject`
-    ./_run_with_log.sh $task $subject $PATH_OUTPUT $PATH_QC $PATH_LOG
+    ${PATH_SCRIPT}/_run_with_log.sh $task $subject $PATH_OUTPUT $PATH_QC $PATH_LOG
   done
 fi
 
