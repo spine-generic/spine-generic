@@ -127,12 +127,6 @@ Anatomical scans where facial features are visible (T1w) could be "defaced" befo
 
 ![example_defacing](doc/example_defacing.png)
 
-## Example datasets (WIP)
-
-We provide two example datasets:
-- Multi-center, single-subject
-- [Multi-center, multi-subjects](https://osf.io/76jkx/)
-
 ## Analysis pipeline
 
 The analysis pipeline available in this repository enables to output the following metrics (organized per contrast):
@@ -147,11 +141,17 @@ The analysis pipeline available in this repository enables to output the followi
 ### Dependencies
 
 MANDATORY:
-- This pipeline has beed tested using [SCT 4.0.0-beta.4](https://github.com/neuropoly/spinalcordtoolbox/releases/tag/4.0.0-beta.4).
+- [SCT 4.0.0-beta.5](https://github.com/neuropoly/spinalcordtoolbox/releases/tag/4.0.0-beta.5).
 
 OPTIONAL:
-- For correcting segmentations, you can use [FSLeyes](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FSLeyes).
-- For processing multiple subjects in parallel, you can use [GNU parallel](https://www.gnu.org/software/parallel/)
+- [FSLeyes](https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FSLeyes) for correcting segmentations.
+- [GNU parallel](https://www.gnu.org/software/parallel/) for processing multiple subjects in parallel.
+
+### Example datasets
+
+As a starting point, you could use either of these example datasets:
+- Multi-center, single-subject (WIP)
+- [Multi-center, multi-subjects](https://openneuro.org/datasets/ds001919)
 
 ### How to run
 
@@ -175,7 +175,7 @@ Edit the parameter file and modify the variables according to your needs:
 edit parameters.sh
 ~~~
 
-Launch processing
+Launch processing:
 ~~~
 ./run_process.sh parameters.sh process_data.sh
 ~~~
