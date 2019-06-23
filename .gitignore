@@ -1,3 +1,4 @@
 .idea/
 *.pyc
 parameters.sh
+docs/_build/
