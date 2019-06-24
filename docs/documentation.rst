@@ -91,10 +91,12 @@ system and environment)
         "Notes": "Particular notes you might have. E.g.: We don't have the ZOOMit license, unf-prisma/sub-01 and unf-skyra/sub-03 is the same subject.
     }
 
-Example of possible values: - **Manufacturer**: "Siemens", "GE",
-"Philips" - **ManufacturersModelName**: "Prisma", "Prisma-fit", "Skyra",
-"750w", "Achieva" - **ReceiveCoilName**: "64ch+spine", "12ch+4ch neck",
-"neurovascular" - **SoftwareVersion**: "VE11C", "DV26.0", "R5.3", ...
+Example of possible values: 
+
+- **Manufacturer**: "Siemens", "GE", "Philips" 
+- **ManufacturersModelName**: "Prisma", "Prisma-fit", "Skyra", "750w", "Achieva" 
+- **ReceiveCoilName**: "64ch+spine", "12ch+4ch neck", "neurovascular" 
+- **SoftwareVersion**: "VE11C", "DV26.0", "R5.3", ...
 
 **participants.json** (This file is generic, you don't need to change
 anything there. Just create a new file with this content)
