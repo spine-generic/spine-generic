@@ -48,6 +48,7 @@ SUBJECTS_TO_REMOVE = [
     {'subject': 'sub-sapienza04', 'metric': 't1'},
     {'subject': 'sub-sapienza05', 'metric': 't1'},
     {'subject': 'sub-sapienza06', 'metric': 't1'},
+    {'subject': 'sub-beijingPrisma03', 'metric': 'dti_fa'},  # wrong FOV placement
 ]
 
 # Initialize logging
