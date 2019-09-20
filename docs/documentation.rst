@@ -59,7 +59,7 @@ the following command (replace xx with your center and subject number):
 
   dcm2bids -d -p sub-xx -c config_spine.txt -o CENTER_spineGeneric
 
-For example: 
+For example:
 
 .. code-block:: bash
 
@@ -91,11 +91,11 @@ system and environment)
         "Notes": "Particular notes you might have. E.g.: We don't have the ZOOMit license, unf-prisma/sub-01 and unf-skyra/sub-03 is the same subject.
     }
 
-Example of possible values: 
+Example of possible values:
 
-- **Manufacturer**: "Siemens", "GE", "Philips" 
-- **ManufacturersModelName**: "Prisma", "Prisma-fit", "Skyra", "750w", "Achieva" 
-- **ReceiveCoilName**: "64ch+spine", "12ch+4ch neck", "neurovascular" 
+- **Manufacturer**: "Siemens", "GE", "Philips"
+- **ManufacturersModelName**: "Prisma", "Prisma-fit", "Skyra", "750w", "Achieva"
+- **ReceiveCoilName**: "64ch+spine", "12ch+4ch neck", "neurovascular"
 - **SoftwareVersion**: "VE11C", "DV26.0", "R5.3", ...
 
 **participants.json** (This file is generic, you don't need to change
@@ -190,11 +190,11 @@ Dependencies
 
 MANDATORY:
 
-- `SCT 4.0.0-beta.5 <https://github.com/neuropoly/spinalcordtoolbox/releases/tag/4.0.0-beta.5>`__.
+- `SCT 4.0.2 <https://github.com/neuropoly/spinalcordtoolbox/releases/tag/4.0.2>`__.
 
-OPTIONAL: 
+OPTIONAL:
 
-- `FSLeyes <https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FSLeyes>`__ for correcting segmentations. 
+- `FSLeyes <https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FSLeyes>`__ for correcting segmentations.
 - `GNU parallel <https://www.gnu.org/software/parallel/>`__ for processing multiple subjects in parallel.
 
 
@@ -202,9 +202,9 @@ OPTIONAL:
 Example datasets
 ----------------
 
-As a starting point, you could use either of these example datasets: 
+As a starting point, you could use either of these example datasets:
 
-- Multi-center, single-subject (WIP) 
+- Multi-center, single-subject (WIP)
 - `Multi-center, multi-subjects <https://openneuro.org/datasets/ds001919>`__
 
 
@@ -212,7 +212,7 @@ As a starting point, you could use either of these example datasets:
 How to run
 ----------
 
-Download (or ``git clone``) this repository: 
+Download (or ``git clone``) this repository:
 
 .. code-block:: bash
 
@@ -230,17 +230,17 @@ Copy and rename the parameter file:
 
   cp parameters_template.sh parameters.sh
 
-Edit the parameter file and modify the variables according to your needs: 
+Edit the parameter file and modify the variables according to your needs:
 
 .. code-block:: bash
 
   edit parameters.sh
 
-Launch processing: 
+Launch processing:
 
 .. code-block:: bash
 
-  ./run_process.sh parameters.sh process_data.sh
+  sct_run_batch parameters.sh process_data.sh
 
 
 
@@ -303,18 +303,18 @@ Vertebral labeling
 
 If you spot issues (wrong labeling), manually create labels in the cord
 at C2 and C5 mid-vertebral levels using the following command (you need
-to be in the appropriate folder before running the command): 
+to be in the appropriate folder before running the command):
 
 .. code-block:: bash
 
-  sct_label_utils -i IMAGE -create-viewer 3,5 -o IMAGE_labels-manual.nii.gz 
+  sct_label_utils -i IMAGE -create-viewer 3,5 -o IMAGE_labels-manual.nii.gz
 
 Example:
 
 ::
 
   sct_label_utils -i sub-01_T1w.nii.gz -create-viewer 3,5 -o sub-01_T1w_labels-manual.nii.gz
-  mkdir ${PATH_SEGMANUAL}/spineGeneric_unf/ 
+  mkdir ${PATH_SEGMANUAL}/spineGeneric_unf/
   mv sub-01_T1w_labels-manual.nii.gz ${PATH_SEGMANUAL}/spineGeneric_unf/
 
 Then, move the file to the folder you defined under the
