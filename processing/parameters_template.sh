@@ -1,27 +1,39 @@
 #!/bin/bash
-# Environment variables for the spineGeneric study.
+# Environment variables for use with sct_run_batch
 
 # Set every other path relative to this path for convenience
 # Do not add "/" at the end. Path should be absolute (i.e. do not use "~")
-export PATH_PARENT="/Users/julien/spineGeneric_multiSubjects"
+# Example:
+export PATH_PARENT="/Users/julien/data/spineGeneric"
 
 # Path to the folder containing the BIDS dataset.
 # Do not add "/" at the end. Path should be absolute (i.e. do not use "~")
-export PATH_DATA="${PATH_PARENT}/data"
+export PATH_DATA="${PATH_PARENT}/ds001919-aws"
+
+# If each subject folder starts with a prefix, indicate it here. Otherwise, set to ""
+SUBJECT_PREFIX="sub-"
 
 # Paths to where to save the new dataset.
 # Do not add "/" at the end. Path should be absolute (i.e. do not use "~")
-export PATH_OUTPUT="${PATH_PARENT}/results"
-export PATH_QC="${PATH_PARENT}/qc"
-export PATH_LOG="${PATH_PARENT}/log"
+export PATH_RESULTS="$PATH_PARENT/results"
+export PATH_QC="$PATH_RESULTS/qc"
+export PATH_LOG="$PATH_RESULTS/log"
 
 # Location of manually-corrected segmentations
-export PATH_SEGMANUAL="${PATH_PARENT}/seg_manual"
+export PATH_SEGMANUAL="$PATH_PARENT/seg_manual"
 
 # If you only want to process specific subjects, uncomment and list them here:
 # export ONLY_PROCESS_THESE_SUBJECTS=(
 #   "sub-amu01"
 #   "sub-amu02"
+#   "sub-ucl01"
+# )
+
+# List of images to exclude
+# export TO_EXCLUDE=(
+#   "sub-amu01_acq-MTon_MTS"
+#   "sub-amu03_acq-MToff_MTS"
+#   "sub-brno02_T1w"
 # )
 
 # Number of jobs for parallel processing
