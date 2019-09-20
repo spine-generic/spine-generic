@@ -27,9 +27,7 @@ trap "echo Caught Keyboard Interrupt within script. Exiting now.; exit" INT
 
 # Retrieve input params
 SUBJECT=$1
-PATH_OUTPUT=$2
-PATH_QC=$3
-PATH_LOG=$4
+FILEPARAM=$2
 
 
 # FUNCTIONS
@@ -96,7 +94,14 @@ get_field_from_json(){
 
 # SCRIPT STARTS HERE
 # ==============================================================================
-
+# Load environment variables
+source $FILEPARAM
+# Go to results folder, where most of the outputs will be located
+cd $PATH_RESULTS
+# Copy source images
+mkdir -p data
+cd data
+cp -r $PATH_DATA/$SUBJECT .
 # Go to anat folder where all structural data are located
 cd ${SUBJECT}/anat/
 
