@@ -231,18 +231,20 @@ cd ../dwi
 # If there is an additional b=0 scan, add it to the main DWI data
 concatenate_b0_and_dwi "${SUBJECT}_acq-b0_dwi" $file_dwi
 file_dwi=$FILE_DWI
+file_bval=${file_dwi}.bval
+file_bvec=${file_dwi}.bvec
 # Separate b=0 and DW images
-sct_dmri_separate_b0_and_dwi -i ${SUBJECT}_dwi.nii.gz -bvec ${SUBJECT}_dwi.bvec
+sct_dmri_separate_b0_and_dwi -i ${file_dwi}.nii.gz -bvec ${file_bvec}
 # Segment cord (1st pass -- just to get a rough centerline)
-sct_propseg -i ${SUBJECT}_dwi_dwi_mean.nii.gz -c dwi
+sct_propseg -i ${file_dwi}_dwi_mean.nii.gz -c dwi
 # Create mask to help motion correction and for faster processing
-sct_create_mask -i ${SUBJECT}_dwi_dwi_mean.nii.gz -p centerline,${SUBJECT}_dwi_dwi_mean_seg.nii.gz -size 30mm
+sct_create_mask -i ${file_dwi}_dwi_mean.nii.gz -p centerline,${file_dwi}_dwi_mean_seg.nii.gz -size 30mm
 # Crop data for faster processing
-sct_crop_image -i ${SUBJECT}_dwi.nii.gz -m mask_${SUBJECT}_dwi_dwi_mean.nii.gz -o ${SUBJECT}_dwi_crop.nii.gz
+sct_crop_image -i ${file_dwi}.nii.gz -m mask_${file_dwi}_dwi_mean.nii.gz -o ${file_dwi}_crop.nii.gz
 # Motion correction
-sct_dmri_moco -i ${SUBJECT}_dwi_crop.nii.gz -bvec ${SUBJECT}_dwi.bvec -x spline
-file_dwi=${SUBJECT}_dwi_crop_moco
-file_dwi_mean=${SUBJECT}_dwi_crop_moco_dwi_mean
+sct_dmri_moco -i ${file_dwi}_crop.nii.gz -bvec ${file_dwi}.bvec -x spline
+file_dwi=${file_dwi}_crop_moco
+file_dwi_mean=${file_dwi}_dwi_mean
 # Segment spinal cord (only if it does not exist)
 segment_if_does_not_exist ${file_dwi_mean} "dwi"
 file_dwi_seg=$FILESEG
@@ -256,7 +258,7 @@ sct_warp_template -d ${file_dwi_mean}.nii.gz -w warp_template2dwi.nii.gz -qc ${P
 # Create mask around the spinal cord (for faster computing)
 sct_maths -i ${file_dwi_seg}.nii.gz -dilate 3,3,3 -o ${file_dwi_seg}_dil.nii.gz
 # Compute DTI using RESTORE
-sct_dmri_compute_dti -i ${file_dwi}.nii.gz -bvec ${SUBJECT}_dwi.bvec -bval ${SUBJECT}_dwi.bval -method standard -m ${file_dwi_seg}_dil.nii.gz
+sct_dmri_compute_dti -i ${file_dwi}.nii.gz -bvec ${file_bvec} -bval ${file_bval} -method standard -m ${file_dwi_seg}_dil.nii.gz
 # Compute FA, MD and RD in WM between C2 and C5 vertebral levels
 sct_extract_metric -i dti_FA.nii.gz -f label/atlas -l 51 -vert 2:5 -o ${PATH_RESULTS}/DWI_FA.csv -append 1
 sct_extract_metric -i dti_MD.nii.gz -f label/atlas -l 51 -vert 2:5 -o ${PATH_RESULTS}/DWI_MD.csv -append 1
