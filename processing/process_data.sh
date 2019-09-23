@@ -3,7 +3,7 @@
 # Process data. This script should be run within the subject's folder.
 #
 # Usage:
-#   ./process_data.sh <SUBJECT> <PATH_OUTPUT> <PATH_QC> <PATH_LOG>
+#   ./process_data.sh <SUBJECT> <PATH_RESULTS> <PATH_QC> <PATH_LOG>
 #
 # Where subject_ID refers to the subject ID according to the BIDS format.
 #
@@ -32,6 +32,29 @@ FILEPARAM=$2
 
 # FUNCTIONS
 # ==============================================================================
+
+# If there is an additional b=0 scan, add it to the main DWI data and update the
+# bval and bvec files.
+concatenate_b0_and_dwi(){
+  local file_b0="$1"  # does not have extension
+  local file_dwi="$2"  # does not have extension
+  if [ -e ${file_b0}.nii.gz ]; then
+    echo "Found additional b=0 scans: $file_b0.nii.gz They will be concatenated to the DWI scans."
+    sct_dmri_concat_b0_and_dwi -i ${file_b0}.nii.gz ${file_dwi}.nii.gz -bval ${file_dwi}.bval -bvec ${file_dwi}.bvec -order b0 dwi -o ${file_dwi}_concat.nii.gz -obval ${file_dwi}_concat.bval -obvec ${file_dwi}_concat.bvec
+    # Update global variable
+    FILE_DWI="${file_dwi}_concat"
+  else
+    echo "No additional b=0 scans was found."
+    FILE_DWI="${file_dwi}"
+  fi
+}
+
+# Get specific field from json file
+get_field_from_json(){
+  local file="$1"
+  local field="$2"
+  echo `grep $field $file | sed 's/[^0-9]*//g'`
+}
 
 # Check if manual label already exists. If it does, copy it locally. If it does
 # not, perform labeling.
@@ -85,11 +108,6 @@ segment_gm_if_does_not_exist(){
   fi
 }
 
-get_field_from_json(){
-  local file="$1"
-  local field="$2"
-  echo `grep $field $file | sed 's/[^0-9]*//g'`
-}
 
 
 # SCRIPT STARTS HERE
@@ -128,7 +146,7 @@ sct_warp_template -d ${file_t1}.nii.gz -w warp_template2T1w.nii.gz -a 0 -ofolder
 # Flatten scan along R-L direction (to make nice figures)
 sct_flatten_sagittal -i ${file_t1}.nii.gz -s ${file_t1_seg}.nii.gz
 # Compute average cord CSA between C2 and C3
-sct_process_segmentation -i ${file_t1_seg}.nii.gz -vert 2:3 -vertfile label_T1w/template/PAM50_levels.nii.gz -o ${PATH_OUTPUT}/csa-SC_T1w.csv -append 1
+sct_process_segmentation -i ${file_t1_seg}.nii.gz -vert 2:3 -vertfile label_T1w/template/PAM50_levels.nii.gz -o ${PATH_RESULTS}/csa-SC_T1w.csv -append 1
 
 # T2
 # ------------------------------------------------------------------------------
@@ -145,7 +163,7 @@ sct_flatten_sagittal -i ${file_t2}.nii.gz -s ${file_t2_seg}.nii.gz
 # Bring vertebral level into T2 space
 sct_register_multimodal -i label_T1w/template/PAM50_levels.nii.gz -d ${file_t2_seg}.nii.gz -o PAM50_levels2${file_t2}.nii.gz -identity 1 -x nn
 # Compute average cord CSA between C2 and C3
-sct_process_segmentation -i ${file_t2_seg}.nii.gz -vert 2:3 -vertfile PAM50_levels2${file_t2}.nii.gz -o ${PATH_OUTPUT}/csa-SC_T2w.csv -append 1
+sct_process_segmentation -i ${file_t2_seg}.nii.gz -vert 2:3 -vertfile PAM50_levels2${file_t2}.nii.gz -o ${PATH_RESULTS}/csa-SC_T2w.csv -append 1
 
 # MTS
 # ------------------------------------------------------------------------------
@@ -186,9 +204,9 @@ sct_compute_mtr -mt0 ${file_mtoff}.nii.gz -mt1 ${file_mton}.nii.gz
 # Compute MTsat
 sct_compute_mtsat -mt ${file_mton}.nii.gz -pd ${file_mtoff}.nii.gz -t1 ${file_t1w}.nii.gz -trmt $TR_mton -trpd $TR_mtoff -trt1 $TR_t1w -famt $FA_mton -fapd $FA_mtoff -fat1 $FA_t1w
 # Extract MTR, MTsat and T1 in WM between C2 and C5 vertebral levels
-sct_extract_metric -i mtr.nii.gz -f label_axT1w/atlas -l 51 -vert 2:5 -vertfile label_axT1w/template/PAM50_levels.nii.gz -o ${PATH_OUTPUT}/MTR.csv -append 1
-sct_extract_metric -i mtsat.nii.gz -f label_axT1w/atlas -l 51 -vert 2:5 -vertfile label_axT1w/template/PAM50_levels.nii.gz -o ${PATH_OUTPUT}/MTsat.csv -append 1
-sct_extract_metric -i t1map.nii.gz -f label_axT1w/atlas -l 51 -vert 2:5 -vertfile label_axT1w/template/PAM50_levels.nii.gz -o ${PATH_OUTPUT}/T1.csv -append 1
+sct_extract_metric -i mtr.nii.gz -f label_axT1w/atlas -l 51 -vert 2:5 -vertfile label_axT1w/template/PAM50_levels.nii.gz -o ${PATH_RESULTS}/MTR.csv -append 1
+sct_extract_metric -i mtsat.nii.gz -f label_axT1w/atlas -l 51 -vert 2:5 -vertfile label_axT1w/template/PAM50_levels.nii.gz -o ${PATH_RESULTS}/MTsat.csv -append 1
+sct_extract_metric -i t1map.nii.gz -f label_axT1w/atlas -l 51 -vert 2:5 -vertfile label_axT1w/template/PAM50_levels.nii.gz -o ${PATH_RESULTS}/T1.csv -append 1
 
 # t2s
 # ------------------------------------------------------------------------------
@@ -204,14 +222,18 @@ file_t2s_seg=$FILESEG
 # Compute the gray matter CSA between C3 and C4 levels
 # NB: Here we set -no-angle 1 because we do not want angle correction: it is too
 # unstable with GM seg, and t2s data were acquired orthogonal to the cord anyways.
-sct_process_segmentation -i ${file_t2s_seg}.nii.gz -angle-corr 0 -vert 3:4 -vertfile PAM50_levels2${file_t2s}.nii.gz -o ${PATH_OUTPUT}/csa-GM_T2s.csv -append 1
+sct_process_segmentation -i ${file_t2s_seg}.nii.gz -angle-corr 0 -vert 3:4 -vertfile PAM50_levels2${file_t2s}.nii.gz -o ${PATH_RESULTS}/csa-GM_T2s.csv -append 1
 
 # DWI
 # ------------------------------------------------------------------------------
+file_dwi="${SUBJECT}_dwi"
 cd ../dwi
+# If there is an additional b=0 scan, add it to the main DWI data
+concatenate_b0_and_dwi "${SUBJECT}_acq-b0_dwi" $file_dwi
+file_dwi=$FILE_DWI
 # Separate b=0 and DW images
 sct_dmri_separate_b0_and_dwi -i ${SUBJECT}_dwi.nii.gz -bvec ${SUBJECT}_dwi.bvec
-# Segment cord (1st pass -- just to get rough centerline)
+# Segment cord (1st pass -- just to get a rough centerline)
 sct_propseg -i ${SUBJECT}_dwi_dwi_mean.nii.gz -c dwi
 # Create mask to help motion correction and for faster processing
 sct_create_mask -i ${SUBJECT}_dwi_dwi_mean.nii.gz -p centerline,${SUBJECT}_dwi_dwi_mean_seg.nii.gz -size 30mm
@@ -236,9 +258,9 @@ sct_maths -i ${file_dwi_seg}.nii.gz -dilate 3,3,3 -o ${file_dwi_seg}_dil.nii.gz
 # Compute DTI using RESTORE
 sct_dmri_compute_dti -i ${file_dwi}.nii.gz -bvec ${SUBJECT}_dwi.bvec -bval ${SUBJECT}_dwi.bval -method standard -m ${file_dwi_seg}_dil.nii.gz
 # Compute FA, MD and RD in WM between C2 and C5 vertebral levels
-sct_extract_metric -i dti_FA.nii.gz -f label/atlas -l 51 -vert 2:5 -o ${PATH_OUTPUT}/DWI_FA.csv -append 1
-sct_extract_metric -i dti_MD.nii.gz -f label/atlas -l 51 -vert 2:5 -o ${PATH_OUTPUT}/DWI_MD.csv -append 1
-sct_extract_metric -i dti_RD.nii.gz -f label/atlas -l 51 -vert 2:5 -o ${PATH_OUTPUT}/DWI_RD.csv -append 1
+sct_extract_metric -i dti_FA.nii.gz -f label/atlas -l 51 -vert 2:5 -o ${PATH_RESULTS}/DWI_FA.csv -append 1
+sct_extract_metric -i dti_MD.nii.gz -f label/atlas -l 51 -vert 2:5 -o ${PATH_RESULTS}/DWI_MD.csv -append 1
+sct_extract_metric -i dti_RD.nii.gz -f label/atlas -l 51 -vert 2:5 -o ${PATH_RESULTS}/DWI_RD.csv -append 1
 # Go back to parent folder
 cd ..
 
