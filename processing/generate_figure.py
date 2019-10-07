@@ -36,7 +36,12 @@ import matplotlib.patches as patches
 DISPLAY_INDIVIDUAL_SUBJECT = True
 # List subject to remove, associated with contrast
 SUBJECTS_TO_REMOVE = [
-    {'subject': 'sub-oxfordFmrib04', 'metric': 'csa_t2'},
+    {'subject': 'sub-oxfordFmrib04', 'metric': 'csa_t1'},  # T1w scan is not aligned with other contrasts (subject repositioning)
+    {'subject': 'sub-oxfordFmrib04', 'metric': 'csa_t2'},  # T1w scan is not aligned with other contrasts (subject repositioning)
+    {'subject': 'sub-oxfordFmrib04', 'metric': 'mtr'},  # T1w scan is not aligned with other contrasts (subject repositioning)
+    {'subject': 'sub-oxfordFmrib04', 'metric': 'mtsat'},  # T1w scan is not aligned with other contrasts (subject repositioning)
+    {'subject': 'sub-oxfordFmrib04', 'metric': 't1'},  # T1w scan is not aligned with other contrasts (subject repositioning)
+    {'subject': 'sub-oxfordFmrib04', 'metric': 'dti_fa'},  # T1w scan is not aligned with other contrasts (subject repositioning)
     {'subject': 'sub-oxfordFmrib01', 'metric': 'dti_fa'},
     {'subject': 'sub-queensland04', 'metric': 'dti_fa'},
     {'subject': 'sub-perform02', 'metric': 'dti_fa'},
@@ -354,21 +359,6 @@ def fetch_subject(filename):
     return subject
 
 
-def get_parameters():
-    parser = argparse.ArgumentParser(
-        description='Generate figures for the spine-generic dataset. Figures are output in the sub-folder specified by '
-                    'flag -r.')
-    parser.add_argument('-r', '--result',
-                        required=True,
-                        help='Path to results data, which contains all the output csv files.')
-    parser.add_argument('-d', '--data',
-                        required=True,
-                        help='Path to the input BIDS dataset, which contains the tsv file used for building the '
-                             'site-specific figures.')
-    args = parser.parse_args()
-    return args
-
-
 def label_bar_model(ax, bar_plot, model_lst):
     """
     Add ManufacturersModelName embedded in each bar.
@@ -501,6 +491,16 @@ def main():
         fname_fig = os.path.join(path_result, 'fig_'+metric+'.png')
         plt.savefig(fname_fig)
         logger.info('Created: '+fname_fig)
+
+
+def get_parameters():
+    parser = argparse.ArgumentParser(
+        description="Generate figures for the spine-generic project. Figures are output in the 'results' folder",
+        epilog="Example: python generate_figures parameters.sh")
+    parser.add_argument("file_param",
+                        help="Parameter file. See: https://spine-generic.readthedocs.io for more details.")
+    args = parser.parse_args()
+    return args
 
 
 if __name__ == "__main__":
