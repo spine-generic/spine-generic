@@ -1,0 +1,5 @@
+matplotlib
+nibabel
+pandas
+scipy
+tqdm
