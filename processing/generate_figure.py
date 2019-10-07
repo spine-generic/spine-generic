@@ -22,6 +22,7 @@ import sys
 import glob
 import csv
 import pandas as pd
+import subprocess
 
 import numpy as np
 from scipy import ndimage
@@ -58,7 +59,7 @@ SUBJECTS_TO_REMOVE = [
 
 # Initialize logging
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)  # default: logging.DEBUG, logging.INFO
+logger.setLevel(logging.DEBUG)  # default: logging.DEBUG, logging.INFO
 hdlr = logging.StreamHandler(sys.stdout)
 logging.root.addHandler(hdlr)
 
@@ -359,6 +360,34 @@ def fetch_subject(filename):
     return subject
 
 
+def get_env(file_param):
+    """
+    Get shell environment variables from a shell script.
+    Source: https://stackoverflow.com/a/19431112
+    :param file_param:
+    :return: env: dictionary of all environment variables declared in the shell script
+    """
+    env = {}
+    p = subprocess.Popen('env', stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+    oldEnv = p.communicate()[0].decode('utf-8')
+    p = subprocess.Popen('source {} ; env'.format(file_param), stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                         shell=True)
+    newEnv = p.communicate()[0].decode('utf-8')
+    for newStr in newEnv.split('\n'):
+        flag = True
+        for oldStr in oldEnv.split('\n'):
+            if newStr == oldStr:
+                # not exported by setenv.sh
+                flag = False
+                break
+        if flag:
+            # exported by setenv.sh
+            logger.debug("Environment variables: {}".format(newStr))
+            # add to dictionary
+            env[newStr.split('=')[0]] = newStr.split('=')[1]
+    return env
+
+
 def label_bar_model(ax, bar_plot, model_lst):
     """
     Add ManufacturersModelName embedded in each bar.
@@ -390,8 +419,10 @@ def remove_subject(subject, metric):
 def main():
     # TODO: make "results" an input param
 
+    env = get_env(file_param)
+
     # fetch all .csv result files
-    csv_files = glob.glob(os.path.join(path_result, '*.csv'))
+    csv_files = glob.glob(os.path.join(env['PATH_RESULTS'], '*.csv'))
 
     # loop across results and generate figure
     for csv_file in csv_files:
@@ -505,6 +536,5 @@ def get_parameters():
 
 if __name__ == "__main__":
     args = get_parameters()
-    path_data = args.data
-    path_result = args.result
+    file_param = args.file_param
     main()
