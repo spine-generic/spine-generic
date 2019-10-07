@@ -65,14 +65,20 @@ logging.root.addHandler(hdlr)
 
 
 # country dictionary: key: site, value: country name
+# Flags are downloaded from: https://emojipedia.org/
 flags = {
     'amu': 'france',
     'balgrist': 'ch',
     'barcelona': 'spain',
+    'beijing750': 'china',
+    'beijingPrisma': 'china',
+    'beijingVerio': 'china',
     'brno': 'cz',
     'brnoPrisma': 'cz',
     'cardiff': 'uk',
     'chiba': 'japan',
+    'cmrra': 'us',
+    'cmrrb': 'us',
     'douglas': 'canada',
     'dresden': 'germany',
     'juntendo750w': 'japan',
@@ -89,6 +95,7 @@ flags = {
     'nwu': 'us',
     'oxfordFmrib': 'uk',
     'oxfordOhba': 'uk',
+    'pavia': 'italy',
     'perform': 'canada',
     'poly': 'canada',
     'queensland': 'australia',
@@ -101,6 +108,7 @@ flags = {
     'tokyo750w': 'japan',
     'tokyoSkyra': 'japan',
     'tokyoIngenia': 'japan',
+    'ubc': 'canada',
     'ucl': 'uk',
     'unf': 'canada',
     'vallHebron': 'spain',
@@ -473,6 +481,7 @@ def main():
         list_colors = [vendor_to_color[i] for i in vendor_sorted]
 
         # Create figure and plot bar graph
+        # WARNING: The line below crashes when running debugger in Pycharm: https://github.com/MTG/sms-tools/issues/36
         fig, ax = plt.subplots(figsize=(15, 8))
         # TODO: show only superior part of STD
         plt.grid(axis='y')
@@ -519,7 +528,7 @@ def main():
             x_init_vendor += n_site
 
         plt.tight_layout()  # make sure everything fits
-        fname_fig = os.path.join(path_result, 'fig_'+metric+'.png')
+        fname_fig = os.path.join(env['PATH_RESULTS'], 'fig_'+metric+'.png')
         plt.savefig(fname_fig)
         logger.info('Created: '+fname_fig)
 
