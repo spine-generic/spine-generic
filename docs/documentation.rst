@@ -190,13 +190,13 @@ Dependencies
 
 MANDATORY:
 
-- `SCT 4.0.2 <https://github.com/neuropoly/spinalcordtoolbox/releases/tag/4.0.2>`__.
+- For processing: `SCT 4.0.2 <https://github.com/neuropoly/spinalcordtoolbox/releases/tag/4.0.2>`__.
+- For generating figures: Python >= 3.6
 
 OPTIONAL:
 
 - `FSLeyes <https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FSLeyes>`__ for correcting segmentations.
 - `GNU parallel <https://www.gnu.org/software/parallel/>`__ for processing multiple subjects in parallel.
-
 
 
 Example datasets
@@ -218,16 +218,18 @@ Download (or ``git clone``) this repository:
 
   git clone https://github.com/sct-pipeline/spine-generic.git
 
-Go to this repository:
+Install Python dependencies:
 
 .. code-block:: bash
 
-  cd spine-generic/processing
+  cd spine-generic
+  pip install -e .
 
 Copy and rename the parameter file:
 
 .. code-block:: bash
 
+  cd processing
   cp parameters_template.sh parameters.sh
 
 Edit the parameter file and modify the variables according to your needs:
