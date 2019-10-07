@@ -210,7 +210,7 @@ scaling_factor = {
 # }
 
 
-def aggregate_per_site(dict_results, metric):
+def aggregate_per_site(dict_results, metric, env):
     """
     Aggregate metrics per site
     :param dict_results:
@@ -218,7 +218,7 @@ def aggregate_per_site(dict_results, metric):
     :return:
     """
     # Build Panda DF of participants based on participants.tsv file
-    participants = pd.read_csv(os.path.join(path_data, 'participants.tsv'), sep="\t")
+    participants = pd.read_csv(os.path.join(env['PATH_DATA'], 'participants.tsv'), sep="\t")
 
     # Fetch specific field for the selected metric
     metric_field = metric_to_field[metric]
@@ -440,7 +440,7 @@ def main():
         metric = file_to_metric[csv_file_small]
 
         # Fetch mean, std, etc. per site
-        results_dict = aggregate_per_site(dict_results, metric)
+        results_dict = aggregate_per_site(dict_results, metric, env)
 
         # Make it a pandas structure (easier for manipulations)
         df = pd.DataFrame.from_dict(results_dict, orient='index')
