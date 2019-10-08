@@ -74,6 +74,7 @@ cd ${SUBJECT}/anat/
 # ------------------------------------------------------------------------------
 file_t1="${SUBJECT}_T1w"
 file_t2="${SUBJECT}_T2w"
+file_t2s="${SUBJECT}_T2star"
 # Reorient to RPI and resample to 1mm iso (supposed to be the effective resolution)
 sct_image -i ${file_t1}.nii.gz -setorient RPI -o ${file_t1}_RPI.nii.gz
 sct_resample -i ${file_t1}_RPI.nii.gz -mm 1x1x1 -o ${file_t1}_RPI_r.nii.gz
@@ -83,14 +84,17 @@ sct_deepseg_sc -i ${file_t1}.nii.gz -c t1 -thr 0.5
 # Generate labeled segmentation
 sct_label_vertebrae -i ${file_t1}.nii.gz -s ${file_t1}_seg.nii.gz -c t1 -qc ${PATH_QC} -qc-subject ${SUBJECT}
 # Loop across thresholds
-THR=('0.1' '0.2')
-for thr in ${!THR[@]}; do
+THR=('0.0' '0.1' '0.2' '0.3' '0.4' '0.5' '0.6' '0.7' '0.8' '0.9')
+for thr in ${THR[@]}; do
   # T1w
   sct_deepseg_sc -i ${file_t1}.nii.gz -c t1 -thr ${thr}
-  sct_process_segmentation -i ${file_t1}_seg.nii.gz -vert 2:4 -vertfile ${file_t1}_seg_labeled.nii.gz -o ${PATH_RESULTS}/csa-T1w_${thr}.csv -append 1
+  sct_process_segmentation -i ${file_t1}_seg.nii.gz -vert 2:4 -vertfile ${file_t1}_seg_labeled.nii.gz -o ${PATH_RESULTS}/csa-T1_${thr}.csv -append 1
   # T2w
   sct_deepseg_sc -i ${file_t2}.nii.gz -c t2 -thr ${thr}
-  sct_process_segmentation -i ${file_t2}_seg.nii.gz -vert 2:4 -vertfile ${file_t1}_seg_labeled.nii.gz -o ${PATH_RESULTS}/csa-T2w_${thr}.csv -append 1
+  sct_process_segmentation -i ${file_t2}_seg.nii.gz -vert 2:4 -vertfile ${file_t1}_seg_labeled.nii.gz -o ${PATH_RESULTS}/csa-T2_${thr}.csv -append 1
+  # T2star
+  sct_deepseg_sc -i ${file_t2s}.nii.gz -c t2s -thr ${thr}
+  sct_process_segmentation -i ${file_t2s}_seg.nii.gz -vert 2:4 -vertfile ${file_t1}_seg_labeled.nii.gz -o ${PATH_RESULTS}/csa-T2s_${thr}.csv -append 1
 done
 
 # # T2
