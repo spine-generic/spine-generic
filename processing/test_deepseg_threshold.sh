@@ -29,6 +29,9 @@ trap "echo Caught Keyboard Interrupt within script. Exiting now.; exit" INT
 SUBJECT=$1
 FILEPARAM=$2
 
+# Thresholds to test deepseg
+# THR=('0.0' '0.1' '0.2' '0.3' '0.4' '0.5' '0.6' '0.7' '0.8' '0.9')
+THR=('0.5')
 
 # FUNCTIONS
 # ==============================================================================
@@ -73,7 +76,6 @@ cd ${SUBJECT}/anat/
 # T1w
 # ------------------------------------------------------------------------------
 file_t1="${SUBJECT}_T1w"
-file_t2="${SUBJECT}_T2w"
 file_t2s="${SUBJECT}_T2star"
 # Reorient to RPI and resample to 1mm iso (supposed to be the effective resolution)
 sct_image -i ${file_t1}.nii.gz -setorient RPI -o ${file_t1}_RPI.nii.gz
@@ -84,58 +86,71 @@ sct_deepseg_sc -i ${file_t1}.nii.gz -c t1 -thr 0.5
 # Generate labeled segmentation
 sct_label_vertebrae -i ${file_t1}.nii.gz -s ${file_t1}_seg.nii.gz -c t1 -qc ${PATH_QC} -qc-subject ${SUBJECT}
 # Loop across thresholds
-THR=('0.0' '0.1' '0.2' '0.3' '0.4' '0.5' '0.6' '0.7' '0.8' '0.9')
 for thr in ${THR[@]}; do
   # T1w
   sct_deepseg_sc -i ${file_t1}.nii.gz -c t1 -thr ${thr}
   sct_process_segmentation -i ${file_t1}_seg.nii.gz -vert 2:4 -vertfile ${file_t1}_seg_labeled.nii.gz -o ${PATH_RESULTS}/csa-T1_${thr}.csv -append 1
-  # T2w
-  sct_deepseg_sc -i ${file_t2}.nii.gz -c t2 -thr ${thr}
-  sct_process_segmentation -i ${file_t2}_seg.nii.gz -vert 2:4 -vertfile ${file_t1}_seg_labeled.nii.gz -o ${PATH_RESULTS}/csa-T2_${thr}.csv -append 1
-  # T2star
-  sct_deepseg_sc -i ${file_t2s}.nii.gz -c t2s -thr ${thr}
-  sct_process_segmentation -i ${file_t2s}_seg.nii.gz -vert 2:4 -vertfile ${file_t1}_seg_labeled.nii.gz -o ${PATH_RESULTS}/csa-T2s_${thr}.csv -append 1
 done
 
-# # T2
-# # ------------------------------------------------------------------------------
-# file_t2="${SUBJECT}_T2w"
-# segment_if_does_not_exist $file_t2 "t2"
-#
-# # MTS
-# # ------------------------------------------------------------------------------
-# file_t1w="${SUBJECT}_acq-T1w_MTS"
-# file_mton="${SUBJECT}_acq-MTon_MTS"
-# file_mtoff="${SUBJECT}_acq-MToff_MTS"
-#
-# if [[ -e "${file_t1w}.nii.gz" && -e "${file_mton}.nii.gz" && -e "${file_mtoff}.nii.gz" ]]; then
-#   segment_if_does_not_exist $file_t1w "t1"
-#   segment_if_does_not_exist $file_mtoff "t1"
-#   segment_if_does_not_exist $file_mton "t2s"
-# else
-#   echo "WARNING: MTS dataset is incomplete."
-# fi
-#
-# # t2s
-# # ------------------------------------------------------------------------------
-# file_t2s="${SUBJECT}_T2star"
-# segment_if_does_not_exist $file_t2s "t2s"
+# T2
+# ------------------------------------------------------------------------------
+file_t2="${SUBJECT}_T2w"
+segment_if_does_not_exist $file_t2 "t2"
+# Bring vertebral level into T2 space
+sct_register_multimodal -i ${file_t1}_seg_labeled.nii.gz -d ${file_t2}.nii.gz -x nn -identity 1 -o ${file_t2}_seg_labeled.nii.gz
+# Segment with variable thresholds
+for thr in ${THR[@]}; do
+  sct_deepseg_sc -i ${file_t2}.nii.gz -c t2 -thr ${thr}
+  sct_process_segmentation -i ${file_t2}_seg.nii.gz -vert 2:4 -vertfile ${file_t2}_seg_labeled.nii.gz -o ${PATH_RESULTS}/csa-T2_${thr}.csv -append 1
+done
 
-# # DWI
-# # ------------------------------------------------------------------------------
-# file_dwi="${SUBJECT}_dwi"
-# cd ../dwi
-# # If there is an additional b=0 scan, add it to the main DWI data
-# concatenate_b0_and_dwi "${SUBJECT}_acq-b0_dwi" $file_dwi
-# file_dwi=$FILE_DWI
-# file_bval=${file_dwi}.bval
-# file_bvec=${file_dwi}.bvec
-# # Separate b=0 and DW images
-# sct_dmri_separate_b0_and_dwi -i ${file_dwi}.nii.gz -bvec ${file_bvec}
-# # Segment cord
-# thr='0.1'
-# sct_deepseg_sc -i ${file_dwi}_dwi_mean -t dwi -thr ${thr}
-# sct_process_segmentation -i ${file_dwi}_seg.nii.gz -angle-corr 0 -vert 3:4 -vertfile PAM50_levels2${file_t2s}.nii.gz -o ${PATH_RESULTS}/csa-DWI_${thr}.csv -append 1
+# MTS
+# ------------------------------------------------------------------------------
+file_t1w="${SUBJECT}_acq-T1w_MTS"
+file_mton="${SUBJECT}_acq-MTon_MTS"
+# Bring vertebral level into MTS space
+sct_register_multimodal -i ${file_t1}_seg_labeled.nii.gz -d ${file_t1w}.nii.gz -x nn -identity 1 -o ${file_t1w}_seg_labeled.nii.gz
+# Segment with variable thresholds
+for thr in ${THR[@]}; do
+  sct_deepseg_sc -i ${file_t1w}.nii.gz -c t1 -thr ${thr}
+  sct_process_segmentation -i ${file_t1w}_seg.nii.gz -vert 2:4 -vertfile ${file_t1w}_seg_labeled.nii.gz -o ${PATH_RESULTS}/csa-T1w_${thr}.csv -append 1
+  sct_deepseg_sc -i ${file_mton}.nii.gz -c t2 -thr ${thr}
+  sct_process_segmentation -i ${file_mton}_seg.nii.gz -vert 2:4 -vertfile ${file_t1w}_seg_labeled.nii.gz -o ${PATH_RESULTS}/csa-MTon_${thr}.csv -append 1
+done
+
+# T2s
+# ------------------------------------------------------------------------------
+file_t2s="${SUBJECT}_T2star"
+# Compute root-mean square across 4th dimension (if it exists), corresponding to all echoes in Philips scans.
+sct_maths -i ${file_t2s}.nii.gz -rms t -o ${file_t2s}_rms.nii.gz
+file_t2s="${file_t2s}_rms"
+# Bring vertebral level into T2s space
+sct_register_multimodal -i ${file_t1}_seg_labeled.nii.gz -d ${file_t2s}.nii.gz -x nn -identity 1 -o ${file_t2s}_seg_labeled.nii.gz
+# Segment with variable thresholds
+for thr in ${THR[@]}; do
+  sct_deepseg_sc -i ${file_t2s}.nii.gz -c t2s -thr ${thr}
+  sct_process_segmentation -i ${file_t2s}_seg.nii.gz -vert 2:4 -vertfile ${file_t2s}_seg_labeled.nii.gz -o ${PATH_RESULTS}/csa-T2s_${thr}.csv -append 1
+done
+
+# DWI
+# ------------------------------------------------------------------------------
+file_dwi="${SUBJECT}_dwi"
+cd ../dwi
+# If there is an additional b=0 scan, add it to the main DWI data
+concatenate_b0_and_dwi "${SUBJECT}_acq-b0_dwi" $file_dwi
+file_dwi=$FILE_DWI
+file_bval=${file_dwi}.bval
+file_bvec=${file_dwi}.bvec
+# Separate b=0 and DW images
+sct_dmri_separate_b0_and_dwi -i ${file_dwi}.nii.gz -bvec ${file_bvec}
+file_dwi=${file_dwi}_dwi_mean
+# Bring vertebral level into DWI space
+sct_register_multimodal -i ${file_t1}_seg_labeled.nii.gz -d ${file_dwi}.nii.gz -x nn -identity 1 -o ${file_dwi}_seg_labeled.nii.gz
+# Segment with variable thresholds
+for thr in ${THR[@]}; do
+  sct_deepseg_sc -i ${file_dwi}.nii.gz -c dwi -thr ${thr}
+  sct_process_segmentation -i ${file_dwi}_seg.nii.gz -vert 2:4 -vertfile ${file_dwi}_seg_labeled.nii.gz -o ${PATH_RESULTS}/csa-DWI_${thr}.csv -append 1
+done
 
 # Go back to parent folder
 cd ..
