@@ -3,14 +3,12 @@
 # Process data. This script should be run within the subject's folder.
 #
 # Usage:
-#   ./process_data.sh <SUBJECT> <PATH_RESULTS> <PATH_QC> <PATH_LOG>
-#
-# Where subject_ID refers to the subject ID according to the BIDS format.
+#   ./process_data.sh <SUBJECT> <FILEPARAM>
 #
 # Example:
-#   ./process_data.sh sub-03
+#   ./process_data.sh sub-03 parameters.sh
 #
-# Authors: Julien Cohen-Adad, Stephanie Alley
+# Authors: Julien Cohen-Adad
 
 # The following global variables are retrieved from parameters.sh but could be
 # overwritten here:
@@ -95,7 +93,6 @@ done
 # T2
 # ------------------------------------------------------------------------------
 file_t2="${SUBJECT}_T2w"
-segment_if_does_not_exist $file_t2 "t2"
 # Bring vertebral level into T2 space
 sct_register_multimodal -i ${file_t1}_seg_labeled.nii.gz -d ${file_t2}.nii.gz -x nn -identity 1 -o ${file_t2}_seg_labeled.nii.gz
 # Segment with variable thresholds
@@ -145,7 +142,7 @@ file_bvec=${file_dwi}.bvec
 sct_dmri_separate_b0_and_dwi -i ${file_dwi}.nii.gz -bvec ${file_bvec}
 file_dwi=${file_dwi}_dwi_mean
 # Bring vertebral level into DWI space
-sct_register_multimodal -i ${file_t1}_seg_labeled.nii.gz -d ${file_dwi}.nii.gz -x nn -identity 1 -o ${file_dwi}_seg_labeled.nii.gz
+sct_register_multimodal -i ../anat/${file_t1}_seg_labeled.nii.gz -d ${file_dwi}.nii.gz -x nn -identity 1 -o ${file_dwi}_seg_labeled.nii.gz
 # Segment with variable thresholds
 for thr in ${THR[@]}; do
   sct_deepseg_sc -i ${file_dwi}.nii.gz -c dwi -thr ${thr}
