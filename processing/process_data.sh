@@ -3,14 +3,12 @@
 # Process data. This script should be run within the subject's folder.
 #
 # Usage:
-#   ./process_data.sh <SUBJECT> <PATH_RESULTS> <PATH_QC> <PATH_LOG>
-#
-# Where subject_ID refers to the subject ID according to the BIDS format.
+#   ./process_data.sh <SUBJECT> <FILEPARAM>
 #
 # Example:
-#   ./process_data.sh sub-03
+#   ./process_data.sh sub-03 parameters.sh
 #
-# Authors: Julien Cohen-Adad, Stephanie Alley
+# Authors: Julien Cohen-Adad
 
 # The following global variables are retrieved from parameters.sh but could be
 # overwritten here:
