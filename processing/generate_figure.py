@@ -544,6 +544,7 @@ def main():
 
     plt.close()
     # Get T1w and T2w CSA per vendors and save it into 1D arrays
+    # Should be rewritten to loop or function
     GE_mean_t1 = []
     for f in range(1, len(mean_t1[mean_t1[:, 1] == 'GE']), 1):
         GE_mean_t1.append(np.asarray(mean_t1[mean_t1[:, 1] == 'GE'][f, 3]))
@@ -574,6 +575,7 @@ def main():
         Philips_mean_t2.append(np.asarray(mean_t2[mean_t2[:, 1] == 'Philips'][f, 3]))
     Philips_mean_t2 = np.concatenate(Philips_mean_t2, axis=0)
 
+    # Generate and save figure for T1w and T2w agreement (all vendors in one figure)
     plt.scatter(Siemens_mean_t2, Siemens_mean_t1, s=40, facecolors='none', edgecolors=vendor_to_color["Siemens"])
     plt.scatter(GE_mean_t2, GE_mean_t1, s=40, facecolors='none', edgecolors=vendor_to_color["GE"])
     plt.scatter(Philips_mean_t2, Philips_mean_t1, s=40, facecolors='none', edgecolors=vendor_to_color["Philips"])
@@ -600,6 +602,7 @@ def main():
     
     
     # Generate and save figure for T1w and T2w agreement per vendor
+    # Should be rewritten to loop or function
     # Siemens
     plt.subplot(1, 3, 1)
     plt.scatter(Siemens_mean_t2, Siemens_mean_t1, s=40, facecolors='none',
