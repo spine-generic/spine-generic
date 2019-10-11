@@ -433,22 +433,19 @@ def main():
     env = get_env(file_param)
 
     # fetch all .csv result files
-    #csv_files = glob.glob(os.path.join(env['PATH_RESULTS'], '*.csv'))
-    csv_files = glob.glob(os.path.join(env['PATH_RESULTS'], 'csa-SC_T*.csv'))
+    csv_files = glob.glob(os.path.join(env['PATH_RESULTS'], '*.csv'))
+    #csv_files = glob.glob(os.path.join(env['PATH_RESULTS'], 'csa-SC_T*.csv'))
 
     # loop across results and generate figure
     for csv_file in csv_files:
 
         # Open CSV file and create dict
-        #logger.info('\nProcessing: '+csv_file)
+        logger.info('\nProcessing: '+csv_file)
         dict_results = []
         with open(csv_file, newline='') as f_csv:
             reader = csv.DictReader(f_csv)
             for row in reader:
                 dict_results.append(row)
-
-        print(len(dict_results))
-        print(dict_results[0])
 
         # Fetch metric name
         _, csv_file_small = os.path.split(csv_file)
