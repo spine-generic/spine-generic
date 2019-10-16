@@ -27,6 +27,7 @@ import subprocess
 import numpy as np
 from scipy import ndimage
 from collections import OrderedDict
+from collections import defaultdict
 import logging
 import matplotlib.pyplot as plt
 from matplotlib.offsetbox import OffsetImage,AnnotationBbox
@@ -434,7 +435,6 @@ def main():
 
     # fetch all .csv result files
     csv_files = glob.glob(os.path.join(env['PATH_RESULTS'], '*.csv'))
-    #csv_files = glob.glob(os.path.join(env['PATH_RESULTS'], 'csa-SC_T*.csv'))
 
     # loop across results and generate figure
     for csv_file in csv_files:
@@ -538,50 +538,24 @@ def main():
 
         # Get T1w and T2w CSA from pandas df structure
         if metric == "csa_t1":
-            mean_t1 = df.sort_values('vendor').values
+            CSA_t1 = df.sort_values('vendor').values
         elif metric == "csa_t2":
-            mean_t2 = df.sort_values('vendor').values
+            CSA_t2 = df.sort_values('vendor').values
 
-    plt.close()
-    # Get T1w and T2w CSA per vendors and save it into 1D arrays
-    GE_mean_t1 = []
-    for f in range(1, len(mean_t1[mean_t1[:, 1] == 'GE']), 1):
-        GE_mean_t1.append(np.asarray(mean_t1[mean_t1[:, 1] == 'GE'][f, 3]))
-    GE_mean_t1 = np.concatenate(GE_mean_t1, axis=0)
 
-    Siemens_mean_t1 = []
-    for f in range(1, len(mean_t1[mean_t1[:, 1] == 'Siemens']), 1):
-        Siemens_mean_t1.append(np.asarray(mean_t1[mean_t1[:, 1] == 'Siemens'][f, 3]))
-    Siemens_mean_t1 = np.concatenate(Siemens_mean_t1, axis=0)
+    # Create dictionary with CSA for T1w and T2w
+    CSA_dict = defaultdict(list)
+    for index, vendor in enumerate(df.sort_values('vendor')['vendor']):  # loop through individual vendors
+        CSA_dict[vendor + '_t1'].append(np.asarray(CSA_t1[index, 3]))
+        CSA_dict[vendor + '_t2'].append(np.asarray(CSA_t2[index, 3]))
 
-    Philips_mean_t1 = []
-    for f in range(1, len(mean_t1[mean_t1[:, 1] == 'Philips']), 1):
-        Philips_mean_t1.append(np.asarray(mean_t1[mean_t1[:, 1] == 'Philips'][f, 3]))
-    Philips_mean_t1 = np.concatenate(Philips_mean_t1, axis=0)
 
-    GE_mean_t2 = []
-    for f in range(1, len(mean_t1[mean_t1[:, 1] == 'GE']), 1):
-        GE_mean_t2.append(np.asarray(mean_t2[mean_t2[:, 1] == 'GE'][f, 3]))
-    GE_mean_t2 = np.concatenate(GE_mean_t2, axis=0)
+    # Generate and save figure for T1w and T2w agreement for all vendors together
+    plt.subplots(figsize=(9, 9))
+    for vendor in list(OrderedDict.fromkeys(vendor_sorted)):  # Loop through vendors
+        plt.scatter(np.concatenate(CSA_dict[vendor + '_t2'], axis=0), np.concatenate(CSA_dict[vendor + '_t1'], axis=0),
+                    s=30, facecolors='none', edgecolors=vendor_to_color[vendor], label=vendor)
 
-    Siemens_mean_t2 = []
-    for f in range(1, len(mean_t1[mean_t1[:, 1] == 'Siemens']), 1):
-        Siemens_mean_t2.append(np.asarray(mean_t2[mean_t2[:, 1] == 'Siemens'][f, 3]))
-    Siemens_mean_t2 = np.concatenate(Siemens_mean_t2, axis=0)
-
-    Philips_mean_t2 = []
-    for f in range(1, len(mean_t1[mean_t1[:, 1] == 'Philips']), 1):
-        Philips_mean_t2.append(np.asarray(mean_t2[mean_t2[:, 1] == 'Philips'][f, 3]))
-    Philips_mean_t2 = np.concatenate(Philips_mean_t2, axis=0)
-
-    plt.scatter(Siemens_mean_t2, Siemens_mean_t1, s=40, facecolors='none', edgecolors=vendor_to_color["Siemens"])
-    plt.scatter(GE_mean_t2, GE_mean_t1, s=40, facecolors='none', edgecolors=vendor_to_color["GE"])
-    plt.scatter(Philips_mean_t2, Philips_mean_t1, s=40, facecolors='none', edgecolors=vendor_to_color["Philips"])
-
-    Siemens_leg = patches.Patch(color=vendor_to_color["Siemens"], label='Siemens')
-    GE_leg = patches.Patch(color=vendor_to_color["GE"], label='GE')
-    Philips_leg = patches.Patch(color=vendor_to_color["Philips"], label='Philips')
-    plt.legend(handles=[Siemens_leg, GE_leg, Philips_leg])
     plt.plot([45, 100], [45, 100], ls="--", c=".3")  # add diagonal line
     plt.title('CSA agreement between T1w and T2w data')
     plt.xlim(45, 100)
@@ -589,94 +563,46 @@ def main():
     plt.gca().set_aspect('equal', adjustable='box')
     plt.xlabel("T2w CSA")
     plt.ylabel("T1w CSA")
-    #plt.tight_layout()  # does not work properly in this case
     plt.grid(True)
+    plt.legend()
+    #plt.show()
 
+    plt.tight_layout()  # does not work properly in this case
     fname_fig = os.path.join(env['PATH_RESULTS'], 'fig_t1_t2_agreement.png')
     plt.savefig(fname_fig, dpi=200)
     logger.info('Created: ' + fname_fig)
 
-    plt.close()
-    
-    
     # Generate and save figure for T1w and T2w agreement per vendor
-    # Siemens
-    plt.subplot(1, 3, 1)
-    plt.scatter(Siemens_mean_t2, Siemens_mean_t1, s=40, facecolors='none',
-                edgecolors=vendor_to_color["Siemens"])
-    # plt.plot(mean_t2[counter,3],mean_t1[counter,3],'o',color=vendor_to_color["Siemens"])
-    Siemens_leg = patches.Patch(color=vendor_to_color["Siemens"], label='Siemens')
-    plt.legend(handles=[Siemens_leg])
-    plt.xlim(45, 100)
-    plt.ylim(45, 100)
-    plt.gca().set_aspect('equal', adjustable='box')
-    plt.xlabel("T2w CSA")
-    plt.ylabel("T1w CSA")
-    plt.grid(True)
+    plt.subplots(figsize=(15, 8))
+    for index, vendor in enumerate(list(OrderedDict.fromkeys(vendor_sorted))):
+        plt.subplot(1, 3, index + 1)
+        plt.scatter(np.concatenate(CSA_dict[vendor + '_t2'], axis=0), np.concatenate(CSA_dict[vendor + '_t1'], axis=0),
+                    s=30, facecolors='none', edgecolors=vendor_to_color[vendor], label=vendor)
+        plt.xlim(45, 100)
+        plt.ylim(45, 100)
+        plt.gca().set_aspect('equal', adjustable='box')
+        plt.xlabel("T2w CSA")
+        plt.ylabel("T1w CSA")
+        plt.grid(True)
+        plt.legend()
+        linear_regressor = LinearRegression()  # create object for the class
+        linear_regressor.fit(np.concatenate(CSA_dict[vendor + '_t2'], axis=0).reshape(-1, 1),
+                             np.concatenate(CSA_dict[vendor + '_t1'], axis=0).reshape(-1,
+                                                                                      1))  # perform linear regression
+        linear_regressor.score(np.concatenate(CSA_dict[vendor + '_t2'], axis=0).reshape(-1, 1),
+                               np.concatenate(CSA_dict[vendor + '_t1'], axis=0).reshape(-1,
+                                                                                        1))  # coefficient of determination
+        reg_predictor = linear_regressor.predict(
+            np.concatenate(CSA_dict[vendor + '_t2'], axis=0).reshape(-1, 1))  # make predictions
+        # TODO: show results from regression in plots
+        # plt.text(60, 90, linear_regressor.coef_, horizontalalignment='center', verticalalignment='center')
+        plt.plot(np.concatenate(CSA_dict[vendor + '_t2'], axis=0).reshape(-1, 1), reg_predictor, color='red')
 
-    linear_regressor = LinearRegression()  # create object for the class
-    linear_regressor.fit(Siemens_mean_t2.reshape(-1, 1),
-                         Siemens_mean_t1.reshape(-1, 1))  # perform linear regression
-    linear_regressor.score(Siemens_mean_t2.reshape(-1, 1),
-                           Siemens_mean_t1.reshape(-1, 1))  # coefficient of determination
-    Siemens_mean_t1_pred = linear_regressor.predict(Siemens_mean_t2.reshape(-1, 1))  # make predictions
-    plt.text(60, 90, linear_regressor.coef_, horizontalalignment='center', verticalalignment='center')
-    plt.plot(Siemens_mean_t2.reshape(-1, 1), Siemens_mean_t1_pred, color='red')
-    plt.pause(0.2)
-    plt.tight_layout()  # make sure everything fits
+    plt.suptitle('CSA agreement between T1w and T2w data per vendors')
+    #plt.show()
 
-    # GE
-    plt.subplot(1, 3, 2)
-    plt.scatter(GE_mean_t2, GE_mean_t1, s=40, facecolors='none',
-                edgecolors=vendor_to_color["GE"])
-    # plt.plot(mean_t2[counter, 3], mean_t1[counter, 3], 'o', color=vendor_to_color["GE"])
-    GE_leg = patches.Patch(color=vendor_to_color["GE"], label='GE')
-    plt.legend(handles=[GE_leg])
-    # plt.title('CSA agreement between T1w and T2w data')
-    plt.xlim(45, 100)
-    plt.ylim(45, 100)
-    plt.gca().set_aspect('equal', adjustable='box')
-    plt.xlabel("T2w CSA")
-    plt.ylabel("T1w CSA")
-    plt.grid(True)
-
-    linear_regressor = LinearRegression()  # create object for the class
-    linear_regressor.fit(GE_mean_t2.reshape(-1, 1), GE_mean_t1.reshape(-1, 1))  # perform linear regression
-    linear_regressor.score(GE_mean_t2.reshape(-1, 1), GE_mean_t1.reshape(-1, 1))  # coefficient of determination
-    GE_mean_t1_pred = linear_regressor.predict(GE_mean_t2.reshape(-1, 1))  # make predictions
-    plt.text(60, 90, linear_regressor.coef_, horizontalalignment='center', verticalalignment='center')
-    plt.plot(GE_mean_t2.reshape(-1, 1), GE_mean_t1_pred, color='red')
-    plt.pause(0.2)
-    plt.tight_layout()  # make sure everything fits
-
-    # Philips
-    plt.subplot(1, 3, 3)
-    plt.scatter(Philips_mean_t2, Philips_mean_t1, s=40, facecolors='none',
-                edgecolors=vendor_to_color["Philips"])
-    # plt.plot(mean_t2[counter, 3], mean_t1[counter, 3], 'o', color=vendor_to_color["Philips"])
-    Philips_leg = patches.Patch(color=vendor_to_color["Philips"], label='Philips')
-    plt.legend(handles=[Philips_leg])
-    plt.xlim(45, 100)
-    plt.ylim(45, 100)
-    plt.gca().set_aspect('equal', adjustable='box')
-    plt.xlabel("T2w CSA")
-    plt.ylabel("T1w CSA")
-    plt.grid(True)
-
-    linear_regressor = LinearRegression()  # create object for the class
-    linear_regressor.fit(Philips_mean_t2.reshape(-1, 1),
-                         Philips_mean_t1.reshape(-1, 1))  # perform linear regression
-    linear_regressor.score(Philips_mean_t2.reshape(-1, 1),
-                           Philips_mean_t1.reshape(-1, 1))  # coefficient of determination
-    Philips_mean_t1_pred = linear_regressor.predict(Philips_mean_t2.reshape(-1, 1))  # make predictions
-    plt.plot(Philips_mean_t2.reshape(-1, 1), Philips_mean_t1_pred, color='red')
-    plt.text(60, 90, linear_regressor.coef_, horizontalalignment='center', verticalalignment='center')
-    plt.pause(0.2)
-    plt.tight_layout()  # make sure everything fits
-
+    plt.tight_layout()  # does not work properly in this case
     fname_fig = os.path.join(env['PATH_RESULTS'], 'fig_t1_t2_agreement_per_vendor.png')
-    fig = plt.gcf()
-    fig.set_size_inches(12, 6)
     plt.savefig(fname_fig, dpi=200)
     logger.info('Created: ' + fname_fig)
 
