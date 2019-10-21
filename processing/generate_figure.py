@@ -30,10 +30,9 @@ from collections import OrderedDict
 from collections import defaultdict
 import logging
 import matplotlib.pyplot as plt
-from matplotlib.offsetbox import OffsetImage,AnnotationBbox
+from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 import matplotlib.patches as patches
 from sklearn.linear_model import LinearRegression
-
 
 # Initialize global variables
 from typing import Any, Union
@@ -41,12 +40,18 @@ from typing import Any, Union
 DISPLAY_INDIVIDUAL_SUBJECT = True
 # List subject to remove, associated with contrast
 SUBJECTS_TO_REMOVE = [
-    {'subject': 'sub-oxfordFmrib04', 'metric': 'csa_t1'},  # T1w scan is not aligned with other contrasts (subject repositioning)
-    {'subject': 'sub-oxfordFmrib04', 'metric': 'csa_t2'},  # T1w scan is not aligned with other contrasts (subject repositioning)
-    {'subject': 'sub-oxfordFmrib04', 'metric': 'mtr'},  # T1w scan is not aligned with other contrasts (subject repositioning)
-    {'subject': 'sub-oxfordFmrib04', 'metric': 'mtsat'},  # T1w scan is not aligned with other contrasts (subject repositioning)
-    {'subject': 'sub-oxfordFmrib04', 'metric': 't1'},  # T1w scan is not aligned with other contrasts (subject repositioning)
-    {'subject': 'sub-oxfordFmrib04', 'metric': 'dti_fa'},  # T1w scan is not aligned with other contrasts (subject repositioning)
+    {'subject': 'sub-oxfordFmrib04', 'metric': 'csa_t1'},
+    # T1w scan is not aligned with other contrasts (subject repositioning)
+    {'subject': 'sub-oxfordFmrib04', 'metric': 'csa_t2'},
+    # T1w scan is not aligned with other contrasts (subject repositioning)
+    {'subject': 'sub-oxfordFmrib04', 'metric': 'mtr'},
+    # T1w scan is not aligned with other contrasts (subject repositioning)
+    {'subject': 'sub-oxfordFmrib04', 'metric': 'mtsat'},
+    # T1w scan is not aligned with other contrasts (subject repositioning)
+    {'subject': 'sub-oxfordFmrib04', 'metric': 't1'},
+    # T1w scan is not aligned with other contrasts (subject repositioning)
+    {'subject': 'sub-oxfordFmrib04', 'metric': 'dti_fa'},
+    # T1w scan is not aligned with other contrasts (subject repositioning)
     {'subject': 'sub-oxfordFmrib01', 'metric': 'dti_fa'},
     {'subject': 'sub-queensland04', 'metric': 'dti_fa'},
     {'subject': 'sub-perform02', 'metric': 'dti_fa'},
@@ -66,7 +71,6 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)  # default: logging.DEBUG, logging.INFO
 hdlr = logging.StreamHandler(sys.stdout)
 logging.root.addHandler(hdlr)
-
 
 # country dictionary: key: site, value: country name
 # Flags are downloaded from: https://emojipedia.org/
@@ -180,6 +184,7 @@ scaling_factor = {
     't1': 1000,
 }
 
+
 # OLD STUFF FOR SINGLE CENTER
 # # Create a dictionary of centers: key: folder name, val: dataframe name
 # centers = {
@@ -237,10 +242,11 @@ def aggregate_per_site(dict_results, metric, env):
     # Build a dictionary that aggregates values per site
     results_agg = {}
     # Loop across lines and fill dict of aggregated results
-    for i in tqdm.tqdm(range(len(dict_results)), unit='iter', unit_scale=False, desc="Loop across subjects", ascii=False,
+    for i in tqdm.tqdm(range(len(dict_results)), unit='iter', unit_scale=False, desc="Loop across subjects",
+                       ascii=False,
                        ncols=80):
         filename = dict_results[i]['Filename']
-        logger.debug('Filename: '+filename)
+        logger.debug('Filename: ' + filename)
         # Fetch metadata for the site
         # dataset_description = read_dataset_description(filename, path_data)
         # cluster values per site
@@ -255,7 +261,8 @@ def aggregate_per_site(dict_results, metric, env):
             if not site in results_agg.keys():
                 # if this is a new site, initialize sub-dict
                 results_agg[site] = {}
-                results_agg[site]['site'] = site  # need to duplicate in order to be able to sort using vendor AND site with Pandas
+                results_agg[site][
+                    'site'] = site  # need to duplicate in order to be able to sort using vendor AND site with Pandas
                 results_agg[site]['vendor'] = participants['manufacturer'][rowIndex].get_values()[0]
                 results_agg[site]['model'] = participants['manufacturers_model_name'][rowIndex].get_values()[0]
                 results_agg[site]['val'] = []
@@ -273,6 +280,7 @@ def add_flag(coord, name, ax):
     :param name Name of the country
     :param ax Matplotlib ax
     """
+
     def _get_flag(name):
         """
         Get the flag of a country from the folder flags.
@@ -308,10 +316,10 @@ def add_stats_per_vendor(ax, x_i, x_j, y_max, mean, std, cov_intra, cov_inter, f
     :param color
     """
     # add stats as strings
-    txt = "{0:.2f} $\pm$ {1:.2f}\nCOV intra:{2:.2f}%, inter:{3:.2f}%".\
+    txt = "{0:.2f} $\pm$ {1:.2f}\nCOV intra:{2:.2f}%, inter:{3:.2f}%". \
         format(mean * f, std * f, cov_intra * 100., cov_inter * 100.)
-    ax.annotate(txt, xy = (np.mean([x_i, x_j]), y_max), va='center', ha='center',
-        bbox=dict(edgecolor='none', fc=color, alpha=0.3))
+    ax.annotate(txt, xy=(np.mean([x_i, x_j]), y_max), va='center', ha='center',
+                bbox=dict(edgecolor='none', fc=color, alpha=0.3))
     # add rectangle for variance
     rect = patches.Rectangle((x_i, (mean - std) * f), x_j - x_i, 2 * std * f,
                              edgecolor=None, facecolor=color, alpha=0.3)
@@ -407,9 +415,9 @@ def label_bar_model(ax, bar_plot, model_lst):
     :param bar_plot Matplotlib object
     :param model_lst sorted list of model names
     """
-    height = bar_plot[0].get_height() # in order to align all the labels along y-axis
-    for idx,rect in enumerate(bar_plot):
-        ax.text(rect.get_x() + rect.get_width()/2., 0.1 * height,
+    height = bar_plot[0].get_height()  # in order to align all the labels along y-axis
+    for idx, rect in enumerate(bar_plot):
+        ax.text(rect.get_x() + rect.get_width() / 2., 0.1 * height,
                 model_lst[idx], color='white', weight='bold',
                 ha='center', va='bottom', rotation=90)
     return ax
@@ -428,6 +436,33 @@ def remove_subject(subject, metric):
     return False
 
 
+def compute_regression(CSA_dict, vendor):
+    """
+    Compute linear regression for T1w and T2 CSA agreement
+    :param CSA_dict: dict with T1w and T2w CSA values
+    :param vendor: vendor name
+    :return: results of linear regression
+    """
+    # Y = Slope*X + Intercept
+
+    # create object for the class
+    linear_regression = LinearRegression()
+    # perform linear regression (compute slope and intercept)
+    linear_regression.fit(np.concatenate(CSA_dict[vendor + '_t2'], axis=0).reshape(-1, 1),
+                          np.concatenate(CSA_dict[vendor + '_t1'], axis=0).reshape(-1, 1))
+    intercept = linear_regression.intercept_
+    slope = linear_regression.coef_
+
+    # compute prediction
+    reg_predictor = linear_regression.predict(
+        np.concatenate(CSA_dict[vendor + '_t2'], axis=0).reshape(-1, 1))
+    # compute coefficient of determination R^2 of the prediction
+    r2_sc = linear_regression.score(np.concatenate(CSA_dict[vendor + '_t2'], axis=0).reshape(-1, 1),
+                          np.concatenate(CSA_dict[vendor + '_t1'], axis=0).reshape(-1, 1))
+
+    return intercept, slope, reg_predictor, r2_sc
+
+
 def main():
     # TODO: make "results" an input param
 
@@ -440,7 +475,7 @@ def main():
     for csv_file in csv_files:
 
         # Open CSV file and create dict
-        logger.info('\nProcessing: '+csv_file)
+        logger.info('\nProcessing: ' + csv_file)
         dict_results = []
         with open(csv_file, newline='') as f_csv:
             reader = csv.DictReader(f_csv)
@@ -520,8 +555,8 @@ def main():
         for vendor in list(OrderedDict.fromkeys(vendor_sorted)):
             n_site = list(vendor_sorted).count(vendor)
             ax = add_stats_per_vendor(ax=ax,
-                                      x_i=x_init_vendor-0.5,
-                                      x_j=x_init_vendor+n_site-1+0.5,
+                                      x_i=x_init_vendor - 0.5,
+                                      x_j=x_init_vendor + n_site - 1 + 0.5,
                                       y_max=y_max,
                                       mean=stats['mean'][vendor],
                                       std=stats['std'][vendor],
@@ -532,9 +567,9 @@ def main():
             x_init_vendor += n_site
 
         plt.tight_layout()  # make sure everything fits
-        fname_fig = os.path.join(env['PATH_RESULTS'], 'fig_'+metric+'.png')
+        fname_fig = os.path.join(env['PATH_RESULTS'], 'fig_' + metric + '.png')
         plt.savefig(fname_fig)
-        logger.info('Created: '+fname_fig)
+        logger.info('Created: ' + fname_fig)
 
         # Get T1w and T2w CSA from pandas df structure
         if metric == "csa_t1":
@@ -542,13 +577,11 @@ def main():
         elif metric == "csa_t2":
             CSA_t2 = df.sort_values('vendor').values
 
-
     # Create dictionary with CSA for T1w and T2w
     CSA_dict = defaultdict(list)
     for index, vendor in enumerate(df.sort_values('vendor')['vendor']):  # loop through individual vendors
         CSA_dict[vendor + '_t1'].append(np.asarray(CSA_t1[index, 3]))
         CSA_dict[vendor + '_t2'].append(np.asarray(CSA_t2[index, 3]))
-
 
     # Generate and save figure for T1w and T2w agreement for all vendors together
     plt.subplots(figsize=(9, 9))
@@ -565,17 +598,16 @@ def main():
     plt.ylabel("T1w CSA")
     plt.grid(True)
     plt.legend()
-    #plt.show()
 
-    plt.tight_layout()  # does not work properly in this case
+    plt.tight_layout()
     fname_fig = os.path.join(env['PATH_RESULTS'], 'fig_t1_t2_agreement.png')
     plt.savefig(fname_fig, dpi=200)
     logger.info('Created: ' + fname_fig)
 
     # Generate and save figure for T1w and T2w agreement per vendor
-    plt.subplots(figsize=(15, 8))
+    plt.subplots(figsize=(15, 5))
     for index, vendor in enumerate(list(OrderedDict.fromkeys(vendor_sorted))):
-        plt.subplot(1, 3, index + 1)
+        ax = plt.subplot(1, 3, index + 1)
         plt.scatter(np.concatenate(CSA_dict[vendor + '_t2'], axis=0), np.concatenate(CSA_dict[vendor + '_t1'], axis=0),
                     s=30, facecolors='none', edgecolors=vendor_to_color[vendor], label=vendor)
         plt.xlim(45, 100)
@@ -585,23 +617,17 @@ def main():
         plt.ylabel("T1w CSA")
         plt.grid(True)
         plt.legend()
-        linear_regressor = LinearRegression()  # create object for the class
-        linear_regressor.fit(np.concatenate(CSA_dict[vendor + '_t2'], axis=0).reshape(-1, 1),
-                             np.concatenate(CSA_dict[vendor + '_t1'], axis=0).reshape(-1,
-                                                                                      1))  # perform linear regression
-        linear_regressor.score(np.concatenate(CSA_dict[vendor + '_t2'], axis=0).reshape(-1, 1),
-                               np.concatenate(CSA_dict[vendor + '_t1'], axis=0).reshape(-1,
-                                                                                        1))  # coefficient of determination
-        reg_predictor = linear_regressor.predict(
-            np.concatenate(CSA_dict[vendor + '_t2'], axis=0).reshape(-1, 1))  # make predictions
-        # TODO: show results from regression in plots
-        # plt.text(60, 90, linear_regressor.coef_, horizontalalignment='center', verticalalignment='center')
+
+        intercept, slope, reg_predictor, r2_sc = compute_regression(CSA_dict, vendor)
+
+        plt.text(ax.get_xlim()[1] - 50, ax.get_xlim()[1] - 5,
+                 "y = {0:.4}x + {1:.4}\nR\u00b2 = {2:.4}".format(float(slope), float(intercept), float(r2_sc)),
+                 ha='left', va='center')
         plt.plot(np.concatenate(CSA_dict[vendor + '_t2'], axis=0).reshape(-1, 1), reg_predictor, color='red')
 
     plt.suptitle('CSA agreement between T1w and T2w data per vendors')
-    #plt.show()
 
-    plt.tight_layout()  # does not work properly in this case
+    plt.tight_layout()
     fname_fig = os.path.join(env['PATH_RESULTS'], 'fig_t1_t2_agreement_per_vendor.png')
     plt.savefig(fname_fig, dpi=200)
     logger.info('Created: ' + fname_fig)
