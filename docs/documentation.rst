@@ -304,7 +304,7 @@ Vertebral labeling
 ^^^^^^^^^^^^^^^^^^
 
 If you spot issues (wrong labeling), manually create labels in the cord
-at C2 and C5 mid-vertebral levels using the following command (you need
+at C3 and C5 mid-vertebral levels using the following command (you need
 to be in the appropriate folder before running the command):
 
 .. code-block:: bash
