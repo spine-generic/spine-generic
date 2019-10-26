@@ -304,24 +304,32 @@ Vertebral labeling
 ^^^^^^^^^^^^^^^^^^
 
 If you spot issues (wrong labeling), manually create labels in the cord
-at C3 and C5 mid-vertebral levels using the following command (you need
-to be in the appropriate folder before running the command):
+at C3 and C5 mid-vertebral levels. The bash script below loops across all
+subjects that require manual labeling. Here is the procedure:
+- Create a folder where you will save the manual labels
+- Create the bash script below and edit the environment variables (see next point).
+- Go through the QC, and when you identify a problematic subject, add it in
+the variable array `SUBJECTS`. Once you've gone through all the QC, go to the
+folder `results/data` and run the script: `sh manual_correction.sh`:
 
 .. code-block:: bash
 
-  sct_label_utils -i IMAGE -create-viewer 3,5 -o IMAGE_labels-manual.nii.gz
+  # Local folder to output the manual labels
+  PATH_SEGMANUAL="seg_manual"
+  # List of subjects to create manual labels
+  SUBJECTS=(
+    "sub-amu01"
+    "sub-beijingGE01"
+    "sub-ucl01"
+  )
+  # Loop across subjects
+  for subject in ${SUBJECTS[@]}; do
+    sct_label_utils -i $subject/anat/${subject}_T1w_RPI_r.nii.gz -create-viewer 3,5 -o ${PATH_SEGMANUAL}/${subject}_T1w_RPI_r_labels-manual.nii.gz
+  done
 
-Example:
-
-::
-
-  sct_label_utils -i sub-01_T1w.nii.gz -create-viewer 3,5 -o sub-01_T1w_labels-manual.nii.gz
-  mkdir ${PATH_SEGMANUAL}/spineGeneric_unf/
-  mv sub-01_T1w_labels-manual.nii.gz ${PATH_SEGMANUAL}/spineGeneric_unf/
-
-Then, move the file to the folder you defined under the
-variable ``PATH_SEGMANUAL`` in the file ``parameters.sh``, as done for
-the segmentation.
+Once all labels are created, move the content of seg_manual to the up-to-date
+`seg_manual` folder (that contains other manual corrections, and that will be
+used for the next processing iteration).
 
 Once you've corrected all the necessary files, re-run the whole process.
 If the manual file exists, the script will use it in the processing.
