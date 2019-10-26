@@ -306,6 +306,7 @@ Vertebral labeling
 If you spot issues (wrong labeling), manually create labels in the cord
 at C3 and C5 mid-vertebral levels. The bash script below loops across all
 subjects that require manual labeling. Here is the procedure:
+
 - Create a folder where you will save the manual labels
 - Create the bash script below and edit the environment variables (see next point).
 - Go through the QC, and when you identify a problematic subject, add it in
@@ -327,11 +328,11 @@ folder `results/data` and run the script: `sh manual_correction.sh`:
     sct_label_utils -i $subject/anat/${subject}_T1w_RPI_r.nii.gz -create-viewer 3,5 -o ${PATH_SEGMANUAL}/${subject}_T1w_RPI_r_labels-manual.nii.gz
   done
 
-  .. figure:: _static/vertebral_labeling.png
-     :align: center
-     :scale: 50%
+.. figure:: _static/vertebral_labeling.png
+   :align: center
+   :scale: 50%
 
-     Example of manual vertebral labeling if automatic labeling failed.
+   Example of manual vertebral labeling if automatic labeling failed.
 
 Once all labels are created, move the content of seg_manual to the up-to-date
 `seg_manual` folder (that contains other manual corrections, and that will be
