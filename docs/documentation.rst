@@ -327,6 +327,12 @@ folder `results/data` and run the script: `sh manual_correction.sh`:
     sct_label_utils -i $subject/anat/${subject}_T1w_RPI_r.nii.gz -create-viewer 3,5 -o ${PATH_SEGMANUAL}/${subject}_T1w_RPI_r_labels-manual.nii.gz
   done
 
+  .. figure:: _static/vertebral_labeling.png
+     :align: center
+     :scale: 50%
+
+     Example of manual vertebral labeling if automatic labeling failed.
+
 Once all labels are created, move the content of seg_manual to the up-to-date
 `seg_manual` folder (that contains other manual corrections, and that will be
 used for the next processing iteration).
