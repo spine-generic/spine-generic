@@ -330,7 +330,7 @@ subjects that require manual labeling. Here is the procedure:
 
 .. figure:: _static/vertebral_labeling.png
    :align: center
-   :scale: 10%
+   :width: 100%
 
    Example of manual vertebral labeling if automatic labeling failed.
 
