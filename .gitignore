@@ -3,4 +3,5 @@
 parameters.sh
 docs/_build/
 .DS_Store
+spine_generic.egg-info/
 
