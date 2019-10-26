@@ -2,3 +2,5 @@
 *.pyc
 parameters.sh
 docs/_build/
+.DS_Store
+
