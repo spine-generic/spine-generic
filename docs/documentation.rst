@@ -309,9 +309,9 @@ subjects that require manual labeling. Here is the procedure:
 
 - Create a folder where you will save the manual labels
 - Create the bash script below and edit the environment variables (see next point).
-- Go through the QC, and when you identify a problematic subject, add it in
-the variable array `SUBJECTS`. Once you've gone through all the QC, go to the
-folder `results/data` and run the script: `sh manual_correction.sh`:
+- Go through the QC, and when you identify a problematic subject, add it in the
+  variable array `SUBJECTS`. Once you've gone through all the QC, go to the
+  folder `results/data` and run the script: `sh manual_correction.sh`:
 
 .. code-block:: bash
 
@@ -330,7 +330,7 @@ folder `results/data` and run the script: `sh manual_correction.sh`:
 
 .. figure:: _static/vertebral_labeling.png
    :align: center
-   :scale: 50%
+   :scale: 10%
 
    Example of manual vertebral labeling if automatic labeling failed.
 
