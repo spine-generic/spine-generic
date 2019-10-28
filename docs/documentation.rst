@@ -334,6 +334,13 @@ subjects that require manual labeling. Here is the procedure:
 
    Example of manual vertebral labeling if automatic labeling failed.
 
+.. raw:: html
+
+   <iframe width="560" height="315" src="https://www.youtube.com/embed/bX9yWYTipO8" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+   
+   Tutorial for doing QC of vertebral labeling.
+
+
 Once all labels are created, move the content of seg_manual to the up-to-date
 `seg_manual` folder (that contains other manual corrections, and that will be
 used for the next processing iteration).
