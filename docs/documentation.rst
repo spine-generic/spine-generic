@@ -336,7 +336,8 @@ subjects that require manual labeling. Here is the procedure:
 
 .. raw:: html
 
-   <iframe width="560" height="315" src="https://www.youtube.com/embed/bX9yWYTipO8" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+   <p align="center"><iframe width="560" height="315" src="https://www.youtube.com/embed/bX9yWYTipO8" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></p>
+   
    
    Tutorial for doing QC of vertebral labeling.
 
