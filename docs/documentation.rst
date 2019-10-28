@@ -335,10 +335,12 @@ subjects that require manual labeling. Here is the procedure:
    Example of manual vertebral labeling if automatic labeling failed.
 
 .. raw:: html
+   :align: center
+   :width: 100%
 
-   <p align="center"><iframe width="560" height="315" src="https://www.youtube.com/embed/bX9yWYTipO8" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></p>
-   
-   
+   <iframe width="560" height="315" src="https://www.youtube.com/embed/bX9yWYTipO8" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+
    Tutorial for doing QC of vertebral labeling.
 
 
