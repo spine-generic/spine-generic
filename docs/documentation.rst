@@ -331,7 +331,7 @@ subjects that require manual labeling. Below is the procedure, followed by a vid
 .. raw:: html
 
    <div style="position: relative; padding-bottom: 5%; height: 0; overflow: hidden; max-width: 100%; height: auto;">
-     <iframe width="700" height="394" src="https://www.youtube.com/embed/bX9yWYTipO8;showinfo=0" frameborder="0" allowfullscreen></iframe>
+     <iframe width="700" height="394" src="https://www.youtube.com/embed/bX9yWYTipO8" frameborder="0" allowfullscreen></iframe>
 
 Once all labels are created, move the content of seg_manual to the up-to-date
 `seg_manual` folder (that contains other manual corrections, and that will be
