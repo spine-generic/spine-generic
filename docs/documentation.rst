@@ -273,32 +273,60 @@ results.
 Segmentation
 ^^^^^^^^^^^^
 
-If you spot issues (missing pixels, leaking), identify the segmentation
-file, open it with an editor (e.g.,
-`FSLeyes <https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FSLeyes>`__), modify it
-(Tools > Edit Mode) and save it (Overlay > Save > Save to new file) with
-suffix ``-manual``. Example: ``sub-01_T2w_RPI_r_seg-manual.nii.gz``.
-Then, move the file to the folder you defined under the variable
-``PATH_SEGMANUAL`` in the file ``parameters.sh``. Important: the manual
-segmentation should be copied under a subfolder named after the site,
-e.g. ``seg_manual/spineGeneric_unf/sub-01_T2w_RPI_r_seg-manual.nii.gz``.
-The files to look for are:
+- Create a file and copy/past the script below:
 
-+-------------------------------------+-------------------------------+-------------------+-------------------------+
-| Segmentation                        | Associated image              | Relevant levels   | Used for                |
-+=====================================+===============================+===================+=========================+
-| sub-XX\_T1w\_RPI\_r\_seg.nii.gz     | sub-XX\_T1w\_RPI\_r.nii.gz    | C2-C3             | CSA                     |
-+-------------------------------------+-------------------------------+-------------------+-------------------------+
-| sub-XX\_T2w\_RPI\_r\_seg.nii.gz     | sub-XX\_T2w\_RPI\_r.nii.gz    | C2-C3             | CSA                     |
-+-------------------------------------+-------------------------------+-------------------+-------------------------+
-| sub-XX\_T2star\_rms\_gmseg.nii.gz   | sub-XX\_T2star\_rms.nii.gz    | C3-C4             | CSA                     |
-+-------------------------------------+-------------------------------+-------------------+-------------------------+
-| sub-XX\_acq-T1w\_MTS\_seg.nii.gz    | sub-XX\_acq-T1w\_MTS.nii.gz   | C2-C5             | Template registration   |
-+-------------------------------------+-------------------------------+-------------------+-------------------------+
+.. code-block:: bash
 
-**Note:** For the interest of time, you don't need to fix *all* slices
+  #!/bin/bash
+  # Local folder to output the manual labels (you need to create it before running this script)
+  PATH_SEGMANUAL="/Users/bob/seg_manual"
+  # List of files to correct segmentation on
+  FILES=(
+  sub-amu02_acq-T1w_MTS.nii.gz
+  sub-beijingGE04_T2w_RPI_r.nii.gz
+  sub-brnoPrisma01_T2star_rms.nii.gz
+  sub-geneva04_dwi_crop_moco_dwi_mean.nii.gz
+  )
+  # Loop across files
+  for file in ${FILES[@]}; do
+    # extract subject using first delimiter '_'
+    subject=${file%%_*}
+    # check if file is under dwi/ or anat/ folder
+    if [[ $file == *"dwi"*]]; then
+      file_location=$subject/dwi/$file
+    else
+      file_location=$subject/anat/$file
+    fi
+    # copy file to PATH_SEGMANUAL and launch FSLeyes for manual editing
+    # TODO
+  done
+
+- In the QC report, enter the string "deepseg" to only display segmentation results.
+- Review all segmentations. Use the keyboard shortcuts up/down to switch between
+subjects and left to toggle overlay.
+- If you spot issues with the segmentation (e.g. leaking, under-segmentation),
+add the image name in the variable array ``FILES`` in the script.
+- If the data quality is too low to be interpreted (too blurry, large artifacts),
+add the image file name to the variable ``TO_EXCLUDE`` in the file ```parameters.sh``,
+which will be used in the next processing iteration.
+
+.. Hint:: For the interest of time, you don't need to fix *all* slices
 of the segmentation but only the ones listed in the "Relevant levels"
-column of the table above.
+column of the table below.
+
++-------------------------------------+---------------------------------------------------+-----------------+-----------------------+
+| Segmentation                        | Associated image                                  | Relevant levels | Used for              |
++=====================================+===================================================+=================+=======================+
+| sub-XX\_T1w\_RPI\_r\_seg.nii.gz     | sub-XX\_T1w\_RPI\_r.nii.gz                        | C2-C3           | CSA                   |
++-------------------------------------+---------------------------------------------------+-----------------+-----------------------+
+| sub-XX\_T2w\_RPI\_r\_seg.nii.gz     | sub-XX\_T2w\_RPI\_r.nii.gz                        | C2-C3           | CSA                   |
++-------------------------------------+---------------------------------------------------+-----------------+-----------------------+
+| sub-XX\_T2star\_rms\_gmseg.nii.gz   | sub-XX\_T2star\_rms.nii.gz                        | C3-C4           | CSA                   |
++-------------------------------------+---------------------------------------------------+-----------------+-----------------------+
+| sub-XX\_acq-T1w\_MTS\_seg.nii.gz    | sub-XX\_acq-T1w\_MTS.nii.gz                       | C2-C5           | Template registration |
++-------------------------------------+---------------------------------------------------+-----------------+-----------------------+
+| sub-XX\_acq-T1w\_MTS\_seg.nii.gz    | sub-XX\_dwi\_concat\_crop\_moco\_dwi\_mean.nii.gz | C2-C5           | Template registration |
++-------------------------------------+---------------------------------------------------+-----------------+-----------------------+
 
 Vertebral labeling
 ^^^^^^^^^^^^^^^^^^
@@ -310,13 +338,14 @@ subjects that require manual labeling. Below is the procedure, followed by a vid
 - Create a folder where you will save the manual labels
 - Create the bash script below and edit the environment variables (see next point).
 - Go through the QC, and when you identify a problematic subject, add it in the
-  variable array `SUBJECTS`. Once you've gone through all the QC, go to the
-  folder `results/data` and run the script: `sh manual_correction.sh`:
+  variable array ``SUBJECTS``. Once you've gone through all the QC, go to the
+  folder ``results/data`` and run the script: ``sh manual_correction.sh``:
 
 .. code-block:: bash
 
-  # Local folder to output the manual labels
-  PATH_SEGMANUAL="seg_manual"
+  #!/bin/bash
+  # Local folder to output the manual labels (you need to create it before running this script)
+  PATH_SEGMANUAL="/Users/bob/seg_manual"
   # List of subjects to create manual labels
   SUBJECTS=(
     "sub-amu01"
