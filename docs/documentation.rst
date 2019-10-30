@@ -276,6 +276,7 @@ Segmentation
 - Create a file and copy/past the script below:
 
 .. code-block:: bash
+   :caption: manual_correction.sh
 
   #!/bin/bash
   # Local folder to output the manual labels (you need to create it before running this script)
