@@ -257,6 +257,9 @@ results.
 Segmentation
 ^^^^^^^^^^^^
 
+If you spot segmentation issues, manually fix them using the procedure described
+below. Also see the video tutorial after the procedure.
+
 - Create a file and copy/past the script below:
 
 .. code-block:: bash
@@ -299,7 +302,7 @@ Segmentation
 - In the QC report, enter the string "deepseg" to only display segmentation results.
 - Review all segmentations. Use the keyboard shortcuts up/down arrow to switch between
   subjects and the left arrow to toggle overlay.
-- If you spot issues with the segmentation (e.g. leaking, under-segmentation),
+- If you spot *major* issues with the segmentation (e.g. noticeable leaking or under-segmentation that extends over several slices),
   add the image name in the variable array ``FILES`` in the script.
 - If the data quality is too low to be interpreted (too blurry, large artifacts),
   add the image file name to the variable ``TO_EXCLUDE`` in the file ```parameters.sh``,
@@ -322,6 +325,11 @@ Segmentation
 +-------------------------------------------------------+---------------------------------------------------+-----------------+-----------------------+
 | sub-XX\_dwi\_concat\_crop\_moco\_dwi\_mean_seg.nii.gz | sub-XX\_dwi\_concat\_crop\_moco\_dwi\_mean.nii.gz | C2-C5           | Template registration |
 +-------------------------------------------------------+---------------------------------------------------+-----------------+-----------------------+
+
+.. raw:: html
+
+   <div style="position: relative; padding-bottom: 5%; height: 0; overflow: hidden; max-width: 100%; height: auto;">
+     <iframe width="700" height="394" src="https://www.youtube.com/embed/lB-F8WOHGeg" frameborder="0" allowfullscreen></iframe>
 
 Vertebral labeling
 ^^^^^^^^^^^^^^^^^^
