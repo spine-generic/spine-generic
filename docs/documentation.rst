@@ -190,7 +190,7 @@ Dependencies
 
 MANDATORY:
 
-- For processing: `SCT 4.0.2 <https://github.com/neuropoly/spinalcordtoolbox/releases/tag/4.0.2>`__.
+- For processing: `SCT 4.1.0 <https://github.com/neuropoly/spinalcordtoolbox/releases/tag/4.1.0>`__.
 - For generating figures: Python >= 3.6
 
 OPTIONAL:
@@ -248,22 +248,6 @@ Launch processing:
 
 Quality Control
 ---------------
-
-Quality Control (Rapid)
-~~~~~~~~~~~~~~~~~~~~~~~
-
-A first quality control consists in opening the .csv results under
-``results/`` folder and spot values that are abnormality different than
-the group average.
-
-Identify the site/subject/contrast associated with the abnormal value,
-and look at the segmentation (or data). If the segmentation is clearly
-wrong, fix it (see `Quality Control (Slow) <#quality-control-slow>`__.
-If the data look ugly (lots of artifact, motion, etc.), report it under
-a new file: ``qc_report/$site_$subject_$contrast.txt``
-
-Quality Control (Slow)
-~~~~~~~~~~~~~~~~~~~~~~
 
 After the processing is run, check your Quality Control (QC) report, by
 opening double clicking on the file ``qc/index.html``. Use the "Search"
