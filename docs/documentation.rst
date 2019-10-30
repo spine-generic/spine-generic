@@ -276,7 +276,6 @@ Segmentation
 - Create a file and copy/past the script below:
 
 .. code-block:: bash
-
   #!/bin/bash
   # Local folder to output the manual labels (you need to create it before running this script)
   PATH_SEGMANUAL="/Users/bob/seg_manual"
@@ -303,16 +302,16 @@ Segmentation
 
 - In the QC report, enter the string "deepseg" to only display segmentation results.
 - Review all segmentations. Use the keyboard shortcuts up/down to switch between
-subjects and left to toggle overlay.
+  subjects and left to toggle overlay.
 - If you spot issues with the segmentation (e.g. leaking, under-segmentation),
-add the image name in the variable array ``FILES`` in the script.
+  add the image name in the variable array ``FILES`` in the script.
 - If the data quality is too low to be interpreted (too blurry, large artifacts),
-add the image file name to the variable ``TO_EXCLUDE`` in the file ```parameters.sh``,
-which will be used in the next processing iteration.
+  add the image file name to the variable ``TO_EXCLUDE`` in the file ```parameters.sh``,
+  which will be used in the next processing iteration.
 
-.. Hint:: For the interest of time, you don't need to fix *all* slices
-of the segmentation but only the ones listed in the "Relevant levels"
-column of the table below.
+.. Hint::
+   For the interest of time, you don't need to fix *all* slices of the segmentation
+   but only the ones listed in the "Relevant levels" column of the table below.
 
 +-------------------------------------+---------------------------------------------------+-----------------+-----------------------+
 | Segmentation                        | Associated image                                  | Relevant levels | Used for              |
@@ -342,23 +341,21 @@ subjects that require manual labeling. Below is the procedure, followed by a vid
   folder ``results/data`` and run the script: ``sh manual_correction.sh``:
 
 .. code-block:: bash
-
-  #!/bin/bash
-  # Local folder to output the manual labels (you need to create it before running this script)
-  PATH_SEGMANUAL="/Users/bob/seg_manual"
-  # List of subjects to create manual labels
-  SUBJECTS=(
-    "sub-amu01"
-    "sub-beijingGE01"
-    "sub-ucl01"
-  )
-  # Loop across subjects
-  for subject in ${SUBJECTS[@]}; do
-    sct_label_utils -i $subject/anat/${subject}_T1w_RPI_r.nii.gz -create-viewer 3,5 -o ${PATH_SEGMANUAL}/${subject}_T1w_RPI_r_labels-manual.nii.gz
-  done
+   #!/bin/bash
+   # Local folder to output the manual labels (you need to create it before running this script)
+   PATH_SEGMANUAL="/Users/bob/seg_manual"
+   # List of subjects to create manual labels
+   SUBJECTS=(
+     "sub-amu01"
+     "sub-beijingGE01"
+     "sub-ucl01"
+   )
+   # Loop across subjects
+   for subject in ${SUBJECTS[@]}; do
+     sct_label_utils -i $subject/anat/${subject}_T1w_RPI_r.nii.gz -create-viewer 3,5 -o ${PATH_SEGMANUAL}/${subject}_T1w_RPI_r_labels-manual.nii.gz
+   done
 
 .. raw:: html
-
    <div style="position: relative; padding-bottom: 5%; height: 0; overflow: hidden; max-width: 100%; height: auto;">
      <iframe width="700" height="394" src="https://www.youtube.com/embed/bX9yWYTipO8" frameborder="0" allowfullscreen></iframe>
 
