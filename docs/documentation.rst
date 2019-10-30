@@ -277,29 +277,29 @@ Segmentation
 
 .. code-block:: bash
 
-#!/bin/bash
-# Local folder to output the manual labels (you need to create it before running this script)
-PATH_SEGMANUAL="/Users/bob/seg_manual"
-# List of files to correct segmentation on
-FILES=(
-sub-amu02_acq-T1w_MTS.nii.gz
-sub-beijingGE04_T2w_RPI_r.nii.gz
-sub-brnoPrisma01_T2star_rms.nii.gz
-sub-geneva04_dwi_crop_moco_dwi_mean.nii.gz
-)
-# Loop across files
-for file in ${FILES[@]}; do
-  # extract subject using first delimiter '_'
-  subject=${file%%_*}
-  # check if file is under dwi/ or anat/ folder
-  if [[ $file == *"dwi"*]]; then
-    file_location=$subject/dwi/$file
-  else
-    file_location=$subject/anat/$file
-  fi
-  # copy file to PATH_SEGMANUAL and launch FSLeyes for manual editing
-  # TODO
-done
+  #!/bin/bash
+  # Local folder to output the manual labels (you need to create it before running this script)
+  PATH_SEGMANUAL="/Users/bob/seg_manual"
+  # List of files to correct segmentation on
+  FILES=(
+  sub-amu02_acq-T1w_MTS.nii.gz
+  sub-beijingGE04_T2w_RPI_r.nii.gz
+  sub-brnoPrisma01_T2star_rms.nii.gz
+  sub-geneva04_dwi_crop_moco_dwi_mean.nii.gz
+  )
+  # Loop across files
+  for file in ${FILES[@]}; do
+    # extract subject using first delimiter '_'
+    subject=${file%%_*}
+    # check if file is under dwi/ or anat/ folder
+    if [[ $file == *"dwi"*]]; then
+      file_location=$subject/dwi/$file
+    else
+      file_location=$subject/anat/$file
+    fi
+    # copy file to PATH_SEGMANUAL and launch FSLeyes for manual editing
+    # TODO
+  done
 
 - In the QC report, enter the string "deepseg" to only display segmentation results.
 - Review all segmentations. Use the keyboard shortcuts up/down to switch between
