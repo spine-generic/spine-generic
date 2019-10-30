@@ -276,7 +276,7 @@ Segmentation
 - Create a file and copy/past the script below:
 
 .. code-block:: bash
-   :caption: manual_correction.sh
+  :caption: manual_correction.sh
 
   #!/bin/bash
   # Local folder to output the manual labels (you need to create it before running this script)
@@ -303,8 +303,8 @@ Segmentation
   done
 
 - In the QC report, enter the string "deepseg" to only display segmentation results.
-- Review all segmentations. Use the keyboard shortcuts up/down to switch between
-  subjects and left to toggle overlay.
+- Review all segmentations. Use the keyboard shortcuts up/down arrow to switch between
+  subjects and the left arrow to toggle overlay.
 - If you spot issues with the segmentation (e.g. leaking, under-segmentation),
   add the image name in the variable array ``FILES`` in the script.
 - If the data quality is too low to be interpreted (too blurry, large artifacts),
