@@ -276,10 +276,9 @@ Segmentation
 - Create a file and copy/past the script below:
 
 .. code-block:: bash
-  :caption: manual_correction.sh
 
   #!/bin/bash
-  # Local folder to output the manual labels (you need to create it before running this script)
+  # Local folder to output the manual labels (you need to create it before running this script). Do not add "/" at the end.
   PATH_SEGMANUAL="/Users/bob/seg_manual"
   # List of files to correct segmentation on
   FILES=(
@@ -292,14 +291,25 @@ Segmentation
   for file in ${FILES[@]}; do
     # extract subject using first delimiter '_'
     subject=${file%%_*}
-    # check if file is under dwi/ or anat/ folder
-    if [[ $file == *"dwi"*]]; then
-      file_location=$subject/dwi/$file
+    # check if file is under dwi/ or anat/ folder and get fname_data
+    if [[ $file == *"dwi"* ]]; then
+      fname_data=$subject/dwi/$file
     else
-      file_location=$subject/anat/$file
+      fname_data=$subject/anat/$file
     fi
-    # copy file to PATH_SEGMANUAL and launch FSLeyes for manual editing
-    # TODO
+    # get fname_seg depending if it is cord or GM seg
+    if [[ $file == *"T2star"* ]]; then
+      fname_seg=${fname_data%%".nii.gz"*}_gmseg.nii.gz${fname_data##*".nii.gz"}
+      fname_seg_dest=${PATH_SEGMANUAL}/${file%%".nii.gz"*}_gmseg-manual.nii.gz${file##*".nii.gz"}
+    else
+      fname_seg=${fname_data%%".nii.gz"*}_seg.nii.gz${fname_data##*".nii.gz"}
+      fname_seg_dest=${PATH_SEGMANUAL}/${file%%".nii.gz"*}_seg-manual.nii.gz${file##*".nii.gz"}
+    fi
+    # Copy file to PATH_SEGMANUAL
+    cp $fname_seg $fname_seg_dest
+    # Launch FSLeyes
+    echo "In FSLeyes, click on 'Edit mode', correct the segmentation, then save it with the same name (overwrite)."
+    fsleyes -yh $fname_data $fname_seg_dest -cm red
   done
 
 - In the QC report, enter the string "deepseg" to only display segmentation results.
