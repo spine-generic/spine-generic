@@ -2,7 +2,7 @@ Generic Acquisition and Analysis Protocol for Quantitative MRI of the Spinal Cor
 =================================================================================
 
 .. image:: _static/logo_spinegeneric.png
-   :scale: 30 %
+   :scale: 50 %
    :alt: alternate text
    :align: center
 
@@ -15,4 +15,3 @@ for the "spine generic protocol" project.
    :maxdepth: 2
 
    documentation.rst
-
