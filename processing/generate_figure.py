@@ -61,6 +61,9 @@ SUBJECTS_TO_REMOVE = [
     {'subject': 'sub-beijingPrisma03', 'metric': 'dti_fa'},  # wrong FOV placement
 ]
 
+# FIGURE PARAMETERS
+FONTSIZE = 15
+
 # Initialize logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)  # default: logging.DEBUG, logging.INFO
@@ -583,22 +586,26 @@ def main():
         CSA_dict[vendor + '_t1'].append(np.asarray(CSA_t1[index, 3]))
         CSA_dict[vendor + '_t2'].append(np.asarray(CSA_t2[index, 3]))
 
-    # Generate and save figure for T1w and T2w agreement for all vendors together
-    plt.subplots(figsize=(9, 9))
+    # Generate figure for T1w and T2w agreement for all vendors together
+    fig, ax = plt.subplots(figsize=(7, 7))
     for vendor in list(OrderedDict.fromkeys(vendor_sorted)):  # Loop through vendors
-        plt.scatter(np.concatenate(CSA_dict[vendor + '_t2'], axis=0), np.concatenate(CSA_dict[vendor + '_t1'], axis=0),
-                    s=30, facecolors='none', edgecolors=vendor_to_color[vendor], label=vendor)
-
+        plt.scatter(np.concatenate(CSA_dict[vendor + '_t2'], axis=0),
+                    np.concatenate(CSA_dict[vendor + '_t1'], axis=0),
+                    s=50,
+                    linewidths=2,
+                    facecolors='none',
+                    edgecolors=vendor_to_color[vendor],
+                    label=vendor)
+    ax.tick_params(labelsize=FONTSIZE)
     plt.plot([45, 100], [45, 100], ls="--", c=".3")  # add diagonal line
-    plt.title('CSA agreement between T1w and T2w data')
+    plt.title("CSA agreement between T1w and T2w data")
     plt.xlim(45, 100)
     plt.ylim(45, 100)
     plt.gca().set_aspect('equal', adjustable='box')
-    plt.xlabel("T2w CSA")
-    plt.ylabel("T1w CSA")
+    plt.xlabel("T2w CSA", fontsize=FONTSIZE)
+    plt.ylabel("T1w CSA", fontsize=FONTSIZE)
     plt.grid(True)
-    plt.legend()
-
+    plt.legend(fontsize=FONTSIZE)
     plt.tight_layout()
     fname_fig = os.path.join(env['PATH_RESULTS'], 'fig_t1_t2_agreement.png')
     plt.savefig(fname_fig, dpi=200)
