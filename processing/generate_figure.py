@@ -520,6 +520,7 @@ def main():
 
         # Create figure and plot bar graph
         # WARNING: The line below crashes when running debugger in Pycharm: https://github.com/MTG/sms-tools/issues/36
+        # with python 3.7.3. To fix the problem, run in virtual env python 3.7.0.
         fig, ax = plt.subplots(figsize=(15, 8))
         # TODO: show only superior part of STD
         plt.grid(axis='y')
