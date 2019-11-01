@@ -29,10 +29,16 @@ from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 import matplotlib.patches as patches
 from sklearn.linear_model import LinearRegression
 
-# Initialize global variables
-from typing import Any, Union
 
+# Initialize logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)  # default: logging.DEBUG, logging.INFO
+hdlr = logging.StreamHandler(sys.stdout)
+logging.root.addHandler(hdlr)
+
+# Initialize global variables
 DISPLAY_INDIVIDUAL_SUBJECT = True
+
 # List subject to remove, associated with contrast
 SUBJECTS_TO_REMOVE = [
     {'subject': 'sub-oxfordFmrib04', 'metric': 'csa_t1'},
@@ -60,15 +66,6 @@ SUBJECTS_TO_REMOVE = [
     {'subject': 'sub-sapienza06', 'metric': 't1'},
     {'subject': 'sub-beijingPrisma03', 'metric': 'dti_fa'},  # wrong FOV placement
 ]
-
-# FIGURE PARAMETERS
-FONTSIZE = 15
-
-# Initialize logging
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)  # default: logging.DEBUG, logging.INFO
-hdlr = logging.StreamHandler(sys.stdout)
-logging.root.addHandler(hdlr)
 
 # country dictionary: key: site, value: country name
 # Flags are downloaded from: https://emojipedia.org/
@@ -182,47 +179,9 @@ scaling_factor = {
     't1': 1000,
 }
 
-
-# OLD STUFF FOR SINGLE CENTER
-# # Create a dictionary of centers: key: folder name, val: dataframe name
-# centers = {
-#     'chiba_spine-generic_20180608-750': 'Chiba-750',
-#     'juntendo-750w_spine-generic_20180529': 'Juntendo-750w',
-#     'tokyo-univ_spine-generic_20180604-750w': 'TokyoUniv-750w',
-#     'tokyo-univ_spine-generic_20180604-signa1': 'TokyoUniv-Signa1',
-#     'tokyo-univ_spine-generic_20180604-signa2': 'TokyoUniv-Signa2',
-#     'ucl_spine-generic_20171207': 'UCL-Achieva',
-#     'juntendo-achieva_spine-teneric_20180524': 'Juntendo-Achieva',
-#     'glen_spine-generic_20171128': 'Glen-Ingenia',
-#     'tokyo-univ_spine-generic_20180604-ingenia': 'TokyoUniv-Ingenia',
-#     'chiba_spine-generic_20180608-ingenia': 'Chiba-Ingenia',
-#     'mgh-bay3_spine-generic_20171201': 'MGH-Trio',
-#     'douglas_spine-generic_20171127': 'Douglas-Trio',
-#     'poly_spine-generic_20171221': 'Polytechnique-Skyra',
-#     'juntendo-skyra_spine-generic_20180509': 'Juntendo-Skyra',
-#     'tokyo-univ_spine-generic_20180604-skyra': 'TokyoUniv-Skyra',
-#     'unf_sct_026': 'UNF-Prisma',
-#     'oxford_spine-generic_20171209': 'Oxford-Prisma',
-#     'juntendo-prisma_spine-generic_20180523': 'Juntendo-Prisma',
-# }
-# # ylim for figure
-# ylim = {
-#     't1': [40, 90],
-#     't2': [40, 90],
-#     'dmri': [0.4, 0.9],
-#     'mt': [30, 65],
-#     't2s': [10, 20],
-# }
-#
-#
-# # ystep (in yticks) for figure
-# ystep = {
-#     't1': 5,
-#     't2': 5,
-#     'dmri': 0.1,
-#     'mt': 5,
-#     't2s': 1,
-# }
+# FIGURE PARAMETERS
+FONTSIZE = 15
+LABELSIZE = 15
 
 
 def aggregate_per_site(dict_results, metric, env):
@@ -596,7 +555,7 @@ def main():
                     facecolors='none',
                     edgecolors=vendor_to_color[vendor],
                     label=vendor)
-    ax.tick_params(labelsize=FONTSIZE)
+    ax.tick_params(labelsize=LABELSIZE)
     plt.plot([45, 100], [45, 100], ls="--", c=".3")  # add diagonal line
     plt.title("CSA agreement between T1w and T2w data")
     plt.xlim(45, 100)
@@ -611,29 +570,30 @@ def main():
     plt.savefig(fname_fig, dpi=200)
     logger.info('Created: ' + fname_fig)
 
-    # Generate and save figure for T1w and T2w agreement per vendor
+    # Generate figure for T1w and T2w agreement per vendor
     plt.subplots(figsize=(15, 5))
     for index, vendor in enumerate(list(OrderedDict.fromkeys(vendor_sorted))):
         ax = plt.subplot(1, 3, index + 1)
-        plt.scatter(np.concatenate(CSA_dict[vendor + '_t2'], axis=0), np.concatenate(CSA_dict[vendor + '_t1'], axis=0),
-                    s=30, facecolors='none', edgecolors=vendor_to_color[vendor], label=vendor)
+        plt.scatter(np.concatenate(CSA_dict[vendor + '_t2'], axis=0),
+                    np.concatenate(CSA_dict[vendor + '_t1'], axis=0),
+                    s=50,
+                    linewidths=2,
+                    facecolors='none',
+                    edgecolors=vendor_to_color[vendor],
+                    label=vendor)
         plt.xlim(45, 100)
         plt.ylim(45, 100)
         plt.gca().set_aspect('equal', adjustable='box')
-        plt.xlabel("T2w CSA")
-        plt.ylabel("T1w CSA")
+        plt.xlabel("T2w CSA", fontsize=FONTSIZE)
+        plt.ylabel("T1w CSA", fontsize=FONTSIZE)
         plt.grid(True)
-        plt.legend()
-
+        plt.legend(fontsize=FONTSIZE)
         intercept, slope, reg_predictor, r2_sc = compute_regression(CSA_dict, vendor)
-
         plt.text(ax.get_xlim()[1] - 50, ax.get_xlim()[1] - 5,
                  "y = {0:.4}x + {1:.4}\nR\u00b2 = {2:.4}".format(float(slope), float(intercept), float(r2_sc)),
                  ha='left', va='center')
         plt.plot(np.concatenate(CSA_dict[vendor + '_t2'], axis=0).reshape(-1, 1), reg_predictor, color='red')
-
-    plt.suptitle('CSA agreement between T1w and T2w data per vendors')
-
+    plt.suptitle("CSA agreement between T1w and T2w data per vendors")
     plt.tight_layout()
     fname_fig = os.path.join(env['PATH_RESULTS'], 'fig_t1_t2_agreement_per_vendor.png')
     plt.savefig(fname_fig, dpi=200)
