@@ -1,19 +1,14 @@
 #!/usr/bin/env python
 #
-# Generate figures for the spine-generic dataset. Figures are output in the sub-folder /results of the path specified
-# by -p.
-# IMPORTANT: the input path (-p) should include subfolders data/ (has all the processed data) and results/
+# Generate figures for the spine-generic dataset. Figures are output in the sub-folder /results.
 #
 # USAGE:
-#   ${SCT_DIR}/python/bin/python generate_figure.py -d PATH_DATA -r PATH_RESULTS
+#   python generate_figure.py PARAMETER_FILE
+# 
+# where PARAMETER_FILE is the file used by sct_run_batch to produce the results. More info at:
+# https://spine-generic.readthedocs.io/en/latest/documentation.html#how-to-run
 #
-#   Example:
-#   ${SCT_DIR}/python/bin/python generate_figure.py -p /home/bob/spine_generic/data -r /home/bob/spine_generic/results
-#
-# DEPENDENCIES:
-#   SCT
-#
-# Author: Julien Cohen-Adad
+# Authors: Julien Cohen-Adad, Jan Valosek
 
 import os
 import argparse
