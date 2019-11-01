@@ -3,3 +3,4 @@ nibabel
 pandas
 scipy
 tqdm
+sklearn
