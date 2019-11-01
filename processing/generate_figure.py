@@ -382,6 +382,7 @@ def get_env(file_param):
     :param file_param:
     :return: env: dictionary of all environment variables declared in the shell script
     """
+    logger.debug("\nFetch environment variables from file: {}".format(file_param))
     env = {}
     p = subprocess.Popen('env', stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     oldEnv = p.communicate()[0].decode('utf-8')
@@ -397,7 +398,7 @@ def get_env(file_param):
                 break
         if flag:
             # exported by setenv.sh
-            logger.debug("Environment variables: {}".format(newStr))
+            logger.debug("  {}".format(newStr))
             # add to dictionary
             env[newStr.split('=')[0]] = newStr.split('=')[1]
     return env
@@ -465,6 +466,9 @@ def main():
 
     # fetch all .csv result files
     csv_files = glob.glob(os.path.join(env['PATH_RESULTS'], '*.csv'))
+
+    if not csv_files:
+        raise RuntimeError("Variable 'csv_files' is empty. Check your input paths.")
 
     # loop across results and generate figure
     for csv_file in csv_files:
