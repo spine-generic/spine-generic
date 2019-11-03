@@ -43,9 +43,6 @@ DISPLAY_INDIVIDUAL_SUBJECT = True
 SUBJECTS_TO_REMOVE = [
     {'subject': 'sub-oxfordFmrib04', 'metric': 'csa_t1'},  # T1w scan is not aligned with other contrasts (subject repositioning)
     {'subject': 'sub-oxfordFmrib04', 'metric': 'csa_t2'},  # T1w scan is not aligned with other contrasts (subject repositioning)
-    {'subject': 'sub-oxfordFmrib04', 'metric': 'mtr'},  # T1w scan is not aligned with other contrasts (subject repositioning)
-    {'subject': 'sub-oxfordFmrib04', 'metric': 'mtsat'},  # T1w scan is not aligned with other contrasts (subject repositioning)
-    {'subject': 'sub-oxfordFmrib04', 'metric': 't1'},  # T1w scan is not aligned with other contrasts (subject repositioning)
     # DTI
     {'subject': 'sub-barcelona06', 'metric': 'dti_fa'},  # issue with 2nd segmentation (centerline init)
     {'subject': 'sub-beijingPrisma01', 'metric': 'dti_fa'},  # issue with 2nd segmentation (centerline init)
@@ -58,9 +55,14 @@ SUBJECTS_TO_REMOVE = [
     {'subject': 'sub-queensland04', 'metric': 'dti_fa'},  # issue with 2nd segmentation (centerline init)
     {'subject': 'sub-perform02', 'metric': 'dti_fa'},  # issue with 2nd segmentation (centerline init)
     # MTR
-    {'subject': 'sub-geneva02', 'metric': 'mtr'},
-    {'subject': 'sub-tehranS04', 'metric': 'mtsat'},
+    {'subject': 'sub-geneva02', 'metric': 'mtr'},  # FOV positioning changed between MTon and MToff
+    {'subject': 'sub-oxfordFmrib04', 'metric': 'mtr'},  # T1w scan is not aligned with other contrasts (subject repositioning)
+    # MTsat
     {'subject': 'sub-geneva02', 'metric': 'mtsat'},
+    {'subject': 'sub-oxfordFmrib04', 'metric': 'mtsat'},  # T1w scan is not aligned with other contrasts (subject repositioning)
+    {'subject': 'sub-tehranS04', 'metric': 'mtsat'},
+    # T1 map
+    {'subject': 'sub-oxfordFmrib04', 'metric': 't1'},  # T1w scan is not aligned with other contrasts (subject repositioning)
     {'subject': 'sub-sapienza03', 'metric': 't1'},
     {'subject': 'sub-sapienza04', 'metric': 't1'},
     {'subject': 'sub-sapienza05', 'metric': 't1'},
