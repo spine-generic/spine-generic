@@ -1,19 +1,14 @@
 #!/usr/bin/env python
 #
-# Generate figures for the spine-generic dataset. Figures are output in the sub-folder /results of the path specified
-# by -p.
-# IMPORTANT: the input path (-p) should include subfolders data/ (has all the processed data) and results/
+# Generate figures for the spine-generic dataset. Figures are output in the sub-folder /results.
 #
 # USAGE:
-#   ${SCT_DIR}/python/bin/python generate_figure.py -d PATH_DATA -r PATH_RESULTS
+#   python generate_figure.py PARAMETER_FILE
+# 
+# where PARAMETER_FILE is the file used by sct_run_batch to produce the results. More info at:
+# https://spine-generic.readthedocs.io/en/latest/documentation.html#how-to-run
 #
-#   Example:
-#   ${SCT_DIR}/python/bin/python generate_figure.py -p /home/bob/spine_generic/data -r /home/bob/spine_generic/results
-#
-# DEPENDENCIES:
-#   SCT
-#
-# Author: Julien Cohen-Adad
+# Authors: Julien Cohen-Adad, Jan Valosek
 
 import os
 import argparse
@@ -27,22 +22,37 @@ import subprocess
 import numpy as np
 from scipy import ndimage
 from collections import OrderedDict
+from collections import defaultdict
 import logging
 import matplotlib.pyplot as plt
-from matplotlib.offsetbox import OffsetImage,AnnotationBbox
+from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 import matplotlib.patches as patches
+from sklearn.linear_model import LinearRegression
 
+
+# Initialize logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)  # default: logging.DEBUG, logging.INFO
+hdlr = logging.StreamHandler(sys.stdout)
+logging.root.addHandler(hdlr)
 
 # Initialize global variables
 DISPLAY_INDIVIDUAL_SUBJECT = True
+
 # List subject to remove, associated with contrast
 SUBJECTS_TO_REMOVE = [
-    {'subject': 'sub-oxfordFmrib04', 'metric': 'csa_t1'},  # T1w scan is not aligned with other contrasts (subject repositioning)
-    {'subject': 'sub-oxfordFmrib04', 'metric': 'csa_t2'},  # T1w scan is not aligned with other contrasts (subject repositioning)
-    {'subject': 'sub-oxfordFmrib04', 'metric': 'mtr'},  # T1w scan is not aligned with other contrasts (subject repositioning)
-    {'subject': 'sub-oxfordFmrib04', 'metric': 'mtsat'},  # T1w scan is not aligned with other contrasts (subject repositioning)
-    {'subject': 'sub-oxfordFmrib04', 'metric': 't1'},  # T1w scan is not aligned with other contrasts (subject repositioning)
-    {'subject': 'sub-oxfordFmrib04', 'metric': 'dti_fa'},  # T1w scan is not aligned with other contrasts (subject repositioning)
+    {'subject': 'sub-oxfordFmrib04', 'metric': 'csa_t1'},
+    # T1w scan is not aligned with other contrasts (subject repositioning)
+    {'subject': 'sub-oxfordFmrib04', 'metric': 'csa_t2'},
+    # T1w scan is not aligned with other contrasts (subject repositioning)
+    {'subject': 'sub-oxfordFmrib04', 'metric': 'mtr'},
+    # T1w scan is not aligned with other contrasts (subject repositioning)
+    {'subject': 'sub-oxfordFmrib04', 'metric': 'mtsat'},
+    # T1w scan is not aligned with other contrasts (subject repositioning)
+    {'subject': 'sub-oxfordFmrib04', 'metric': 't1'},
+    # T1w scan is not aligned with other contrasts (subject repositioning)
+    {'subject': 'sub-oxfordFmrib04', 'metric': 'dti_fa'},
+    # T1w scan is not aligned with other contrasts (subject repositioning)
     {'subject': 'sub-oxfordFmrib01', 'metric': 'dti_fa'},
     {'subject': 'sub-queensland04', 'metric': 'dti_fa'},
     {'subject': 'sub-perform02', 'metric': 'dti_fa'},
@@ -56,13 +66,6 @@ SUBJECTS_TO_REMOVE = [
     {'subject': 'sub-sapienza06', 'metric': 't1'},
     {'subject': 'sub-beijingPrisma03', 'metric': 'dti_fa'},  # wrong FOV placement
 ]
-
-# Initialize logging
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)  # default: logging.DEBUG, logging.INFO
-hdlr = logging.StreamHandler(sys.stdout)
-logging.root.addHandler(hdlr)
-
 
 # country dictionary: key: site, value: country name
 # Flags are downloaded from: https://emojipedia.org/
@@ -176,46 +179,9 @@ scaling_factor = {
     't1': 1000,
 }
 
-# OLD STUFF FOR SINGLE CENTER
-# # Create a dictionary of centers: key: folder name, val: dataframe name
-# centers = {
-#     'chiba_spine-generic_20180608-750': 'Chiba-750',
-#     'juntendo-750w_spine-generic_20180529': 'Juntendo-750w',
-#     'tokyo-univ_spine-generic_20180604-750w': 'TokyoUniv-750w',
-#     'tokyo-univ_spine-generic_20180604-signa1': 'TokyoUniv-Signa1',
-#     'tokyo-univ_spine-generic_20180604-signa2': 'TokyoUniv-Signa2',
-#     'ucl_spine-generic_20171207': 'UCL-Achieva',
-#     'juntendo-achieva_spine-teneric_20180524': 'Juntendo-Achieva',
-#     'glen_spine-generic_20171128': 'Glen-Ingenia',
-#     'tokyo-univ_spine-generic_20180604-ingenia': 'TokyoUniv-Ingenia',
-#     'chiba_spine-generic_20180608-ingenia': 'Chiba-Ingenia',
-#     'mgh-bay3_spine-generic_20171201': 'MGH-Trio',
-#     'douglas_spine-generic_20171127': 'Douglas-Trio',
-#     'poly_spine-generic_20171221': 'Polytechnique-Skyra',
-#     'juntendo-skyra_spine-generic_20180509': 'Juntendo-Skyra',
-#     'tokyo-univ_spine-generic_20180604-skyra': 'TokyoUniv-Skyra',
-#     'unf_sct_026': 'UNF-Prisma',
-#     'oxford_spine-generic_20171209': 'Oxford-Prisma',
-#     'juntendo-prisma_spine-generic_20180523': 'Juntendo-Prisma',
-# }
-# # ylim for figure
-# ylim = {
-#     't1': [40, 90],
-#     't2': [40, 90],
-#     'dmri': [0.4, 0.9],
-#     'mt': [30, 65],
-#     't2s': [10, 20],
-# }
-#
-#
-# # ystep (in yticks) for figure
-# ystep = {
-#     't1': 5,
-#     't2': 5,
-#     'dmri': 0.1,
-#     'mt': 5,
-#     't2s': 1,
-# }
+# FIGURE PARAMETERS
+FONTSIZE = 15
+LABELSIZE = 15
 
 
 def aggregate_per_site(dict_results, metric, env):
@@ -233,10 +199,11 @@ def aggregate_per_site(dict_results, metric, env):
     # Build a dictionary that aggregates values per site
     results_agg = {}
     # Loop across lines and fill dict of aggregated results
-    for i in tqdm.tqdm(range(len(dict_results)), unit='iter', unit_scale=False, desc="Loop across subjects", ascii=False,
+    for i in tqdm.tqdm(range(len(dict_results)), unit='iter', unit_scale=False, desc="Loop across subjects",
+                       ascii=False,
                        ncols=80):
         filename = dict_results[i]['Filename']
-        logger.debug('Filename: '+filename)
+        logger.debug('Filename: ' + filename)
         # Fetch metadata for the site
         # dataset_description = read_dataset_description(filename, path_data)
         # cluster values per site
@@ -251,7 +218,8 @@ def aggregate_per_site(dict_results, metric, env):
             if not site in results_agg.keys():
                 # if this is a new site, initialize sub-dict
                 results_agg[site] = {}
-                results_agg[site]['site'] = site  # need to duplicate in order to be able to sort using vendor AND site with Pandas
+                results_agg[site][
+                    'site'] = site  # need to duplicate in order to be able to sort using vendor AND site with Pandas
                 results_agg[site]['vendor'] = participants['manufacturer'][rowIndex].get_values()[0]
                 results_agg[site]['model'] = participants['manufacturers_model_name'][rowIndex].get_values()[0]
                 results_agg[site]['val'] = []
@@ -269,6 +237,7 @@ def add_flag(coord, name, ax):
     :param name Name of the country
     :param ax Matplotlib ax
     """
+
     def _get_flag(name):
         """
         Get the flag of a country from the folder flags.
@@ -280,7 +249,7 @@ def add_flag(coord, name, ax):
 
     img = _get_flag(name)
     img_rot = ndimage.rotate(img, 45)
-    im = OffsetImage(img_rot.clip(0, 1), zoom=0.2)
+    im = OffsetImage(img_rot.clip(0, 1), zoom=0.15)
     im.image.axes = ax
 
     ab = AnnotationBbox(im, (coord, 0), frameon=False, pad=0, xycoords='data')
@@ -304,10 +273,10 @@ def add_stats_per_vendor(ax, x_i, x_j, y_max, mean, std, cov_intra, cov_inter, f
     :param color
     """
     # add stats as strings
-    txt = "{0:.2f} $\pm$ {1:.2f}\nCOV intra:{2:.2f}%, inter:{3:.2f}%".\
+    txt = "{0:.2f} $\pm$ {1:.2f}\nCOV intra:{2:.2f}%, inter:{3:.2f}%". \
         format(mean * f, std * f, cov_intra * 100., cov_inter * 100.)
-    ax.annotate(txt, xy = (np.mean([x_i, x_j]), y_max), va='center', ha='center',
-        bbox=dict(edgecolor='none', fc=color, alpha=0.3))
+    ax.annotate(txt, xy=(np.mean([x_i, x_j]), y_max), va='center', ha='center',
+                bbox=dict(edgecolor='none', fc=color, alpha=0.3))
     # add rectangle for variance
     rect = patches.Rectangle((x_i, (mean - std) * f), x_j - x_i, 2 * std * f,
                              edgecolor=None, facecolor=color, alpha=0.3)
@@ -375,6 +344,7 @@ def get_env(file_param):
     :param file_param:
     :return: env: dictionary of all environment variables declared in the shell script
     """
+    logger.debug("\nFetch environment variables from file: {}".format(file_param))
     env = {}
     p = subprocess.Popen('env', stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     oldEnv = p.communicate()[0].decode('utf-8')
@@ -390,7 +360,7 @@ def get_env(file_param):
                 break
         if flag:
             # exported by setenv.sh
-            logger.debug("Environment variables: {}".format(newStr))
+            logger.debug("  {}".format(newStr))
             # add to dictionary
             env[newStr.split('=')[0]] = newStr.split('=')[1]
     return env
@@ -403,9 +373,9 @@ def label_bar_model(ax, bar_plot, model_lst):
     :param bar_plot Matplotlib object
     :param model_lst sorted list of model names
     """
-    height = bar_plot[0].get_height() # in order to align all the labels along y-axis
-    for idx,rect in enumerate(bar_plot):
-        ax.text(rect.get_x() + rect.get_width()/2., 0.1 * height,
+    height = bar_plot[0].get_height()  # in order to align all the labels along y-axis
+    for idx, rect in enumerate(bar_plot):
+        ax.text(rect.get_x() + rect.get_width() / 2., 0.1 * height,
                 model_lst[idx], color='white', weight='bold',
                 ha='center', va='bottom', rotation=90)
     return ax
@@ -424,6 +394,33 @@ def remove_subject(subject, metric):
     return False
 
 
+def compute_regression(CSA_dict, vendor):
+    """
+    Compute linear regression for T1w and T2 CSA agreement
+    :param CSA_dict: dict with T1w and T2w CSA values
+    :param vendor: vendor name
+    :return: results of linear regression
+    """
+    # Y = Slope*X + Intercept
+
+    # create object for the class
+    linear_regression = LinearRegression()
+    # perform linear regression (compute slope and intercept)
+    linear_regression.fit(np.concatenate(CSA_dict[vendor + '_t2'], axis=0).reshape(-1, 1),
+                          np.concatenate(CSA_dict[vendor + '_t1'], axis=0).reshape(-1, 1))
+    intercept = linear_regression.intercept_
+    slope = linear_regression.coef_
+
+    # compute prediction
+    reg_predictor = linear_regression.predict(
+        np.concatenate(CSA_dict[vendor + '_t2'], axis=0).reshape(-1, 1))
+    # compute coefficient of determination R^2 of the prediction
+    r2_sc = linear_regression.score(np.concatenate(CSA_dict[vendor + '_t2'], axis=0).reshape(-1, 1),
+                          np.concatenate(CSA_dict[vendor + '_t1'], axis=0).reshape(-1, 1))
+
+    return intercept, slope, reg_predictor, r2_sc
+
+
 def main():
     # TODO: make "results" an input param
 
@@ -432,11 +429,14 @@ def main():
     # fetch all .csv result files
     csv_files = glob.glob(os.path.join(env['PATH_RESULTS'], '*.csv'))
 
+    if not csv_files:
+        raise RuntimeError("Variable 'csv_files' is empty. Check your input paths.")
+
     # loop across results and generate figure
     for csv_file in csv_files:
 
         # Open CSV file and create dict
-        logger.info('\nProcessing: '+csv_file)
+        logger.info('\nProcessing: ' + csv_file)
         dict_results = []
         with open(csv_file, newline='') as f_csv:
             reader = csv.DictReader(f_csv)
@@ -482,6 +482,7 @@ def main():
 
         # Create figure and plot bar graph
         # WARNING: The line below crashes when running debugger in Pycharm: https://github.com/MTG/sms-tools/issues/36
+        # with python 3.7.3. To fix the problem, run in virtual env python 3.7.0.
         fig, ax = plt.subplots(figsize=(15, 8))
         # TODO: show only superior part of STD
         plt.grid(axis='y')
@@ -497,7 +498,7 @@ def main():
         ax = label_bar_model(ax, bar_plot, model_sorted)  # add ManufacturersModelName embedded in each bar
         plt.setp(ax.xaxis.get_majorticklabels(), rotation=45, ha="right")  # rotate xticklabels at 45deg, align at end
         plt.xlim([-1, len(site_sorted)])
-        ax.set_xticklabels([s + ' ' for s in site_sorted])  # add space after the site name to allow space for flag
+        ax.set_xticklabels([s for s in site_sorted])  # add space after the site name to allow space for flag
         # ax.get_xaxis().set_visible(True)
         ax.tick_params(labelsize=15)
         # plt.ylim(ylim[contrast])
@@ -516,8 +517,8 @@ def main():
         for vendor in list(OrderedDict.fromkeys(vendor_sorted)):
             n_site = list(vendor_sorted).count(vendor)
             ax = add_stats_per_vendor(ax=ax,
-                                      x_i=x_init_vendor-0.5,
-                                      x_j=x_init_vendor+n_site-1+0.5,
+                                      x_i=x_init_vendor - 0.5,
+                                      x_j=x_init_vendor + n_site - 1 + 0.5,
                                       y_max=y_max,
                                       mean=stats['mean'][vendor],
                                       std=stats['std'][vendor],
@@ -528,9 +529,75 @@ def main():
             x_init_vendor += n_site
 
         plt.tight_layout()  # make sure everything fits
-        fname_fig = os.path.join(env['PATH_RESULTS'], 'fig_'+metric+'.png')
+        fname_fig = os.path.join(env['PATH_RESULTS'], 'fig_' + metric + '.png')
         plt.savefig(fname_fig)
-        logger.info('Created: '+fname_fig)
+        logger.info('Created: ' + fname_fig)
+
+        # Get T1w and T2w CSA from pandas df structure
+        if metric == "csa_t1":
+            CSA_t1 = df.sort_values('vendor').values
+        elif metric == "csa_t2":
+            CSA_t2 = df.sort_values('vendor').values
+
+    # Create dictionary with CSA for T1w and T2w
+    CSA_dict = defaultdict(list)
+    for index, vendor in enumerate(df.sort_values('vendor')['vendor']):  # loop through individual vendors
+        CSA_dict[vendor + '_t1'].append(np.asarray(CSA_t1[index, 3]))
+        CSA_dict[vendor + '_t2'].append(np.asarray(CSA_t2[index, 3]))
+
+    # Generate figure for T1w and T2w agreement for all vendors together
+    fig, ax = plt.subplots(figsize=(7, 7))
+    for vendor in list(OrderedDict.fromkeys(vendor_sorted)):  # Loop through vendors
+        plt.scatter(np.concatenate(CSA_dict[vendor + '_t2'], axis=0),
+                    np.concatenate(CSA_dict[vendor + '_t1'], axis=0),
+                    s=50,
+                    linewidths=2,
+                    facecolors='none',
+                    edgecolors=vendor_to_color[vendor],
+                    label=vendor)
+    ax.tick_params(labelsize=LABELSIZE)
+    plt.plot([45, 100], [45, 100], ls="--", c=".3")  # add diagonal line
+    plt.title("CSA agreement between T1w and T2w data")
+    plt.xlim(45, 100)
+    plt.ylim(45, 100)
+    plt.gca().set_aspect('equal', adjustable='box')
+    plt.xlabel("T2w CSA", fontsize=FONTSIZE)
+    plt.ylabel("T1w CSA", fontsize=FONTSIZE)
+    plt.grid(True)
+    plt.legend(fontsize=FONTSIZE)
+    plt.tight_layout()
+    fname_fig = os.path.join(env['PATH_RESULTS'], 'fig_t1_t2_agreement.png')
+    plt.savefig(fname_fig, dpi=200)
+    logger.info('Created: ' + fname_fig)
+
+    # Generate figure for T1w and T2w agreement per vendor
+    plt.subplots(figsize=(15, 5))
+    for index, vendor in enumerate(list(OrderedDict.fromkeys(vendor_sorted))):
+        ax = plt.subplot(1, 3, index + 1)
+        plt.scatter(np.concatenate(CSA_dict[vendor + '_t2'], axis=0),
+                    np.concatenate(CSA_dict[vendor + '_t1'], axis=0),
+                    s=50,
+                    linewidths=2,
+                    facecolors='none',
+                    edgecolors=vendor_to_color[vendor],
+                    label=vendor)
+        plt.xlim(45, 100)
+        plt.ylim(45, 100)
+        plt.gca().set_aspect('equal', adjustable='box')
+        plt.xlabel("T2w CSA", fontsize=FONTSIZE)
+        plt.ylabel("T1w CSA", fontsize=FONTSIZE)
+        plt.grid(True)
+        plt.legend(fontsize=FONTSIZE)
+        intercept, slope, reg_predictor, r2_sc = compute_regression(CSA_dict, vendor)
+        plt.text(ax.get_xlim()[1] - 50, ax.get_xlim()[1] - 5,
+                 "y = {0:.4}x + {1:.4}\nR\u00b2 = {2:.4}".format(float(slope), float(intercept), float(r2_sc)),
+                 ha='left', va='center')
+        plt.plot(np.concatenate(CSA_dict[vendor + '_t2'], axis=0).reshape(-1, 1), reg_predictor, color='red')
+    plt.suptitle("CSA agreement between T1w and T2w data per vendors")
+    plt.tight_layout()
+    fname_fig = os.path.join(env['PATH_RESULTS'], 'fig_t1_t2_agreement_per_vendor.png')
+    plt.savefig(fname_fig, dpi=200)
+    logger.info('Created: ' + fname_fig)
 
 
 def get_parameters():
