@@ -41,22 +41,23 @@ DISPLAY_INDIVIDUAL_SUBJECT = True
 
 # List subject to remove, associated with contrast
 SUBJECTS_TO_REMOVE = [
-    {'subject': 'sub-oxfordFmrib04', 'metric': 'csa_t1'},
-    # T1w scan is not aligned with other contrasts (subject repositioning)
-    {'subject': 'sub-oxfordFmrib04', 'metric': 'csa_t2'},
-    # T1w scan is not aligned with other contrasts (subject repositioning)
-    {'subject': 'sub-oxfordFmrib04', 'metric': 'mtr'},
-    # T1w scan is not aligned with other contrasts (subject repositioning)
-    {'subject': 'sub-oxfordFmrib04', 'metric': 'mtsat'},
-    # T1w scan is not aligned with other contrasts (subject repositioning)
-    {'subject': 'sub-oxfordFmrib04', 'metric': 't1'},
-    # T1w scan is not aligned with other contrasts (subject repositioning)
-    {'subject': 'sub-oxfordFmrib04', 'metric': 'dti_fa'},
-    # T1w scan is not aligned with other contrasts (subject repositioning)
-    {'subject': 'sub-oxfordFmrib01', 'metric': 'dti_fa'},
-    {'subject': 'sub-queensland04', 'metric': 'dti_fa'},
-    {'subject': 'sub-perform02', 'metric': 'dti_fa'},
-    {'subject': 'sub-tehranS04', 'metric': 'mtr'},
+    {'subject': 'sub-oxfordFmrib04', 'metric': 'csa_t1'},  # T1w scan is not aligned with other contrasts (subject repositioning)
+    {'subject': 'sub-oxfordFmrib04', 'metric': 'csa_t2'},  # T1w scan is not aligned with other contrasts (subject repositioning)
+    {'subject': 'sub-oxfordFmrib04', 'metric': 'mtr'},  # T1w scan is not aligned with other contrasts (subject repositioning)
+    {'subject': 'sub-oxfordFmrib04', 'metric': 'mtsat'},  # T1w scan is not aligned with other contrasts (subject repositioning)
+    {'subject': 'sub-oxfordFmrib04', 'metric': 't1'},  # T1w scan is not aligned with other contrasts (subject repositioning)
+    # DTI
+    {'subject': 'sub-barcelona06', 'metric': 'dti_fa'},  # issue with 2nd segmentation (centerline init)
+    {'subject': 'sub-beijingPrisma01', 'metric': 'dti_fa'},  # issue with 2nd segmentation (centerline init)
+    {'subject': 'sub-beijingPrisma03', 'metric': 'dti_fa'},  # wrong FOV placement
+    {'subject': 'sub-cardiff06', 'metric': 'dti_fa'},  # issue with 2nd segmentation (centerline init)
+    {'subject': 'sub-oxfordFmrib04', 'metric': 'dti_fa'},  # T1w scan is not aligned with other contrasts (subject repositioning)
+    {'subject': 'sub-oxfordFmrib01', 'metric': 'dti_fa'},  # registration issue (segmentation OK)
+    {'subject': 'sub-oxfordOhba02', 'metric': 'dti_fa'},  # issue with 2nd segmentation (centerline init)
+    {'subject': 'sub-oxfordOhba04', 'metric': 'dti_fa'},  # registration issue (segmentation OK)
+    {'subject': 'sub-queensland04', 'metric': 'dti_fa'},  # issue with 2nd segmentation (centerline init)
+    {'subject': 'sub-perform02', 'metric': 'dti_fa'},  # issue with 2nd segmentation (centerline init)
+    # MTR
     {'subject': 'sub-geneva02', 'metric': 'mtr'},
     {'subject': 'sub-tehranS04', 'metric': 'mtsat'},
     {'subject': 'sub-geneva02', 'metric': 'mtsat'},
@@ -64,7 +65,6 @@ SUBJECTS_TO_REMOVE = [
     {'subject': 'sub-sapienza04', 'metric': 't1'},
     {'subject': 'sub-sapienza05', 'metric': 't1'},
     {'subject': 'sub-sapienza06', 'metric': 't1'},
-    {'subject': 'sub-beijingPrisma03', 'metric': 'dti_fa'},  # wrong FOV placement
 ]
 
 # country dictionary: key: site, value: country name
