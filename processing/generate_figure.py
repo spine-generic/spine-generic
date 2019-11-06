@@ -8,6 +8,9 @@
 # where PARAMETER_FILE is the file used by sct_run_batch to produce the results. More info at:
 # https://spine-generic.readthedocs.io/en/latest/documentation.html#how-to-run
 #
+# Note: Matplotlib crashes when running debugger in Pycharm with python 3.7.3. To fix the problem, run this script
+# using a virtual env python 3.7.0. More info at: https://github.com/MTG/sms-tools/issues/36
+#
 # Authors: Julien Cohen-Adad, Jan Valosek
 
 import os
@@ -55,6 +58,8 @@ SUBJECTS_TO_REMOVE = [
     {'subject': 'sub-queensland04', 'metric': 'dti_fa'},  # issue with 2nd segmentation (centerline init)
     {'subject': 'sub-perform02', 'metric': 'dti_fa'},  # issue with 2nd segmentation (centerline init)
     # MTR
+    # {'subject': 'sub-beijingPrisma01', 'metric': 'mtr'},  # segmentation issue
+    {'subject': 'sub-beijingPrisma04', 'metric': 'mtr'},  # different coil, shim value and FOV placement between MTon and MToff
     {'subject': 'sub-geneva02', 'metric': 'mtr'},  # FOV positioning changed between MTon and MToff
     {'subject': 'sub-oxfordFmrib04', 'metric': 'mtr'},  # T1w scan is not aligned with other contrasts (subject repositioning)
     # MTsat
@@ -68,6 +73,11 @@ SUBJECTS_TO_REMOVE = [
     {'subject': 'sub-sapienza05', 'metric': 't1'},
     {'subject': 'sub-sapienza06', 'metric': 't1'},
 ]
+
+# List of sites to exclude based on the metric
+SITES_TO_EXCLUDE = {
+    'mtr': ['stanford', 'sapienza']
+}
 
 # country dictionary: key: site, value: country name
 # Flags are downloaded from: https://emojipedia.org/
@@ -251,7 +261,7 @@ def add_flag(coord, name, ax):
 
     img = _get_flag(name)
     img_rot = ndimage.rotate(img, 45)
-    im = OffsetImage(img_rot.clip(0, 1), zoom=0.15)
+    im = OffsetImage(img_rot.clip(0, 1), zoom=0.18)
     im.image.axes = ax
 
     ab = AnnotationBbox(im, (coord, 0), frameon=False, pad=0, xycoords='data')
@@ -288,10 +298,11 @@ def add_stats_per_vendor(ax, x_i, x_j, y_max, mean, std, cov_intra, cov_inter, f
     return ax
 
 
-def compute_statistics(df):
+def compute_statistics(df, sites_to_exclude=[]):
     """
     Compute statistics such as mean, std, COV, etc.
     :param df Pandas structure
+    :param sites_to_exclude: list: sites to exclude from the statistics
     """
     vendors = ['GE', 'Philips', 'Siemens']
     mean_per_row = []
@@ -316,7 +327,8 @@ def compute_statistics(df):
         if not 'std' in stats.keys():
             stats['std'] = {}
         # fetch vals for specific vendor
-        val_per_vendor = df['mean'][df['vendor'] == vendor].values
+        val_per_vendor = df['mean'][(df['vendor'] == vendor) & (~df['site'].isin(sites_to_exclude))]
+        # val_per_vendor = df['mean'][df['vendor'] == vendor].values
 
         stats['mean'][vendor] = np.mean(val_per_vendor)
         stats['std'][vendor] = np.std(val_per_vendor)
@@ -456,7 +468,11 @@ def main():
         df = pd.DataFrame.from_dict(results_dict, orient='index')
 
         # Compute statistics
-        df, stats = compute_statistics(df)
+        if metric not in SITES_TO_EXCLUDE.keys():
+            sites_to_exclude = []
+        else:
+            sites_to_exclude = SITES_TO_EXCLUDE[metric]
+        df, stats = compute_statistics(df, sites_to_exclude)
 
         # sites = list(results_agg.keys())
         # val_mean = [np.mean(values_per_site) for values_per_site in list(results_agg.values())]
@@ -483,8 +499,6 @@ def main():
         list_colors = [vendor_to_color[i] for i in vendor_sorted]
 
         # Create figure and plot bar graph
-        # WARNING: The line below crashes when running debugger in Pycharm: https://github.com/MTG/sms-tools/issues/36
-        # with python 3.7.3. To fix the problem, run in virtual env python 3.7.0.
         fig, ax = plt.subplots(figsize=(15, 8))
         # TODO: show only superior part of STD
         plt.grid(axis='y')
