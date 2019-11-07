@@ -3,10 +3,11 @@
 # XX
 #
 # USAGE:
-#   ${SCT_DIR}/python/bin/python XX
+#   ${SCT_DIR}/python/envs/venv_sct/bin/python create_mosaic.py
 #
-#   Example:
-#     XX
+# EXAMPLE:
+#   ${SCT_DIR}/python/envs/venv_sct/bin/python create_mosaic.py -i *T1w_RPI_r_flatten.nii.gz -ifolder /Volumes/projects/spine_generic/spineGeneric_20191104/results/data -s _seg.nii.gz -p sag -col 18 -row 12 -o fig_mosaic_t1.png
+#
 #
 # DEPENDENCIES:
 #   SCT
@@ -25,7 +26,7 @@ from spinalcordtoolbox.utils import __sct_dir__
 sys.path.append(os.path.join(__sct_dir__, "scripts"))
 from spinalcordtoolbox.image import Image
 import spinalcordtoolbox.reports.slice as qcslice
-from spinalcordtoolbox.resampling import resample_nipy
+from spinalcordtoolbox.resampling import resample_nib
 import sct_utils as sct
 
 affine = np.eye(4)
@@ -105,7 +106,9 @@ def main():
             else:
                 sag_im = Image(file).change_orientation('RSP')
                 if not np.isclose(sag_im.dim[5], sag_im.dim[6]):  # in case data is anisotropic
-                    sag_im = resample_nipy(sag_im.copy(), new_size=[sag_im.dim[4], sag_im.dim[5], sag_im.dim[5]], new_size_type='mm')
+                    raise NotImplementedError("The line of code below was using resample_nipy. We should refactor it "
+                                              "with the new resample_nib. TODO!")
+                    # sag_im = resample_nib(sag_im.copy(), new_size=[sag_im.dim[4], sag_im.dim[5], sag_im.dim[5]], new_size_type='mm')
                 mid_slice_idx = int(sag_im.dim[0] // 2)
                 mid_slice = sag_im.data[mid_slice_idx, :, :]
                 del sag_im
