@@ -106,9 +106,7 @@ def main():
             else:
                 sag_im = Image(file).change_orientation('RSP')
                 if not np.isclose(sag_im.dim[5], sag_im.dim[6]):  # in case data is anisotropic
-                    raise NotImplementedError("The line of code below was using resample_nipy. We should refactor it "
-                                              "with the new resample_nib. TODO!")
-                    # sag_im = resample_nib(sag_im.copy(), new_size=[sag_im.dim[4], sag_im.dim[5], sag_im.dim[5]], new_size_type='mm')
+                    sag_im = resample_nib(sag_im.copy(), new_size=[sag_im.dim[4], sag_im.dim[5], sag_im.dim[5]], new_size_type='mm')
                 mid_slice_idx = int(sag_im.dim[0] // 2)
                 mid_slice = sag_im.data[mid_slice_idx, :, :]
                 del sag_im
