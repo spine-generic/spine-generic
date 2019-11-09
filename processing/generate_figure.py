@@ -514,7 +514,13 @@ def main():
         ax = label_bar_model(ax, bar_plot, model_sorted)  # add ManufacturersModelName embedded in each bar
         plt.setp(ax.xaxis.get_majorticklabels(), rotation=45, ha="right")  # rotate xticklabels at 45deg, align at end
         plt.xlim([-1, len(site_sorted)])
-        ax.set_xticklabels([s for s in site_sorted])  # add space after the site name to allow space for flag
+
+        # Change site names
+        site_sorted_fix = site_sorted.copy()
+        site_sorted_fix[site_sorted == 'brno'] = 'brnoUH'
+        site_sorted_fix[site_sorted == 'brnoPrisma'] = 'brnoCEITEC'
+
+        ax.set_xticklabels([s for s in site_sorted_fix])  # add space after the site name to allow space for flag
         # ax.get_xaxis().set_visible(True)
         ax.tick_params(labelsize=15)
         # plt.ylim(ylim[contrast])
