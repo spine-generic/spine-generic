@@ -204,8 +204,8 @@ Example datasets
 
 As a starting point, you could use either of these example datasets:
 
-- Multi-center, single-subject (WIP)
-- `Multi-center, multi-subjects <https://openneuro.org/datasets/ds001919>`__
+- `Multi-center, single-subject <https://openneuro.org/datasets/ds002393>`__
+- `Multi-center, multi-subject <https://openneuro.org/datasets/ds001919>`__
 
 
 
@@ -225,12 +225,13 @@ Install Python dependencies:
   cd spine-generic
   pip install -e .
 
-Copy and rename the parameter file:
+Go outside of this git repos and create a folder where outputs will be created
 
 .. code-block:: bash
 
-  cd processing
-  cp parameters_template.sh parameters.sh
+  mkdir ~/spineGeneric_results
+  cp processing/parameters_template.sh ~/spineGeneric_results/parameters.sh
+  cd ~/spineGeneric_results
 
 Edit the parameter file and modify the variables according to your needs:
 
