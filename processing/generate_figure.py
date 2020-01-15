@@ -438,6 +438,9 @@ def compute_regression(CSA_dict, vendor):
 def main():
     # TODO: make "results" an input param
 
+    args = get_parameters()
+    file_param = args.file_param
+
     env = get_env(file_param)
 
     # fetch all .csv result files
@@ -627,6 +630,4 @@ def get_parameters():
 
 
 if __name__ == "__main__":
-    args = get_parameters()
-    file_param = args.file_param
     main()
