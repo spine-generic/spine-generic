@@ -374,6 +374,17 @@ Once you've corrected all the necessary files, re-run the whole process.
 If the manual file exists, the script will use it in the processing.
 
 
+Generate figures
+----------------
+
+Generate figures based on the output csv files. Figures will be created in the
+folder `results/`:
+
+.. code-block:: bash
+
+  generate_figure parameters.sh
+
+
 
 Contributors
 ------------
