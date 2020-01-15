@@ -226,14 +226,14 @@ def aggregate_per_site(dict_results, metric, env):
             rowIndex = participants[participants['participant_id'] == subject].index
             # Add column "val" with metric value
             participants.loc[rowIndex, 'val'] = dict_results[i][metric_field]
-            site = participants['institution_id'][rowIndex].get_values()[0]
+            site = participants['institution_id'][rowIndex].array[0]
             if not site in results_agg.keys():
                 # if this is a new site, initialize sub-dict
                 results_agg[site] = {}
                 results_agg[site][
                     'site'] = site  # need to duplicate in order to be able to sort using vendor AND site with Pandas
-                results_agg[site]['vendor'] = participants['manufacturer'][rowIndex].get_values()[0]
-                results_agg[site]['model'] = participants['manufacturers_model_name'][rowIndex].get_values()[0]
+                results_agg[site]['vendor'] = participants['manufacturer'][rowIndex].array[0]
+                results_agg[site]['model'] = participants['manufacturers_model_name'][rowIndex].array[0]
                 results_agg[site]['val'] = []
             # add val for site (ignore None)
             val = dict_results[i][metric_field]
