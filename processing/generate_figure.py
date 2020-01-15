@@ -14,8 +14,6 @@
 # Authors: Julien Cohen-Adad, Jan Valosek
 
 
-# TODO: replace panda .get_value() by .array
-
 import os
 import argparse
 import tqdm
@@ -526,8 +524,12 @@ def main():
         plt.ylabel(metric_to_label[metric], fontsize=15)
 
         # add country flag of each site
-        # for i, c in enumerate(site_sorted):
-        #     ax = add_flag(i, flags[c], ax)
+        for i, c in enumerate(site_sorted):
+            try:
+                ax = add_flag(i, flags[c], ax)
+            except KeyError:
+                logger.error('ERROR: Flag {} is not defined in dict flags'.format(c))
+                sys.exit(1)
 
         # add stats per vendor
         x_init_vendor = 0
