@@ -13,6 +13,9 @@
 #
 # Authors: Julien Cohen-Adad, Jan Valosek
 
+
+# TODO: replace panda .get_value() by .array
+
 import os
 import argparse
 import tqdm
@@ -525,8 +528,8 @@ def main():
         plt.ylabel(metric_to_label[metric], fontsize=15)
 
         # add country flag of each site
-        for i, c in enumerate(site_sorted):
-            ax = add_flag(i, flags[c], ax)
+        # for i, c in enumerate(site_sorted):
+        #     ax = add_flag(i, flags[c], ax)
 
         # add stats per vendor
         x_init_vendor = 0
@@ -622,9 +625,9 @@ def main():
 def get_parameters():
     parser = argparse.ArgumentParser(
         description="Generate figures for the spine-generic project. Figures are output in the 'results' folder",
-        epilog="Example: python generate_figures parameters.sh")
-    parser.add_argument("file_param",
-                        help="Parameter file. See: https://spine-generic.readthedocs.io for more details.")
+        epilog="Example: generate_figure parameters.sh")
+    parser.add_argument(
+        'file_param', help="Parameter file. See: https://spine-generic.readthedocs.io for more details.")
     args = parser.parse_args()
     return args
 

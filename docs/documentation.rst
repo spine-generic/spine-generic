@@ -382,7 +382,7 @@ folder `results/`:
 
 .. code-block:: bash
 
-  generate_figure parameters.sh
+  generate_figures parameters.sh
 
 
 
