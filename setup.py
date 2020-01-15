@@ -28,22 +28,10 @@ setup(
         'Programming Language :: Python :: 3.7',
     ],
     keywords='',
-    # packages=find_packages(exclude=['contrib', 'docs', 'tests']),
     install_requires=install_reqs,
-    # package_dir={'AxonDeepSeg': 'AxonDeepSeg'},
-    # package_data={
-    #     "AxonDeepSeg": ['models/default_SEM_model_v1/*',
-    #                     'models/default_TEM_model_v1/*',
-    #                     'data_test/*'],
-    # },
-    # extras_require={
-    #     'docs': ['sphinx>=1.6',
-    #              'sphinx_rtd_theme>=0.2.4'],
-    # },
-    # include_package_data=True,
-    # entry_points={
-    #     'console_scripts': [
-    #         'spinegeneric = AxonDeepSeg.segment:main','axondeepseg_test = AxonDeepSeg.integrity_test:integrity_test'
-    #     ],
-    # },
+    entry_points={
+        'console_scripts': [
+            'generate_figure = processing.generate_figure:main'
+        ],
+    },
 )
