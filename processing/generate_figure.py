@@ -42,9 +42,6 @@ logger.setLevel(logging.INFO)  # default: logging.DEBUG, logging.INFO
 hdlr = logging.StreamHandler(sys.stdout)
 logging.root.addHandler(hdlr)
 
-# Initialize global variables
-DISPLAY_INDIVIDUAL_SUBJECT = True
-
 # List subject to remove, associated with contrast
 SUBJECTS_TO_REMOVE = [
     {'subject': 'sub-oxfordFmrib04', 'metric': 'csa_t1'},  # T1w scan is not aligned with other contrasts (subject repositioning)
@@ -443,6 +440,7 @@ def main():
 
     args = get_parameters()
     file_param = args.file_param
+    display_individual_subjects = args.indiv_subj
 
     env = get_env(file_param)
 
@@ -512,7 +510,7 @@ def main():
         bar_plot = plt.bar(range(len(site_sorted)), height=mean_sorted, width=0.5,
                            tick_label=site_sorted, yerr=[[0 for v in std_sorted], std_sorted], color=list_colors)
 
-        if DISPLAY_INDIVIDUAL_SUBJECT:
+        if display_individual_subjects:
             for site in site_sorted:
                 index = list(site_sorted).index(site)
                 val = df['val'][site]
@@ -627,7 +625,15 @@ def get_parameters():
         description="Generate figures for the spine-generic project. Figures are output in the 'results' folder",
         epilog="Example: generate_figure parameters.sh")
     parser.add_argument(
-        'file_param', help="Parameter file. See: https://spine-generic.readthedocs.io for more details.")
+        'file_param',
+        help="Parameter file. See: https://spine-generic.readthedocs.io for more details.")
+    parser.add_argument(
+        '-indiv-subj',
+        type=int,
+        choices=(0, 1),
+        required=False,
+        help="Display the value of each individual subject as a red dot.",
+        default=1)
     args = parser.parse_args()
     return args
 
