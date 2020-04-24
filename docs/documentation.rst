@@ -166,7 +166,23 @@ defaced subject:
 
    Example of manual defacing.
 
+Defacing using R
+------------------------
 
+1. Install R and the following depdendencies:
+.. code-block:: R
+  install.packages("sessioninfo")
+  install.packages("remotes")
+  remotes::install_github("muschellij2/oro.nifti")
+  install.packages("fslr")
+  install.packages("argparser")
+  install.packages("devtools")
+  remotes::install_github("muschellij2/extrantsr")
+
+
+2. Call `deface_spineGeneric_usingR -i PATH_TO_DATASET_TO_DEFACE -o PATH_TO_OUTPUT_DATASET_DEFACED`. If you use the command for the first time and you want to populate the `_defaced` folder add the `-f` flag at the end. 
+
+3. For qc report, call `qc_bids_deface.py`
 
 Analysis pipeline
 =================
