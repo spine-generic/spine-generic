@@ -170,6 +170,7 @@ Defacing using R
 ------------------------
 
 1. Install R and the following depdendencies:
+
 .. code-block:: R
   install.packages("sessioninfo")
   install.packages("remotes")
