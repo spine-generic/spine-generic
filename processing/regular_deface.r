@@ -1,3 +1,5 @@
+# This script has to be located in the same location as deface_spineGeneric_usingR.py
+
 library(RNifti)
 library(fslr)
 library(argparser, quietly=TRUE)
