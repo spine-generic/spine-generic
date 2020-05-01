@@ -1,3 +1,9 @@
+## This script is used to do a batch defacing of T1w & T2w scans using R
+## Basic usage example: 
+## deface_spineGeneric_usingR -i PATH_TO_DATASET_TO_DEFACE -o PATH_TO_OUTPUT_DATASET_DEFACED -f
+## If you use the command for the first time and you want to populate the `_defaced` folder add the `-f` flag at the end. 
+
+
 import argparse,os, shutil
 
 def get_parameters():
