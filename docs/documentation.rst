@@ -151,11 +151,37 @@ public domain."
 
 Anatomical scans where facial features are visible (T1w) could be
 "defaced" before being collected (at the discretion of the subject).
-Because FreeSurfer's ``mri_deface`` does not work well on those data
-(which include a big portion of the spine), we recommend to do the
-defacing manually. It is a very easy procedure that takes less than a
-minute. To do so, open Fsleyes (as an example, but you could use another
-MRI editor) and open the T1w scan. Go to **Tools > Edit mode**, Select
+
+This can be done automatically using R or manually, in case the automatic 
+defacing fails.
+
+Defacing using R
+------------------------
+
+1. Install R and the following depdendencies:
+
+.. code-block:: R
+  install.packages("sessioninfo")
+  install.packages("remotes")
+  remotes::install_github("muschellij2/oro.nifti")
+  install.packages("fslr")
+  install.packages("argparser")
+  install.packages("devtools")
+  remotes::install_github("muschellij2/extrantsr")
+
+
+2. Call `deface_spineGeneric_usingR -i PATH_TO_DATASET_TO_DEFACE -o PATH_TO_OUTPUT_DATASET_DEFACED`. If you use the command for the first time and you want to populate the `_defaced` folder add the `-f` flag at the end. 
+
+3. For qc report, call `qc_bids_deface.py`
+
+Manual Defacing
+------------------------
+
+Because sometimes the automatic defacing suggested above might
+fail for some subjects, we recommend to do the defacing manually. 
+It is a very easy procedure that takes less than a minute. To do so, 
+open Fsleyes (as an example, but you could use another MRI editor)
+ and open the T1w scan. Go to **Tools > Edit mode**, Select
 the pencil with size 100, deface, then save. Below is an example of a
 defaced subject:
 
@@ -165,9 +191,7 @@ defaced subject:
    :scale: 70%
 
    Example of manual defacing.
-
-
-
+   
 Analysis pipeline
 =================
 
