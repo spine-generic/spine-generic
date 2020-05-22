@@ -425,10 +425,8 @@ folder `results/`:
 Contributors
 ------------
 
-`List of contributors for the analysis
-pipeline. <https://github.com/sct-pipeline/spine-generic/graphs/contributors>`__
-
-`How to contribute? <https://github.com/sct-pipeline/spine-generic/blob/master/CONTRIBUTING.md>`_
+A list of contributors for the analysis pipeline is available `here <https://github.com/sct-pipeline/spine-generic/graphs/contributors>`__.
+If you would like to contribute to this project, please see our `contribution guidelines <https://github.com/sct-pipeline/spine-generic/blob/master/CONTRIBUTING.md>`_.
 
 
 License
