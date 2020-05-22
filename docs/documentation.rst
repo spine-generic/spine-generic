@@ -406,8 +406,17 @@ Once all labels are created, move the content of seg_manual to the up-to-date
 `seg_manual` folder (that contains other manual corrections, and that will be
 used for the next processing iteration).
 
-Once you've corrected all the necessary files, re-run the whole process.
-If the manual file exists, the script will use it in the processing.
+Re-run the analysis
+^^^^^^^^^^^^^^^^^^^
+
+After you have corrected all the necessary segmentations/labels, you can re-run
+the entire analysis. If the manually-corrected file exists, the script will use it in the
+processing instead of re-creating a new one. In order to account for the
+manually-corrected files, make sure to add the flag `-path-segmanual`. Example:
+
+.. code-block:: bash
+
+  sct_run_batch -jobs -1 -path-data ~/data/spineGeneric_6subj -path-output ~/spineGeneric_results_new -path-segmanual ~/spineGeneric_results_new/seg_manual processing/process_data.sh
 
 
 Generate figures
