@@ -152,15 +152,17 @@ public domain."
 Anatomical scans where facial features are visible (T1w) could be
 "defaced" before being collected (at the discretion of the subject).
 
-This can be done automatically using R or manually, in case the automatic 
+This can be done automatically using R or manually, in case the automatic
 defacing fails.
 
-Defacing using R
-------------------------
 
-1. Install R and the following depdendencies:
+Automatic defacing with R
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+1. Install R and the following dependencies:
 
 .. code-block:: R
+
   install.packages("sessioninfo")
   install.packages("remotes")
   remotes::install_github("muschellij2/oro.nifti")
@@ -169,21 +171,32 @@ Defacing using R
   install.packages("devtools")
   remotes::install_github("muschellij2/extrantsr")
 
+2. Run:
 
-2. Call `deface_spineGeneric_usingR -i PATH_TO_DATASET_TO_DEFACE -o PATH_TO_OUTPUT_DATASET_DEFACED`. If you use the command for the first time and you want to populate the `_defaced` folder add the `-f` flag at the end. 
+.. code-block:: bash
 
-3. For qc report, call `qc_bids_deface.py`
+  deface_spineGeneric_usingR -i PATH_TO_DATASET_TO_DEFACE -o PATH_TO_OUTPUT_DATASET_DEFACED
+
+If you use the command for the first time and you want to populate the `_defaced` folder, add the `-f` flag at the end.
+
+3. To launch the QC report of the defacing across multiple subjects, run:
+
+.. code-block:: bash
+
+  python qc_bids_deface.py
+
 
 Manual Defacing
-------------------------
+^^^^^^^^^^^^^^^
 
-Because sometimes the automatic defacing suggested above might
-fail for some subjects, we recommend to do the defacing manually. 
-It is a very easy procedure that takes less than a minute. To do so, 
-open Fsleyes (as an example, but you could use another MRI editor)
- and open the T1w scan. Go to **Tools > Edit mode**, Select
-the pencil with size 100, deface, then save. Below is an example of a
-defaced subject:
+Automatic defacing might fail in some subjects, so this section explains how
+to deface manually. This procedure takes less than a minute per subject. Here
+we use FSLeyes but you can use any other NIfTI image editor.
+
+Open FSLeyes and load the T1w scan. Go to **Tools > Edit mode**, Select
+the pencil with size 100, deface, then save.
+
+Below is an example of a defaced subject:
 
 .. figure:: _static/example_defacing.png
    :alt: example\_defacing
@@ -191,12 +204,24 @@ defaced subject:
    :scale: 70%
 
    Example of manual defacing.
-   
+
+
+Multi-center data
+-----------------
+
+In the context of this project, the following dataset have been acquired and are
+available as open-access (MIT license):
+
+- `Multi-center, single-subject <https://openneuro.org/datasets/ds002393>`__
+- `Multi-center, multi-subject <https://openneuro.org/datasets/ds001919>`__
+
+
+
 Analysis pipeline
 =================
 
-The analysis pipeline available in this repository enables to output the
-following metrics (organized per contrast):
+This repository includes a collection of scripts to analyse BIDS-structured
+MRI data and output the following metrics for each contrast:
 
 -  **T1**: Spinal cord CSA averaged between C2 and C3.
 -  **T2**: Spinal cord CSA averaged between C2 and C3.
@@ -214,27 +239,16 @@ Dependencies
 
 MANDATORY:
 
-- For processing: `SCT 4.1.0 <https://github.com/neuropoly/spinalcordtoolbox/releases/tag/4.1.0>`__.
+- For processing: `SCT 4.3.0 <https://github.com/neuropoly/spinalcordtoolbox/releases/tag/4.3.0>`__.
 - For generating figures: Python >= 3.6
 
 OPTIONAL:
 
 - `FSLeyes <https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FSLeyes>`__ for correcting segmentations.
-- `GNU parallel <https://www.gnu.org/software/parallel/>`__ for processing multiple subjects in parallel.
 
 
-Example datasets
-----------------
-
-As a starting point, you could use either of these example datasets:
-
-- `Multi-center, single-subject <https://openneuro.org/datasets/ds002393>`__
-- `Multi-center, multi-subject <https://openneuro.org/datasets/ds001919>`__
-
-
-
-How to run
-----------
+Getting started
+---------------
 
 Download (or ``git clone``) this repository:
 
@@ -249,25 +263,22 @@ Install Python dependencies:
   cd spine-generic
   pip install -e .
 
-Go outside of this git repos and create a folder where outputs will be created
+.. note::
+   If you prefer to preserve your default Python's libraries, you could first
+   create a `virtual environment <https://docs.python.org/3/tutorial/venv.html>`_, and then run the commands above.
+
+Create a folder where results will be generated (feel free to modify the
+destination).
 
 .. code-block:: bash
 
   mkdir ~/spineGeneric_results
-  cp processing/parameters_template.sh ~/spineGeneric_results/parameters.sh
-  cd ~/spineGeneric_results
-
-Edit the parameter file and modify the variables according to your needs:
-
-.. code-block:: bash
-
-  edit parameters.sh
 
 Launch processing:
 
 .. code-block:: bash
 
-  sct_run_batch parameters.sh process_data.sh
+  sct_run_batch -jobs -1 -path-data ~/data/spineGeneric_6subj/ -path-output ~/spineGeneric_results/ processing/process_data.sh
 
 
 

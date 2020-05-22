@@ -1,12 +1,9 @@
 #!/bin/bash
 #
-# Process data. This script should be run within the subject's folder.
+# Process data.
 #
 # Usage:
-#   ./process_data.sh <SUBJECT> <FILEPARAM>
-#
-# Example:
-#   ./process_data.sh sub-03 parameters.sh
+#   ./process_data.sh <SUBJECT>
 #
 # Authors: Julien Cohen-Adad
 
@@ -15,17 +12,16 @@
 # PATH_QC="~/qc"
 
 # Uncomment for full verbose
-set -v
+# set -v
 
 # Immediately exit if error
-set -e
+set -e -o pipefail
 
 # Exit if user presses CTRL+C (Linux) or CMD+C (OSX)
 trap "echo Caught Keyboard Interrupt within script. Exiting now.; exit" INT
 
 # Retrieve input params
 SUBJECT=$1
-FILEPARAM=$2
 
 
 # FUNCTIONS
@@ -110,8 +106,6 @@ segment_gm_if_does_not_exist(){
 
 # SCRIPT STARTS HERE
 # ==============================================================================
-# Load environment variables
-source $FILEPARAM
 # Go to results folder, where most of the outputs will be located
 cd $PATH_RESULTS
 # Copy source images
