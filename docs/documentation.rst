@@ -258,14 +258,15 @@ Download (or ``git clone``) this repository:
 
 Install Python dependencies:
 
+.. note::
+   If you prefer to preserve your default Python's libraries, you could first
+   create a `virtual environment <https://docs.python.org/3/tutorial/venv.html>`_,
+   and then run the commands below.
+
 .. code-block:: bash
 
   cd spine-generic
   pip install -e .
-
-.. note::
-   If you prefer to preserve your default Python's libraries, you could first
-   create a `virtual environment <https://docs.python.org/3/tutorial/venv.html>`_, and then run the commands above.
 
 Create a folder where results will be generated (feel free to modify the
 destination).
@@ -285,8 +286,8 @@ Launch processing:
 Quality Control
 ---------------
 
-After the processing is run, check your Quality Control (QC) report, by
-opening double clicking on the file ``qc/index.html``. Use the "Search"
+After running the analysis, check your Quality Control (QC) report by
+opening the file ``qc/index.html``. Use the "Search"
 feature of the QC report to quickly jump to segmentations or labeling
 results.
 
