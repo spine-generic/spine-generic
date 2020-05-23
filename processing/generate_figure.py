@@ -48,21 +48,22 @@ SUBJECTS_TO_REMOVE = [
     {'subject': 'sub-geneva02', 'metric': 'mtr'},  # FOV positioning changed between MTon and MToff
     {'subject': 'sub-oxfordFmrib04', 'metric': 'mtr'},  # T1w scan is not aligned with other contrasts (subject repositioning)
     # MTsat
-    # {'subject': 'sub-geneva02', 'metric': 'mtsat'},
+    {'subject': 'sub-geneva02', 'metric': 'mtsat'},  # TODO: check what's going on with this scan
     {'subject': 'sub-oxfordFmrib04', 'metric': 'mtsat'},  # T1w scan is not aligned with other contrasts (subject repositioning)
-    # {'subject': 'sub-tehranS04', 'metric': 'mtsat'},
+    {'subject': 'sub-tehranS04', 'metric': 'mtsat'},  # TODO: check what's going on with this scan
     # T1 map
     {'subject': 'sub-oxfordFmrib04', 'metric': 't1'},  # T1w scan is not aligned with other contrasts (subject repositioning)
-    # {'subject': 'sub-sapienza03', 'metric': 't1'},
-    # {'subject': 'sub-sapienza04', 'metric': 't1'},
-    # {'subject': 'sub-sapienza05', 'metric': 't1'},
-    # {'subject': 'sub-sapienza06', 'metric': 't1'},
+    {'subject': 'sub-sapienza03', 'metric': 't1'},  # TODO: check what's going on with this scan
+    {'subject': 'sub-sapienza04', 'metric': 't1'},  # TODO: check what's going on with this scan
+    {'subject': 'sub-sapienza05', 'metric': 't1'},  # TODO: check what's going on with this scan
+    {'subject': 'sub-sapienza06', 'metric': 't1'},  # TODO: check what's going on with this scan
     ]
 
 # List of sites to exclude based on the metric
 SITES_TO_EXCLUDE = {
-    'mtr': ['stanford',  # Used a different
-            'sapienza']
+    'mtr': ['stanford',  # Used different TR.
+    ]
+    #         'sapienza']  # TODO: check what's going on with this site
     }
 
 # country dictionary: key: site, value: country name
