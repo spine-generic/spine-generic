@@ -596,10 +596,10 @@ def main():
                     edgecolors=vendor_to_color[vendor],
                     label=vendor)
     ax.tick_params(labelsize=LABELSIZE)
-    plt.plot([45, 100], [45, 100], ls="--", c=".3")  # add diagonal line
+    plt.plot([50, 100], [50, 100], ls="--", c=".3")  # add diagonal line
     plt.title("CSA agreement between T1w and T2w data")
-    plt.xlim(45, 100)
-    plt.ylim(45, 100)
+    plt.xlim(50, 100)
+    plt.ylim(50, 100)
     plt.gca().set_aspect('equal', adjustable='box')
     plt.xlabel("T2w CSA", fontsize=FONTSIZE)
     plt.ylabel("T1w CSA", fontsize=FONTSIZE)
