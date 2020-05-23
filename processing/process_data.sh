@@ -12,7 +12,7 @@
 # PATH_QC="~/qc"
 
 # Uncomment for full verbose
-# set -v
+set -v
 
 # Immediately exit if error
 set -e -o pipefail
@@ -108,9 +108,11 @@ segment_gm_if_does_not_exist(){
 # ==============================================================================
 # Go to results folder, where most of the outputs will be located
 cd $PATH_RESULTS
-# Copy source images
 mkdir -p data
 cd data
+# Copy list of participants
+cp $PATH_DATA/participants.tsv .
+# Copy source images
 cp -r $PATH_DATA/$SUBJECT .
 # Go to anat folder where all structural data are located
 cd ${SUBJECT}/anat/
