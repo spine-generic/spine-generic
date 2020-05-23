@@ -40,36 +40,29 @@ SUBJECTS_TO_REMOVE = [
     {'subject': 'sub-oxfordFmrib04', 'metric': 'csa_t1'},  # T1w scan is not aligned with other contrasts (subject repositioning)
     {'subject': 'sub-oxfordFmrib04', 'metric': 'csa_t2'},  # T1w scan is not aligned with other contrasts (subject repositioning)
     # DTI
-    {'subject': 'sub-barcelona06', 'metric': 'dti_fa'},  # issue with 2nd segmentation (centerline init)
-    {'subject': 'sub-beijingPrisma01', 'metric': 'dti_fa'},  # issue with 2nd segmentation (centerline init)
     {'subject': 'sub-beijingPrisma03', 'metric': 'dti_fa'},  # wrong FOV placement
-    {'subject': 'sub-cardiff06', 'metric': 'dti_fa'},  # issue with 2nd segmentation (centerline init)
     {'subject': 'sub-oxfordFmrib04', 'metric': 'dti_fa'},  # T1w scan is not aligned with other contrasts (subject repositioning)
     {'subject': 'sub-oxfordFmrib01', 'metric': 'dti_fa'},  # registration issue (segmentation OK)
-    {'subject': 'sub-oxfordOhba02', 'metric': 'dti_fa'},  # issue with 2nd segmentation (centerline init)
-    {'subject': 'sub-oxfordOhba04', 'metric': 'dti_fa'},  # registration issue (segmentation OK)
-    {'subject': 'sub-queensland04', 'metric': 'dti_fa'},  # issue with 2nd segmentation (centerline init)
-    {'subject': 'sub-perform02', 'metric': 'dti_fa'},  # issue with 2nd segmentation (centerline init)
     # MTR
-    # {'subject': 'sub-beijingPrisma01', 'metric': 'mtr'},  # segmentation issue
     {'subject': 'sub-beijingPrisma04', 'metric': 'mtr'},  # different coil, shim value and FOV placement between MTon and MToff
     {'subject': 'sub-geneva02', 'metric': 'mtr'},  # FOV positioning changed between MTon and MToff
     {'subject': 'sub-oxfordFmrib04', 'metric': 'mtr'},  # T1w scan is not aligned with other contrasts (subject repositioning)
     # MTsat
-    {'subject': 'sub-geneva02', 'metric': 'mtsat'},
+    # {'subject': 'sub-geneva02', 'metric': 'mtsat'},
     {'subject': 'sub-oxfordFmrib04', 'metric': 'mtsat'},  # T1w scan is not aligned with other contrasts (subject repositioning)
-    {'subject': 'sub-tehranS04', 'metric': 'mtsat'},
+    # {'subject': 'sub-tehranS04', 'metric': 'mtsat'},
     # T1 map
     {'subject': 'sub-oxfordFmrib04', 'metric': 't1'},  # T1w scan is not aligned with other contrasts (subject repositioning)
-    {'subject': 'sub-sapienza03', 'metric': 't1'},
-    {'subject': 'sub-sapienza04', 'metric': 't1'},
-    {'subject': 'sub-sapienza05', 'metric': 't1'},
-    {'subject': 'sub-sapienza06', 'metric': 't1'},
+    # {'subject': 'sub-sapienza03', 'metric': 't1'},
+    # {'subject': 'sub-sapienza04', 'metric': 't1'},
+    # {'subject': 'sub-sapienza05', 'metric': 't1'},
+    # {'subject': 'sub-sapienza06', 'metric': 't1'},
     ]
 
 # List of sites to exclude based on the metric
 SITES_TO_EXCLUDE = {
-    'mtr': ['stanford', 'sapienza']
+    'mtr': ['stanford',  # Used a different
+            'sapienza']
     }
 
 # country dictionary: key: site, value: country name
@@ -130,7 +123,6 @@ flags = {
     }
 
 # color to assign to each MRI model for the figure
-# TODO: choose slightly different color based on MRI model (within vendor)
 vendor_to_color = {
     'GE': 'black',
     'Philips': 'dodgerblue',
