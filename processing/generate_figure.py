@@ -1,12 +1,7 @@
 #!/usr/bin/env python
 #
-# Generate figures for the spine-generic dataset. Figures are output in the sub-folder /results.
-#
-# USAGE:
-#   python generate_figure.py PARAMETER_FILE
-# 
-# where PARAMETER_FILE is the file used by sct_run_batch to produce the results. More info at:
-# https://spine-generic.readthedocs.io/en/latest/documentation.html#how-to-run
+# Generate figures for the spine-generic dataset. This script needs to run within the results/ folders, which is
+# created by the function process_data.sh.
 #
 # Note: Matplotlib crashes when running debugger in Pycharm with python 3.7.3. To fix the problem, run this script
 # using a virtual env python 3.7.0. More info at: https://github.com/MTG/sms-tools/issues/36
@@ -70,12 +65,12 @@ SUBJECTS_TO_REMOVE = [
     {'subject': 'sub-sapienza04', 'metric': 't1'},
     {'subject': 'sub-sapienza05', 'metric': 't1'},
     {'subject': 'sub-sapienza06', 'metric': 't1'},
-]
+    ]
 
 # List of sites to exclude based on the metric
 SITES_TO_EXCLUDE = {
     'mtr': ['stanford', 'sapienza']
-}
+    }
 
 # country dictionary: key: site, value: country name
 # Flags are downloaded from: https://emojipedia.org/
