@@ -189,11 +189,7 @@ LABELSIZE = 15
 def get_parameters():
     parser = argparse.ArgumentParser(
         description="Generate figures for the spine-generic project. This script needs to be run within the results "
-                    "folder that encloses all the csv files.",
-        epilog="Example: generate_figure /usr/bob/spineGeneric_multisubject_v1.0.5")
-    parser.add_argument(
-        'pathdata',
-        help="Path to the BIDS dataset.")
+                    "folder that encloses all the csv files.")
     parser.add_argument(
         '-indiv-subj',
         type=int,
@@ -205,16 +201,15 @@ def get_parameters():
     return args
 
 
-def aggregate_per_site(dict_results, metric, path_data):
+def aggregate_per_site(dict_results, metric):
     """
-    Aggregate metrics per site
+    Aggregate metrics per site. This function assumes that the file participants.tsv is present in folder ./data/
     :param dict_results:
     :param metric: Metric type
-    :param path_data: Path to BIDS dataset that encloses the participants.tsv file.
     :return:
     """
     # Build Panda DF of participants based on participants.tsv file
-    participants = pd.read_csv(os.path.join(path_data, 'participants.tsv'), sep="\t")
+    participants = pd.read_csv(os.path.join('data/participants.tsv'), sep="\t")
 
     # Fetch specific field for the selected metric
     metric_field = metric_to_field[metric]
@@ -449,7 +444,6 @@ def main():
     # TODO: make "results" an input param
 
     args = get_parameters()
-    path_data = args.pathdata
     display_individual_subjects = args.indiv_subj
 
     # fetch all .csv result files, assuming they are located in the current folder.
@@ -474,7 +468,7 @@ def main():
         metric = file_to_metric[csv_file_small]
 
         # Fetch mean, std, etc. per site
-        results_dict = aggregate_per_site(dict_results, metric, path_data)
+        results_dict = aggregate_per_site(dict_results, metric)
 
         # Make it a pandas structure (easier for manipulations)
         df = pd.DataFrame.from_dict(results_dict, orient='index')
