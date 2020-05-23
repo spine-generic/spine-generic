@@ -216,6 +216,7 @@ def aggregate_per_site(dict_results, metric):
     # Build a dictionary that aggregates values per site
     results_agg = {}
     # Loop across lines and fill dict of aggregated results
+    subjects_removed = []
     for i in tqdm.tqdm(range(len(dict_results)), unit='iter', unit_scale=False, desc="Loop across subjects",
                        ascii=False,
                        ncols=80):
@@ -244,6 +245,9 @@ def aggregate_per_site(dict_results, metric):
             val = dict_results[i][metric_field]
             if not val == 'None':
                 results_agg[site]['val'].append(float(val))
+        else:
+            subjects_removed.append(subject)
+    logger.info("Subjects removed: {}".format(subjects_removed))
     return results_agg
 
 
