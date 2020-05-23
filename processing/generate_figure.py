@@ -132,7 +132,7 @@ flags = {
     'vallHebron': 'spain',
     'vuiisAchieva': 'us',
     'vuiisIngenia': 'us',
-}
+    }
 
 # color to assign to each MRI model for the figure
 # TODO: choose slightly different color based on MRI model (within vendor)
@@ -140,7 +140,7 @@ vendor_to_color = {
     'GE': 'black',
     'Philips': 'dodgerblue',
     'Siemens': 'limegreen',
-}
+    }
 
 # fetch contrast based on csv file
 file_to_metric = {
@@ -153,7 +153,7 @@ file_to_metric = {
     'MTR.csv': 'mtr',
     'MTsat.csv': 'mtsat',
     'T1.csv': 't1',
-}
+    }
 
 # fetch metric field
 metric_to_field = {
@@ -166,7 +166,7 @@ metric_to_field = {
     'mtr': 'WA()',
     'mtsat': 'WA()',
     't1': 'WA()',
-}
+    }
 
 # fetch metric field
 metric_to_label = {
@@ -179,7 +179,7 @@ metric_to_label = {
     'mtr': 'Magnetization transfer ratio [%]',
     'mtsat': 'Magnetization transfer saturation [a.u.]',
     't1': 'T1 [ms]',
-}
+    }
 
 # scaling factor (for display)
 scaling_factor = {
@@ -192,22 +192,42 @@ scaling_factor = {
     'mtr': 1,
     'mtsat': 1,
     't1': 1000,
-}
+    }
 
 # FIGURE PARAMETERS
 FONTSIZE = 15
 LABELSIZE = 15
 
 
-def aggregate_per_site(dict_results, metric, env):
+def get_parameters():
+    parser = argparse.ArgumentParser(
+        description="Generate figures for the spine-generic project. This script needs to be run within the results "
+                    "folder that encloses all the csv files.",
+        epilog="Example: generate_figure /usr/bob/spineGeneric_multisubject_v1.0.5")
+    parser.add_argument(
+        'pathdata',
+        help="Path to the BIDS dataset.")
+    parser.add_argument(
+        '-indiv-subj',
+        type=int,
+        choices=(0, 1),
+        required=False,
+        help="Display the value of each individual subject as a red dot.",
+        default=1)
+    args = parser.parse_args()
+    return args
+
+
+def aggregate_per_site(dict_results, metric, path_data):
     """
     Aggregate metrics per site
     :param dict_results:
     :param metric: Metric type
+    :param path_data: Path to BIDS dataset that encloses the participants.tsv file.
     :return:
     """
     # Build Panda DF of participants based on participants.tsv file
-    participants = pd.read_csv(os.path.join(env['PATH_DATA'], 'participants.tsv'), sep="\t")
+    participants = pd.read_csv(os.path.join(path_data, 'participants.tsv'), sep="\t")
 
     # Fetch specific field for the selected metric
     metric_field = metric_to_field[metric]
@@ -442,13 +462,11 @@ def main():
     # TODO: make "results" an input param
 
     args = get_parameters()
-    file_param = args.file_param
+    path_data = args.pathdata
     display_individual_subjects = args.indiv_subj
 
-    env = get_env(file_param)
-
-    # fetch all .csv result files
-    csv_files = glob.glob(os.path.join(env['PATH_RESULTS'], '*.csv'))
+    # fetch all .csv result files, assuming they are located in the current folder.
+    csv_files = glob.glob('*.csv')
 
     if not csv_files:
         raise RuntimeError("Variable 'csv_files' is empty. Check your input paths.")
@@ -469,7 +487,7 @@ def main():
         metric = file_to_metric[csv_file_small]
 
         # Fetch mean, std, etc. per site
-        results_dict = aggregate_per_site(dict_results, metric, env)
+        results_dict = aggregate_per_site(dict_results, metric, path_data)
 
         # Make it a pandas structure (easier for manipulations)
         df = pd.DataFrame.from_dict(results_dict, orient='index')
@@ -556,7 +574,7 @@ def main():
             x_init_vendor += n_site
 
         plt.tight_layout()  # make sure everything fits
-        fname_fig = os.path.join(env['PATH_RESULTS'], 'fig_' + metric + '.png')
+        fname_fig = os.path.join('fig_' + metric + '.png')
         plt.savefig(fname_fig)
         logger.info('Created: ' + fname_fig)
 
@@ -593,7 +611,7 @@ def main():
     plt.grid(True)
     plt.legend(fontsize=FONTSIZE)
     plt.tight_layout()
-    fname_fig = os.path.join(env['PATH_RESULTS'], 'fig_t1_t2_agreement.png')
+    fname_fig = 'fig_t1_t2_agreement.png'
     plt.savefig(fname_fig, dpi=200)
     logger.info('Created: ' + fname_fig)
 
@@ -622,27 +640,9 @@ def main():
         plt.plot(np.concatenate(CSA_dict[vendor + '_t2'], axis=0).reshape(-1, 1), reg_predictor, color='red')
     plt.suptitle("CSA agreement between T1w and T2w data per vendors")
     plt.tight_layout()
-    fname_fig = os.path.join(env['PATH_RESULTS'], 'fig_t1_t2_agreement_per_vendor.png')
+    fname_fig = 'fig_t1_t2_agreement_per_vendor.png'
     plt.savefig(fname_fig, dpi=200)
     logger.info('Created: ' + fname_fig)
-
-
-def get_parameters():
-    parser = argparse.ArgumentParser(
-        description="Generate figures for the spine-generic project. Figures are output in the 'results' folder",
-        epilog="Example: generate_figure parameters.sh")
-    parser.add_argument(
-        'file_param',
-        help="Parameter file. See: https://spine-generic.readthedocs.io for more details.")
-    parser.add_argument(
-        '-indiv-subj',
-        type=int,
-        choices=(0, 1),
-        required=False,
-        help="Display the value of each individual subject as a red dot.",
-        default=1)
-    args = parser.parse_args()
-    return args
 
 
 if __name__ == "__main__":
