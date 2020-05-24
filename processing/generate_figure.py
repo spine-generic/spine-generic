@@ -634,13 +634,18 @@ def main():
         # Move grid to background (i.e. behind other elements)
         ax.set_axisbelow(True)
         plt.grid(True)
+        # Compute linear fit
         intercept, slope, reg_predictor, r2_sc = compute_regression(CSA_dict, vendor)
         # Place regression equation to upper-left corner
         plt.text(0.1, 0.9,
                  "y = {0:.4}x + {1:.4}\nR\u00b2 = {2:.4}".format(float(slope), float(intercept), float(r2_sc)),
                  ha='left', va='center', transform = ax.transAxes, fontsize=FONTSIZE)
         # Plot linear fit
-        plt.plot(np.concatenate(CSA_dict[vendor + '_t2'], axis=0).reshape(-1, 1), reg_predictor, color='red')
+        axes = plt.gca()
+        x_vals = np.array(axes.get_xlim())
+        y_vals = intercept + slope * x_vals
+        y_vals = np.squeeze(y_vals)     # change shape from (1,N) to (N,)
+        plt.plot(x_vals, y_vals, color='red')
         # Add title above middle subplot
         if index == 1:
             plt.title("CSA agreement between T1w and T2w data per vendors", ha='center', fontsize=FONTSIZE)
