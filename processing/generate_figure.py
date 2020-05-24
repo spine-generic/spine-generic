@@ -617,7 +617,7 @@ def main():
                     edgecolors=vendor_to_color[vendor],
                     label=vendor)
         # Define vendor name position
-        legend = ax.legend(loc='lower right', fontsize=FONTSIZE)
+        legend = ax.legend(loc='lower right', handletextpad=0, fontsize=FONTSIZE)
         ax.add_artist(legend)
         # Dynamic scaling of individual subplots based on data
         offset = 8
