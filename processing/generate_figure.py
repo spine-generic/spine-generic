@@ -621,11 +621,13 @@ def main():
         ax.add_artist(legend)
         # Dynamic scaling of individual subplots based on data
         offset = 8
-        plt.xlim(min(x) - offset, max(x) + offset)
-        plt.ylim(min(y) - offset, max(y) + offset)
+        lim_min = min(min(x), min(y))
+        lim_max = max(max(x), max(y))
+        plt.xlim(lim_min - offset, lim_max + offset)
+        plt.ylim(lim_min - offset, lim_max + offset)
         # Add bisection (diagonal) line
-        plt.plot([min(x) - offset , max(x) + offset],
-                 [min(y) - offset, max(y) + offset],
+        plt.plot([lim_min - offset , lim_max + offset],
+                 [lim_min - offset, lim_max + offset],
                  ls="--", c=".3")
         plt.xlabel("T2w CSA", fontsize=FONTSIZE)
         plt.ylabel("T1w CSA", fontsize=FONTSIZE)
