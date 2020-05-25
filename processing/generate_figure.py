@@ -618,9 +618,12 @@ def main():
                     label=vendor)
         # Define vendor name position
         legend = ax.legend(loc='lower right', handletextpad=0, fontsize=FONTSIZE)
+        # Change box's frame color to black (to be same as box around linear fit equation)
+        frame = legend.get_frame()
+        frame.set_edgecolor('black')
         ax.add_artist(legend)
         # Dynamic scaling of individual subplots based on data
-        offset = 6
+        offset = 8
         lim_min = min(min(x), min(y))
         lim_max = max(max(x), max(y))
         plt.xlim(lim_min - offset, lim_max + offset)
@@ -641,7 +644,8 @@ def main():
         # Place regression equation to upper-left corner
         plt.text(0.1, 0.9,
                  "y = {0:.4}x + {1:.4}\nR\u00b2 = {2:.4}".format(float(slope), float(intercept), float(r2_sc)),
-                 ha='left', va='center', transform = ax.transAxes, fontsize=FONTSIZE)
+                 ha='left', va='center', transform = ax.transAxes, fontsize=FONTSIZE,
+                 bbox=dict(boxstyle='round', facecolor='white', alpha=1))   # box around equation
         # Plot linear fit
         axes = plt.gca()
         x_vals = np.array(axes.get_xlim())
@@ -650,7 +654,7 @@ def main():
         plt.plot(x_vals, y_vals, color='red')
         # Add title above middle subplot
         if index == 1:
-            plt.title("CSA agreement between T1w and T2w data per vendors", ha='center', fontsize=FONTSIZE)
+            plt.title("CSA agreement between T1w and T2w data per vendors", fontsize=FONTSIZE, pad=20)
     plt.tight_layout()
     fname_fig = 'fig_t1_t2_agreement_per_vendor.png'
     plt.savefig(fname_fig, dpi=200)
