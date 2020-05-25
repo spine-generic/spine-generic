@@ -620,7 +620,7 @@ def main():
         legend = ax.legend(loc='lower right', handletextpad=0, fontsize=FONTSIZE)
         ax.add_artist(legend)
         # Dynamic scaling of individual subplots based on data
-        offset = 8
+        offset = 6
         lim_min = min(min(x), min(y))
         lim_max = max(max(x), max(y))
         plt.xlim(lim_min - offset, lim_max + offset)
@@ -634,6 +634,8 @@ def main():
         # Move grid to background (i.e. behind other elements)
         ax.set_axisbelow(True)
         plt.grid(True)
+        # Enforce square grid
+        plt.gca().set_aspect("equal")
         # Compute linear fit
         intercept, slope, reg_predictor, r2_sc = compute_regression(CSA_dict, vendor)
         # Place regression equation to upper-left corner
