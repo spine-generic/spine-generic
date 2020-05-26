@@ -184,6 +184,7 @@ scaling_factor = {
 
 # FIGURE PARAMETERS
 FONTSIZE = 15
+TICKSIZE = 10
 LABELSIZE = 15
 
 
@@ -455,7 +456,7 @@ def main():
     csv_files = glob.glob('*.csv')
 
     if not csv_files:
-        raise RuntimeError("Variable 'csv_files' is empty. Check your input paths.")
+        raise RuntimeError("Variable 'csv_files' is empty, i.e. no *.csv files were found in current directory.")
 
     # loop across results and generate figure
     for csv_file in csv_files:
@@ -578,7 +579,8 @@ def main():
 
     # Generate figure for T1w and T2w agreement for all vendors together
     fig, ax = plt.subplots(figsize=(7, 7))
-    for vendor in list(OrderedDict.fromkeys(vendor_sorted)):  # Loop through vendors
+    # Loop across vendors
+    for vendor in list(OrderedDict.fromkeys(vendor_sorted)):
         plt.scatter(np.concatenate(CSA_dict[vendor + '_t2'], axis=0),
                     np.concatenate(CSA_dict[vendor + '_t1'], axis=0),
                     s=50,
@@ -603,28 +605,60 @@ def main():
 
     # Generate figure for T1w and T2w agreement per vendor
     plt.subplots(figsize=(15, 5))
+    # Loop across vendors (create subplot for each vendor)
     for index, vendor in enumerate(list(OrderedDict.fromkeys(vendor_sorted))):
         ax = plt.subplot(1, 3, index + 1)
-        plt.scatter(np.concatenate(CSA_dict[vendor + '_t2'], axis=0),
-                    np.concatenate(CSA_dict[vendor + '_t1'], axis=0),
+        x = np.concatenate(CSA_dict[vendor + '_t2'], axis=0)
+        y = np.concatenate(CSA_dict[vendor + '_t1'], axis=0)
+        plt.scatter(x,
+                    y,
                     s=50,
                     linewidths=2,
                     facecolors='none',
                     edgecolors=vendor_to_color[vendor],
                     label=vendor)
-        plt.xlim(45, 100)
-        plt.ylim(45, 100)
-        plt.gca().set_aspect('equal', adjustable='box')
+        ax.tick_params(labelsize=TICKSIZE)
+        # Define vendor name position
+        legend = ax.legend(loc='lower right', handletextpad=0, fontsize=FONTSIZE)
+        # Change box's frame color to black (to be same as box around linear fit equation)
+        frame = legend.get_frame()
+        frame.set_edgecolor('black')
+        ax.add_artist(legend)
+        # Dynamic scaling of individual subplots based on data
+        offset = 2
+        lim_min = min(min(x), min(y))
+        lim_max = max(max(x), max(y))
+        plt.xlim(lim_min - offset, lim_max + offset)
+        plt.ylim(lim_min - offset, lim_max + offset)
+        # Add bisection (diagonal) line
+        plt.plot([lim_min - offset , lim_max + offset],
+                 [lim_min - offset, lim_max + offset],
+                 ls="--", c=".3")
         plt.xlabel("T2w CSA", fontsize=FONTSIZE)
         plt.ylabel("T1w CSA", fontsize=FONTSIZE)
+        # Move grid to background (i.e. behind other elements)
+        ax.set_axisbelow(True)
         plt.grid(True)
-        plt.legend(fontsize=FONTSIZE)
+        # Enforce square grid
+        plt.gca().set_aspect('equal', adjustable='box')
+        # Compute linear fit
         intercept, slope, reg_predictor, r2_sc = compute_regression(CSA_dict, vendor)
-        plt.text(ax.get_xlim()[1] - 50, ax.get_xlim()[1] - 5,
+        # Place regression equation to upper-left corner
+        plt.text(0.1, 0.9,
                  "y = {0:.4}x + {1:.4}\nR\u00b2 = {2:.4}".format(float(slope), float(intercept), float(r2_sc)),
-                 ha='left', va='center')
-        plt.plot(np.concatenate(CSA_dict[vendor + '_t2'], axis=0).reshape(-1, 1), reg_predictor, color='red')
-    plt.suptitle("CSA agreement between T1w and T2w data per vendors")
+                 ha='left', va='center', transform = ax.transAxes, fontsize=TICKSIZE, color='red',
+                 bbox=dict(boxstyle='round', facecolor='white', alpha=1))   # box around equation
+        # Plot linear fit
+        axes = plt.gca()
+        x_vals = np.array(axes.get_xlim())
+        y_vals = intercept + slope * x_vals
+        y_vals = np.squeeze(y_vals)     # change shape from (1,N) to (N,)
+        plt.plot(x_vals, y_vals, color='red')
+        # Add title above middle subplot
+        if index == 1:
+            plt.title("CSA agreement between T1w and T2w data per vendors", fontsize=FONTSIZE, pad=20)
+    # Move subplots closer to each other
+    plt.subplots_adjust(wspace=-0.5)
     plt.tight_layout()
     fname_fig = 'fig_t1_t2_agreement_per_vendor.png'
     plt.savefig(fname_fig, dpi=200)
