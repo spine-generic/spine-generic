@@ -184,6 +184,7 @@ scaling_factor = {
 
 # FIGURE PARAMETERS
 FONTSIZE = 15
+TICKSIZE = 10
 LABELSIZE = 15
 
 
@@ -616,6 +617,7 @@ def main():
                     facecolors='none',
                     edgecolors=vendor_to_color[vendor],
                     label=vendor)
+        ax.tick_params(labelsize=TICKSIZE)
         # Define vendor name position
         legend = ax.legend(loc='lower right', handletextpad=0, fontsize=FONTSIZE)
         # Change box's frame color to black (to be same as box around linear fit equation)
@@ -638,13 +640,13 @@ def main():
         ax.set_axisbelow(True)
         plt.grid(True)
         # Enforce square grid
-        plt.gca().set_aspect("equal")
+        plt.gca().set_aspect('equal', adjustable='box')
         # Compute linear fit
         intercept, slope, reg_predictor, r2_sc = compute_regression(CSA_dict, vendor)
         # Place regression equation to upper-left corner
         plt.text(0.1, 0.9,
                  "y = {0:.4}x + {1:.4}\nR\u00b2 = {2:.4}".format(float(slope), float(intercept), float(r2_sc)),
-                 ha='left', va='center', transform = ax.transAxes, fontsize=FONTSIZE,
+                 ha='left', va='center', transform = ax.transAxes, fontsize=TICKSIZE, color=red,
                  bbox=dict(boxstyle='round', facecolor='white', alpha=1))   # box around equation
         # Plot linear fit
         axes = plt.gca()
