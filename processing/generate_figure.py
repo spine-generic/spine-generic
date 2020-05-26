@@ -518,10 +518,13 @@ def main():
         bar_plot = plt.bar(range(len(site_sorted)), height=mean_sorted, width=0.5,
                            tick_label=site_sorted, yerr=[[0 for v in std_sorted], std_sorted], color=list_colors)
 
+        # Display individual subjects
         if display_individual_subjects:
             for site in site_sorted:
                 index = list(site_sorted).index(site)
                 val = df['val'][site]
+                # Set scaling
+                val = [value * scaling_factor.get(metric) for value in val]
                 plt.plot([index] * len(val), val, 'r.')
         ax = label_bar_model(ax, bar_plot, model_sorted)  # add ManufacturersModelName embedded in each bar
         plt.setp(ax.xaxis.get_majorticklabels(), rotation=45, ha="right")  # rotate xticklabels at 45deg, align at end
