@@ -5,22 +5,18 @@ import numpy as np
 from pathlib import Path
 
 home = str(Path.home())
-path_data = input ('Please specify the path for the defaced dataset')
-output_path = os.path.join(home+'/Desktop/qc_report-'+path_data.split('/')[-1])
-print (output_path)
-if not os.path.exists(output_path):
-    os.makedirs(output_path)
-
+path_data = input ('Please specify the path for the defaced dataset: \n')
+output_path = input ('Please specify the path for the qc report output folder: \n')
 
 for dirName, subdirList, fileList in os.walk(path_data):
-        for file in fileList:
-            if file.endswith('defaced.nii.gz') :
-                originalFilePath = os.path.join(dirName,file)
-                img = nib.load(originalFilePath)
-                img_np = img.get_data()
-                x = np.rot90(img_np[int(img_np.shape[0]/2),:,:])
-                file.split('.')[0]
-                cv2.imwrite(output_path + '/'+file.split('.')[0]+ '.png',x)
+    for file in fileList:
+        if file.endswith('defaced.nii.gz') :
+            originalFilePath = os.path.join(dirName,file)
+            img = nib.load(originalFilePath)
+            img_np = img.get_data()
+            x = np.rot90(img_np[int(img_np.shape[0]/2),:,:])
+            file.split('.')[0]
+            cv2.imwrite(output_path + '/'+file.split('.')[0]+ '.png',x)
 
 path_data = output_path
 
@@ -54,7 +50,6 @@ part5 = '''  alt="T2w defaced" />
 
 '''
 
-
 final_qc = part1
 
 list_images = os.listdir(path_data)
@@ -72,10 +67,11 @@ for subject in list_subjects:
     final_qc += part5
 final_qc += "</table>"
 
-path_qc_report = output_path+"/qc_report.html"
-html_file = open(output_path+"/qc_report.html", "w")
-html_file.write(final_qc)
-html_file.close()
+if final_qc:
+    path_qc_report = output_path+"/qc_report.html"
+    html_file = open(output_path+"/qc_report.html", "w")
+    html_file.write(final_qc)
+    html_file.close()
 
 command = """open -a "Google Chrome" """+ path_qc_report
 os.system(command)
