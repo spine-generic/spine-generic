@@ -199,6 +199,11 @@ def get_parameters():
         required=False,
         help="Display the value of each individual subject as a red dot.",
         default=1)
+    parser.add_argument(
+        '-results',
+        required=False,
+        metavar='<dir_path>',
+        help="Path to directory with results.")
     args = parser.parse_args()
     return args
 
@@ -447,16 +452,23 @@ def compute_regression(CSA_dict, vendor):
 
 
 def main():
-    # TODO: make "results" an input param
 
     args = get_parameters()
     display_individual_subjects = args.indiv_subj
+
+    if args.results is not None:
+        # Go to results directory defined by user
+        results_path = args.results
+    else:
+        # Stay in current directory (assume it is results directory)
+        results_path = os.getcwd()
+    os.chdir(results_path)
 
     # fetch all .csv result files, assuming they are located in the current folder.
     csv_files = glob.glob('*.csv')
 
     if not csv_files:
-        raise RuntimeError("Variable 'csv_files' is empty, i.e. no *.csv files were found in current directory.")
+        raise RuntimeError("Variable 'csv_files' is empty, i.e. no *.csv files were found in 'results' directory.")
 
     # loop across results and generate figure
     for csv_file in csv_files:
