@@ -470,7 +470,7 @@ def main():
     csv_files = glob.glob('*.csv')
 
     if not csv_files:
-        raise RuntimeError("Variable 'csv_files' is empty, i.e. no *.csv files were found in 'results' directory.")
+        raise RuntimeError("Variable 'csv_files' is empty, i.e. no *.csv files were found in current directory.")
 
     # loop across results and generate figure
     for csv_file in csv_files:
