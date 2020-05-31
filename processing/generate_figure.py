@@ -200,7 +200,7 @@ def get_parameters():
         help="Display the value of each individual subject as a red dot.",
         default=1)
     parser.add_argument(
-        '-results',
+        '-path-results',
         required=False,
         metavar='<dir_path>',
         help="Path to directory with results.")
@@ -456,13 +456,15 @@ def main():
     args = get_parameters()
     display_individual_subjects = args.indiv_subj
 
-    if args.results is not None:
-        # Go to results directory defined by user
-        results_path = args.results
+    if args.path_results is not None:
+        if os.path.isdir(args.path_results):
+            # Go to results directory defined by user
+            os.chdir(args.path_results)
+        else:
+            raise FileNotFoundError("Directory '{}' was not found.".format(args.path_results))
     else:
         # Stay in current directory (assume it is results directory)
-        results_path = os.getcwd()
-    os.chdir(results_path)
+        os.chdir(os.getcwd())
 
     # fetch all .csv result files, assuming they are located in the current folder.
     csv_files = glob.glob('*.csv')
