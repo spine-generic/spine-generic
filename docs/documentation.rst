@@ -22,30 +22,30 @@ structure for one center is shown below:
     ├── dataset_description.json
     ├── participants.json
     ├── participants.tsv
-    ├── sub-ucl01
-    ├── sub-ucl02
-    ├── sub-ucl03
-    ├── sub-ucl04
-    ├── sub-ucl05
-    └── sub-ucl06
+    ├── sub-ubc01
+    ├── sub-ubc02
+    ├── sub-ubc03
+    ├── sub-ubc04
+    ├── sub-ubc05
+    └── sub-ubc06
         ├── anat
-        │   ├── sub-ucl06_T1w.json
-        │   ├── sub-ucl06_T1w.nii.gz
-        │   ├── sub-ucl06_T2star.json
-        │   ├── sub-ucl06_T2star.nii.gz
-        │   ├── sub-ucl06_T2w.json
-        │   ├── sub-ucl06_T2w.nii.gz
-        │   ├── sub-ucl06_acq-MToff_MTS.json
-        │   ├── sub-ucl06_acq-MToff_MTS.nii.gz
-        │   ├── sub-ucl06_acq-MTon_MTS.json
-        │   ├── sub-ucl06_acq-MTon_MTS.nii.gz
-        │   ├── sub-ucl06_acq-T1w_MTS.json
-        │   └── sub-ucl06_acq-T1w_MTS.nii.gz
+        │   ├── sub-ubc06_T1w.json
+        │   ├── sub-ubc06_T1w.nii.gz
+        │   ├── sub-ubc06_T2star.json
+        │   ├── sub-ubc06_T2star.nii.gz
+        │   ├── sub-ubc06_T2w.json
+        │   ├── sub-ubc06_T2w.nii.gz
+        │   ├── sub-ubc06_acq-MToff_MTS.json
+        │   ├── sub-ubc06_acq-MToff_MTS.nii.gz
+        │   ├── sub-ubc06_acq-MTon_MTS.json
+        │   ├── sub-ubc06_acq-MTon_MTS.nii.gz
+        │   ├── sub-ubc06_acq-T1w_MTS.json
+        │   └── sub-ubc06_acq-T1w_MTS.nii.gz
         └── dwi
-            ├── sub-ucl06_dwi.bval
-            ├── sub-ucl06_dwi.bvec
-            ├── sub-ucl06_dwi.json
-            └── sub-ucl06_dwi.nii.gz
+            ├── sub-ubc06_dwi.bval
+            ├── sub-ubc06_dwi.bvec
+            ├── sub-ubc06_dwi.json
+            └── sub-ubc06_dwi.nii.gz
 
 To convert your DICOM data folder to the compatible BIDS structure, we
 ask you to install
@@ -390,7 +390,7 @@ subjects that require manual labeling. Below is the procedure, followed by a vid
    SUBJECTS=(
      "sub-amu01"
      "sub-beijingGE01"
-     "sub-ucl01"
+     "sub-ubc01"
    )
    # Loop across subjects
    for subject in ${SUBJECTS[@]}; do
