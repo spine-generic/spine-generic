@@ -1,3 +1,6 @@
+# Author: Alexandru Foias
+# License MIT
+
 import os
 import nibabel as nib
 import cv2

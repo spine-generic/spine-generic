@@ -1,4 +1,7 @@
 # This script has to be located in the same location as deface_spineGeneric_usingR.py
+# This script is based on the issue https://github.com/poldracklab/pydeface/issues/27
+# Author: Alexandru Foias
+# License MIT
 
 library(RNifti)
 library(fslr)
