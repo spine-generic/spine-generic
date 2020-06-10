@@ -2,7 +2,8 @@
 ## Basic usage example: 
 ## deface_spineGeneric_usingR -i PATH_TO_DATASET_TO_DEFACE -o PATH_TO_OUTPUT_DATASET_DEFACED -f
 ## If you use the command for the first time and you want to populate the `_defaced` folder add the `-f` flag at the end. 
-
+## Author: Alexandru Foias
+## License MIT
 
 import argparse,os, shutil
 
