@@ -13,7 +13,7 @@ output_path = input ('Please specify the path for the qc report output folder: \
 
 for dirName, subdirList, fileList in os.walk(path_data):
     for file in fileList:
-        if file.endswith('defaced.nii.gz') :
+        if file.endswith('T1w.nii.gz') or file.endswith('T2w.nii.gz'):
             originalFilePath = os.path.join(dirName,file)
             img = nib.load(originalFilePath)
             img_np = img.get_data()
@@ -65,8 +65,8 @@ for item in list_images:
 list_subjects.sort()        
 for subject in list_subjects:
     final_qc += part2+subject
-    final_qc += part3+path_data+'/'+subject+'_T1w_defaced.png"'
-    final_qc += part4+path_data+'/'+subject+'_T2w_defaced.png"'
+    final_qc += part3+'./'+subject+'_T1w.png"'
+    final_qc += part4+'./'+subject+'_T2w.png"'
     final_qc += part5
 final_qc += "</table>"
 
