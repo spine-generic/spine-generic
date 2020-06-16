@@ -18,6 +18,12 @@ for dirName, subdirList, fileList in os.walk(path_data):
             img = nib.load(originalFilePath)
             img_np = img.get_data()
             x = np.rot90(img_np[int(img_np.shape[0]/2),:,:])
+            # Adjust pixel intesity between 0 and 4095 for plotting
+            x = np.interp(x, (x.min(), x.max()), (0, 4095))
+            # Adjust contrast and brightness
+            alpha = 0.1
+            beta = 0
+            x = cv2.convertScaleAbs(x, alpha=alpha, beta=beta)
             file.split('.')[0]
             cv2.imwrite(output_path + '/'+file.split('.')[0]+ '.png',x)
 
