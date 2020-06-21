@@ -212,8 +212,8 @@ Multi-center data
 In the context of this project, the following dataset have been acquired and are
 available as open-access (MIT license):
 
-- `Multi-center, single-subject <https://openneuro.org/datasets/ds002393>`__
-- `Multi-center, multi-subject <https://openneuro.org/datasets/ds001919>`__
+- `Multi-center, single-subject <https://openneuro.org/datasets/ds002900>`__
+- `Multi-center, multi-subject <https://openneuro.org/datasets/ds002902>`__
 
 
 
