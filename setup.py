@@ -16,6 +16,7 @@ with open(req_path, "r") as f:
 
 setup(
     name='spine-generic',
+    version='2.1.1',
     python_requires='>=3.6',
     description='Processing data for the Spine Generic project.',
     url='https://spine-generic.rtfd.io',
