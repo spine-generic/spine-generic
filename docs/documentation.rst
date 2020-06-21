@@ -297,7 +297,8 @@ Segmentation
 If you spot segmentation issues, manually fix them using the procedure described
 below. Also see the video tutorial after the procedure.
 
-- Create a file and copy/past the script below:
+- Go to the ``results/data`` folder
+- Create the file ``fix_seg.sh`` and copy/past the code below:
 
 .. code-block:: bash
 
@@ -336,13 +337,19 @@ below. Also see the video tutorial after the procedure.
     fsleyes -yh $fname_data $fname_seg_dest -cm red
   done
 
+- Make this script executable:
+
+  .. code-block:: bash
+
+     chmod 775 fix_seg.sh
+
 - In the QC report, enter the string "deepseg" to only display segmentation results.
 - Review all segmentations. Use the keyboard shortcuts up/down arrow to switch between
   subjects and the left arrow to toggle overlay.
 - If you spot *major* issues with the segmentation (e.g. noticeable leaking or under-segmentation that extends over several slices),
   add the image name in the variable array ``FILES`` in the script.
 - If the data quality is too low to be interpreted (too blurry, large artifacts),
-  add the image file name to the variable ``TO_EXCLUDE`` in the file ```parameters.sh``,
+  add the image file name to the variable ``TO_EXCLUDE`` in the file ``parameters.sh``,
   which will be used in the next processing iteration.
 
 .. Hint::
