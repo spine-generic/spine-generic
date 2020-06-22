@@ -303,8 +303,9 @@ below. Also see the video tutorial after the procedure.
 .. code-block:: bash
 
   #!/bin/bash
-  # Local folder to output the manual labels (you need to create it before running this script). Do not add "/" at the end.
-  PATH_SEGMANUAL="/Users/bob/seg_manual"
+  # Folder to output the manual labels
+  PATH_SEGMANUAL="../../seg_manual"
+  mkdir $PATH_SEGMANUAL
   # List of files to correct segmentation on
   FILES=(
   sub-amu02_acq-T1w_MTS.nii.gz
