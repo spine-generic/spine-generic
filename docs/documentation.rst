@@ -57,7 +57,7 @@ the following command (replace xx with your center and subject number):
 
 .. code-block:: bash
 
-  dcm2bids -d -p sub-xx -c config_spine.txt -o CENTER_spineGeneric
+  dcm2bids -d PATH_TO_DICOM -p sub-ID_SITE -c config_spine.txt -o SITE_spineGeneric
 
 For example:
 
