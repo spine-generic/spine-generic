@@ -8,12 +8,16 @@
 import argparse,os, shutil
 
 def get_parameters():
-    parser = argparse.ArgumentParser(description='This script is used to deface openneuro scans')
+    parser = argparse.ArgumentParser(description=
+    "This script is used to deface T1w and T2w data from a BIDS dataset. This "
+    "function is a wrapper to the R command regular_deface.r."
+    "First, you need to run the command with '-f' flag to copy the dataset,"
+    "and then you re-run the command without the '-f' flag.")
     parser.add_argument("-i", "--input_path",
-                        help="Path to folder containing input data",
+                        help="Path to BIDS folder that contains all subjects.",
                         required=True)
     parser.add_argument("-o", "--output_path",
-                        help="Path to folder containing output data",
+                        help="Path to output BIDS folder.",
                         required=True)
     parser.add_argument("-f", "--folder_copy",
                         help="Flag to copy input data to output data folder ",
