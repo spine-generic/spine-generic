@@ -26,13 +26,13 @@ yaml_parser() {
   INPUT_YAML=$1
 
   # tr: delete all newlines begining with dash (-), so convert input file into one line without dashes
-  # (unfortunately this also delete all other dashes, so it is neccesary to use 3rd sed)
+  # (this also deletes all other dashes, so it is necessary to use last sed)
   # 1st sed: delete "FILES_LABEL:" string and everything after it
   # 2nd sed: delete "FILES_SEG:" string itself
   # 3rd sed: replace "sub" by "sub-" (tr command deleted all dashes (-))
   FILES_SEG=$(cat $INPUT_YAML | tr -d '\n-' | sed 's/FILES_LABEL:.*//' | sed 's/FILES_SEG://' | sed 's/sub/sub-/g')
   # tr: delete all newlines begining with dash (-), so convert input file into one line without dashes
-  # (unfortunately this also delete all other dashes, so it is neccesary to use 3rd sed)
+  # (this also deletes all other dashes, so it is necessary to use last sed)
   # 1st sed: delete everything before "FILES_LABEL:" string including string "FILES_LABEL:" itself
   # 2nd sed: replace "sub" by "sub-" (tr command deleted all dashes (-))
   FILES_LABEL=$(cat $INPUT_YAML | tr -d '\n-' | sed 's/.*FILES_LABEL://' | sed 's/sub/sub-/g')
