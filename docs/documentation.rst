@@ -159,17 +159,17 @@ defacing fails.
 Automatic defacing with R
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-1. Install R and the following dependencies:
+1. Install `R <https://www.r-project.org/>`_, then open R (type "r" in the Terminal) and install the following dependencies:
 
 .. code-block:: R
 
   install.packages("sessioninfo")
   install.packages("remotes")
-  remotes::install_github("muschellij2/oro.nifti")
+  remotes::install_github("muschellij2/oro.nifti")  # answer "Yes" to "install from source?"
   install.packages("fslr")
   install.packages("argparser")
   install.packages("devtools")
-  remotes::install_github("muschellij2/extrantsr")
+  remotes::install_github("muschellij2/extrantsr")  # choose "1" when prompted
 
 2. Run:
 
