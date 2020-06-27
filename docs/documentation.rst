@@ -184,7 +184,7 @@ Automatic defacing with R
 
 .. code-block:: bash
 
-  qc_bids_deface
+  python qc_bids_deface.py
 
 
 Manual Defacing
