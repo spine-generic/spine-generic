@@ -1,7 +1,7 @@
 ## This script is used to do a batch defacing of T1w & T2w scans using R
-## Basic usage example: 
+## Basic usage example:
 ## deface_spineGeneric_usingR -i PATH_TO_DATASET_TO_DEFACE -o PATH_TO_OUTPUT_DATASET_DEFACED -f
-## If you use the command for the first time and you want to populate the `_defaced` folder add the `-f` flag at the end. 
+## If you use the command for the first time and you want to populate the `_defaced` folder add the `-f` flag at the end.
 ## Author: Alexandru Foias
 ## License MIT
 
@@ -18,28 +18,28 @@ def get_parameters():
     parser.add_argument("-f", "--folder_copy",
                         help="Flag to copy input data to output data folder ",
                         action='store_true',
-                        required=False)                    
+                        required=False)
     args = parser.parse_args()
     return args
 
-def main(input_path,output_path,folder_copy):
+def main():
     """
-    Main function
-    :param input_path:
-    :param output_path:
-    :param folder_copy:
-    :return:
+    Wrapper to deface images using R.
     """
+    args = get_parameters()
+    input_path = args.input_path
+    output_path = args.output_path
+    folder_copy = args.folder_copy
 
     exclude_list = []
     currentwd = os.getcwd()
     currentwd = os.path.dirname(os.path.realpath(__file__))
-    contrastList = ('T1w','T2w')
-    if folder_copy: 
-        shutil.copytree(input_path,output_path)
+    contrastList = ('T1w', 'T2w')
+    if folder_copy:
+        shutil.copytree(input_path, output_path)
     else:
         for subject in (os.listdir(output_path)):
-            pathSubject = os.path.join(output_path,subject)
+            pathSubject = os.path.join(output_path, subject)
             if os.path.isdir(pathSubject):
                 for contrast in contrastList:
                     pathContrastDefaced = os.path.join(pathSubject,'anat',subject+'_'+contrast+ '_defaced.nii.gz')
@@ -54,14 +54,13 @@ def main(input_path,output_path,folder_copy):
                             shutil.copy (pathContrastJson,pathContrastDefacedJson)
                         except:
                             try:
-                                print ('Trying with special script ... ')
+                                print ('Trying with special script... ')
                                 command = 'Rscript '+ currentwd + '/special_deface.r -i '+pathContrast+ ' -o '+pathContrastDefaced
                                 os.system(command)
                             except:
-                                print ('Both scripts failed !!!')
+                                print ('Both scripts failed!!!')
                                 pass
                     print ('\n')
 
 if __name__ == "__main__":
-    args = get_parameters()
-    main(args.input_path,args.output_path,args.folder_copy)
+    main()

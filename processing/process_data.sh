@@ -57,10 +57,13 @@ label_if_does_not_exist(){
   local file_seg="$2"
   # Update global variable with segmentation file name
   FILELABEL="${file}_labels"
-  if [ -e "${PATH_SEGMANUAL}/${file}_labels-manual.nii.gz" ]; then
-    echo "Found manual label: ${PATH_SEGMANUAL}/${file}_labels-manual.nii.gz"
-    rsync -avzh "${PATH_SEGMANUAL}/${file}_labels-manual.nii.gz" ${FILELABEL}.nii.gz
+  FILELABELMANUAL="${PATH_SEGMANUAL}/${file}_labels-manual.nii.gz"
+  echo "Looking for manual label: $FILELABELMANUAL"
+  if [ -e $FILELABELMANUAL ]; then
+    echo "Found! Using manual labels."
+    rsync -avzh $FILELABELMANUA ${FILELABEL}.nii.gz
   else
+    echo "Not found. Proceeding with automatic labeling."
     # Generate labeled segmentation
     sct_label_vertebrae -i ${file}.nii.gz -s ${file_seg}.nii.gz -c t1
     # Create labels in the cord at C3 and C5 mid-vertebral levels
@@ -75,11 +78,14 @@ segment_if_does_not_exist(){
   local contrast="$2"
   # Update global variable with segmentation file name
   FILESEG="${file}_seg"
-  if [ -e "${PATH_SEGMANUAL}/${FILESEG}-manual.nii.gz" ]; then
-    echo "Found manual segmentation: ${PATH_SEGMANUAL}/${FILESEG}-manual.nii.gz"
-    rsync -avzh "${PATH_SEGMANUAL}/${FILESEG}-manual.nii.gz" ${FILESEG}.nii.gz
+  FILESEGMANUAL="${PATH_SEGMANUAL}/${FILESEG}-manual.nii.gz"
+  echo "Looking for manual segmentation: $FILESEGMANUAL"
+  if [ -e $FILESEGMANUAL ]; then
+    echo "Found! Using manual segmentation."
+    rsync -avzh $FILESEGMANUAL ${FILESEG}.nii.gz
     sct_qc -i ${file}.nii.gz -s ${FILESEG}.nii.gz -p sct_deepseg_sc -qc ${PATH_QC} -qc-subject ${SUBJECT}
   else
+    echo "Not found. Proceeding with automatic segmentation."
     # Segment spinal cord
     sct_deepseg_sc -i ${file}.nii.gz -c $contrast -qc ${PATH_QC} -qc-subject ${SUBJECT}
   fi
@@ -92,11 +98,14 @@ segment_gm_if_does_not_exist(){
   local contrast="$2"
   # Update global variable with segmentation file name
   FILESEG="${file}_gmseg"
-  if [ -e "${PATH_SEGMANUAL}/${FILESEG}-manual.nii.gz" ]; then
-    echo "Found manual segmentation: ${PATH_SEGMANUAL}/${FILESEG}-manual.nii.gz"
-    rsync -avzh "${PATH_SEGMANUAL}/${FILESEG}-manual.nii.gz" ${FILESEG}.nii.gz
+  FILESEGMANUAL="${PATH_SEGMANUAL}/${FILESEG}-manual.nii.gz"
+  echo "Looking for manual segmentation: $FILESEGMANUAL"
+  if [ -e $FILESEGMANUAL ]; then
+    echo "Found! Using manual segmentation."
+    rsync -avzh $FILESEGMANUAL ${FILESEG}.nii.gz
     sct_qc -i ${file}.nii.gz -s ${FILESEG}.nii.gz -p sct_deepseg_gm -qc ${PATH_QC} -qc-subject ${SUBJECT}
   else
+    echo "Not found. Proceeding with automatic segmentation."
     # Segment spinal cord
     sct_deepseg_gm -i ${file}.nii.gz -qc ${PATH_QC} -qc-subject ${SUBJECT}
   fi

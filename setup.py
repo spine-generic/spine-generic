@@ -32,7 +32,8 @@ setup(
     install_requires=install_reqs,
     entry_points={
         'console_scripts': [
-            'generate_figure = processing.generate_figure:main'
+            'generate_figure = processing.generate_figure:main',
+            'deface_spineGeneric_usingR = processing.deface_spineGeneric_usingR:main'
         ],
     },
 )
