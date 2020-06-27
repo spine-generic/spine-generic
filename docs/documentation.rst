@@ -171,19 +171,20 @@ Automatic defacing with R
   install.packages("devtools")
   remotes::install_github("muschellij2/extrantsr")  # choose "1" when prompted
 
-2. Run:
+2. Download this repository and install Python's dependencies as instructed in getting-started_.
+
+3. Run:
 
 .. code-block:: bash
 
-  deface_spineGeneric_usingR -i PATH_TO_DATASET_TO_DEFACE -o PATH_TO_OUTPUT_DATASET_DEFACED
-
-If you use the command for the first time and you want to populate the `_defaced` folder, add the `-f` flag at the end.
+  deface_spineGeneric_usingR -i PATH_TO_BIDS_DATASET -o PATH_TO_DEFACED_BIDS_DATASET -f
+  deface_spineGeneric_usingR -i PATH_TO_BIDS_DATASET -o PATH_TO_DEFACED_BIDS_DATASET
 
 3. To launch the QC report of the defacing across multiple subjects, run:
 
 .. code-block:: bash
 
-  python qc_bids_deface.py
+  qc_bids_deface
 
 
 Manual Defacing
