@@ -2,9 +2,11 @@
 
 # Run this script in results/data folder
 #
+# Manual segmentations and labels are saved into ../../seg_manual folder
+# (feel free to change this folder by change PATH_SEGMANUAL variable)
+#
 # USAGE:
-# Define files.yaml file as following:
-#   ---
+# Define files.yml file as following:
 #   FILES_SEG:
 #   - sub-amu01_T1w_RPI_r.nii.gz
 #   - sub-amu01_T2w_RPI_r.nii.gz
@@ -15,7 +17,7 @@
 #
 #
 # THEN RUN:
-#   PATH_TO_SPINEGENERIC/processing/manual_correction.sh files.yaml
+#   PATH_TO_SPINEGENERIC/processing/manual_correction.sh files.yml
 #
 # Authors: Julien Cohen-Adad, Jan Valosek
 
@@ -41,18 +43,17 @@ yaml_parser() {
 # Print help, if invalid input
 if [[ $# != 1 ]] || [[ $1 == "--help" ]] || [[ $1 == "-h" ]];then
 
-  echo -e "Invalid input. \n\nPlease define files.yaml file with list of segmentations to correct"
-  echo -e "and list of subjects to correct labeling on (one file perline)."
-  echo -e "\nExample:"
-  echo -e "\t---"
-  echo -e "\tFILES_SEG:"
-  echo -e "\t- sub-amu01_T1w_RPI_r.nii.gz"
-  echo -e "\t- sub-amu01_T2w_RPI_r.nii.gz"
-  echo -e "\t- sub-brnoCeitec01_T2star_rms.nii.gz"
-  echo -e "\tFILES_LABEL:"
-  echo -e "\t- sub-amu01"
-  echo -e "\t- sub-brnoUhb01"
-  echo -e "\nThen run this script in results/data folder:\n\tPATH_TO_SPINEGENERIC/processing/manual_correction.sh files.yaml"
+  echo -e "Invalid input. \n\nPlease create a files.yml file, which lists the files associated"
+  echo -e "with the segmentations or labels to manually correct."
+  echo -e "\nExample:\n"
+  echo -e "FILES_SEG:"
+  echo -e "- sub-amu01_T1w_RPI_r.nii.gz"
+  echo -e "- sub-amu01_T2w_RPI_r.nii.gz"
+  echo -e "- sub-brnoCeitec01_T2star_rms.nii.gz"
+  echo -e "FILES_LABEL:"
+  echo -e "- sub-amu01"
+  echo -e "- sub-brnoUhb01"
+  echo -e "\nThen run this script in results/data folder:\n\tPATH_TO_SPINEGENERIC/processing/manual_correction.sh files.yml"
 
 else
 
@@ -60,6 +61,7 @@ else
   yaml_parser $1
 
   # Folder to output the manual segmentations and labels
+  # TODO - make this variable as an optional input
   PATH_SEGMANUAL="../../seg_manual"
   mkdir $PATH_SEGMANUAL
 
