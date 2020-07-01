@@ -2,12 +2,12 @@ Data collection and organization
 ================================
 
 The "Spine Generic" MRI acquisition protocol is available at `this
-link <http://www.spinalcordmri.org/protocols>`__. Each site scanned six healthy subjects
-(3 men, 3 women), aged between 20 and 40 y.o. Note: there is a
-flexibility here, and if you wish to scan more than 6 subjects, you are
-welcome to. If your site is interested in participating in this
-publicly-available database, please contact Julien Cohen-Adad for
-details.
+link <http://www.spinalcordmri.org/protocols>`__. Each site was instructed to scan six healthy subjects
+(3 men, 3 women), aged between 20 and 40 y.o. Note: there was some
+flexibility in terms of number of participants and age range.
+
+If your site is interested in contributing to the publicly-available database, please
+coordinate with Julien Cohen-Adad.
 
 Data conversion: DICOM to BIDS
 ------------------------------
@@ -47,8 +47,7 @@ structure for one center is shown below:
             ├── sub-ubc06_dwi.json
             └── sub-ubc06_dwi.nii.gz
 
-To convert your DICOM data folder to the compatible BIDS structure, we
-ask you to install
+To convert your DICOM data folder to the compatible BIDS structure, you need to install
 `dcm2bids <https://github.com/cbedetti/Dcm2Bids#install>`__. Once
 installed, `download this config
 file <https://raw.githubusercontent.com/sct-pipeline/spine-generic/master/config_spine.txt>`__
@@ -71,7 +70,7 @@ any problem while running the script, please `open an
 issue <https://github.com/sct-pipeline/spine-generic/issues>`__ and
 upload the log file. We will offer support.
 
-Once you've converted all subjects for the study, create the following
+Once you have converted all subjects for the study, create the following
 files and add them to the data structure:
 
 **dataset\_description.json** (Pick the correct values depending on your
