@@ -50,7 +50,7 @@ structure for one center is shown below:
 To convert your DICOM data folder to the compatible BIDS structure, you need to install
 `dcm2bids <https://github.com/cbedetti/Dcm2Bids#install>`__. Once
 installed, `download this config
-file <https://raw.githubusercontent.com/sct-pipeline/spine-generic/master/config_spine.txt>`__
+file ../../config_spine.txt>`__
 (click File>Save to save the file), then convert your Dicom folder using
 the following command (replace xx with your center and subject number):
 
@@ -67,7 +67,7 @@ For example:
 
 A log file is generated under ``tmp_dcm2bids/log/``. If you encounter
 any problem while running the script, please `open an
-issue <https://github.com/sct-pipeline/spine-generic/issues>`__ and
+issue <https://github.com/spine-generic/spine-generic/issues>`__ and
 upload the log file. We will offer support.
 
 Once you have converted all subjects for the study, create the following
@@ -254,7 +254,7 @@ Download (or ``git clone``) this repository:
 
 .. code-block:: bash
 
-  git clone https://github.com/sct-pipeline/spine-generic.git
+  git clone https://github.com/spine-generic/spine-generic.git
 
 Install Python dependencies:
 
@@ -442,11 +442,11 @@ folder `results/`:
 Contributors
 ------------
 
-A list of contributors for the analysis pipeline is available `here <https://github.com/sct-pipeline/spine-generic/graphs/contributors>`__.
-If you would like to contribute to this project, please see our `contribution guidelines <https://github.com/sct-pipeline/spine-generic/blob/master/CONTRIBUTING.md>`_.
+A list of contributors for the analysis pipeline is available `here <https://github.com/spine-generic/spine-generic/graphs/contributors>`__.
+If you would like to contribute to this project, please see our `contribution guidelines <../../CONTRIBUTING.md>`_.
 
 
 License
 -------
 
-See the file `LICENSE <https://github.com/sct-pipeline/spine-generic/blob/master/LICENSE>`_.
+See the file `LICENSE <../../LICENSE>`_.
