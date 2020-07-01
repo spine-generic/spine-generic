@@ -1,9 +1,8 @@
-# Acquisition and Analysis Protocol for Quantitative MRI of the Spinal Cord
+# Spine-Generic project: Acquisition and Analysis Protocol
 
-<p align="center">
-  <img src="https://github.com/sct-pipeline/spine-generic/blob/master/docs/_static/logo_spinegeneric.png" width="400">
-</p>
+This repository includes the documentation and the processing scripts for the
+spine-generic project.
 
 User documentation: https://spine-generic.rtfd.io
 
-Developer documentation: https://github.com/sct-pipeline/spine-generic/wiki
+Developer documentation: https://github.com/spine-generic/spine-generic/wiki
