@@ -449,4 +449,4 @@ If you would like to contribute to this project, please see our `contribution gu
 License
 -------
 
-.. include:: ../../LICENSE
+.. include:: ../LICENSE
