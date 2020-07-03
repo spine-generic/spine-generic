@@ -76,9 +76,16 @@ label_if_does_not_exist(){
 segment_if_does_not_exist(){
   local file="$1"
   local contrast="$2"
+  # Find contrast
+  contrast=`cut -d "_" -f2 <<< $file`
+  if [ $contrast == "dwi" ]; then
+    folder_contrast="dwi"
+  else
+    folder_contrast="anat"
+  fi
   # Update global variable with segmentation file name
   FILESEG="${file}_seg"
-  FILESEGMANUAL="${PATH_DATA}/derivatives/${SUBJECT}/anat/${FILESEG}-manual.nii.gz"
+  FILESEGMANUAL="${PATH_DATA}/derivatives/${SUBJECT}/${folder_contrast}/${FILESEG}-manual.nii.gz"
   echo
   echo "Looking for manual segmentation: $FILESEGMANUAL"
   if [ -e $FILESEGMANUAL ]; then
