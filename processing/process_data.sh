@@ -12,7 +12,7 @@
 # PATH_QC="~/qc"
 
 # Uncomment for full verbose
-#set -v
+set -x
 
 # Immediately exit if error
 set -e -o pipefail
@@ -52,7 +52,6 @@ get_field_from_json(){
 
 # Check if manual label already exists. If it does, copy it locally. If it does
 # not, perform labeling.
-# TODO: rename to "label" and remove the duplication in this script
 label_if_does_not_exist(){
   local file="$1"
   local file_seg="$2"
