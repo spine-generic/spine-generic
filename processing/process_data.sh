@@ -12,7 +12,7 @@
 # PATH_QC="~/qc"
 
 # Uncomment for full verbose
-set -v
+#set -v
 
 # Immediately exit if error
 set -e -o pipefail
@@ -52,16 +52,17 @@ get_field_from_json(){
 
 # Check if manual label already exists. If it does, copy it locally. If it does
 # not, perform labeling.
+# TODO: rename to "label" and remove the duplication in this script
 label_if_does_not_exist(){
   local file="$1"
   local file_seg="$2"
   # Update global variable with segmentation file name
   FILELABEL="${file}_labels"
-  FILELABELMANUAL="${PATH_SEGMANUAL}/${file}_labels-manual.nii.gz"
+  FILELABELMANUAL="${PATH_DATA}/derivatives/${SUBJECT}/anat/${FILELABEL}-manual.nii.gz"
   echo "Looking for manual label: $FILELABELMANUAL"
   if [ -e $FILELABELMANUAL ]; then
     echo "Found! Using manual labels."
-    rsync -avzh $FILELABELMANUA ${FILELABEL}.nii.gz
+    rsync -avzh $FILELABELMANUAL ${FILELABEL}.nii.gz
   else
     echo "Not found. Proceeding with automatic labeling."
     # Generate labeled segmentation
@@ -78,7 +79,8 @@ segment_if_does_not_exist(){
   local contrast="$2"
   # Update global variable with segmentation file name
   FILESEG="${file}_seg"
-  FILESEGMANUAL="${PATH_SEGMANUAL}/${FILESEG}-manual.nii.gz"
+  FILESEGMANUAL="${PATH_DATA}/derivatives/${SUBJECT}/anat/${FILESEG}-manual.nii.gz"
+  echo
   echo "Looking for manual segmentation: $FILESEGMANUAL"
   if [ -e $FILESEGMANUAL ]; then
     echo "Found! Using manual segmentation."
@@ -98,7 +100,7 @@ segment_gm_if_does_not_exist(){
   local contrast="$2"
   # Update global variable with segmentation file name
   FILESEG="${file}_gmseg"
-  FILESEGMANUAL="${PATH_SEGMANUAL}/${FILESEG}-manual.nii.gz"
+  FILESEGMANUAL="${PATH_DATA}/derivatives/${SUBJECT}/anat/${FILESEG}-manual.nii.gz"
   echo "Looking for manual segmentation: $FILESEGMANUAL"
   if [ -e $FILESEGMANUAL ]; then
     echo "Found! Using manual segmentation."
@@ -125,6 +127,7 @@ cp $PATH_DATA/participants.tsv .
 cp -r $PATH_DATA/$SUBJECT .
 # Go to anat folder where all structural data are located
 cd ${SUBJECT}/anat/
+
 
 # T1w
 # ------------------------------------------------------------------------------
