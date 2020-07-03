@@ -77,7 +77,6 @@ segment_if_does_not_exist(){
   local file="$1"
   local contrast="$2"
   # Find contrast
-  contrast=`cut -d "_" -f2 <<< $file`
   if [ $contrast == "dwi" ]; then
     folder_contrast="dwi"
   else
