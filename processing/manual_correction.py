@@ -11,6 +11,7 @@ import os
 import sys
 
 import argparse
+import yaml
 
 class ManualCorrection():
 
@@ -25,8 +26,18 @@ class ManualCorrection():
 
         # Check if input yml file exists
         if os.path.isfile(self.arguments.i):
-            input_yml = self.arguments.i
+            fname_yml = self.arguments.i
+        else:
+            sys.exit("ERROR: Input yml file {} does not exist or path is wrong.".format(self.arguments.i))
 
+        # Read input yml file as dict
+        with open(fname_yml, 'r') as stream:
+            try:
+                dict_yml = yaml.safe_load(stream)
+            except yaml.YAMLError as exc:
+                print(exc)
+
+        print("Done")
 
     def get_parser(self):
 
@@ -45,7 +56,7 @@ class ManualCorrection():
         )
         mandatory.add_argument(
             "-o",
-            required=True,
+            required=False,
             metavar="<output folder>",
             help="Path to output folder where manual segmentation and labels will be saved",
         )
