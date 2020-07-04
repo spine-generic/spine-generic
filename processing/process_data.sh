@@ -127,9 +127,11 @@ cd $PATH_RESULTS
 mkdir -p data
 cd data
 # Copy list of participants
-cp $PATH_DATA/participants.tsv .
+if [[ ! -f "participants.tsv" ]]; then
+  rsync -avzh $PATH_DATA/participants.tsv .
+fi
 # Copy source images
-cp -r $PATH_DATA/$SUBJECT .
+rsync -avzh $PATH_DATA/$SUBJECT .
 # Go to anat folder where all structural data are located
 cd ${SUBJECT}/anat/
 
