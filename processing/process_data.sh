@@ -12,7 +12,7 @@
 # PATH_QC="~/qc"
 
 # Uncomment for full verbose
-set -v
+set -x
 
 # Immediately exit if error
 set -e -o pipefail
@@ -32,7 +32,7 @@ SUBJECT=$1
 concatenate_b0_and_dwi(){
   local file_b0="$1"  # does not have extension
   local file_dwi="$2"  # does not have extension
-  if [ -e ${file_b0}.nii.gz ]; then
+  if [[ -e ${file_b0}.nii.gz ]]; then
     echo "Found additional b=0 scans: $file_b0.nii.gz They will be concatenated to the DWI scans."
     sct_dmri_concat_b0_and_dwi -i ${file_b0}.nii.gz ${file_dwi}.nii.gz -bval ${file_dwi}.bval -bvec ${file_dwi}.bvec -order b0 dwi -o ${file_dwi}_concat.nii.gz -obval ${file_dwi}_concat.bval -obvec ${file_dwi}_concat.bvec
     # Update global variable
@@ -57,11 +57,11 @@ label_if_does_not_exist(){
   local file_seg="$2"
   # Update global variable with segmentation file name
   FILELABEL="${file}_labels"
-  FILELABELMANUAL="${PATH_SEGMANUAL}/${file}_labels-manual.nii.gz"
+  FILELABELMANUAL="${PATH_DATA}/derivatives/${SUBJECT}/anat/${FILELABEL}-manual.nii.gz"
   echo "Looking for manual label: $FILELABELMANUAL"
-  if [ -e $FILELABELMANUAL ]; then
+  if [[ -e $FILELABELMANUAL ]]; then
     echo "Found! Using manual labels."
-    rsync -avzh $FILELABELMANUA ${FILELABEL}.nii.gz
+    rsync -avzh $FILELABELMANUAL ${FILELABEL}.nii.gz
   else
     echo "Not found. Proceeding with automatic labeling."
     # Generate labeled segmentation
@@ -76,11 +76,18 @@ label_if_does_not_exist(){
 segment_if_does_not_exist(){
   local file="$1"
   local contrast="$2"
+  # Find contrast
+  if [[ $contrast == "dwi" ]]; then
+    folder_contrast="dwi"
+  else
+    folder_contrast="anat"
+  fi
   # Update global variable with segmentation file name
   FILESEG="${file}_seg"
-  FILESEGMANUAL="${PATH_SEGMANUAL}/${FILESEG}-manual.nii.gz"
+  FILESEGMANUAL="${PATH_DATA}/derivatives/${SUBJECT}/${folder_contrast}/${FILESEG}-manual.nii.gz"
+  echo
   echo "Looking for manual segmentation: $FILESEGMANUAL"
-  if [ -e $FILESEGMANUAL ]; then
+  if [[ -e $FILESEGMANUAL ]]; then
     echo "Found! Using manual segmentation."
     rsync -avzh $FILESEGMANUAL ${FILESEG}.nii.gz
     sct_qc -i ${file}.nii.gz -s ${FILESEG}.nii.gz -p sct_deepseg_sc -qc ${PATH_QC} -qc-subject ${SUBJECT}
@@ -98,9 +105,9 @@ segment_gm_if_does_not_exist(){
   local contrast="$2"
   # Update global variable with segmentation file name
   FILESEG="${file}_gmseg"
-  FILESEGMANUAL="${PATH_SEGMANUAL}/${FILESEG}-manual.nii.gz"
+  FILESEGMANUAL="${PATH_DATA}/derivatives/${SUBJECT}/anat/${FILESEG}-manual.nii.gz"
   echo "Looking for manual segmentation: $FILESEGMANUAL"
-  if [ -e $FILESEGMANUAL ]; then
+  if [[ -e $FILESEGMANUAL ]]; then
     echo "Found! Using manual segmentation."
     rsync -avzh $FILESEGMANUAL ${FILESEG}.nii.gz
     sct_qc -i ${file}.nii.gz -s ${FILESEG}.nii.gz -p sct_deepseg_gm -qc ${PATH_QC} -qc-subject ${SUBJECT}
@@ -125,6 +132,7 @@ cp $PATH_DATA/participants.tsv .
 cp -r $PATH_DATA/$SUBJECT .
 # Go to anat folder where all structural data are located
 cd ${SUBJECT}/anat/
+
 
 # T1w
 # ------------------------------------------------------------------------------
@@ -292,7 +300,7 @@ FILES_TO_CHECK=(
   "dwi/label/atlas/PAM50_atlas_00.nii.gz"
 )
 for file in ${FILES_TO_CHECK[@]}; do
-  if [ ! -e $file ]; then
+  if [[ ! -e $file ]]; then
     echo "${SUBJECT}/${file} does not exist" >> $PATH_LOG/_error_check_output_files.log
   fi
 done
