@@ -1,7 +1,13 @@
 #!/usr/bin/env python
 #
-# Generate figures for the spine-generic dataset. This script needs to run within the results/ folders, which is
-# created by the function process_data.sh.
+# Generate figures for the spine-generic dataset. This script needs to be run within the results/ folders, which is
+# created by the function process_data.sh; or you can specify results/ folder manully by -path-results flag.
+#
+# Example (when run within resutls/ folder):
+#	python <PATH_TO_SCRIPT>/generate_figure.py
+#
+# Example (when run from any directory with manually specify results/ folder path):
+#	python <PATH_TO_SCRIPT>/generate_figure.py -path-results ~/data/spine-generic_results/results
 #
 # Note: Matplotlib crashes when running debugger in Pycharm with python 3.7.3. To fix the problem, run this script
 # using a virtual env python 3.7.0. More info at: https://github.com/MTG/sms-tools/issues/36
@@ -190,8 +196,8 @@ LABELSIZE = 15
 
 def get_parameters():
     parser = argparse.ArgumentParser(
-        description="Generate figures for the spine-generic project. This script needs to be run within the results "
-                    "folder that encloses all the csv files.")
+        description="Generate figures for the spine-generic project. This script needs to be run within the results/ folder "
+                    "that encloses all the csv files; or you can specify results/ folder manully by -path-results flag.")
     parser.add_argument(
         '-indiv-subj',
         type=int,
