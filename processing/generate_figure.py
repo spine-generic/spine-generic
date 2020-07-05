@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-# Generate figures for the spine-generic dataset. This script needs to be run within the results/ folders, which is
-# created by the function process_data.sh; or you can specify results/ folder manully by -path-results flag.
+# Generate figures for the spine-generic project. This script needs to be run within the results/ folder, that encloses all
+# the csv files (created by the process_data.sh script); or you can specify results/ folder manully by -path-results flag.
 #
 # Example (when run within resutls/ folder):
 #	python <PATH_TO_SCRIPT>/generate_figure.py
@@ -196,8 +196,8 @@ LABELSIZE = 15
 
 def get_parameters():
     parser = argparse.ArgumentParser(
-        description="Generate figures for the spine-generic project. This script needs to be run within the results/ folder "
-                    "that encloses all the csv files; or you can specify results/ folder manully by -path-results flag.")
+        description="Generate figures for the spine-generic project. This script needs to be run within the results/ folder, that encloses all " 
+                    "the csv files (created by the process_data.sh script); or you can specify results/ folder manully by -path-results flag.")
     parser.add_argument(
         '-indiv-subj',
         type=int,
