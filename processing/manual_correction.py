@@ -102,10 +102,19 @@ class ManualCorrection():
                 fname_seg_dest = os.path.join(path_bids, self.folder_derivatives,
                                               re.sub(r'.nii.gz', '_seg-manual.nii.gz', fname_data))
 
-            print(path_output)
-            print(fname_seg, fname_seg_dest)
-            # os.makedirs(path_output, exist_ok=True)
-            # shutil.copy(fname_seg, fname_seg_dest)
+            # check if segmentation file exist, i.e., passed filename is correct
+            if os.path.isfile(fname_seg):
+                # create bids folder if not exist
+                os.makedirs(path_output, exist_ok=True)
+                # copy *_seg.nii.gz file -> *_seg-manual.nii.gz
+                shutil.copy(fname_seg, fname_seg_dest)
+                # launch FSLeyes
+                print('In FSLeyes, click on \'Edit mode\', correct the segmentation, then save it with the same '
+                      'name (overwrite).')
+                arglist = '-yh ' + fname_data + ' ' + fname_seg_dest + ' -cm red'
+                os.system('fsleyes ' + arglist)
+            else:
+                print('File {} does not exist. Please verity if you entered filename correctly.'.format(file))
 
     def labels_correction(self, dict_yml, path_bids):
         """
