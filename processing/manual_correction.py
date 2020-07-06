@@ -85,10 +85,10 @@ class ManualCorrection():
 
             # check if file is under dwi/ or anat/ folder and get fname_data and create path_output
             if 'dwi' in file:
-                fname_data = os.path.join(subject, 'dwi', file)
+                fname_data = os.path.join(path_bids, subject, 'dwi', file)
                 path_output = os.path.join(path_bids, self.folder_derivatives, subject, 'dwi')
             else:
-                fname_data = os.path.join(subject, 'anat', file)
+                fname_data = os.path.join(path_bids, subject, 'anat', file)
                 path_output = os.path.join(path_bids, self.folder_derivatives, subject, 'anat')
 
             # distinguish between gray matter and spinal cord segmentation
