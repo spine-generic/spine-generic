@@ -72,7 +72,9 @@ class ManualCorrection():
 
     def segmentation_correction(self, dict_yml, path_bids):
         """
-        Function for manual correction of spinal cord or gray matter segmentation
+        Function copy SC or GM segmentation into derivatives/ folder and open FSLeyes for manual correction
+        :param dict_yml - dictionary with input segmentation files to correct
+        :param path_bids - path to input folder with BIDS dataset (default = ./)
         """
         # Loop across segmentation files
         for file in dict_yml["FILES_SEG"]:
