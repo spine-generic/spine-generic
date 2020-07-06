@@ -72,6 +72,7 @@ class ManualCorrection():
 
     def segmentation_correction(self, dict_yml, path_bids):
         """
+        Manual spinal cord and gray matter segmentation correction
         Function copy SC or GM segmentation into derivatives/ folder and open FSLeyes for manual correction
         :param dict_yml - dictionary with input segmentation files to correct
         :param path_bids - path to input folder with BIDS dataset (default = ./)
@@ -120,11 +121,29 @@ class ManualCorrection():
 
     def labels_correction(self, dict_yml, path_bids):
         """
-        Function for manual correction of vertebral labeling
+        Manual vertebral labeling correction
+        Function copy vertebral labeling file into derivatives/ folder and launch sct_label_utils GUI for manual
+        correction
+        :param dict_yml - dictionary with input segmentation files to correct
+        :param path_bids - path to input folder with BIDS dataset (default = ./)
         """
-        # Loop across gray matter segmentation files
+        # Loop across vertebral labeling files
         for subject in dict_yml["FILES_LABEL"]:
-            print(subject)
+
+            # get fname_label (original T1w image where labeling was performed on)
+            fname_label = os.path.join(path_bids, subject, 'anat', (subject + '_T1w_RPI_r.nii.gz'))
+            # create destination fname_label_dest in derivatives/ folder
+            fname_label_dest = os.path.join(path_bids, self.folder_derivatives, subject, 'anat',
+                                            (subject + '_T1w_RPI_r_labels-manual.nii.gz'))
+
+            # check if vertebral labeling file exist, i.e., passed filename is correct
+            if os.path.isfile(fname_label):
+                # launch sct_label_utils GUI for manual labeling
+                print('In sct_label_utils GUI, select C3 and C5, then click \'Save and Quit\'.')
+                arglist = '-i ' + fname_label + ' -create-viewer 3,5 -o ' + fname_label_dest
+                os.system('sct_label_utils ' + arglist)
+            else:
+                print('File {} does not exist. Please verity if you entered subject ID correctly.'.format(fname_label))
 
     def get_parser(self):
         """
