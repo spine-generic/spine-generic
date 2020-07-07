@@ -443,9 +443,8 @@ Contributors
 ------------
 
 A list of contributors for the analysis pipeline is available `here <https://github.com/spine-generic/spine-generic/graphs/contributors>`__.
-If you would like to contribute to this project, please see our contribution `guidelines`_. 
+If you would like to contribute to this project, please see our :doc:`contribution guidelines <../../CONTRIBUTING.md>`.
 
-.. _guidelines: ../CONTRIBUTING.md
 
 
 License
