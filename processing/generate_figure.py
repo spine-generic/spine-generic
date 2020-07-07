@@ -322,11 +322,12 @@ def compute_statistics(df, sites_to_exclude=[]):
     mean_per_row = []
     std_per_row = []
     stats = {}
+    # Compute statistics within site
     for site in df.index:
         mean_per_row.append(np.mean(df['val'][site]))
         std_per_row.append(np.std(df['val'][site]))
     # Update Dataframe
-    df['mean'] = mean_per_row
+    df['mean'] = mean_per_row  # mean within each site (e.g., if there are 35 sites, this will be a vector of length 35)
     df['std'] = std_per_row
     df['cov'] = np.array(std_per_row) / np.array(mean_per_row)
     # Compute intra-vendor COV
@@ -340,15 +341,16 @@ def compute_statistics(df, sites_to_exclude=[]):
             stats['mean'] = {}
         if not 'std' in stats.keys():
             stats['std'] = {}
-        # fetch vals for specific vendor
+        # fetch within-site mean values for a specific vendor
         val_per_vendor = df['mean'][(df['vendor'] == vendor) & (~df['site'].isin(sites_to_exclude))]
-        # val_per_vendor = df['mean'][df['vendor'] == vendor].values
-
+        # compute mean across vendors (of the mean within site)
         stats['mean'][vendor] = np.mean(val_per_vendor)
+        # compute the std across vendors (of the mean within site)
         stats['std'][vendor] = np.std(val_per_vendor)
-        # compute inter-subject COV
+        # compute inter-site COV, within vendor (based on the mean within site)
         stats['cov_inter'][vendor] = np.std(val_per_vendor) / np.mean(val_per_vendor)
-        # compute intra-subject COV (averaged across subjects, within vendor)
+        # compute intra-site COV, and average it across all the sites within the same vendor
+        # TODO: exclude sites to exclude
         stats['cov_intra'][vendor] = \
             np.mean(df['std'][df['vendor'] == vendor].values / df['mean'][df['vendor'] == vendor].values)
     return df, stats
