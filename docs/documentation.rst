@@ -442,10 +442,8 @@ folder `results/`:
 Contributors
 ------------
 
-:download:`../CONTRIBUTING.md`
-
 A list of contributors for the analysis pipeline is available `here <https://github.com/spine-generic/spine-generic/graphs/contributors>`__.
-If you would like to contribute to this project, please see `contribution guidelines <_downloads/CONTRIBUTING.md>`__.
+If you would like to contribute to this project, please see `contribution guidelines <https://github.com/spine-generic/spine-generic/blob/master/CONTRIBUTING.md>`_.
 
 
 
