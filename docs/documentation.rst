@@ -443,10 +443,11 @@ Contributors
 ------------
 
 A list of contributors for the analysis pipeline is available `here <https://github.com/spine-generic/spine-generic/graphs/contributors>`__.
-If you would like to contribute to this project, please see our `contribution guidelines <../../CONTRIBUTING.md>`_.
+If you would like to contribute to this project, please see `contribution guidelines <https://github.com/spine-generic/spine-generic/blob/master/CONTRIBUTING.md>`_.
+
 
 
 License
 -------
 
-See the file `LICENSE <../../LICENSE>`_.
+.. include:: ../LICENSE
