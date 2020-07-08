@@ -67,6 +67,11 @@ class ManualCorrection():
             else:
                 sys.exit("ERROR: BIDS folder does not exist or path is wrong.".format(self.arguments.ifolder))
 
+        # check if working directory path_bids (./ or passed by -ifolder flag) contains subjects' data
+        if not any(fname.startswith('sub-') for fname in os.listdir(path_bids)):
+            sys.exit("ERROR: Current directory does not contain data of any subject. Run this script in results/data "
+                     "folder or specify this folder by -ifolder flag.")
+
         self.segmentation_correction(dict_yml, path_bids)
         self.labels_correction(dict_yml, path_bids)
 
@@ -160,15 +165,15 @@ class ManualCorrection():
         mandatory.add_argument(
             '-i',
             required=True,
-            metavar='<input yml file>',
+            metavar='<in-yml file>',
             help='Filename of yml file containing segmentation and vertebral labeling for manual correction.'
         )
 
         optional = parser.add_argument_group("\nOPTIONAL ARGUMENTS")
         optional.add_argument(
             '-ifolder',
-            metavar='<input folder>',
-            help='Path to input folder with BIDS dataset',
+            metavar='<in-folder>',
+            help='Path to input folder with BIDS dataset. Example = ~/spine-generic/results/data',
             default='./'
         )
 
