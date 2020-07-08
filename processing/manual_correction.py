@@ -65,12 +65,12 @@ class ManualCorrection():
             if os.path.isdir(self.arguments.ifolder):
                 path_bids = self.arguments.ifolder
             else:
-                sys.exit("ERROR: BIDS folder does not exist or path is wrong.".format(self.arguments.ifolder))
+                sys.exit("ERROR: BIDS folder \'{}\' does not exist or path is wrong.".format(self.arguments.ifolder))
 
         # check if working directory path_bids (./ or passed by -ifolder flag) contains subjects' data
         if not any(fname.startswith('sub-') for fname in os.listdir(path_bids)):
-            sys.exit("ERROR: Current directory does not contain data of any subject. Run this script in results/data "
-                     "folder or specify this folder by -ifolder flag.")
+            sys.exit("ERROR: Working directory \'{}\' does not contain data of any subject. Run this script in "
+                     "results/data folder or specify this folder by -ifolder flag.".format(path_bids))
 
         self.segmentation_correction(dict_yml, path_bids)
         self.labels_correction(dict_yml, path_bids)
