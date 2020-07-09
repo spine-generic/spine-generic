@@ -1,30 +1,8 @@
 #!/usr/bin/env python
 #
-# Script for manual correction of spinal cord and gray matter segmentation and vertebral labeling.
+# Script to perform manual correction of segmentations and vertebral labeling.
 #
-# Run this script in results/data folder or specify this folder by -ifolder flag.
-#
-# Manually corrected files are saved under derivatives/ folder (BIDS standard).
-#
-# USAGE:
-# Create a files.yml file that lists all files which manual correction has to be done on.
-# For the spinal cord or gray matter segmentation list these files under FILES_SEG key,
-# for vertebral labeling list individual subjects under FILES_LABEL key, as per the example below:
-#
-#FILES_SEG:
-#- sub-amu01_T1w_RPI_r.nii.gz
-#- sub-amu01_T1w_RP_r.nii
-#- sub-amu01_T2w_RPI_r.nii.gz
-#- sub-cardiff02_dwi_crop_moco_dwi_mean.nii.gz
-#- sub-amu01_T2star_rms.nii.gz
-#FILES_LABEL:
-#- sub-amu01
-#- sub-amu02
-#
-# THEN RUN (results/data folder):
-#       PATH_TO_SPINEGENERIC/processing/manual_correction.py -i files.yml
-# OR
-#       PATH_TO_SPINEGENERIC/processing/manual_correction.py -i files.yml -ifolder <BIDS_dataset>
+# For usage, type: python manual_correction.py -h
 #
 # Authors: Jan Valosek, Julien Cohen-Adad
 
@@ -160,15 +138,25 @@ class ManualCorrection():
             add_help=False,
             prog=os.path.basename(__file__).strip('.py')
         )
-
         mandatory = parser.add_argument_group('\nMANDATORY ARGUMENTS')
         mandatory.add_argument(
             '-i',
             required=True,
             metavar='<in-yml file>',
-            help='Filename of yml file containing segmentation and vertebral labeling for manual correction.'
+            help="File, in yml format, listing segmentation and vertebral labeling that require manual correction. "
+                 "Segmentation files are listed under the 'FILES_SEG' key while vertebral labels are listed under the "
+                 "FILES_LABEL key. Below is an example of a yml file:\n"
+                 ""
+                 "FILES_SEG:\n"
+                 "- sub-amu01_T1w_RPI_r.nii.gz"
+                 "- sub-amu01_T1w_RP_r.nii"
+                 "- sub-amu01_T2w_RPI_r.nii.gz"
+                 "- sub-cardiff02_dwi_crop_moco_dwi_mean.nii.gz"
+                 "- sub-amu01_T2star_rms.nii.gz"
+                 "FILES_LABEL:"
+                 "- sub-amu01"
+                 "- sub-amu02"
         )
-
         optional = parser.add_argument_group("\nOPTIONAL ARGUMENTS")
         optional.add_argument(
             '-ifolder',
