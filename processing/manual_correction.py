@@ -26,40 +26,6 @@ class ManualCorrection():
     def __init__(self):
         self.folder_derivatives = 'derivatives'
 
-    def main(self):
-
-        # get parser args
-        parser = self.get_parser()
-        self.arguments = parser.parse_args()
-
-        # check if input yml file exists
-        if os.path.isfile(self.arguments.i):
-            fname_yml = self.arguments.i
-        else:
-            sys.exit("ERROR: Input yml file {} does not exist or path is wrong.".format(self.arguments.i))
-
-        # fetch input yml file as dict
-        with open(fname_yml, 'r') as stream:
-            try:
-                dict_yml = yaml.safe_load(stream)
-            except yaml.YAMLError as exc:
-                print(exc)
-
-        # path to BIDS folder (optional arg, otherwise ./)
-        if self.arguments.ifolder is not None:
-            if os.path.isdir(self.arguments.ifolder):
-                path_bids = self.arguments.ifolder
-            else:
-                sys.exit("ERROR: BIDS folder \'{}\' does not exist or path is wrong.".format(self.arguments.ifolder))
-
-        # check if working directory path_bids (./ or passed by -ifolder flag) contains subjects' data
-        if not any(fname.startswith('sub-') for fname in os.listdir(path_bids)):
-            sys.exit("ERROR: Working directory \'{}\' does not contain data of any subject. Run this script in "
-                     "results/data folder or specify this folder by -ifolder flag.".format(path_bids))
-
-        self.segmentation_correction(dict_yml, path_bids)
-        self.labels_correction(dict_yml, path_bids)
-
     def segmentation_correction(self, dict_yml, path_bids):
         """
         Manual spinal cord and gray matter segmentation correction
@@ -178,12 +144,45 @@ def get_parser():
 
 
 def main(argv):
+    """
+    Main function
+    :param argv:
+    :return:
+    """
     # Parse the command line arguments
     parser = get_parser()
     args = parser.parse_args(argv if argv else ['--help'])
 
+    # check if input yml file exists
+    if os.path.isfile(args.i):
+        fname_yml = args.i
+    else:
+        sys.exit("ERROR: Input yml file {} does not exist or path is wrong.".format(args.i))
+
+    # fetch input yml file as dict
+    with open(fname_yml, 'r') as stream:
+        try:
+            dict_yml = yaml.safe_load(stream)
+        except yaml.YAMLError as exc:
+            print(exc)
+
+    # path to BIDS folder (optional arg, otherwise ./)
+    if args.ifolder is not None:
+        if os.path.isdir(args.ifolder):
+            path_bids = args.ifolder
+        else:
+            sys.exit("ERROR: BIDS folder \'{}\' does not exist or path is wrong.".format(args.ifolder))
+
+    # check if working directory path_bids (./ or passed by -ifolder flag) contains subjects' data
+    if not any(fname.startswith('sub-') for fname in os.listdir(path_bids)):
+        sys.exit("ERROR: Working directory \'{}\' does not contain data of any subject. Run this script in "
+                 "results/data folder or specify this folder by -ifolder flag.".format(path_bids))
+
+    # Perform manual corrections
+    manual_correction = ManualCorrection()
+    manual_correction.segmentation_correction(dict_yml, path_bids)
+    manual_correction.labels_correction(dict_yml, path_bids)
+
 
 if __name__ == "__main__":
     main(sys.argv[1:])
-    # manual_correction = ManualCorrection()
-    # manual_correction.main()
