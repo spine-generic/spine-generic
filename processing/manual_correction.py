@@ -7,14 +7,18 @@
 # Authors: Jan Valosek, Julien Cohen-Adad
 
 # TODO: use argparse wrapper to display usage appropriately.
+# TODO: impose py3.6 because of this: https://github.com/neuropoly/spinalcordtoolbox/issues/2782
+
 
 import os
 import sys
 import shutil
 import re
-
+from textwrap import dedent
 import argparse
 import yaml
+
+from utils import SmartFormatter
 
 
 class ManualCorrection():
@@ -131,46 +135,55 @@ class ManualCorrection():
             else:
                 print('File {} does not exist. Please verity if you entered subject ID correctly.'.format(fname_label))
 
-    def get_parser(self):
-        """
-        parser function
-        """
-        parser = argparse.ArgumentParser(
-            description='Manual correction of spinal cord and gray matter segmentation and vertebral labeling. '
-                        'Manually corrected files are saved under derivatives/ folder (BIDS standard).',
-            add_help=False,
-            prog=os.path.basename(__file__).strip('.py')
-        )
-        mandatory = parser.add_argument_group('\nMANDATORY ARGUMENTS')
-        mandatory.add_argument(
-            '-i',
-            required=True,
-            metavar='<in-yml file>',
-            help="File, in yml format, listing segmentation and vertebral labeling that require manual correction. "
-                 "Segmentation files are listed under the 'FILES_SEG' key while vertebral labels are listed under the "
-                 "FILES_LABEL key. Below is an example of a yml file:\n"
-                 ""
-                 "FILES_SEG:\n"
-                 "- sub-amu01_T1w_RPI_r.nii.gz"
-                 "- sub-amu01_T1w_RP_r.nii"
-                 "- sub-amu01_T2w_RPI_r.nii.gz"
-                 "- sub-cardiff02_dwi_crop_moco_dwi_mean.nii.gz"
-                 "- sub-amu01_T2star_rms.nii.gz"
-                 "FILES_LABEL:"
-                 "- sub-amu01"
-                 "- sub-amu02"
-        )
-        optional = parser.add_argument_group("\nOPTIONAL ARGUMENTS")
-        optional.add_argument(
-            '-ifolder',
-            metavar='<in-folder>',
-            help='Path to input folder with BIDS dataset. Example = ~/spine-generic/results/data',
-            default='./'
-        )
 
-        return parser
+def get_parser():
+    """
+    parser function
+    """
+    parser = argparse.ArgumentParser(
+        description='Manual correction of spinal cord and gray matter segmentation and vertebral labeling. '
+                    'Manually corrected files are saved under derivatives/ folder (BIDS standard).',
+        formatter_class=SmartFormatter,
+        prog=os.path.basename(__file__).strip('.py')
+    )
+    mandatory = parser.add_argument_group('\nMANDATORY ARGUMENTS')
+    mandatory.add_argument(
+        '-i',
+        metavar='<in-yml file>',
+        help=
+        "R|File, in yml format, listing images that require manual corrections for segmentation and vertebral "
+        "labeling. Images associated with the segmentation are listed under the 'FILES_SEG' key, while images "
+        "associated with vertebral labels are listed under the 'FILES_LABEL' key. Below is an example of a yml file:\n"
+        + dedent(
+            """ 
+            FILES_SEG:
+            - sub-amu01_T1w_RPI_r.nii.gz
+            - sub-amu01_T2w_RPI_r.nii.gz
+            - sub-cardiff02_dwi_moco_dwi_mean.nii.gz
+            - sub-amu01_T2star_rms.nii.gz
+            FILES_LABEL:
+            - sub-amu01
+            - sub-amu02
+            """)
+    )
+    optional = parser.add_argument_group("\nOPTIONAL ARGUMENTS")
+    optional.add_argument(
+        '-ifolder',
+        metavar='<in-folder>',
+        help='Path to input folder with BIDS dataset. Example = ~/spine-generic/results/data',
+        default='./'
+    )
+
+    return parser
+
+
+def main(argv):
+    # Parse the command line arguments
+    parser = get_parser()
+    args = parser.parse_args(argv if argv else ['--help'])
 
 
 if __name__ == "__main__":
-    manual_correction = ManualCorrection()
-    manual_correction.main()
+    main(sys.argv[1:])
+    # manual_correction = ManualCorrection()
+    # manual_correction.main()
