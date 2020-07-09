@@ -6,6 +6,8 @@
 #
 # Authors: Jan Valosek, Julien Cohen-Adad
 
+# TODO: use argparse wrapper to display usage appropriately.
+
 import os
 import sys
 import shutil
@@ -13,6 +15,7 @@ import re
 
 import argparse
 import yaml
+
 
 class ManualCorrection():
 
@@ -165,12 +168,6 @@ class ManualCorrection():
             default='./'
         )
 
-        optional.add_argument(
-            "-h",
-            "--help",
-            action="help",
-            help="Show this help message and exit."
-        )
         return parser
 
 
