@@ -134,8 +134,15 @@ def get_parser():
     parser.add_argument(
         '-path-in',
         metavar=Metavar.folder,
-        help='Path to folder that contains the processed data. Example = ~/spine-generic/results/data',
+        help='Path to the processed data. Example: ~/spine-generic/results/data',
         default='./'
+    )
+    parser.add_argument(
+        '-path-out',
+        metavar=Metavar.folder,
+        help="Path to the BIDS dataset where the corrected labels will be generated. Note: if the derivatives/ folder "
+             "does not already exist, it will be created."
+             "Example: ~/data-spine-generic"
     )
 
     return parser
