@@ -113,10 +113,10 @@ def get_parser():
         prog=os.path.basename(__file__).strip('.py')
     )
     parser.add_argument(
-        '-i',
+        '-config',
         metavar=Metavar.file,
         help=
-        "R|File, in yml format, listing images that require manual corrections for segmentation and vertebral "
+        "R|Config yaml file listing images that require manual corrections for segmentation and vertebral "
         "labeling. Images associated with the segmentation are listed under the 'FILES_SEG' key, while images "
         "associated with vertebral labels are listed under the 'FILES_LABEL' key. Below is an example of a yml file:\n"
         + dedent(
@@ -128,13 +128,13 @@ def get_parser():
             - sub-amu01_T2star_rms.nii.gz
             FILES_LABEL:
             - sub-amu01
-            - sub-amu02
+            - sub-amu02\n
             """)
     )
     parser.add_argument(
-        '-ifolder',
+        '-path-in',
         metavar=Metavar.folder,
-        help='Path to input folder with BIDS dataset. Example = ~/spine-generic/results/data',
+        help='Path to folder that contains the processed data. Example = ~/spine-generic/results/data',
         default='./'
     )
 
@@ -152,10 +152,10 @@ def main(argv):
     args = parser.parse_args(argv if argv else ['--help'])
 
     # check if input yml file exists
-    if os.path.isfile(args.i):
-        fname_yml = args.i
+    if os.path.isfile(args.config):
+        fname_yml = args.config
     else:
-        sys.exit("ERROR: Input yml file {} does not exist or path is wrong.".format(args.i))
+        sys.exit("ERROR: Input yml file {} does not exist or path is wrong.".format(args.config))
 
     # fetch input yml file as dict
     with open(fname_yml, 'r') as stream:
@@ -165,11 +165,11 @@ def main(argv):
             print(exc)
 
     # path to BIDS folder (optional arg, otherwise ./)
-    if args.ifolder is not None:
-        if os.path.isdir(args.ifolder):
-            path_bids = args.ifolder
+    if args.path_in is not None:
+        if os.path.isdir(args.path_in):
+            path_bids = args.path_in
         else:
-            sys.exit("ERROR: BIDS folder \'{}\' does not exist or path is wrong.".format(args.ifolder))
+            sys.exit("ERROR: BIDS folder \'{}\' does not exist or path is wrong.".format(args.path_in))
 
     # check if working directory path_bids (./ or passed by -ifolder flag) contains subjects' data
     if not any(fname.startswith('sub-') for fname in os.listdir(path_bids)):
