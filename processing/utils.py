@@ -18,6 +18,21 @@ from enum import Enum
 logger = logging.getLogger(__name__)
 
 
+class Metavar(Enum):
+    """
+    This class is used to display intuitive input types via the metavar field of argparse
+    """
+    file = "<file>"
+    str = "<str>"
+    folder = "<folder>"
+    int = "<int>"
+    list = "<list>"
+    float = "<float>"
+
+    def __str__(self):
+        return self.value
+
+
 class SmartFormatter(argparse.HelpFormatter):
     """
     Custom formatter that inherits from HelpFormatter, which adjusts the default width to the current Terminal size,

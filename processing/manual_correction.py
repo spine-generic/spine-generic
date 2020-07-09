@@ -8,7 +8,7 @@
 
 # TODO: use argparse wrapper to display usage appropriately.
 # TODO: impose py3.6 because of this: https://github.com/neuropoly/spinalcordtoolbox/issues/2782
-
+# TODO: add flag for output BIDS dataset (manual corr should *not* be in the results/data folder)
 
 import os
 import sys
@@ -18,7 +18,7 @@ from textwrap import dedent
 import argparse
 import yaml
 
-from utils import SmartFormatter
+from utils import Metavar, SmartFormatter
 
 
 class ManualCorrection():
@@ -112,10 +112,9 @@ def get_parser():
         formatter_class=SmartFormatter,
         prog=os.path.basename(__file__).strip('.py')
     )
-    mandatory = parser.add_argument_group('\nMANDATORY ARGUMENTS')
-    mandatory.add_argument(
+    parser.add_argument(
         '-i',
-        metavar='<in-yml file>',
+        metavar=Metavar.file,
         help=
         "R|File, in yml format, listing images that require manual corrections for segmentation and vertebral "
         "labeling. Images associated with the segmentation are listed under the 'FILES_SEG' key, while images "
@@ -132,10 +131,9 @@ def get_parser():
             - sub-amu02
             """)
     )
-    optional = parser.add_argument_group("\nOPTIONAL ARGUMENTS")
-    optional.add_argument(
+    parser.add_argument(
         '-ifolder',
-        metavar='<in-folder>',
+        metavar=Metavar.folder,
         help='Path to input folder with BIDS dataset. Example = ~/spine-generic/results/data',
         default='./'
     )
