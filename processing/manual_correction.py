@@ -6,10 +6,10 @@
 #
 # Authors: Jan Valosek, Julien Cohen-Adad
 
-# TODO: use argparse wrapper to display usage appropriately.
 # TODO: impose py3.6 because of this: https://github.com/neuropoly/spinalcordtoolbox/issues/2782
-# TODO: add flag for output BIDS dataset (manual corr should *not* be in the results/data folder)
 # TODO: add task in yaml for FILES_GMSEG
+# TODO: check if fsleyes is installed
+
 
 import os
 import sys
@@ -198,13 +198,18 @@ def correct_segmentation(file, path_data, path_out, type_seg='spinalcord'):
     def _suffix_seg(type_seg):
         return '_seg' if type_seg=='spinalcord' else '_gmseg'
 
+    # build file names
     fname = os.path.join(path_data, get_subject(file), get_contrast(file), file)
     fname_seg = add_suffix(fname, _suffix_seg(type_seg))
     fname_seg_out = os.path.join(
         path_out, get_subject(file), get_contrast(file), add_suffix(file, _suffix_seg(type_seg)))
-
-    # TODO: to be continued...
-    raise NotImplementedError
+    # copy to output path
+    os.makedirs(os.path.join(path_out, get_subject(file), get_contrast(file)), exist_ok=True)
+    shutil.copy(fname_seg, fname_seg_out)
+    # launch FSLeyes
+    print("In FSLeyes, click on 'Edit mode', correct the segmentation, then save it with the same name (overwrite).")
+    arglist = '-yh ' + fname + ' ' + fname_seg_out + ' -cm red'
+    os.system('fsleyes ' + arglist)
 
 
 def check_files_exist(dict_files, path_data):
