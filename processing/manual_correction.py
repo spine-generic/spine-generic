@@ -196,7 +196,7 @@ def correct_segmentation(file, path_data, path_out, type_seg='spinalcord'):
     :return:
     """
     def _suffix_seg(type_seg):
-        return '_seg' if type_seg=='spinalcord' else '_gmseg'
+        return '_seg' if type_seg == 'spinalcord' else '_gmseg'
 
     # build file names
     fname = os.path.join(path_data, get_subject(file), get_contrast(file), file)
@@ -208,8 +208,27 @@ def correct_segmentation(file, path_data, path_out, type_seg='spinalcord'):
     shutil.copy(fname_seg, fname_seg_out)
     # launch FSLeyes
     print("In FSLeyes, click on 'Edit mode', correct the segmentation, then save it with the same name (overwrite).")
-    arglist = '-yh ' + fname + ' ' + fname_seg_out + ' -cm red'
-    os.system('fsleyes ' + arglist)
+    os.system('fsleyes -yh ' + fname + ' ' + fname_seg_out + ' -cm red')
+
+
+def correct_vertebral_labeling(file, path_data, path_out):
+    """
+    Open SCT label utils to manually label vertebral levels.
+    :param file:
+    :param path_data:
+    :param path_out:
+    :return:
+    """
+    def _suffix_seg(type_seg):
+        return '_seg' if type_seg == 'spinalcord' else '_gmseg'
+
+    # build file names
+    fname = os.path.join(path_data, get_subject(file), get_contrast(file), file)
+    fname_label = os.path.join(
+        path_out, get_subject(file), get_contrast(file), add_suffix(file, '_labels-manual'))
+    # launch SCT label utils
+    message = "Click inside the spinal cord, at C3 and C5 mid-vertebral levels, then click 'Save and Quit'."
+    os.system('sct_label_utils -i {} -create-viewer 3,5 -o {} -msg {}'.format(fname, fname_label, message))
 
 
 def check_files_exist(dict_files, path_data):
@@ -284,7 +303,7 @@ def main(argv):
             elif task == 'FILES_GMSEG':
                 correct_segmentation(file, args.path_in, path_out_deriv, type='graymatter')
             elif task == 'FILES_LABEL':
-                raise NotImplementedError
+                correct_vertebral_labeling(file, args.path_in, path_out_deriv)
             else:
                 sys.exit('Task not recognized from yml file: {}'.format(task))
 
