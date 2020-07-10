@@ -19,6 +19,7 @@ import argparse
 import yaml
 
 from utils import Metavar, SmartFormatter
+from bids import get_subject, get_contrast
 
 
 class ManualCorrection():
@@ -148,6 +149,22 @@ def get_parser():
     return parser
 
 
+def check_files_exist(dict_files, path_data):
+    """
+    Check if all files listed in the input dictionary exist
+    :param dict_files:
+    :param path_data: folder where BIDS dataset is located
+    :return: missing_files
+    """
+    missing_files = []
+    for task, files in dict_files.items():
+        for file in files:
+            fname = os.path.join(path_data, get_subject(file), get_contrast(file), file)
+            if not os.path.exists(fname):
+                missing_files.append(fname)
+    return missing_files
+
+
 def main(argv):
     """
     Main function
@@ -171,17 +188,11 @@ def main(argv):
         except yaml.YAMLError as exc:
             print(exc)
 
-    # path to BIDS folder (optional arg, otherwise ./)
-    if args.path_in is not None:
-        if os.path.isdir(args.path_in):
-            path_bids = args.path_in
-        else:
-            sys.exit("ERROR: BIDS folder \'{}\' does not exist or path is wrong.".format(args.path_in))
-
-    # check if working directory path_bids (./ or passed by -ifolder flag) contains subjects' data
-    if not any(fname.startswith('sub-') for fname in os.listdir(path_bids)):
-        sys.exit("ERROR: Working directory \'{}\' does not contain data of any subject. Run this script in "
-                 "results/data folder or specify this folder by -ifolder flag.".format(path_bids))
+    # check for missing files before starting the whole process
+    missing_files = check_files_exist(dict_yml, args.path_in)
+    if missing_files:
+        sys.exit("The following files listed in the yml file are missing: \n{}. \nPlease check that the files listed "
+                 "in the yml file and the input path are correct.".format(missing_files))
 
     # Perform manual corrections
     manual_correction = ManualCorrection()
