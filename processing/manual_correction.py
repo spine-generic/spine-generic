@@ -7,7 +7,6 @@
 # Authors: Jan Valosek, Julien Cohen-Adad
 
 # TODO: impose py3.6 because of this: https://github.com/neuropoly/spinalcordtoolbox/issues/2782
-# TODO: add task in yaml for FILES_GMSEG
 # TODO: check if fsleyes is installed
 
 
@@ -40,14 +39,16 @@ def get_parser():
         metavar=Metavar.file,
         help=
         "R|Config yaml file listing images that require manual corrections for segmentation and vertebral "
-        "labeling. Images associated with the segmentation are listed under the 'FILES_SEG' key, while images "
-        "associated with vertebral labels are listed under the 'FILES_LABEL' key. Below is an example of a yml file:\n"
+        "labeling. 'FILES_SEG' lists images associated with spinal cord segmentation, 'FILES_GMSEG' lists images "
+        "associated with gray matter segmentation and 'FILES_LABEL' lists images associated with vertebral labeling. "
+        "You can validate your yaml file at this website: http://www.yamllint.com/. Below is an example yaml file:\n"
         + dedent(
             """ 
             FILES_SEG:
             - sub-amu01_T1w_RPI_r.nii.gz
             - sub-amu01_T2w_RPI_r.nii.gz
             - sub-cardiff02_dwi_moco_dwi_mean.nii.gz
+            FILES_GMSEG:
             - sub-amu01_T2star_rms.nii.gz
             FILES_LABEL:
             - sub-amu01
@@ -221,7 +222,7 @@ def main(argv):
             if task == 'FILES_SEG':
                 correct_segmentation(file, args.path_in, path_out_deriv)
             elif task == 'FILES_GMSEG':
-                correct_segmentation(file, args.path_in, path_out_deriv, type='graymatter')
+                correct_segmentation(file, args.path_in, path_out_deriv, type_seg='graymatter')
             elif task == 'FILES_LABEL':
                 correct_vertebral_labeling(file, args.path_in, path_out_deriv)
             else:
