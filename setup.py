@@ -2,6 +2,7 @@ from setuptools import setup, find_packages
 from codecs import open
 from os import path
 
+import spinegeneric
 
 # Get the directory where this current file is saved
 here = path.abspath(path.dirname(__file__))
@@ -15,10 +16,10 @@ with open(req_path, "r") as f:
     install_reqs = install_reqs.split("\n")
 
 setup(
-    name='spine-generic',
-    version='2.1.1',
+    name='spinegeneric',
+    version=spinegeneric.__version__,
     python_requires='>=3.6',
-    description='Processing data for the Spine Generic project.',
+    description='Collection of scripts to process data for the Spine Generic project.',
     url='https://spine-generic.rtfd.io',
     author='NeuroPoly Lab, Polytechnique Montreal',
     author_email='neuropoly@googlegroups.com',
