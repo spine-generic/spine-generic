@@ -22,6 +22,9 @@ import yaml
 from utils import Metavar, SmartFormatter
 from bids import get_subject, get_contrast
 
+# Folder where to output manual labels, at the root of a BIDS dataset.
+FOLDER_DERIVATIVES = os.path.join('derivatives', 'labels')
+
 
 class ManualCorrection():
 
@@ -150,15 +153,57 @@ def get_parser():
     return parser
 
 
-def correct_segmentation(dict_files, path_data, path_out, type='spinalcord'):
+def add_suffix(fname, suffix):
+    """
+    Add suffix between end of file name and extension.
+
+    :param fname: absolute or relative file name. Example: t2.nii
+    :param suffix: suffix. Example: _mean
+    :return: file name with suffix. Example: t2_mean.nii
+
+    Examples:
+
+    - add_suffix(t2.nii, _mean) -> t2_mean.nii
+    - add_suffix(t2.nii.gz, a) -> t2a.nii.gz
+    """
+    def _splitext(fname):
+        """
+        Split a fname (folder/file + ext) into a folder/file and extension.
+
+        Note: for .nii.gz the extension is understandably .nii.gz, not .gz
+        (``os.path.splitext()`` would want to do the latter, hence the special case).
+        """
+        dir, filename = os.path.split(fname)
+        for special_ext in ['.nii.gz', '.tar.gz']:
+            if filename.endswith(special_ext):
+                stem, ext = filename[:-len(special_ext)], special_ext
+                return os.path.join(dir, stem), ext
+        # If no special case, behaves like the regular splitext
+        stem, ext = os.path.splitext(filename)
+        return os.path.join(dir, stem), ext
+
+    stem, ext = _splitext(fname)
+    return os.path.join(stem + suffix + ext)
+
+
+def correct_segmentation(file, path_data, path_out, type_seg='spinalcord'):
     """
     Open fsleyes with input file and copy saved file in path_out.
-    :param dict_files:
+    :param file:
     :param path_data:
     :param path_out:
-    :param type:
+    :param type_seg: {'spinalcord', 'graymatter'}
     :return:
     """
+    def _suffix_seg(type_seg):
+        return '_seg' if type_seg=='spinalcord' else '_gmseg'
+
+    fname = os.path.join(path_data, get_subject(file), get_contrast(file), file)
+    fname_seg = add_suffix(fname, _suffix_seg(type_seg))
+    fname_seg_out = os.path.join(
+        path_out, get_subject(file), get_contrast(file), add_suffix(file, _suffix_seg(type_seg)))
+
+    # TODO: to be continued...
     raise NotImplementedError
 
 
@@ -176,6 +221,21 @@ def check_files_exist(dict_files, path_data):
             if not os.path.exists(fname):
                 missing_files.append(fname)
     return missing_files
+
+
+def check_output_folder(path_bids):
+    """
+    Make sure path exists, has writing permissions, and create derivatives folder if it does not exist.
+    :param path_bids:
+    :return: path_bids_derivatives
+    """
+    if path_bids is None:
+        get_parser().error("-path-out should be provided.")
+    if not os.path.exists(path_bids):
+        sys.exit("Output path does not exist: {}".format(path_bids))
+    path_bids_derivatives = os.path.join(path_bids, FOLDER_DERIVATIVES)
+    os.makedirs(path_bids_derivatives, exist_ok=True)
+    return path_bids_derivatives
 
 
 def main(argv):
@@ -203,19 +263,23 @@ def main(argv):
 
     # check for missing files before starting the whole process
     missing_files = check_files_exist(dict_yml, args.path_in)
+    # TODO: move the exception below in check_files_exist
     if missing_files:
         sys.exit("The following files listed in the yml file are missing: \n{}. \nPlease check that the files listed "
                  "in the yml file and the input path are correct.".format(missing_files))
+
+    # check that output folder exists and has write permission
+    path_out_deriv = check_output_folder(args.path_out)
 
     # Perform manual corrections
     for task, files in dict_yml.items():
         for file in files:
             if task == 'FILES_SEG':
-                correct_segmentation(file, args.path_in, args.path_out)
+                correct_segmentation(file, args.path_in, path_out_deriv)
             elif task == 'FILES_GMSEG':
-                correct_segmentation(file, args.path_in, args.path_out, type='graymatter')
+                correct_segmentation(file, args.path_in, path_out_deriv, type='graymatter')
             elif task == 'FILES_LABEL':
-                correct_labels(file, args.path_in, args.path_out)
+                raise NotImplementedError
             else:
                 sys.exit('Task not recognized from yml file: {}'.format(task))
 
