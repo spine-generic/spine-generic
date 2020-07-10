@@ -10,6 +10,7 @@ import textwrap
 import argparse
 import subprocess
 import shutil
+from pathlib import Path
 from enum import Enum
 
 import bids
@@ -172,3 +173,28 @@ def check_software_installed(list_software=['fsleyes', 'sct']):
             logging.error("'{}' is not installed. Please install it before using this program.".format(software))
             install_ok = False
     return install_ok
+
+
+def copy_files_that_match_suffix(path_in, suffix, path_bids_out, folder_derivatives, suffix_out='',
+                                 extension='.nii.gz'):
+    """
+    Crawl in BIDS directory, and copy files that match suffix
+    :param path_in: Path to input BIDS dataset, which contains all the 'sub-' folders.
+    :param suffix:
+    :param path_bids_out: Path to output BIDS dataset, which contains all the 'sub-' folders.
+    :param folder_derivatives: name of derivatives folder where to put the data
+    :param suffix_out: Suffix to add to the output (copied) file: sub-*<suffix><suffix-out>.nii.gz
+    :param extension:
+    :return:
+    """
+    fnames = list(Path(path_in).rglob('*' + suffix + extension))
+    for fname in fnames:
+        file = fname.parts[-1]
+        # build output path, create dir
+        path_out = Path(path_bids_out, folder_derivatives, bids.get_subject(file), bids.get_contrast(file))
+        os.makedirs(path_out, exist_ok=True)
+        # copy
+        fname_out = path_out.joinpath(add_suffix(file, suffix_out))
+        shutil.copy(fname, fname_out)
+        logging.info("{} \n-> {}\n".format(fname, fname_out))
+    logging.info("Number of files copied: {}".format(len(fnames)))
