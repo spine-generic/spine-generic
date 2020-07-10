@@ -7,8 +7,11 @@
 import os
 import shutil
 import argparse
+from pathlib import Path
 
 import utils
+
+FOLDER_DERIVATIVES = os.path.join('derivatives', 'labels')
 
 
 def get_parser():
@@ -29,24 +32,23 @@ def get_parser():
     return parser
 
 
-def copy_files(path_in, path_out, suffix):
+def copy_files_that_match_suffix(path_in, suffix, path_out, folder_derivatives, extension='.nii.gz'):
     """
     Crawl in BIDS directory, and copy files that match suffix
     :param path_in: Path to input BIDS dataset, which contains all the 'sub-' folders.
-    :param path_out: Path to output BIDS dataset, which contains all the 'sub-' folders.
     :param suffix:
+    :param path_out: Path to output BIDS dataset, which contains all the 'sub-' folders.
+    :param folder_derivatives: name of derivatives folder where to put the data
+    :param extension:
     :return:
     """
-    os.chdir(path)  # go to results folder
-    list_folder = os.listdir("./")
-    derivatives = "derivatives/labels/" 
-    c = 0
-    for x in list_folder:
-        path_tmp = x + "/anat/" + x + "_" + suffix + ".nii.gz"
+    files = list(Path(path_in).rglob('*' + suffix + extension))
+    for file in files:
+        path_tmp = x + "/anat/" + x + suffix + ".nii.gz"
         # Check if file exists. 
         if os.path.isfile(path_tmp):
             c += 1
-            path_out = derivatives + path_tmp
+            path_out = folder_derivatives + path_tmp
             os.makedirs(path_out, exist_ok=True)
             shutil.copy(path_tmp, path_out)
     print("%i files moved" % (c))
@@ -55,7 +57,7 @@ def copy_files(path_in, path_out, suffix):
 def main():
     parser = get_parser()
     args = parser.parse_args()
-    copy_files(args.path_in, args.path_out, args.suffix)
+    copy_files_that_match_suffix(args.path_in, args.suffix, args.path_out, FOLDER_DERIVATIVES)
 
 
 if __name__ == '__main__':
