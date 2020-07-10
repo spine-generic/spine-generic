@@ -48,7 +48,9 @@ structure for one center is shown below:
     │       ├── sub-ubc06_dwi.bval
     │       ├── sub-ubc06_dwi.bvec
     │       ├── sub-ubc06_dwi.json
-    │       └── sub-ubc06_dwi.nii.gz
+    │       ├── sub-ubc06_dwi.nii.gz
+    │       ├── (sub-ubc06_acq-b0_dwi.json)
+    │       └── (sub-ubc06_acq-b0_dwi.nii.gz)
     │
     └── derivatives
         │
