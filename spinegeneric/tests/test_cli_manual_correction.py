@@ -7,4 +7,4 @@ import os
 
 def test_manual_correction():
     """Check if CLI script can execute without error"""
-    assert os.system('sg_manual_correction') == 0
+    assert os.system('sg_manual_correction -h') == 0

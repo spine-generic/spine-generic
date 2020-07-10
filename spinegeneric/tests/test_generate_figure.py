@@ -7,4 +7,4 @@ import os
 
 def test_generate_figure():
     """Check if CLI script can execute without error"""
-    assert os.system('sg_generate_figure') == 0
+    assert os.system('sg_generate_figure -h') == 0

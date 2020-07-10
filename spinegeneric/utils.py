@@ -13,7 +13,8 @@ import shutil
 from pathlib import Path
 from enum import Enum
 
-import bids
+import spinegeneric as sg
+import spinegeneric.bids
 
 
 class Metavar(Enum):
@@ -44,7 +45,7 @@ class SmartFormatter(argparse.HelpFormatter):
         try:
             self._width = shutil.get_terminal_size()[0]
         except (KeyError, ValueError):
-            logger.warning('Not able to fetch Terminal width. Using default: %s'.format(self._width))
+            logging.warning('Not able to fetch Terminal width. Using default: %s'.format(self._width))
 
     # this is the RawTextHelpFormatter._fill_text
     def _fill_text(self, text, width, indent):
@@ -131,7 +132,7 @@ def check_files_exist(dict_files, path_data):
     missing_files = []
     for task, files in dict_files.items():
         for file in files:
-            fname = os.path.join(path_data, bids.get_subject(file), bids.get_contrast(file), file)
+            fname = os.path.join(path_data, sg.bids.get_subject(file), sg.bids.get_contrast(file), file)
             if not os.path.exists(fname):
                 missing_files.append(fname)
     if missing_files:
@@ -191,7 +192,7 @@ def copy_files_that_match_suffix(path_in, suffix, path_bids_out, folder_derivati
     for fname in fnames:
         file = fname.parts[-1]
         # build output path, create dir
-        path_out = Path(path_bids_out, folder_derivatives, bids.get_subject(file), bids.get_contrast(file))
+        path_out = Path(path_bids_out, folder_derivatives, sg.bids.get_subject(file), sg.bids.get_contrast(file))
         os.makedirs(path_out, exist_ok=True)
         # copy
         fname_out = path_out.joinpath(add_suffix(file, suffix_out))
