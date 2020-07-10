@@ -33,9 +33,10 @@ setup(
     install_requires=install_reqs,
     entry_points={
         'console_scripts': [
-            'generate_figure = spinegeneric.generate_figure:main',
-            'deface_spineGeneric_usingR = spinegeneric.deface_spineGeneric_usingR:main',
-            'copy_to_derivatives = spinegeneric.copy_to_derivatives:main'
+            'sg_copy_to_derivatives = spinegeneric.scripts.copy_to_derivatives:main',
+            'sg_deface_using_r = spinegeneric.scripts.deface_spineGeneric_usingR:main',
+            'sg_generate_figure = spinegeneric.scripts.generate_figure:main',
+            'sg_manual_correction = spinegeneric.scripts.manual_correction:main',
         ],
     },
 )
