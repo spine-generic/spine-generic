@@ -4,7 +4,6 @@
 #
 # For more details, see the help.
 
-# TODO: add possibility to add suffix to output file
 
 import os
 import argparse
