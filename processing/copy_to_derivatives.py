@@ -4,10 +4,11 @@
 #
 # For more details, see the help.
 
+# TODO: add possibility to add suffix to output file
+
 import os
 import shutil
 import argparse
-from pathlib import Path
 
 import utils
 
@@ -42,16 +43,19 @@ def copy_files_that_match_suffix(path_in, suffix, path_out, folder_derivatives, 
     :param extension:
     :return:
     """
-    files = list(Path(path_in).rglob('*' + suffix + extension))
-    for file in files:
-        path_tmp = x + "/anat/" + x + suffix + ".nii.gz"
-        # Check if file exists. 
-        if os.path.isfile(path_tmp):
-            c += 1
-            path_out = folder_derivatives + path_tmp
-            os.makedirs(path_out, exist_ok=True)
-            shutil.copy(path_tmp, path_out)
-    print("%i files moved" % (c))
+    from pathlib import Path
+    import bids
+
+    fnames = list(Path(path_in).rglob('*' + suffix + extension))
+    for fname in fnames:
+        file = fname.parts[-1]
+        # build output path, create dir
+        path_out = Path(path_out, folder_derivatives, bids.get_subject(file), bids.get_contrast(file))
+        os.makedirs(path_out, exist_ok=True)
+        # copy
+        shutil.copy(fname, path_out.joinpath(file))
+        # TODO: add logging
+    # TODO: add counter
 
 
 def main():
