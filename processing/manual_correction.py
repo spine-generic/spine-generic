@@ -9,6 +9,7 @@
 # TODO: use argparse wrapper to display usage appropriately.
 # TODO: impose py3.6 because of this: https://github.com/neuropoly/spinalcordtoolbox/issues/2782
 # TODO: add flag for output BIDS dataset (manual corr should *not* be in the results/data folder)
+# TODO: add task in yaml for FILES_GMSEG
 
 import os
 import sys
@@ -149,6 +150,18 @@ def get_parser():
     return parser
 
 
+def correct_segmentation(dict_files, path_data, path_out, type='spinalcord'):
+    """
+    Open fsleyes with input file and copy saved file in path_out.
+    :param dict_files:
+    :param path_data:
+    :param path_out:
+    :param type:
+    :return:
+    """
+    raise NotImplementedError
+
+
 def check_files_exist(dict_files, path_data):
     """
     Check if all files listed in the input dictionary exist
@@ -195,9 +208,16 @@ def main(argv):
                  "in the yml file and the input path are correct.".format(missing_files))
 
     # Perform manual corrections
-    manual_correction = ManualCorrection()
-    manual_correction.segmentation_correction(dict_yml, path_bids)
-    manual_correction.labels_correction(dict_yml, path_bids)
+    for task, files in dict_yml.items():
+        for file in files:
+            if task == 'FILES_SEG':
+                correct_segmentation(file, args.path_in, args.path_out)
+            elif task == 'FILES_GMSEG':
+                correct_segmentation(file, args.path_in, args.path_out, type='graymatter')
+            elif task == 'FILES_LABEL':
+                correct_labels(file, args.path_in, args.path_out)
+            else:
+                sys.exit('Task not recognized from yml file: {}'.format(task))
 
 
 if __name__ == "__main__":
