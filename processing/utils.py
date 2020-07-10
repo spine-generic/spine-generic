@@ -87,3 +87,24 @@ class SmartFormatter(argparse.HelpFormatter):
                     wrapped = wrapped + [li]
             return wrapped
         return argparse.HelpFormatter._split_lines(self, text, width)
+
+
+def check_software_installed(list_software=['fsleyes', 'sct']):
+    """
+    Make sure software are installed
+    :param list_software:
+    :return:
+    """
+    install_ok = True
+    software_cmd = {
+        'fsleyes': 'fsleyes --version',
+        'sct': 'sct_version'
+        }
+    for software in list_software:
+        try:
+            output = subprocess.check_output(software_cmd[software], shell=True)
+            logger.info("'{}' (version: {}) is installed.".format(software, output.decode('utf-8').strip('\n')))
+        except FileNotFoundError:
+            logger.error("'{}' is not installed. Please install it before using this software.".format(software))
+            install_ok = False
+    return install_ok

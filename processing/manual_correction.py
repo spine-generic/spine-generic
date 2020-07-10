@@ -17,6 +17,7 @@ from textwrap import dedent
 import argparse
 import yaml
 
+import utils
 from utils import Metavar, SmartFormatter
 from bids import get_subject, get_contrast
 
@@ -191,6 +192,9 @@ def main(argv):
     # Parse the command line arguments
     parser = get_parser()
     args = parser.parse_args(argv if argv else ['--help'])
+
+    if not utils.check_software_installed():
+        sys.exit("Some required software are not installed. Exit program.")
 
     # check if input yml file exists
     if os.path.isfile(args.config):
