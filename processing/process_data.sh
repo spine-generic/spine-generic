@@ -255,15 +255,13 @@ file_bval=${file_dwi}.bval
 file_bvec=${file_dwi}.bvec
 # Separate b=0 and DW images
 sct_dmri_separate_b0_and_dwi -i ${file_dwi}.nii.gz -bvec ${file_bvec}
-# Segment cord (1st pass -- just to get a rough centerline)
-sct_propseg -i ${file_dwi}_dwi_mean.nii.gz -c dwi
+# Get centerline
+sct_get_centerline -i ${file_dwi}_dwi_mean.nii.gz -c dwi
 # Create mask to help motion correction and for faster processing
-sct_create_mask -i ${file_dwi}_dwi_mean.nii.gz -p centerline,${file_dwi}_dwi_mean_seg.nii.gz -size 30mm
-# Crop data for faster processing
-sct_crop_image -i ${file_dwi}.nii.gz -m mask_${file_dwi}_dwi_mean.nii.gz -o ${file_dwi}_crop.nii.gz
+sct_create_mask -i ${file_dwi}_dwi_mean.nii.gz -p centerline,${file_dwi}_dwi_mean_centerline.nii.gz -size 30mm
 # Motion correction
-sct_dmri_moco -i ${file_dwi}_crop.nii.gz -bvec ${file_dwi}.bvec -x spline
-file_dwi=${file_dwi}_crop_moco
+sct_dmri_moco -i ${file_dwi}.nii.gz -bvec ${file_dwi}.bvec -m mask_${file_dwi}_dwi_mean.nii.gz -x spline
+file_dwi=${file_dwi}_moco
 file_dwi_mean=${file_dwi}_dwi_mean
 # Segment spinal cord (only if it does not exist)
 segment_if_does_not_exist ${file_dwi_mean} "dwi"
