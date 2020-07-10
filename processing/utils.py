@@ -3,18 +3,15 @@
 # Collection of useful functions
 
 
-import io
 import os
 import re
-import tempfile
-import datetime
 import logging
 import argparse
 import subprocess
 import shutil
-import tqdm
 from enum import Enum
 
+import bids
 
 class Metavar(Enum):
     """
@@ -85,6 +82,73 @@ class SmartFormatter(argparse.HelpFormatter):
                     wrapped = wrapped + [li]
             return wrapped
         return argparse.HelpFormatter._split_lines(self, text, width)
+
+
+def add_suffix(fname, suffix):
+    """
+    Add suffix between end of file name and extension.
+
+    :param fname: absolute or relative file name. Example: t2.nii
+    :param suffix: suffix. Example: _mean
+    :return: file name with suffix. Example: t2_mean.nii
+
+    Examples:
+
+    - add_suffix(t2.nii, _mean) -> t2_mean.nii
+    - add_suffix(t2.nii.gz, a) -> t2a.nii.gz
+    """
+
+    def _splitext(fname):
+        """
+        Split a fname (folder/file + ext) into a folder/file and extension.
+
+        Note: for .nii.gz the extension is understandably .nii.gz, not .gz
+        (``os.path.splitext()`` would want to do the latter, hence the special case).
+        """
+        dir, filename = os.path.split(fname)
+        for special_ext in ['.nii.gz', '.tar.gz']:
+            if filename.endswith(special_ext):
+                stem, ext = filename[:-len(special_ext)], special_ext
+                return os.path.join(dir, stem), ext
+        # If no special case, behaves like the regular splitext
+        stem, ext = os.path.splitext(filename)
+        return os.path.join(dir, stem), ext
+
+    stem, ext = _splitext(fname)
+    return os.path.join(stem + suffix + ext)
+
+
+def check_files_exist(dict_files, path_data):
+    """
+    Check if all files listed in the input dictionary exist
+    :param dict_files:
+    :param path_data: folder where BIDS dataset is located
+    :return:
+    """
+    missing_files = []
+    for task, files in dict_files.items():
+        for file in files:
+            fname = os.path.join(path_data, bids.get_subject(file), bids.get_contrast(file), file)
+            if not os.path.exists(fname):
+                missing_files.append(fname)
+    if missing_files:
+        logging.error("The following files are missing: \n{}. \nPlease check that the files listed "
+                      "in the yaml file and the input path are correct.".format(missing_files))
+
+
+def check_output_folder(path_bids, folder_derivatives):
+    """
+    Make sure path exists, has writing permissions, and create derivatives folder if it does not exist.
+    :param path_bids:
+    :return: path_bids_derivatives
+    """
+    if path_bids is None:
+        logging.error("-path-out should be provided.")
+    if not os.path.exists(path_bids):
+        logging.error("Output path does not exist: {}".format(path_bids))
+    path_bids_derivatives = os.path.join(path_bids, folder_derivatives)
+    os.makedirs(path_bids_derivatives, exist_ok=True)
+    return path_bids_derivatives
 
 
 def check_software_installed(list_software=['fsleyes', 'sct']):

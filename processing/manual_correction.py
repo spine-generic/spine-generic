@@ -8,7 +8,6 @@
 
 # TODO: impose py3.6 because of this: https://github.com/neuropoly/spinalcordtoolbox/issues/2782
 # TODO: check if fsleyes is installed
-# TODO: fix logger
 
 
 import os
@@ -20,10 +19,11 @@ import yaml
 import coloredlogs
 
 import utils
-from utils import Metavar, SmartFormatter
-from bids import get_subject, get_contrast
+import bids
+
 
 # Folder where to output manual labels, at the root of a BIDS dataset.
+# TODO: make it an input argument (with default value)
 FOLDER_DERIVATIVES = os.path.join('derivatives', 'labels')
 
 
@@ -34,12 +34,12 @@ def get_parser():
     parser = argparse.ArgumentParser(
         description='Manual correction of spinal cord and gray matter segmentation and vertebral labeling. '
                     'Manually corrected files are saved under derivatives/ folder (BIDS standard).',
-        formatter_class=SmartFormatter,
+        formatter_class=utils.SmartFormatter,
         prog=os.path.basename(__file__).strip('.py')
     )
     parser.add_argument(
         '-config',
-        metavar=Metavar.file,
+        metavar=utils.Metavar.file,
         help=
         "R|Config yaml file listing images that require manual corrections for segmentation and vertebral "
         "labeling. 'FILES_SEG' lists images associated with spinal cord segmentation, 'FILES_GMSEG' lists images "
@@ -60,13 +60,13 @@ def get_parser():
     )
     parser.add_argument(
         '-path-in',
-        metavar=Metavar.folder,
+        metavar=utils.Metavar.folder,
         help='Path to the processed data. Example: ~/spine-generic/results/data',
         default='./'
     )
     parser.add_argument(
         '-path-out',
-        metavar=Metavar.folder,
+        metavar=utils.Metavar.folder,
         help="Path to the BIDS dataset where the corrected labels will be generated. Note: if the derivatives/ folder "
              "does not already exist, it will be created."
              "Example: ~/data-spine-generic"
@@ -78,39 +78,6 @@ def get_parser():
     )
 
     return parser
-
-
-def add_suffix(fname, suffix):
-    """
-    Add suffix between end of file name and extension.
-
-    :param fname: absolute or relative file name. Example: t2.nii
-    :param suffix: suffix. Example: _mean
-    :return: file name with suffix. Example: t2_mean.nii
-
-    Examples:
-
-    - add_suffix(t2.nii, _mean) -> t2_mean.nii
-    - add_suffix(t2.nii.gz, a) -> t2a.nii.gz
-    """
-    def _splitext(fname):
-        """
-        Split a fname (folder/file + ext) into a folder/file and extension.
-
-        Note: for .nii.gz the extension is understandably .nii.gz, not .gz
-        (``os.path.splitext()`` would want to do the latter, hence the special case).
-        """
-        dir, filename = os.path.split(fname)
-        for special_ext in ['.nii.gz', '.tar.gz']:
-            if filename.endswith(special_ext):
-                stem, ext = filename[:-len(special_ext)], special_ext
-                return os.path.join(dir, stem), ext
-        # If no special case, behaves like the regular splitext
-        stem, ext = os.path.splitext(filename)
-        return os.path.join(dir, stem), ext
-
-    stem, ext = _splitext(fname)
-    return os.path.join(stem + suffix + ext)
 
 
 def correct_segmentation(file, path_data, path_out, type_seg='spinalcord'):
@@ -126,12 +93,12 @@ def correct_segmentation(file, path_data, path_out, type_seg='spinalcord'):
         return '_seg' if type_seg == 'spinalcord' else '_gmseg'
 
     # build file names
-    fname = os.path.join(path_data, get_subject(file), get_contrast(file), file)
-    fname_seg = add_suffix(fname, _suffix_seg(type_seg))
+    fname = os.path.join(path_data, bids.get_subject(file), bids.get_contrast(file), file)
+    fname_seg = utils.add_suffix(fname, _suffix_seg(type_seg))
     fname_seg_out = os.path.join(
-        path_out, get_subject(file), get_contrast(file), add_suffix(file, _suffix_seg(type_seg)))
+        path_out, bids.get_subject(file), bids.get_contrast(file), utils.add_suffix(file, _suffix_seg(type_seg)))
     # copy to output path
-    os.makedirs(os.path.join(path_out, get_subject(file), get_contrast(file)), exist_ok=True)
+    os.makedirs(os.path.join(path_out, bids.get_subject(file), bids.get_contrast(file)), exist_ok=True)
     shutil.copy(fname_seg, fname_seg_out)
     # launch FSLeyes
     print("In FSLeyes, click on 'Edit mode', correct the segmentation, then save it with the same name (overwrite).")
@@ -147,47 +114,14 @@ def correct_vertebral_labeling(file, path_data, path_out):
     :return:
     """
     # build file names
-    fname = os.path.join(path_data, get_subject(file), get_contrast(file), file)
+    fname = os.path.join(path_data, bids.get_subject(file), bids.get_contrast(file), file)
     fname_label = os.path.join(
-        path_out, get_subject(file), get_contrast(file), add_suffix(file, '_labels-manual'))
+        path_out, bids.get_subject(file), bids.get_contrast(file), utils.add_suffix(file, '_labels-manual'))
     # create output path
-    os.makedirs(os.path.join(path_out, get_subject(file), get_contrast(file)), exist_ok=True)
+    os.makedirs(os.path.join(path_out, bids.get_subject(file), bids.get_contrast(file)), exist_ok=True)
     # launch SCT label utils
     message = "Click inside the spinal cord, at C3 and C5 mid-vertebral levels, then click 'Save and Quit'."
     os.system('sct_label_utils -i {} -create-viewer 3,5 -o {} -msg {}'.format(fname, fname_label, message))
-
-
-def check_files_exist(dict_files, path_data):
-    """
-    Check if all files listed in the input dictionary exist
-    :param dict_files:
-    :param path_data: folder where BIDS dataset is located
-    :return:
-    """
-    missing_files = []
-    for task, files in dict_files.items():
-        for file in files:
-            fname = os.path.join(path_data, get_subject(file), get_contrast(file), file)
-            if not os.path.exists(fname):
-                missing_files.append(fname)
-    if missing_files:
-        sys.exit("The following files are missing: \n{}. \nPlease check that the files listed "
-                 "in the yaml file and the input path are correct.".format(missing_files))
-
-
-def check_output_folder(path_bids):
-    """
-    Make sure path exists, has writing permissions, and create derivatives folder if it does not exist.
-    :param path_bids:
-    :return: path_bids_derivatives
-    """
-    if path_bids is None:
-        get_parser().error("-path-out should be provided.")
-    if not os.path.exists(path_bids):
-        sys.exit("Output path does not exist: {}".format(path_bids))
-    path_bids_derivatives = os.path.join(path_bids, FOLDER_DERIVATIVES)
-    os.makedirs(path_bids_derivatives, exist_ok=True)
-    return path_bids_derivatives
 
 
 def main(argv):
@@ -223,10 +157,10 @@ def main(argv):
             print(exc)
 
     # check for missing files before starting the whole process
-    check_files_exist(dict_yml, args.path_in)
+    utils.check_files_exist(dict_yml, args.path_in)
 
     # check that output folder exists and has write permission
-    path_out_deriv = check_output_folder(args.path_out)
+    path_out_deriv = utils.check_output_folder(args.path_out, FOLDER_DERIVATIVES)
 
     # Perform manual corrections
     for task, files in dict_yml.items():
