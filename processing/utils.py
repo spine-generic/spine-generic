@@ -193,5 +193,5 @@ def copy_files_that_match_suffix(path_in, suffix, path_out, folder_derivatives, 
         os.makedirs(path_out, exist_ok=True)
         # copy
         shutil.copy(fname, path_out.joinpath(file))
-        # TODO: add logging
+        logging.info("{} -> {}".format(fname, path_out.joinpath(file)))
     # TODO: add counter

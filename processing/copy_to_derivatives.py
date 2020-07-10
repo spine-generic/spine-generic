@@ -7,8 +7,8 @@
 # TODO: add possibility to add suffix to output file
 
 import os
-import shutil
 import argparse
+import coloredlogs
 
 import utils
 
@@ -30,12 +30,23 @@ def get_parser():
     parser.add_argument('-suffix', dest="suffix", required=True, type=str,
                         help="Suffix of the input file, as in sub-*<suffix>.nii.gz. The program will search for all "
                              "files with .nii.gz extension.")
+    parser.add_argument('-v', '--verbose', action='store_true',
+        help="Full verbose (for debugging)")
     return parser
 
 
 def main():
+
+    # Parse input arguments
     parser = get_parser()
     args = parser.parse_args()
+
+    # Logging level
+    if args.verbose:
+        coloredlogs.install(fmt='%(message)s', level='DEBUG')
+    else:
+        coloredlogs.install(fmt='%(message)s', level='INFO')
+
     utils.copy_files_that_match_suffix(args.path_in, args.suffix, args.path_out, FOLDER_DERIVATIVES)
 
 
