@@ -14,7 +14,6 @@
 import os
 import sys
 import shutil
-import re
 from textwrap import dedent
 import argparse
 import yaml
@@ -145,6 +144,8 @@ def correct_vertebral_labeling(file, path_data, path_out):
     fname = os.path.join(path_data, get_subject(file), get_contrast(file), file)
     fname_label = os.path.join(
         path_out, get_subject(file), get_contrast(file), add_suffix(file, '_labels-manual'))
+    # create output path
+    os.makedirs(os.path.join(path_out, get_subject(file), get_contrast(file)), exist_ok=True)
     # launch SCT label utils
     message = "Click inside the spinal cord, at C3 and C5 mid-vertebral levels, then click 'Save and Quit'."
     os.system('sct_label_utils -i {} -create-viewer 3,5 -o {} -msg {}'.format(fname, fname_label, message))
