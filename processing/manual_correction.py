@@ -8,6 +8,7 @@
 
 # TODO: impose py3.6 because of this: https://github.com/neuropoly/spinalcordtoolbox/issues/2782
 # TODO: check if fsleyes is installed
+# TODO: fix logger
 
 
 import os

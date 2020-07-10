@@ -92,7 +92,7 @@ class SmartFormatter(argparse.HelpFormatter):
 def check_software_installed(list_software=['fsleyes', 'sct']):
     """
     Make sure software are installed
-    :param list_software:
+    :param list_software: {'fsleyes', 'sct'}
     :return:
     """
     install_ok = True
@@ -104,7 +104,7 @@ def check_software_installed(list_software=['fsleyes', 'sct']):
         try:
             output = subprocess.check_output(software_cmd[software], shell=True)
             logger.info("'{}' (version: {}) is installed.".format(software, output.decode('utf-8').strip('\n')))
-        except FileNotFoundError:
-            logger.error("'{}' is not installed. Please install it before using this software.".format(software))
+        except:
+            logger.error("'{}' is not installed. Please install it before using this program.".format(software))
             install_ok = False
     return install_ok
