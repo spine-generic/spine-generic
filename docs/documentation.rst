@@ -77,7 +77,7 @@ structure for one center is shown below:
 To convert your DICOM data folder to the compatible BIDS structure, you need to install
 `dcm2bids <https://github.com/cbedetti/Dcm2Bids#install>`__. Once
 installed, `download this config
-file ../../config_spine.txt>`__
+file <https://github.com/spine-generic/spine-generic/blob/master/config_spine.txt>`__
 (click File>Save to save the file), then convert your Dicom folder using
 the following command (replace xx with your center and subject number):
 
