@@ -33,35 +33,10 @@ def get_parser():
     return parser
 
 
-def copy_files_that_match_suffix(path_in, suffix, path_out, folder_derivatives, extension='.nii.gz'):
-    """
-    Crawl in BIDS directory, and copy files that match suffix
-    :param path_in: Path to input BIDS dataset, which contains all the 'sub-' folders.
-    :param suffix:
-    :param path_out: Path to output BIDS dataset, which contains all the 'sub-' folders.
-    :param folder_derivatives: name of derivatives folder where to put the data
-    :param extension:
-    :return:
-    """
-    from pathlib import Path
-    import bids
-
-    fnames = list(Path(path_in).rglob('*' + suffix + extension))
-    for fname in fnames:
-        file = fname.parts[-1]
-        # build output path, create dir
-        path_out = Path(path_out, folder_derivatives, bids.get_subject(file), bids.get_contrast(file))
-        os.makedirs(path_out, exist_ok=True)
-        # copy
-        shutil.copy(fname, path_out.joinpath(file))
-        # TODO: add logging
-    # TODO: add counter
-
-
 def main():
     parser = get_parser()
     args = parser.parse_args()
-    copy_files_that_match_suffix(args.path_in, args.suffix, args.path_out, FOLDER_DERIVATIVES)
+    utils.copy_files_that_match_suffix(args.path_in, args.suffix, args.path_out, FOLDER_DERIVATIVES)
 
 
 if __name__ == '__main__':
