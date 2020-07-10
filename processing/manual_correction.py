@@ -138,9 +138,6 @@ def correct_vertebral_labeling(file, path_data, path_out):
     :param path_out:
     :return:
     """
-    def _suffix_seg(type_seg):
-        return '_seg' if type_seg == 'spinalcord' else '_gmseg'
-
     # build file names
     fname = os.path.join(path_data, get_subject(file), get_contrast(file), file)
     fname_label = os.path.join(
@@ -157,7 +154,7 @@ def check_files_exist(dict_files, path_data):
     Check if all files listed in the input dictionary exist
     :param dict_files:
     :param path_data: folder where BIDS dataset is located
-    :return: missing_files
+    :return:
     """
     missing_files = []
     for task, files in dict_files.items():
@@ -165,7 +162,9 @@ def check_files_exist(dict_files, path_data):
             fname = os.path.join(path_data, get_subject(file), get_contrast(file), file)
             if not os.path.exists(fname):
                 missing_files.append(fname)
-    return missing_files
+    if missing_files:
+        sys.exit("The following files are missing: \n{}. \nPlease check that the files listed "
+                 "in the yaml file and the input path are correct.".format(missing_files))
 
 
 def check_output_folder(path_bids):
@@ -207,11 +206,7 @@ def main(argv):
             print(exc)
 
     # check for missing files before starting the whole process
-    missing_files = check_files_exist(dict_yml, args.path_in)
-    # TODO: move the exception below in check_files_exist
-    if missing_files:
-        sys.exit("The following files listed in the yml file are missing: \n{}. \nPlease check that the files listed "
-                 "in the yml file and the input path are correct.".format(missing_files))
+    check_files_exist(dict_yml, args.path_in)
 
     # check that output folder exists and has write permission
     path_out_deriv = check_output_folder(args.path_out)
