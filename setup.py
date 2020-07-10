@@ -34,9 +34,12 @@ setup(
     entry_points={
         'console_scripts': [
             'sg_copy_to_derivatives = spinegeneric.scripts.copy_to_derivatives:main',
+            'sg_create_mosaic = spinegeneric.scripts.create_mosaic:main',
             'sg_deface_using_r = spinegeneric.scripts.deface_spineGeneric_usingR:main',
             'sg_generate_figure = spinegeneric.scripts.generate_figure:main',
             'sg_manual_correction = spinegeneric.scripts.manual_correction:main',
+            'sg_populate_derivatives = spinegeneric.scripts.populate_derivatives:main',
+            'sg_qc_bids_deface = spinegeneric.scripts.qc_bids_deface:main',
         ],
     },
 )
