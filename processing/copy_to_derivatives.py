@@ -26,7 +26,14 @@ def get_parser():
     return parser
 
 
-def copy_files(path, suffix):
+def copy_files(path_in, path_out, suffix):
+    """
+    Crawl in BIDS directory, and copy files that match suffix
+    :param path_in: Root of input BIDS dataset, that includes all the "sub-" folders.
+    :param path_out: Root of output BIDS dataset, that includes all the "sub-" folders.
+    :param suffix: 
+    :return:
+    """
     os.chdir(path)  # go to results folder
     list_folder = os.listdir("./")
     derivatives = "derivatives/labels/" 
