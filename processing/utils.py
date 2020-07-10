@@ -15,8 +15,6 @@ import shutil
 import tqdm
 from enum import Enum
 
-logger = logging.getLogger(__name__)
-
 
 class Metavar(Enum):
     """
@@ -103,8 +101,8 @@ def check_software_installed(list_software=['fsleyes', 'sct']):
     for software in list_software:
         try:
             output = subprocess.check_output(software_cmd[software], shell=True)
-            logger.info("'{}' (version: {}) is installed.".format(software, output.decode('utf-8').strip('\n')))
+            logging.info("'{}' (version: {}) is installed.".format(software, output.decode('utf-8').strip('\n')))
         except:
-            logger.error("'{}' is not installed. Please install it before using this program.".format(software))
+            logging.error("'{}' is not installed. Please install it before using this program.".format(software))
             install_ok = False
     return install_ok

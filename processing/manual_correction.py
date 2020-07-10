@@ -17,6 +17,7 @@ import shutil
 from textwrap import dedent
 import argparse
 import yaml
+import coloredlogs
 
 import utils
 from utils import Metavar, SmartFormatter
@@ -69,6 +70,11 @@ def get_parser():
         help="Path to the BIDS dataset where the corrected labels will be generated. Note: if the derivatives/ folder "
              "does not already exist, it will be created."
              "Example: ~/data-spine-generic"
+    )
+    parser.add_argument(
+        '-v', '--verbose',
+        help="Full verbose (for debugging)",
+        action='store_true'
     )
 
     return parser
@@ -193,6 +199,12 @@ def main(argv):
     # Parse the command line arguments
     parser = get_parser()
     args = parser.parse_args(argv if argv else ['--help'])
+
+    # Logging level
+    if args.verbose:
+        coloredlogs.install(fmt='%(message)s', level='DEBUG')
+    else:
+        coloredlogs.install(fmt='%(message)s', level='INFO')
 
     if not utils.check_software_installed():
         sys.exit("Some required software are not installed. Exit program.")

@@ -1,4 +1,4 @@
-
+coloredlogs
 matplotlib
 nibabel
 pandas
