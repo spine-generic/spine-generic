@@ -1,3 +1,11 @@
+# This function is used to copy files from dir/sub-xxx/anat folder to dir/derivatives/labels/sub-xxx/anat folder.
+# All copied files should share a common suffix as in sub-xxx_SUFFIX.nii.gz (e.g., T1w_RPI_r_seg_labeled). 
+# If the derivatives folder does not exist, this function will create it before moving the file.
+# The function will print the number of moved files at the end. 
+#
+# Usage of CLI:  
+# move_file_SG -p dir -s SUFFIX
+ 
 import os
 import shutil
 import argparse
