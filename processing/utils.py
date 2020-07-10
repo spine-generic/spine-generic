@@ -195,4 +195,4 @@ def copy_files_that_match_suffix(path_in, suffix, path_bids_out, folder_derivati
         fname_out = path_out.joinpath(file)
         shutil.copy(fname, fname_out)
         logging.info("{} \n-> {}\n".format(fname, fname_out))
-    # TODO: add counter
+    logging.info("Number of files copied: {}".format(len(fnames)))
