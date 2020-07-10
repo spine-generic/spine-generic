@@ -6,12 +6,14 @@
 import os
 import re
 import logging
+import textwrap
 import argparse
 import subprocess
 import shutil
 from enum import Enum
 
 import bids
+
 
 class Metavar(Enum):
     """
@@ -48,7 +50,7 @@ class SmartFormatter(argparse.HelpFormatter):
         # print("splot",text)
         if text.startswith('R|'):
             paragraphs = text[2:].splitlines()
-            rebroken = [argparse._textwrap.wrap(tpar, width) for tpar in paragraphs]
+            rebroken = [textwrap.wrap(tpar, width) for tpar in paragraphs]
             rebrokenstr = []
             for tlinearr in rebroken:
                 if (len(tlinearr) == 0):
@@ -72,10 +74,10 @@ class SmartFormatter(argparse.HelpFormatter):
                 if len(li) > 0:
                     o = offsets[i]
                     ol = len(o)
-                    init_wrap = argparse._textwrap.fill(li, width).splitlines()
+                    init_wrap = textwrap.fill(li, width).splitlines()
                     first = init_wrap[0]
                     rest = "\n".join(init_wrap[1:])
-                    rest_wrap = argparse._textwrap.fill(rest, width - ol).splitlines()
+                    rest_wrap = textwrap.fill(rest, width - ol).splitlines()
                     offset_lines = [o + wl for wl in rest_wrap]
                     wrapped = wrapped + [first] + offset_lines
                 else:
