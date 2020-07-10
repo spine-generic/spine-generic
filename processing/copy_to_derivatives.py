@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 #
-# Copy files from dir/sub-xxx/anat folder to dir/derivatives/labels/sub-xxx/anat folder.
-# All copied files should share a common suffix as in sub-xxx_SUFFIX.nii.gz (e.g., T1w_RPI_r_seg_labeled). 
-# If the derivatives folder does not exist, this function will create it before moving the file.
-# The function will print the number of moved files at the end. 
+# Copy files from <path-in>/sub-xxx/anat/ to <path-out>/derivatives/labels/sub-xxx/anat/.
+#
+# For more details, see the help.
 
 import os
 import shutil
@@ -27,7 +26,7 @@ def get_parser():
     return parser
 
 
-def move_files(path, suffix):
+def copy_files(path, suffix):
     os.chdir(path)  # go to results folder
     list_folder = os.listdir("./")
     derivatives = "derivatives/labels/" 
@@ -48,7 +47,7 @@ def main():
     args = parser.parse_args()
     path_files = args.path
     chosen_suffix = args.suffix
-    move_files(path_files, chosen_suffix)
+    copy_files(path_files, chosen_suffix)
 
 
 if __name__=='__main__':
