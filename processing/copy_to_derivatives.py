@@ -19,19 +19,22 @@ def get_parser():
         formatter_class=utils.SmartFormatter,
         prog=os.path.basename(__file__).strip('.py')
         )
-    parser.add_argument("-p", "--path", dest="path", required=True, type=str,
-                        help="Path to results folder")
-    parser.add_argument("-s", "--suffix", dest="suffix", required=True, type=str,
-                        help="Suffix of the input file as in sub-xxx_suffix.nii.gz (e.g., _T2w)")
+    parser.add_argument('-path-in', required=True, type=str,
+                        help="Path to input BIDS dataset, which contains all the 'sub-' folders.")
+    parser.add_argument('-path-out', required=True, type=str,
+                        help="Path to output BIDS dataset, which contains all the 'sub-' folders.")
+    parser.add_argument('-suffix', dest="suffix", required=True, type=str,
+                        help="Suffix of the input file, as in sub-*<suffix>.nii.gz. The program will search for all "
+                             "files with .nii.gz extension.")
     return parser
 
 
 def copy_files(path_in, path_out, suffix):
     """
     Crawl in BIDS directory, and copy files that match suffix
-    :param path_in: Root of input BIDS dataset, that includes all the "sub-" folders.
-    :param path_out: Root of output BIDS dataset, that includes all the "sub-" folders.
-    :param suffix: 
+    :param path_in: Path to input BIDS dataset, which contains all the 'sub-' folders.
+    :param path_out: Path to output BIDS dataset, which contains all the 'sub-' folders.
+    :param suffix:
     :return:
     """
     os.chdir(path)  # go to results folder
@@ -52,10 +55,8 @@ def copy_files(path_in, path_out, suffix):
 def main():
     parser = get_parser()
     args = parser.parse_args()
-    path_files = args.path
-    chosen_suffix = args.suffix
-    copy_files(path_files, chosen_suffix)
+    copy_files(args.path_in, args.path_out, args.suffix)
 
 
-if __name__=='__main__':
+if __name__ == '__main__':
     main()
