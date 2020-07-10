@@ -1,0 +1,91 @@
+{
+    "descriptions": [
+        {
+            "dataType": "anat",
+            "modalityLabel": "T1w",
+            "criteria": {
+                "SeriesDescription": "T1w",
+                "ProtocolName": "*T1w"
+            }
+        },
+        {
+            "dataType": "anat",
+            "modalityLabel": "T2w",
+            "criteria": {
+                "SeriesDescription": "T2w",
+                "ProtocolName": "*T2w"
+            }
+        },
+        {
+            "dataType": "anat",
+            "modalityLabel": "MTS",
+            "customLabels": "acq-T1w",
+            "criteria": {
+                "SeriesDescription": "GRE-T1*",
+                "ProtocolName": "*GRE-T1*"
+            }
+        },
+        {
+            "dataType": "anat",
+            "modalityLabel": "MTS",
+            "customLabels": "acq-MT",
+            "criteria": {
+                "Manufacturer": "Philips",
+                "SeriesDescription": "GRE-MT",
+                "ProtocolName": "WIP_GRE-MT"
+            }
+        }, 
+        {
+            "dataType": "anat",
+            "modalityLabel": "MTS",
+            "customLabels": "acq-MTon",
+            "criteria": {
+                "SeriesDescription": "GRE-MT1",
+                "ProtocolName": "GRE-MT1"
+            }
+        },
+        {
+            "dataType": "anat",
+            "modalityLabel": "MTS",
+            "customLabels": "acq-MToff",
+            "criteria": {
+                "SeriesDescription": "GRE-MT0",
+                "ProtocolName": "GRE-MT0"
+            }
+        },
+
+        {
+            "dataType": "anat",
+            "modalityLabel": "T2star",
+            "criteria": {
+                "Manufacturer": "Philips",
+                "SeriesDescription": "sSUM",
+                "ProtocolName": "sSUM"
+            }
+        },         
+        {
+            "dataType": "anat",
+            "modalityLabel": "T2star",
+            "criteria": {
+                "SeriesDescription": "GRE-ME",
+                "ProtocolName": "GRE-ME"
+            }
+        },    
+        {
+            "dataType": "dwi",
+            "modalityLabel": "dwi",
+            "criteria": {
+                "SeriesDescription": "DWI",
+                "ProtocolName": "*DWI"
+                }
+        },    
+        {
+            "dataType": "dwi",
+            "modalityLabel": "acq-b0_dwi",
+            "criteria": {
+                "SeriesDescription": "DWI_b0",
+                "ProtocolName": "DWI_b0"
+                }
+        }
+    ]
+}
