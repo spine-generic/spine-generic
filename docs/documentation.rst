@@ -18,7 +18,8 @@ structure for one center is shown below:
 
 ::
 
-    spineGeneric_multiSubjects
+    data-multi-subject
+    │
     ├── dataset_description.json
     ├── participants.json
     ├── participants.tsv
@@ -27,25 +28,51 @@ structure for one center is shown below:
     ├── sub-ubc03
     ├── sub-ubc04
     ├── sub-ubc05
-    └── sub-ubc06
-        ├── anat
-        │   ├── sub-ubc06_T1w.json
-        │   ├── sub-ubc06_T1w.nii.gz
-        │   ├── sub-ubc06_T2star.json
-        │   ├── sub-ubc06_T2star.nii.gz
-        │   ├── sub-ubc06_T2w.json
-        │   ├── sub-ubc06_T2w.nii.gz
-        │   ├── sub-ubc06_acq-MToff_MTS.json
-        │   ├── sub-ubc06_acq-MToff_MTS.nii.gz
-        │   ├── sub-ubc06_acq-MTon_MTS.json
-        │   ├── sub-ubc06_acq-MTon_MTS.nii.gz
-        │   ├── sub-ubc06_acq-T1w_MTS.json
-        │   └── sub-ubc06_acq-T1w_MTS.nii.gz
-        └── dwi
-            ├── sub-ubc06_dwi.bval
-            ├── sub-ubc06_dwi.bvec
-            ├── sub-ubc06_dwi.json
-            └── sub-ubc06_dwi.nii.gz
+    ├── sub-ubc06
+    │   │
+    │   ├── anat
+    │   │   ├── sub-ubc06_T1w.json
+    │   │   ├── sub-ubc06_T1w.nii.gz
+    │   │   ├── sub-ubc06_T2star.json
+    │   │   ├── sub-ubc06_T2star.nii.gz
+    │   │   ├── sub-ubc06_T2w.json
+    │   │   ├── sub-ubc06_T2w.nii.gz
+    │   │   ├── sub-ubc06_acq-MToff_MTS.json
+    │   │   ├── sub-ubc06_acq-MToff_MTS.nii.gz
+    │   │   ├── sub-ubc06_acq-MTon_MTS.json
+    │   │   ├── sub-ubc06_acq-MTon_MTS.nii.gz
+    │   │   ├── sub-ubc06_acq-T1w_MTS.json
+    │   │   └── sub-ubc06_acq-T1w_MTS.nii.gz
+    │   │
+    │   └── dwi
+    │       ├── sub-ubc06_dwi.bval
+    │       ├── sub-ubc06_dwi.bvec
+    │       ├── sub-ubc06_dwi.json
+    │       ├── sub-ubc06_dwi.nii.gz
+    │       ├── (sub-ubc06_acq-b0_dwi.json)
+    │       └── (sub-ubc06_acq-b0_dwi.nii.gz)
+    │
+    └── derivatives
+        │
+        └── labels
+            └── sub-ubc06
+                │
+                ├── anat
+                │   ├── sub-ubc06_T1w_RPI_r_seg-manual.nii.gz  <---------- manually-corrected spinal cord segmentation
+                │   ├── sub-ubc06_T1w_RPI_r_seg-manual.json  <------------ information about origin of segmentation (see below)
+                │   ├── sub-ubc06_T1w_RPI_r_labels-manual.nii.gz  <------- manual vertebral labels
+                │   ├── sub-ubc06_T1w_RPI_r_labels-manual.json
+                │   ├── sub-ubc06_T2w_RPI_r_seg-manual.nii.gz  <---------- manually-corrected spinal cord segmentation
+                │   ├── sub-ubc06_T2w_RPI_r_seg-manual.json
+                │   ├── sub-ubc06_acq-T1w_MTS_seg-manual.nii.gz  <-------- manually-corrected spinal cord segmentation
+                │   ├── sub-ubc06_acq-T1w_MTS_seg-manual.json
+                │   ├── sub-ubc06_T2star_rms_gmseg-manual.nii.gz  <------- manually-corrected gray matter segmentation
+                │   └── sub-ubc06_T2star_rms_gmseg-manual.json
+                │
+                └── dwi
+                    ├── sub-ubc06_dwi_moco_dwi_mean_seg-manual.nii.gz  <-- manually-corrected spinal cord segmentation
+                    └── sub-ubc06_dwi_moco_dwi_mean_seg-manual.json
+
 
 To convert your DICOM data folder to the compatible BIDS structure, you need to install
 `dcm2bids <https://github.com/cbedetti/Dcm2Bids#install>`__. Once
