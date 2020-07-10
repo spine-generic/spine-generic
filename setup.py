@@ -33,7 +33,8 @@ setup(
     entry_points={
         'console_scripts': [
             'generate_figure = processing.generate_figure:main',
-            'deface_spineGeneric_usingR = processing.deface_spineGeneric_usingR:main'
+            'deface_spineGeneric_usingR = processing.deface_spineGeneric_usingR:main',
+            'move_files_SG = processing.move_file_derivatives:main'
         ],
     },
 )
