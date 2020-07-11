@@ -318,18 +318,22 @@ opening the file ``qc/index.html``. Use the "Search"
 feature of the QC report to quickly jump to segmentations or labeling
 results.
 
-Segmentation
-^^^^^^^^^^^^
+Segmentation and vertebral labeling
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-If you spot segmentation issues, manually fix them using the procedure described
+If you spot segmentation or labeling issues, manually fix them using the procedure described
 below. Also see the video tutorial after the procedure.
 
 - Go to the ``results/data`` folder
-- In the QC report, enter the string "deepseg" to only display segmentation results.
-- Review all segmentations. Use the keyboard shortcuts up/down arrow to switch between
-  subjects and the left arrow to toggle overlay.
-- If you spot *major* issues with the segmentation (e.g. noticeable leaking or under-segmentation that extends over several slices),
-  add the image name in the yaml file as in an example below:
+- In the QC report, enter the string "deepseg" to only display segmentation results or the string "vertebrae" to only
+  display vertebral labeling
+- Review all spinal cord and gray matter segmentations and vertebral labeling. Use the keyboard shortcuts up/down arrow
+  to switch between subjects and the left arrow to toggle overlay.
+- If you spot *major* issues with the segmentation (e.g. noticeable leaking or under-segmentation that extends over
+  several slices) or wrong labeling, add the image name into the yaml file as in an example below:
+
+.. Hint::
+    You can create yaml file easily using your text editor (vim, nano, atom, ...).
 
 ::
 
@@ -339,7 +343,12 @@ below. Also see the video tutorial after the procedure.
     - sub-cardiff02_dwi_moco_dwi_mean.nii.gz
     FILES_GMSEG:
     - sub-amu01_T2star_rms.nii.gz
+    FILES_LABEL:
+    - sub-amu01
+    - sub-amu02
 
+(``FILES_SEG`` lists images associated with spinal cord segmentation, ``FILES_GMSEG`` lists images associated with gray
+matter segmentation and ``FILES_LABEL`` lists subjects associated with vertebral labeling.)
 
 - If the data quality is too low to be interpreted (too blurry, large artifacts),
   add the image file name to the variable ``TO_EXCLUDE`` in the file ``parameters.sh``,
@@ -368,43 +377,22 @@ below. Also see the video tutorial after the procedure.
    <div style="position: relative; padding-bottom: 5%; height: 0; overflow: hidden; max-width: 100%; height: auto;">
      <iframe width="700" height="394" src="https://www.youtube.com/embed/lB-F8WOHGeg" frameborder="0" allowfullscreen></iframe>
 
-Vertebral labeling
-^^^^^^^^^^^^^^^^^^
-
-If you spot issues (wrong labeling), manually create labels in the cord
-at C3 and C5 mid-vertebral levels. The bash script below loops across all
-subjects that require manual labeling. Below is the procedure, followed by a video tutorial.
-
-- Create a folder where you will save the manual labels
-- Create the bash script below and edit the environment variables (see next point).
-- Go through the QC, and when you identify a problematic subject, add it in the
-  variable array ``SUBJECTS``. Once you've gone through all the QC, go to the
-  folder ``results/data`` and run the script: ``sh manual_correction.sh``:
-
-.. code-block:: bash
-
-   #!/bin/bash
-   # Local folder to output the manual labels (you need to create it before running this script)
-   PATH_SEGMANUAL="/Users/bob/seg_manual"
-   # List of subjects to create manual labels
-   SUBJECTS=(
-     "sub-amu01"
-     "sub-beijingGE01"
-     "sub-ubc01"
-   )
-   # Loop across subjects
-   for subject in ${SUBJECTS[@]}; do
-     sct_label_utils -i $subject/anat/${subject}_T1w_RPI_r.nii.gz -create-viewer 3,5 -o ${PATH_SEGMANUAL}/${subject}_T1w_RPI_r_labels-manual.nii.gz
-   done
 
 .. raw:: html
 
    <div style="position: relative; padding-bottom: 5%; height: 0; overflow: hidden; max-width: 100%; height: auto;">
      <iframe width="700" height="394" src="https://www.youtube.com/embed/bX9yWYTipO8" frameborder="0" allowfullscreen></iframe>
 
-Once all labels are created, move the content of seg_manual to the up-to-date
-`seg_manual` folder (that contains other manual corrections, and that will be
-used for the next processing iteration).
+
+- Once you've gone through all the QC, run the ``manual_correction.py`` script, as in an example below:
+
+.. code-block:: bash
+
+    manual_correction.py -config files.yaml -path-in ~/spine-generic/results/data -path-out ~/data-spine-generic
+
+- ``manual_correction.py`` script saves manually corrected files under derivatives/ folder (BIDS standard).
+
+
 
 Re-run the analysis
 ^^^^^^^^^^^^^^^^^^^
