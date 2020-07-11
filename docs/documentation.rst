@@ -324,9 +324,9 @@ Segmentation and vertebral labeling
 If you spot segmentation or labeling issues, manually fix them using the procedure described
 below. Also see the video tutorial after the procedure.
 
-- Go to the ``results/data`` folder
+- Go to the ``results/data`` folder.
 - In the QC report, enter the string "deepseg" to only display segmentation results or the string "vertebrae" to only
-  display vertebral labeling
+  display vertebral labeling.
 - Review all spinal cord and gray matter segmentations and vertebral labeling. Use the keyboard shortcuts up/down arrow
   to switch between subjects and the left arrow to toggle overlay.
 - If you spot *major* issues with the segmentation (e.g. noticeable leaking or under-segmentation that extends over
@@ -349,6 +349,9 @@ below. Also see the video tutorial after the procedure.
 
 (``FILES_SEG`` lists images associated with spinal cord segmentation, ``FILES_GMSEG`` lists images associated with gray
 matter segmentation and ``FILES_LABEL`` lists subjects associated with vertebral labeling.)
+
+- If the data quality is too low to be interpreted (too blurry, large artifacts), exclude subject from processing by
+  passing ``-exclude-list`` in ``sct_run_batch`` script.
 
 .. Hint::
    For the interest of time, you don't need to fix *all* slices of the segmentation
