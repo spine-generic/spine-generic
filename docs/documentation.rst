@@ -350,10 +350,6 @@ below. Also see the video tutorial after the procedure.
 (``FILES_SEG`` lists images associated with spinal cord segmentation, ``FILES_GMSEG`` lists images associated with gray
 matter segmentation and ``FILES_LABEL`` lists subjects associated with vertebral labeling.)
 
-- If the data quality is too low to be interpreted (too blurry, large artifacts),
-  add the image file name to the variable ``TO_EXCLUDE`` in the file ``parameters.sh``,
-  which will be used in the next processing iteration.
-
 .. Hint::
    For the interest of time, you don't need to fix *all* slices of the segmentation
    but only the ones listed in the "Relevant levels" column of the table below.
