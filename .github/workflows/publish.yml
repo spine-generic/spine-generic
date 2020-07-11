@@ -1,4 +1,11 @@
 # This workflows will upload a Python Package using Twine when a release is created
+# To create a secrets.PYPI_PASSWORD, do the following:
+# - Go to: https://pypi.org/manage/account/#modal-close
+# - Go to the "API tokens" section, create a new token with "global" scope
+# - Copy the value (unique identifier)
+# - On GitHub, go to the organization page and create a new token as explained in: https://docs.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets#creating-encrypted-secrets-for-an-organization
+# - For the name of the token, enter PYPI_PASSWORD. The value is the one you copied above.
+#
 # For more information see: https://help.github.com/en/actions/language-and-framework-guides/using-python-with-github-actions#publishing-to-package-registries
 
 name: publish
