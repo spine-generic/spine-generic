@@ -2,6 +2,7 @@ from setuptools import setup, find_packages
 from codecs import open
 from os import path
 
+import spinegeneric
 
 # Get the directory where this current file is saved
 here = path.abspath(path.dirname(__file__))
@@ -15,10 +16,10 @@ with open(req_path, "r") as f:
     install_reqs = install_reqs.split("\n")
 
 setup(
-    name='spine-generic',
-    version='2.1.1',
-    python_requires='>=3.6',
-    description='Processing data for the Spine Generic project.',
+    name='spinegeneric',
+    version=spinegeneric.__version__,
+    python_requires='>=3.5',
+    description='Collection of cli to process data for the Spine Generic project.',
     url='https://spine-generic.rtfd.io',
     author='NeuroPoly Lab, Polytechnique Montreal',
     author_email='neuropoly@googlegroups.com',
@@ -32,9 +33,13 @@ setup(
     install_requires=install_reqs,
     entry_points={
         'console_scripts': [
-            'generate_figure = processing.generate_figure:main',
-            'deface_spineGeneric_usingR = processing.deface_spineGeneric_usingR:main',
-            'copy_to_derivatives = processing.copy_to_derivatives:main'
+            'sg_copy_to_derivatives = spinegeneric.cli.copy_to_derivatives:main',
+            'sg_create_mosaic = spinegeneric.cli.create_mosaic:main',
+            'sg_deface_using_r = spinegeneric.cli.deface_spineGeneric_usingR:main',
+            'sg_generate_figure = spinegeneric.cli.generate_figure:main',
+            'sg_manual_correction = spinegeneric.cli.manual_correction:main',
+            'sg_populate_derivatives = spinegeneric.cli.populate_derivatives:main',
+            'sg_qc_bids_deface = spinegeneric.cli.qc_bids_deface:main',
         ],
     },
 )
