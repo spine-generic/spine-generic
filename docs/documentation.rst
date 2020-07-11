@@ -410,13 +410,20 @@ manually-corrected files, make sure to add the flag `-path-segmanual`. Example:
 Generate figures
 ----------------
 
-Generate figures based on the output csv files. Figures will be created in the
+Generate figures based on the output csv files using ``generate_figures.py`` script. Run this script in ``/results``
+folder (folder containing csv files) or specify this folder using ``-path-results`` flag. Figures will be created in the
 folder `results/`:
 
 .. code-block:: bash
 
-  generate_figures parameters.sh
+  generate_figures.py
 
+
+or
+
+.. code-block:: bash
+
+  generate_figures.py -path-results ~/spineGeneric_results_new/results
 
 
 Contributors
