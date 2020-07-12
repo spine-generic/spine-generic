@@ -210,7 +210,7 @@ Automatic defacing with R
 
 .. code-block:: bash
 
-  python qc_bids_deface.py
+  python sg_qc_bids_deface.py
 
 
 Manual Defacing
@@ -383,13 +383,13 @@ matter segmentation and ``FILES_LABEL`` lists subjects associated with vertebral
      <iframe width="700" height="394" src="https://www.youtube.com/embed/bX9yWYTipO8" frameborder="0" allowfullscreen></iframe>
 
 
-- Once you've gone through all the QC, run the ``manual_correction.py`` script, as in an example below:
+- Once you finished the QC, run the ``sg_manual_correction.py`` script, as in the example below:
 
 .. code-block:: bash
 
-    manual_correction.py -config files.yaml -path-in ~/spine-generic/results/data -path-out ~/data-spine-generic
+    sg_manual_correction.py -config files.yaml -path-in ~/spine-generic/results/data -path-out ~/data-spine-generic
 
-- ``manual_correction.py`` script saves manually corrected files under derivatives/ folder (BIDS standard).
+- ``sg_manual_correction.py`` script saves manually-corrected files under ``derivatives/labels/`` folder, according to the BIDS convention.
 
 
 
@@ -409,20 +409,20 @@ manually-corrected files, make sure to add the flag `-path-segmanual`. Example:
 Generate figures
 ----------------
 
-Generate figures based on the output csv files using ``generate_figures.py`` script. Run this script in ``/results``
+Generate figures based on the output csv files using ``sg_generate_figures.py`` script. Run this script in ``/results``
 folder (folder containing csv files) or specify this folder using ``-path-results`` flag. Figures will be created in the
 folder `results/`:
 
 .. code-block:: bash
 
-  generate_figures.py
+  sg_generate_figures.py
 
 
 or
 
 .. code-block:: bash
 
-  generate_figures.py -path-results ~/spineGeneric_results_new/results
+  sg_generate_figures.py -path-results ~/spineGeneric_results_new/results
 
 
 Contributors
