@@ -45,7 +45,7 @@ def get_parser():
         "associated with gray matter segmentation and 'FILES_LABEL' lists images associated with vertebral labeling. "
         "You can validate your yaml file at this website: http://www.yamllint.com/. Below is an example yaml file:\n"
         + dedent(
-            """ 
+            """
             FILES_SEG:
             - sub-amu01_T1w_RPI_r.nii.gz
             - sub-amu01_T2w_RPI_r.nii.gz
@@ -53,8 +53,8 @@ def get_parser():
             FILES_GMSEG:
             - sub-amu01_T2star_rms.nii.gz
             FILES_LABEL:
-            - sub-amu01
-            - sub-amu02\n
+            - sub-amu01_T1w_RPI_r.nii.gz
+            - sub-amu02_T1w_RPI_r.nii.gz\n
             """)
     )
     parser.add_argument(
