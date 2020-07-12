@@ -344,11 +344,11 @@ below. Also see the video tutorial after the procedure.
     FILES_GMSEG:
     - sub-amu01_T2star_rms.nii.gz
     FILES_LABEL:
-    - sub-amu01
-    - sub-amu02
+    - sub-amu01_T1w_RPI_r.nii.gz
+    - sub-amu02_T1w_RPI_r.nii.gz
 
 (``FILES_SEG`` lists images associated with spinal cord segmentation, ``FILES_GMSEG`` lists images associated with gray
-matter segmentation and ``FILES_LABEL`` lists subjects associated with vertebral labeling.)
+matter segmentation and ``FILES_LABEL`` lists images that vertebral labeling is done on.)
 
 - If the data quality is too low to be interpreted (too blurry, large artifacts), exclude subject from processing by
   passing ``-exclude-list`` in ``sct_run_batch`` script.
