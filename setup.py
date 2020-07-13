@@ -38,6 +38,7 @@ setup(
             'sg_deface_using_r = spinegeneric.cli.deface_spineGeneric_usingR:main',
             'sg_generate_figure = spinegeneric.cli.generate_figure:main',
             'sg_manual_correction = spinegeneric.cli.manual_correction:main',
+            'sg_package_for_correction = spinegeneric.cli.package_for_correction:main',
             'sg_populate_derivatives = spinegeneric.cli.populate_derivatives:main',
             'sg_qc_bids_deface = spinegeneric.cli.qc_bids_deface:main',
         ],
