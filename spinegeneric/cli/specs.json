@@ -23,14 +23,14 @@
             },
             "TrioTim":{
                 "T1w":{
-                    "RepetitionTime":0.0086,
+                    "RepetitionTime":2,
                     "EchoTime":0.004,
                     "FlipAngle":9
                 }
             },
             "Verio":{
                 "T1w":{
-                    "RepetitionTime":0.0086,
+                    "RepetitionTime":2,
                     "EchoTime":0.004,
                     "FlipAngle":9
                 }
