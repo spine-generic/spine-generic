@@ -15,7 +15,7 @@
 #   python <PATH_TO_SCRIPT>/populate_derivatives.py <PATH_TO_BIDS_DATASET>
 #
 # Example:
-#   python ~/code/spine-generic/spine-generic/processing/populate_derivatives.py ~/code/spine-generic/data-single-subject
+#   python ~/code/spine-generic/spine-generic/spinegeneric/populate_derivatives.py ~/code/spine-generic/data-single-subject
 
 # Authors: Julien Cohen-Adad
 

@@ -9,7 +9,9 @@ import os
 import argparse
 import coloredlogs
 
-import utils
+import spinegeneric as sg
+import spinegeneric.utils
+
 
 FOLDER_DERIVATIVES = os.path.join('derivatives', 'labels')
 
@@ -19,7 +21,7 @@ def get_parser():
         description="Copy files from <path-in>/sub-xxx/anat/ to <path-out>/derivatives/labels/sub-xxx/anat/. All "
                     "copied files should share a common suffix as in sub-xxx_SUFFIX.nii.gz (e.g., "
                     "T1w_RPI_r_seg_labeled). If the derivatives folder does not exist, it will be created",
-        formatter_class=utils.SmartFormatter,
+        formatter_class=sg.utils.SmartFormatter,
         prog=os.path.basename(__file__).strip('.py')
         )
     parser.add_argument('-path-in', required=True, type=str,
@@ -48,7 +50,7 @@ def main():
     else:
         coloredlogs.install(fmt='%(message)s', level='INFO')
 
-    utils.copy_files_that_match_suffix(args.path_in, args.suffix, args.path_out, FOLDER_DERIVATIVES, args.suffix_out)
+    sg.utils.copy_files_that_match_suffix(args.path_in, args.suffix, args.path_out, FOLDER_DERIVATIVES, args.suffix_out)
 
 
 if __name__ == '__main__':
