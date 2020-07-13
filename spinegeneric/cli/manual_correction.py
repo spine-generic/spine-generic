@@ -90,13 +90,14 @@ def correct_segmentation(file, path_data, path_out, type_seg='spinalcord'):
     :return:
     """
     def _suffix_seg(type_seg):
-        return '_seg-manual' if type_seg == 'spinalcord' else '_gmseg-manual'
+        return '_seg' if type_seg == 'spinalcord' else '_gmseg'
 
     # build file names
     fname = os.path.join(path_data, sg.bids.get_subject(file), sg.bids.get_contrast(file), file)
     fname_seg = sg.utils.add_suffix(fname, _suffix_seg(type_seg))
     fname_seg_out = os.path.join(
-        path_out, sg.bids.get_subject(file), sg.bids.get_contrast(file), sg.utils.add_suffix(file, _suffix_seg(type_seg)))
+        path_out, sg.bids.get_subject(file), sg.bids.get_contrast(file),
+        sg.utils.add_suffix(file, '{}-manual'.format(_suffix_seg(type_seg))))
     # copy to output path
     os.makedirs(os.path.join(path_out, sg.bids.get_subject(file), sg.bids.get_contrast(file)), exist_ok=True)
     shutil.copy(fname_seg, fname_seg_out)
