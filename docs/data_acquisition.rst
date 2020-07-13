@@ -241,16 +241,3 @@ available as open-access:
 
 - `Multi-center, single-subject <https://github.com/spine-generic/data-single-subject>`__
 - `Multi-center, multi-subject <https://github.com/spine-generic/data-multi-subject>`__
-
-
-Contributors
-------------
-
-A list of contributors for the analysis pipeline is available `here <https://github.com/spine-generic/spine-generic/graphs/contributors>`__.
-If you would like to contribute to this project, please see `contribution guidelines <https://github.com/spine-generic/spine-generic/blob/master/CONTRIBUTING.md>`_.
-
-
-License
--------
-
-.. include:: ../LICENSE
