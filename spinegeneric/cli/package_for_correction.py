@@ -135,6 +135,9 @@ def main():
                           os.path.join(path_tmp, sg.bids.get_subject(file), sg.bids.get_contrast(file)))
 
     # Package to zip file
+    print("Creating archive...")
+    fname_archive = shutil.make_archive(args.o, 'zip', path_tmp)
+    print("-> {}".format(fname_archive))
 
 
 if __name__ == '__main__':
