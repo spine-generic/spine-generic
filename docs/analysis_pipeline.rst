@@ -153,6 +153,12 @@ and open an interactive window for you to either correct the segmentation, or pe
 manually-corrected label is saved under the ``derivatives/labels/`` folder at the root of ``<PATH_DATA>``,
 according to the BIDS convention. The manually-corrected label files have the suffix ``-manual``.
 
+.. note::
+
+   In case processing is ran on a remote cluster, it it convenient to generate a package of the files that need
+   correction to be able to only copy these files locally, instead of copying the ~20GB of total processed files.
+   If you are in this situation, use the script ``package_for_correction``.
+
 
 Re-run the analysis
 ^^^^^^^^^^^^^^^^^^^
