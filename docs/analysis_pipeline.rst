@@ -167,9 +167,10 @@ After you have corrected all the necessary segmentations/labels, you can re-run
 the analysis (the ``sct_run_batch`` command above). If a manually-corrected file exists, it will be used
 instead of re-creating a new one automatically.
 
-.. note::
+.. Warning::
 
-   If you re-run the analysis, make sure to output results in another folder (flag ``-path-output``).
+   If you re-run the analysis, make sure to output results in another folder (flag ``-path-output``), otherwise the
+   previous analysis will be overwritten.
 
 
 Generate figures
