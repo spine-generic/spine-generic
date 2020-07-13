@@ -15,6 +15,7 @@
 # import os
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
+from spinegeneric import __version__
 
 
 # -- Project information -----------------------------------------------------
@@ -24,9 +25,10 @@ copyright = u'2019, Julien Cohen-Adad'
 author = u'Julien Cohen-Adad'
 
 # The short X.Y version
-version = u'1.0'
+version = __version__
+
 # The full version, including alpha/beta/rc tags
-release = u'1.0'
+# release = u'1.0'
 
 
 # -- General configuration ---------------------------------------------------
