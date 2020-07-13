@@ -203,14 +203,14 @@ Automatic defacing with R
 
 .. code-block:: bash
 
-  deface_spineGeneric_usingR -i PATH_TO_BIDS_DATASET -o PATH_TO_DEFACED_BIDS_DATASET -f
-  deface_spineGeneric_usingR -i PATH_TO_BIDS_DATASET -o PATH_TO_DEFACED_BIDS_DATASET
+  sg_deface_using_r -i PATH_TO_BIDS_DATASET -o PATH_TO_DEFACED_BIDS_DATASET -f
+  sg_deface_using_r -i PATH_TO_BIDS_DATASET -o PATH_TO_DEFACED_BIDS_DATASET
 
 4. To launch the QC report of the defacing across multiple subjects, run:
 
 .. code-block:: bash
 
-  python sg_qc_bids_deface.py
+  sg_qc_bids_deface
 
 
 Manual Defacing
