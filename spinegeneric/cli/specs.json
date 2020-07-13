@@ -25,14 +25,14 @@
                 "T1w":{
                     "RepetitionTime":0.0086,
                     "EchoTime":0.004,
-                    "FlipAngle":20
+                    "FlipAngle":9
                 }
             },
             "Verio":{
                 "T1w":{
                     "RepetitionTime":0.0086,
                     "EchoTime":0.004,
-                    "FlipAngle":20
+                    "FlipAngle":9
                 }
             }
         },
