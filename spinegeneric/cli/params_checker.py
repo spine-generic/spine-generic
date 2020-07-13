@@ -56,7 +56,7 @@ def main():
                             logging.warning(' Incorrect RepetitionTime: ' + item.filename + '; TR=' + str(RepetitionTime) + ' instead of ' + str(data[Manufacturer][ManufacturersModelName][str(Contrast)]["RepetitionTime"]))
                     EchoTime=item.get_metadata()['EchoTime']
                     if Manufacturer != 'GE':
-                        if data[Manufacturer][ManufacturersModelName][str(Contrast)]["EchoTime"] != EchoTime:
+                        if (EchoTime - data[Manufacturer][ManufacturersModelName][str(Contrast)]["EchoTime"]) > 0.0001:
                             logging.warning(' Incorrect EchoTime: ' + item.filename + '; TE=' + str(EchoTime) + ' instead of ' + str(data[Manufacturer][ManufacturersModelName][str(Contrast)]["EchoTime"]))
                     FlipAngle=item.get_metadata()['FlipAngle']
                     if data[Manufacturer][ManufacturersModelName][str(Contrast)]["FlipAngle"] != FlipAngle:
