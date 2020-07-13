@@ -306,7 +306,7 @@ Launch processing:
 
 .. code-block:: bash
 
-  sct_run_batch -jobs -1 -path-data ~/data/spineGeneric_6subj/ -path-output ~/spineGeneric_results/ processing/process_data.sh
+  sct_run_batch -jobs -1 -path-data ~/data/spineGeneric_6subj/ -path-output ~/spineGeneric_results/ process_data.sh
 
 
 
@@ -403,7 +403,7 @@ manually-corrected files, make sure to add the flag `-path-segmanual`. Example:
 
 .. code-block:: bash
 
-  sct_run_batch -jobs -1 -path-data ~/data/spineGeneric_6subj -path-output ~/spineGeneric_results_new -path-segmanual ~/spineGeneric_results_new/seg_manual processing/process_data.sh
+  sct_run_batch -jobs -1 -path-data ~/data/spineGeneric_6subj -path-output ~/spineGeneric_results_new -path-segmanual ~/spineGeneric_results_new/seg_manual process_data.sh
 
 
 Generate figures
