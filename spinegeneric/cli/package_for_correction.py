@@ -63,8 +63,8 @@ def get_parser():
     parser.add_argument(
         '-o',
         metavar=sg.utils.Metavar.folder,
-        help="Zip file that contains the packaged data. Default: data_to_correct.zip",
-        default='data_to_correct.zip'
+        help="Zip file that contains the packaged data, without the extension. Default: data_to_correct",
+        default='data_to_correct'
     )
     parser.add_argument(
         '-v', '--verbose',
