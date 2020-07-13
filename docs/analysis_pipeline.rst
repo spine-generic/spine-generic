@@ -61,14 +61,19 @@ Launch processing:
 
 .. code-block:: bash
 
-  sct_run_batch -jobs -1 -path-data <PATH_TO_DATA> -path-output ~/spineGeneric_results/ process_data.sh
+  sct_run_batch -jobs -1 -path-data <PATH_DATA> -path-output ~/spineGeneric_results/ process_data.sh
+
+.. note::
+
+   ``<PATH_DATA>`` points to a BIDS-compatible dataset. E.g., you could use one of the dataset
+   listed in :ref:`multi-center-data`
 
 
 Quality Control
 ---------------
 
 After running the analysis, check your Quality Control (QC) report by
-opening the file ``qc/index.html``. Use the "Search"
+opening the file ``~/spineGeneric_results/qc/index.html``. Use the "Search"
 feature of the QC report to quickly jump to segmentations or labeling
 results.
 
@@ -76,18 +81,15 @@ Segmentation and vertebral labeling
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 If you spot segmentation or labeling issues, manually fix them using the procedure described
-below. Also see the video tutorial after the procedure.
+below. Also see the video tutorial below.
 
-- Go to the ``results/data`` folder.
+- Go to the ``~/spineGeneric_results/results/data`` folder.
 - In the QC report, enter the string "deepseg" to only display segmentation results or the string "vertebrae" to only
   display vertebral labeling.
 - Review all spinal cord and gray matter segmentations and vertebral labeling. Use the keyboard shortcuts up/down arrow
   to switch between subjects and the left arrow to toggle overlay.
 - If you spot *major* issues with the segmentation (e.g. noticeable leaking or under-segmentation that extends over
-  several slices) or wrong labeling, add the image name into the yaml file as in an example below:
-
-.. Hint::
-    You can create yaml file easily using your text editor (vim, nano, atom, ...).
+  several slices) or wrong labeling, add the image name into the yaml file as in the example below:
 
 ::
 
@@ -101,11 +103,14 @@ below. Also see the video tutorial after the procedure.
     - sub-amu01_T1w_RPI_r.nii.gz
     - sub-amu02_T1w_RPI_r.nii.gz
 
-(``FILES_SEG`` lists images associated with spinal cord segmentation, ``FILES_GMSEG`` lists images associated with gray
-matter segmentation and ``FILES_LABEL`` lists images that vertebral labeling is done on.)
+Some explanations about this yaml file:
 
-- If the data quality is too low to be interpreted (too blurry, large artifacts), exclude subject from processing by
-  passing ``-exclude-list`` in ``sct_run_batch`` script.
+- ``FILES_SEG``: Images associated with spinal cord segmentation
+- ``FILES_GMSEG``: Images associated with gray matter segmentation
+- ``FILES_LABEL``: Images associated with vertebral labeling
+
+.. Hint::
+    You can create a yaml file using any text editor (vim, nano, atom, ...).
 
 .. Hint::
    For the interest of time, you don't need to fix *all* slices of the segmentation
@@ -137,27 +142,24 @@ matter segmentation and ``FILES_LABEL`` lists images that vertebral labeling is 
      <iframe width="700" height="394" src="https://www.youtube.com/embed/bX9yWYTipO8" frameborder="0" allowfullscreen></iframe>
 
 
-- Once you finished the QC, run the ``sg_manual_correction.py`` script, as in the example below:
+- After you finished the QC, run ``sg_manual_correction`` as in the example below:
 
 .. code-block:: bash
 
-    sg_manual_correction.py -config files.yaml -path-in ~/spine-generic/results/data -path-out ~/data-spine-generic
+    sg_manual_correction -config files.yaml -path-in ~/spineGeneric_results/results/data -path-out <PATH_DATA>
 
-- ``sg_manual_correction.py`` script saves manually-corrected files under ``derivatives/labels/`` folder, according to the BIDS convention.
-
+This script will loop through all the files that need correction (as per the .yaml file that you defined earlier),
+and open an interactive window for you to either correct the segmentation, or perform manual labels. Each
+manually-corrected label is saved under the ``derivatives/labels/`` folder at the root of ``<PATH_DATA>``,
+according to the BIDS convention. The manually-corrected label files have the suffix ``-manual``.
 
 
 Re-run the analysis
 ^^^^^^^^^^^^^^^^^^^
 
 After you have corrected all the necessary segmentations/labels, you can re-run
-the entire analysis. If the manually-corrected file exists, the script will use it in the
-processing instead of re-creating a new one. In order to account for the
-manually-corrected files, make sure to add the flag `-path-segmanual`. Example:
-
-.. code-block:: bash
-
-  sct_run_batch -jobs -1 -path-data ~/data/spineGeneric_6subj -path-output ~/spineGeneric_results_new -path-segmanual ~/spineGeneric_results_new/seg_manual process_data.sh
+the analysis (the ``sct_run_batch`` command above). If a manually-corrected file exists, it will be used
+instead of re-creating a new one automatically.
 
 
 Generate figures

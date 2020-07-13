@@ -233,6 +233,8 @@ Below is an example of a defaced subject:
    Example of manual defacing.
 
 
+.. _multi-center-data:
+
 Multi-center data
 -----------------
 
