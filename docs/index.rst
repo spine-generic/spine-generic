@@ -15,3 +15,5 @@ for the "spine generic protocol" project.
    :maxdepth: 2
 
    documentation.rst
+
+   analysis_pipeline.rst
