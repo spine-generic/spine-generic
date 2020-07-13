@@ -30,7 +30,7 @@ def get_parser():
                     'convenient to generate a package of the files that need correction to be able to only copy these '
                     'files locally, instead of copying the ~20GB of total processed files.',
         formatter_class=sg.utils.SmartFormatter,
-        prog=os.path.basename(__file__).strip('.py')
+        prog=os.path.basename(__file__).rstrip('.py')
     )
     parser.add_argument(
         '-config',
