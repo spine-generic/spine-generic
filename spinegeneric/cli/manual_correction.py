@@ -90,7 +90,7 @@ def correct_segmentation(file, path_data, path_out, type_seg='spinalcord'):
     :return:
     """
     def _suffix_seg(type_seg):
-        return '_seg' if type_seg == 'spinalcord' else '_gmseg'
+        return '_seg-manual' if type_seg == 'spinalcord' else '_gmseg-manual'
 
     # build file names
     fname = os.path.join(path_data, sg.bids.get_subject(file), sg.bids.get_contrast(file), file)
