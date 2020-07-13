@@ -57,6 +57,7 @@ def get_parser():
     parser.add_argument(
         '-path-in',
         metavar=sg.utils.Metavar.folder,
+        required=True,
         help='Path to the processed data. Example: ~/spine-generic/results/data',
         default='./'
     )
