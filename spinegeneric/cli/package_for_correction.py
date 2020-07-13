@@ -10,6 +10,7 @@
 import os
 import sys
 import shutil
+import tempfile
 from textwrap import dedent
 import argparse
 import yaml
@@ -18,11 +19,6 @@ import coloredlogs
 import spinegeneric as sg
 import spinegeneric.utils
 import spinegeneric.bids
-
-
-# Folder where to output manual labels, at the root of a BIDS dataset.
-# TODO: make it an input argument (with default value)
-FOLDER_DERIVATIVES = os.path.join('derivatives', 'labels')
 
 
 def get_parser():
@@ -79,6 +75,14 @@ def get_parser():
     return parser
 
 
+def copy_file(fname_in, path_out):
+    # create output path
+    os.makedirs(path_out, exist_ok=True)
+    # copy file
+    fname_out = shutil.copy(fname_in, path_out)
+    print("-> {}".format(fname_out))
+
+
 def main():
     # Parse the command line arguments
     parser = get_parser()
@@ -107,20 +111,30 @@ def main():
     sg.utils.check_files_exist(dict_yml, args.path_in)
 
     # Create temp folder
+    path_tmp = tempfile.mkdtemp()
 
-
-
-    # Perform manual corrections
+    # Loop across files and copy them in the appropriate directory
+    # Note: in case the file is listed twice, we just overwrite it in the destination dir.
     for task, files in dict_yml.items():
         for file in files:
             if task == 'FILES_SEG':
-                correct_segmentation(file, args.path_in, path_out_deriv)
+                suffix_label = '_seg'
             elif task == 'FILES_GMSEG':
-                correct_segmentation(file, args.path_in, path_out_deriv, type_seg='graymatter')
+                suffix_label = '_gmseg'
             elif task == 'FILES_LABEL':
-                correct_vertebral_labeling(file, args.path_in, path_out_deriv)
+                suffix_label = None
             else:
                 sys.exit('Task not recognized from yml file: {}'.format(task))
+            # Copy image
+            copy_file(os.path.join(args.path_in, sg.bids.get_subject(file), sg.bids.get_contrast(file), file),
+                      os.path.join(path_tmp, sg.bids.get_subject(file), sg.bids.get_contrast(file)))
+            # Copy label if exists
+            if suffix_label is not None:
+                copy_file(os.path.join(args.path_in, sg.bids.get_subject(file), sg.bids.get_contrast(file),
+                                       sg.utils.add_suffix(file, suffix_label)),
+                          os.path.join(path_tmp, sg.bids.get_subject(file), sg.bids.get_contrast(file)))
+
+    # Package to zip file
 
 
 if __name__ == '__main__':
