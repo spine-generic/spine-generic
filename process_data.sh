@@ -5,10 +5,16 @@
 # Usage:
 #   ./process_data.sh <SUBJECT>
 #
+# Manual segmentations or labels should be located under:
+# PATH_DATA/derivatives/labels/SUBJECT/<CONTRAST>/
+#
 # Authors: Julien Cohen-Adad
 
-# The following global variables are retrieved from parameters.sh but could be
-# overwritten here:
+# The following global variables are retrieved from the caller sct_run_batch
+# but could be overwritten by uncommenting the lines below:
+# PATH_DATA_PROCESSED="~/data_processed"
+# PATH_RESULTS="~/results"
+# PATH_LOG="~/log"
 # PATH_QC="~/qc"
 
 # Uncomment for full verbose
@@ -57,7 +63,7 @@ label_if_does_not_exist(){
   local file_seg="$2"
   # Update global variable with segmentation file name
   FILELABEL="${file}_labels"
-  FILELABELMANUAL="${PATH_DATA}/derivatives/${SUBJECT}/anat/${FILELABEL}-manual.nii.gz"
+  FILELABELMANUAL="${PATH_DATA}/derivatives/labels/${SUBJECT}/anat/${FILELABEL}-manual.nii.gz"
   echo "Looking for manual label: $FILELABELMANUAL"
   if [[ -e $FILELABELMANUAL ]]; then
     echo "Found! Using manual labels."
@@ -84,7 +90,7 @@ segment_if_does_not_exist(){
   fi
   # Update global variable with segmentation file name
   FILESEG="${file}_seg"
-  FILESEGMANUAL="${PATH_DATA}/derivatives/${SUBJECT}/${folder_contrast}/${FILESEG}-manual.nii.gz"
+  FILESEGMANUAL="${PATH_DATA}/derivatives/labels/${SUBJECT}/${folder_contrast}/${FILESEG}-manual.nii.gz"
   echo
   echo "Looking for manual segmentation: $FILESEGMANUAL"
   if [[ -e $FILESEGMANUAL ]]; then
@@ -105,7 +111,7 @@ segment_gm_if_does_not_exist(){
   local contrast="$2"
   # Update global variable with segmentation file name
   FILESEG="${file}_gmseg"
-  FILESEGMANUAL="${PATH_DATA}/derivatives/${SUBJECT}/anat/${FILESEG}-manual.nii.gz"
+  FILESEGMANUAL="${PATH_DATA}/derivatives/labels/${SUBJECT}/anat/${FILESEG}-manual.nii.gz"
   echo "Looking for manual segmentation: $FILESEGMANUAL"
   if [[ -e $FILESEGMANUAL ]]; then
     echo "Found! Using manual segmentation."
