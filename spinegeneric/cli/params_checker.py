@@ -33,7 +33,7 @@ def main():
     # Initialize the layout
     layout = BIDSLayout(data_path)
 
-    Contrast = 'T1w'
+    Contrast = ['T1w','T2w']
     query = layout.get(suffix=Contrast,extension='nii.gz')
 
     path_specs = resource_filename('spinegeneric', 'cli/specs.json')
