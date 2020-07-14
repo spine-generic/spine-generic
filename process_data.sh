@@ -128,10 +128,8 @@ segment_gm_if_does_not_exist(){
 
 # SCRIPT STARTS HERE
 # ==============================================================================
-# Go to results folder, where most of the outputs will be located
-cd $PATH_RESULTS
-mkdir -p data
-cd data
+# Go to folder where data will be copied and processed
+cd $PATH_DATA_PROCESSED
 # Copy list of participants
 if [[ ! -f "participants.tsv" ]]; then
   rsync -avzh $PATH_DATA/participants.tsv .
