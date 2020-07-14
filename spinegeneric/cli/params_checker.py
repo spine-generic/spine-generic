@@ -34,7 +34,7 @@ def main():
     # Initialize the layout
     layout = BIDSLayout(data_path)
 
-    Contrast_list = ['T1w','T2w']
+    Contrast_list = ['T1w','T2w','T2star']
     query = layout.get(suffix=Contrast_list,extension='nii.gz')
 
     path_specs = resource_filename('spinegeneric', 'cli/specs.json')
@@ -66,9 +66,9 @@ def main():
                         if data[Manufacturer][ManufacturersModelName][str(Contrast)]["FlipAngle"] != FlipAngle:
                             logging.warning(' Incorrect FlipAngle: ' + item.filename + '; FA=' + str(FlipAngle) + ' instead of ' + str(data[Manufacturer][ManufacturersModelName][str(Contrast)]["FlipAngle"])) 
                 else:
-                    logging.warning('Missing: '+ ManufacturersModelName)
+                    logging.warning(item.filename + ' Missing: '+ ManufacturersModelName + '; Cannot check parameters.')
         else:
-            logging.warning('Missing Manufacturer in json sidecar')
+            logging.warning(item.filename + ' Missing Manufacturer in json sidecar; Cannot check parameters.')
 
     #Print WARNING log
     if path_warning_log :

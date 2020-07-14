@@ -8,8 +8,13 @@
                 },
                 "T2w":{
                     "RepetitionTime":1.5,
-                    "EchoTime":120,
+                    "EchoTime":0.12,
                     "FlipAngle":120
+                },
+                "T2star":{
+                    "RepetitionTime":0.6,
+                    "EchoTime":0.014,
+                    "FlipAngle":30
                 }
             },
             "Prisma":{
@@ -20,8 +25,13 @@
                 },
                 "T2w":{
                     "RepetitionTime":1.5,
-                    "EchoTime":120,
+                    "EchoTime":0.12,
                     "FlipAngle":120
+                },
+                "T2star":{
+                    "RepetitionTime":0.6,
+                    "EchoTime":0.014,
+                    "FlipAngle":30
                 }
             },
             "Skyra":{
@@ -32,8 +42,13 @@
                 },
                 "T2w":{
                     "RepetitionTime":1.5,
-                    "EchoTime":120,
+                    "EchoTime":0.12,
                     "FlipAngle":120
+                },
+                "T2star":{
+                    "RepetitionTime":0.6,
+                    "EchoTime":0.014,
+                    "FlipAngle":30
                 }
             },
             "TrioTim":{
@@ -43,9 +58,14 @@
                     "FlipAngle":9
                 },
                 "T2w":{
-                    "RepetitionTime":2,
-                    "EchoTime":118,
-                    "FlipAngle":180
+                    "RepetitionTime":1.5,
+                    "EchoTime":0.12,
+                    "FlipAngle":120
+                },
+                "T2star":{
+                    "RepetitionTime":0.6,
+                    "EchoTime":0.014,
+                    "FlipAngle":30
                 }
             },
             "Verio":{
@@ -56,8 +76,13 @@
                 },
                 "T2w":{
                     "RepetitionTime":1.5,
-                    "EchoTime":120,
+                    "EchoTime":0.12,
                     "FlipAngle":120
+                },
+                "T2star":{
+                    "RepetitionTime":0.6,
+                    "EchoTime":0.014,
+                    "FlipAngle":30
                 }
             }
         },
@@ -69,7 +94,11 @@
                 },
                 "T2w":{
                     "RepetitionTime":2.5,
-                    "EchoTime":120
+                    "EchoTime":0.120
+                },
+                "T2star":{
+                    "RepetitionTime":0.6,
+                    "FlipAngle":30
                 }
             },
             "DISCOVERY_MR750w":{
@@ -79,7 +108,11 @@
                 },
                 "T2w":{
                     "RepetitionTime":2.5,
-                    "EchoTime":120
+                    "EchoTime":0.120
+                },
+                "T2star":{
+                    "RepetitionTime":0.6,
+                    "FlipAngle":30
                 }
             },
             "Signa_HDxt":{
@@ -89,7 +122,11 @@
                 },
                 "T2w":{
                     "RepetitionTime":2.5,
-                    "EchoTime":120
+                    "EchoTime":0.120
+                },
+                "T2star":{
+                    "RepetitionTime":0.6,
+                    "FlipAngle":30
                 }
             },
             "SIGNA_PET_MR":{
@@ -99,7 +136,11 @@
                 },
                 "T2w":{
                     "RepetitionTime":2.5,
-                    "EchoTime":120
+                    "EchoTime":0.120
+                },
+                "T2star":{
+                    "RepetitionTime":0.6,
+                    "FlipAngle":30
                 }
             }
         },
@@ -112,8 +153,13 @@
                 },
                 "T2w":{
                     "RepetitionTime":3.5,
-                    "EchoTime":120,
+                    "EchoTime":0.120,
                     "FlipAngle":90
+                },
+                "T2star":{
+                    "RepetitionTime":0.6,
+                    "EchoTime": 0.0072,
+                    "FlipAngle":30
                 }
             },
             "Achieva_dStream":{
@@ -124,8 +170,13 @@
                 },
                 "T2w":{
                     "RepetitionTime":3.5,
-                    "EchoTime":120,
+                    "EchoTime":0.120,
                     "FlipAngle":90
+                },
+                "T2star":{
+                    "RepetitionTime":0.6,
+                    "EchoTime": 0.0072,
+                    "FlipAngle":30
                 }
             },
             "Ingenia":{
@@ -136,8 +187,13 @@
                 },
                 "T2w":{
                     "RepetitionTime":3.5,
-                    "EchoTime":120,
+                    "EchoTime":0.120,
                     "FlipAngle":90
+                },
+                "T2star":{
+                    "RepetitionTime":0.6,
+                    "EchoTime": 0.0072,
+                    "FlipAngle":30
                 }
             },
             "Ingenia_CX":{
@@ -148,8 +204,13 @@
                 },
                 "T2w":{
                     "RepetitionTime":3.5,
-                    "EchoTime":120,
+                    "EchoTime":0.120,
                     "FlipAngle":90
+                },
+                "T2star":{
+                    "RepetitionTime":0.6,
+                    "EchoTime": 0.0072,
+                    "FlipAngle":30
                 }
             },
             "Ingenia_Elition_X":{
@@ -160,8 +221,13 @@
                 },
                 "T2w":{
                     "RepetitionTime":3.5,
-                    "EchoTime":120,
+                    "EchoTime":0.120,
                     "FlipAngle":90
+                },
+                "T2star":{
+                    "RepetitionTime":0.6,
+                    "EchoTime": 0.0072,
+                    "FlipAngle":30
                 }
             }
         }
