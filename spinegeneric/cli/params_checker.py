@@ -52,16 +52,18 @@ def main():
                         if 'SoftwareVersions' in item.get_metadata():
                             SoftwareVersions=item.get_metadata()['SoftwareVersions']
                         RepetitionTime=item.get_metadata()['RepetitionTime']
-                        if Manufacturer != 'GE':
+                        keys_contrast = data[Manufacturer][ManufacturersModelName][str(Contrast)].keys()
+                        if "RepetitionTime" in keys_contrast:
                             if data[Manufacturer][ManufacturersModelName][str(Contrast)]["RepetitionTime"] != RepetitionTime:
                                 logging.warning(' Incorrect RepetitionTime: ' + item.filename + '; TR=' + str(RepetitionTime) + ' instead of ' + str(data[Manufacturer][ManufacturersModelName][str(Contrast)]["RepetitionTime"]))
                         EchoTime=item.get_metadata()['EchoTime']
-                        if Manufacturer != 'GE':
+                        if "EchoTime" in keys_contrast:
                             if (EchoTime - data[Manufacturer][ManufacturersModelName][str(Contrast)]["EchoTime"]) > 0.0001:
                                 logging.warning(' Incorrect EchoTime: ' + item.filename + '; TE=' + str(EchoTime) + ' instead of ' + str(data[Manufacturer][ManufacturersModelName][str(Contrast)]["EchoTime"]))
                         FlipAngle=item.get_metadata()['FlipAngle']
-                        if data[Manufacturer][ManufacturersModelName][str(Contrast)]["FlipAngle"] != FlipAngle:
-                            logging.warning(' Incorrect FlipAngle: ' + item.filename + '; FA=' + str(FlipAngle) + ' instead of ' + str(data[Manufacturer][ManufacturersModelName][str(Contrast)]["FlipAngle"]))
+                        if "FlipAngle" in keys_contrast:
+                            if data[Manufacturer][ManufacturersModelName][str(Contrast)]["FlipAngle"] != FlipAngle:
+                                logging.warning(' Incorrect FlipAngle: ' + item.filename + '; FA=' + str(FlipAngle) + ' instead of ' + str(data[Manufacturer][ManufacturersModelName][str(Contrast)]["FlipAngle"]))
                     else:
                         logging.warning('Missing: '+ ManufacturersModelName)
             else:
