@@ -27,6 +27,8 @@ from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 import matplotlib.patches as patches
 from sklearn.linear_model import LinearRegression
 
+import spinegeneric as sg
+
 
 # Initialize logging
 logger = logging.getLogger(__name__)
@@ -270,9 +272,8 @@ def add_flag(coord, name, ax):
         Get the flag of a country from the folder flags.
         :param name Name of the country
         """
-        path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'flags', '{}.png'.format(name))
-        im = plt.imread(path)
-        return im
+        path_flag = os.path.join(sg.__path__[0], 'flags', '{}.png'.format(name))
+        return plt.imread(path_flag)
 
     img = _get_flag(name)
     img_rot = ndimage.rotate(img, 45)
