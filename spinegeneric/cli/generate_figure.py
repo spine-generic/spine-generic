@@ -208,13 +208,14 @@ def get_parameters():
 
 def aggregate_per_site(dict_results, metric):
     """
-    Aggregate metrics per site. This function assumes that the file participants.tsv is present in folder ./data/
+    Aggregate metrics per site. This function assumes that the file participants.tsv is present in the -path-results
+    folder.
     :param dict_results:
     :param metric: Metric type
     :return:
     """
     # Build Panda DF of participants based on participants.tsv file
-    participants = pd.read_csv(os.path.join('data/participants.tsv'), sep="\t")
+    participants = pd.read_csv(os.path.join('participants.tsv'), sep="\t")
 
     # Fetch specific field for the selected metric
     metric_field = metric_to_field[metric]
