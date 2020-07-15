@@ -18,7 +18,7 @@
 # PATH_QC="~/qc"
 
 # Uncomment for full verbose
-set -x
+# set -x
 
 # Immediately exit if error
 set -e -o pipefail
@@ -28,6 +28,9 @@ trap "echo Caught Keyboard Interrupt within script. Exiting now.; exit" INT
 
 # Retrieve input params
 SUBJECT=$1
+
+# get starting time:
+start=`date +%s`
 
 
 # FUNCTIONS
@@ -308,3 +311,12 @@ for file in ${FILES_TO_CHECK[@]}; do
     echo "${SUBJECT}/${file} does not exist" >> $PATH_LOG/_error_check_output_files.log
   fi
 done
+
+# Display useful info for the log
+end=`date +%s`
+runtime=$((end-start))
+echo "~~~"
+echo "Version:     `sct_version`"
+echo "Ran on:      `uname -nsr`"
+echo "Duration:    $(($runtime / 3600))hrs $((($runtime / 60) % 60))min $(($runtime % 60))sec"
+echo "~~~"
