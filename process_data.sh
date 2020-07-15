@@ -267,7 +267,7 @@ file_bvec=${file_dwi}.bvec
 # Separate b=0 and DW images
 sct_dmri_separate_b0_and_dwi -i ${file_dwi}.nii.gz -bvec ${file_bvec}
 # Get centerline
-sct_get_centerline -i ${file_dwi}_dwi_mean.nii.gz -c dwi
+sct_get_centerline -i ${file_dwi}_dwi_mean.nii.gz -c dwi -qc ${PATH_QC} -qc-subject ${SUBJECT}
 # Create mask to help motion correction and for faster processing
 sct_create_mask -i ${file_dwi}_dwi_mean.nii.gz -p centerline,${file_dwi}_dwi_mean_centerline.nii.gz -size 30mm
 # Motion correction
