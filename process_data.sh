@@ -133,9 +133,13 @@ segment_gm_if_does_not_exist(){
 # ==============================================================================
 # Go to folder where data will be copied and processed
 cd $PATH_DATA_PROCESSED
-# Copy list of participants
+# Copy list of participants in processed data folder
 if [[ ! -f "participants.tsv" ]]; then
   rsync -avzh $PATH_DATA/participants.tsv .
+fi
+# Copy list of participants in restuls folder (used by spine-generic scripts)
+if [[ ! -f $PATH_RESULTS/"participants.tsv" ]]; then
+  rsync -avzh $PATH_DATA/participants.tsv $PATH_RESULTS/"participants.tsv"
 fi
 # Copy source images
 rsync -avzh $PATH_DATA/$SUBJECT .
@@ -315,8 +319,9 @@ done
 # Display useful info for the log
 end=`date +%s`
 runtime=$((end-start))
+echo
 echo "~~~"
-echo "Version:     `sct_version`"
+echo "SCT version: `sct_version`"
 echo "Ran on:      `uname -nsr`"
 echo "Duration:    $(($runtime / 3600))hrs $((($runtime / 60) % 60))min $(($runtime % 60))sec"
 echo "~~~"
