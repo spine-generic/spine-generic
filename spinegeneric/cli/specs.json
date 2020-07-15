@@ -54,24 +54,24 @@
             "TrioTim":{
                 "T1w":{
                     "RepetitionTime":2,
-                    "EchoTime":0.004,
+                    "EchoTime":0.00321,
                     "FlipAngle":9
                 },
                 "T2w":{
                     "RepetitionTime":1.5,
-                    "EchoTime":0.12,
-                    "FlipAngle":120
+                    "EchoTime":0.118,
+                    "FlipAngle":180
                 },
                 "T2star":{
                     "RepetitionTime":0.6,
-                    "EchoTime":0.014,
+                    "EchoTime":0.013,
                     "FlipAngle":30
                 }
             },
             "Verio":{
                 "T1w":{
                     "RepetitionTime":2,
-                    "EchoTime":0.004,
+                    "EchoTime":0.00321,
                     "FlipAngle":9
                 },
                 "T2w":{
