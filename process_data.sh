@@ -131,6 +131,9 @@ segment_gm_if_does_not_exist(){
 
 # SCRIPT STARTS HERE
 # ==============================================================================
+# Display useful info for the log, such as SCT version, RAM and CPU cores available
+sct_check_dependencies -short
+
 # Go to folder where data will be copied and processed
 cd $PATH_DATA_PROCESSED
 # Copy list of participants in processed data folder
