@@ -5,14 +5,20 @@
 # Usage:
 #   ./process_data.sh <SUBJECT>
 #
+# Manual segmentations or labels should be located under:
+# PATH_DATA/derivatives/labels/SUBJECT/<CONTRAST>/
+#
 # Authors: Julien Cohen-Adad
 
-# The following global variables are retrieved from parameters.sh but could be
-# overwritten here:
+# The following global variables are retrieved from the caller sct_run_batch
+# but could be overwritten by uncommenting the lines below:
+# PATH_DATA_PROCESSED="~/data_processed"
+# PATH_RESULTS="~/results"
+# PATH_LOG="~/log"
 # PATH_QC="~/qc"
 
 # Uncomment for full verbose
-set -x
+# set -x
 
 # Immediately exit if error
 set -e -o pipefail
@@ -22,6 +28,9 @@ trap "echo Caught Keyboard Interrupt within script. Exiting now.; exit" INT
 
 # Retrieve input params
 SUBJECT=$1
+
+# get starting time:
+start=`date +%s`
 
 
 # FUNCTIONS
@@ -57,7 +66,7 @@ label_if_does_not_exist(){
   local file_seg="$2"
   # Update global variable with segmentation file name
   FILELABEL="${file}_labels"
-  FILELABELMANUAL="${PATH_DATA}/derivatives/${SUBJECT}/anat/${FILELABEL}-manual.nii.gz"
+  FILELABELMANUAL="${PATH_DATA}/derivatives/labels/${SUBJECT}/anat/${FILELABEL}-manual.nii.gz"
   echo "Looking for manual label: $FILELABELMANUAL"
   if [[ -e $FILELABELMANUAL ]]; then
     echo "Found! Using manual labels."
@@ -84,7 +93,7 @@ segment_if_does_not_exist(){
   fi
   # Update global variable with segmentation file name
   FILESEG="${file}_seg"
-  FILESEGMANUAL="${PATH_DATA}/derivatives/${SUBJECT}/${folder_contrast}/${FILESEG}-manual.nii.gz"
+  FILESEGMANUAL="${PATH_DATA}/derivatives/labels/${SUBJECT}/${folder_contrast}/${FILESEG}-manual.nii.gz"
   echo
   echo "Looking for manual segmentation: $FILESEGMANUAL"
   if [[ -e $FILESEGMANUAL ]]; then
@@ -105,7 +114,7 @@ segment_gm_if_does_not_exist(){
   local contrast="$2"
   # Update global variable with segmentation file name
   FILESEG="${file}_gmseg"
-  FILESEGMANUAL="${PATH_DATA}/derivatives/${SUBJECT}/anat/${FILESEG}-manual.nii.gz"
+  FILESEGMANUAL="${PATH_DATA}/derivatives/labels/${SUBJECT}/anat/${FILESEG}-manual.nii.gz"
   echo "Looking for manual segmentation: $FILESEGMANUAL"
   if [[ -e $FILESEGMANUAL ]]; then
     echo "Found! Using manual segmentation."
@@ -122,13 +131,18 @@ segment_gm_if_does_not_exist(){
 
 # SCRIPT STARTS HERE
 # ==============================================================================
-# Go to results folder, where most of the outputs will be located
-cd $PATH_RESULTS
-mkdir -p data
-cd data
-# Copy list of participants
+# Display useful info for the log, such as SCT version, RAM and CPU cores available
+sct_check_dependencies -short
+
+# Go to folder where data will be copied and processed
+cd $PATH_DATA_PROCESSED
+# Copy list of participants in processed data folder
 if [[ ! -f "participants.tsv" ]]; then
   rsync -avzh $PATH_DATA/participants.tsv .
+fi
+# Copy list of participants in restuls folder (used by spine-generic scripts)
+if [[ ! -f $PATH_RESULTS/"participants.tsv" ]]; then
+  rsync -avzh $PATH_DATA/participants.tsv $PATH_RESULTS/"participants.tsv"
 fi
 # Copy source images
 rsync -avzh $PATH_DATA/$SUBJECT .
@@ -256,7 +270,7 @@ file_bvec=${file_dwi}.bvec
 # Separate b=0 and DW images
 sct_dmri_separate_b0_and_dwi -i ${file_dwi}.nii.gz -bvec ${file_bvec}
 # Get centerline
-sct_get_centerline -i ${file_dwi}_dwi_mean.nii.gz -c dwi
+sct_get_centerline -i ${file_dwi}_dwi_mean.nii.gz -c dwi -qc ${PATH_QC} -qc-subject ${SUBJECT}
 # Create mask to help motion correction and for faster processing
 sct_create_mask -i ${file_dwi}_dwi_mean.nii.gz -p centerline,${file_dwi}_dwi_mean_centerline.nii.gz -size 30mm
 # Motion correction
@@ -304,3 +318,13 @@ for file in ${FILES_TO_CHECK[@]}; do
     echo "${SUBJECT}/${file} does not exist" >> $PATH_LOG/_error_check_output_files.log
   fi
 done
+
+# Display useful info for the log
+end=`date +%s`
+runtime=$((end-start))
+echo
+echo "~~~"
+echo "SCT version: `sct_version`"
+echo "Ran on:      `uname -nsr`"
+echo "Duration:    $(($runtime / 3600))hrs $((($runtime / 60) % 60))min $(($runtime % 60))sec"
+echo "~~~"
