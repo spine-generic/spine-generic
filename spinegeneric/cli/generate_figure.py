@@ -27,6 +27,8 @@ from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 import matplotlib.patches as patches
 from sklearn.linear_model import LinearRegression
 
+import spinegeneric as sg
+
 
 # Initialize logging
 logger = logging.getLogger(__name__)
@@ -208,13 +210,14 @@ def get_parameters():
 
 def aggregate_per_site(dict_results, metric):
     """
-    Aggregate metrics per site. This function assumes that the file participants.tsv is present in folder ./data/
+    Aggregate metrics per site. This function assumes that the file participants.tsv is present in the -path-results
+    folder.
     :param dict_results:
     :param metric: Metric type
     :return:
     """
     # Build Panda DF of participants based on participants.tsv file
-    participants = pd.read_csv(os.path.join('data/participants.tsv'), sep="\t")
+    participants = pd.read_csv(os.path.join('participants.tsv'), sep="\t")
 
     # Fetch specific field for the selected metric
     metric_field = metric_to_field[metric]
@@ -269,9 +272,8 @@ def add_flag(coord, name, ax):
         Get the flag of a country from the folder flags.
         :param name Name of the country
         """
-        path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'flags', '{}.png'.format(name))
-        im = plt.imread(path)
-        return im
+        path_flag = os.path.join(sg.__path__[0], 'flags', '{}.png'.format(name))
+        return plt.imread(path_flag)
 
     img = _get_flag(name)
     img_rot = ndimage.rotate(img, 45)
