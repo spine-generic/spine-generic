@@ -1,3 +1,11 @@
+#!/usr/bin/env python
+#
+# Script to check parameters checker
+#
+# For usage, type: sg_params_checker -path-in PATH_TO_BIDSDATASET
+#
+# Authors: Alexandru Foias, Julien Cohen-Adad
+
 import spinegeneric as sg
 import spinegeneric.utils
 
@@ -11,7 +19,9 @@ from pkg_resources import resource_filename
 
 def get_parser():
     parser = argparse.ArgumentParser(
-        description="Acquistion parameters checker",
+        description="Acquistion parameters checker feature. This feature allows the users"
+                    "to compare the acquisition parameters that can be found in the json "
+                    "sidecar to the recommended acquisition parameters."
         formatter_class=sg.utils.SmartFormatter,
         prog=os.path.basename(__file__).strip('.py')
         )
@@ -80,4 +90,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-    
