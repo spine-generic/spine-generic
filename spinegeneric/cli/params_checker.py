@@ -2,7 +2,7 @@
 #
 # Script to check parameters checker
 #
-# For usage, type: sg_params_checker -path-in PATH_TO_BIDSDATASET
+# For usage, type: sg_params_checker -h
 #
 # Authors: Alexandru Foias, Julien Cohen-Adad
 
