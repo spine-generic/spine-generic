@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Script to check parameters checker
+# Script to check acquisition parameters.
 #
 # For usage, type: sg_params_checker -h
 #
