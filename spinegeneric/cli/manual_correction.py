@@ -7,13 +7,15 @@
 # Authors: Jan Valosek, Julien Cohen-Adad
 
 
+import argparse
+import coloredlogs
+import json
 import os
 import sys
 import shutil
 from textwrap import dedent
-import argparse
+import time
 import yaml
-import coloredlogs
 
 import spinegeneric as sg
 import spinegeneric.utils
@@ -54,7 +56,9 @@ def get_parser():
             - sub-amu01_T2star_rms.nii.gz
             FILES_LABEL:
             - sub-amu01_T1w_RPI_r.nii.gz
-            - sub-amu02_T1w_RPI_r.nii.gz\n
+            - sub-amu02_T1w_RPI_r.nii.gz
+            NAME:
+            - John Doe\n
             """)
     )
     parser.add_argument(
@@ -80,13 +84,14 @@ def get_parser():
     return parser
 
 
-def correct_segmentation(file, path_data, path_out, type_seg='spinalcord'):
+def correct_segmentation(file, path_data, path_out, type_seg='spinalcord', name_rater='Anonymous'):
     """
     Open fsleyes with input file and copy saved file in path_out.
     :param file:
     :param path_data:
     :param path_out:
     :param type_seg: {'spinalcord', 'graymatter'}
+    :param name_rater: str: Name of the expert rater
     :return:
     """
     def _suffix_seg(type_seg):
@@ -104,14 +109,16 @@ def correct_segmentation(file, path_data, path_out, type_seg='spinalcord'):
     # launch FSLeyes
     print("In FSLeyes, click on 'Edit mode', correct the segmentation, then save it with the same name (overwrite).")
     os.system('fsleyes -yh ' + fname + ' ' + fname_seg_out + ' -cm red')
+    create_json(fname_seg_out, name_rater)
 
 
-def correct_vertebral_labeling(file, path_data, path_out):
+def correct_vertebral_labeling(file, path_data, path_out, name_rater='Anonymous'):
     """
     Open SCT label utils to manually label vertebral levels.
     :param file:
     :param path_data:
     :param path_out:
+    :param name_rater: str: Name of the expert rater
     :return:
     """
     # build file names
@@ -123,6 +130,20 @@ def correct_vertebral_labeling(file, path_data, path_out):
     # launch SCT label utils
     message = "Click inside the spinal cord, at C3 and C5 mid-vertebral levels, then click 'Save and Quit'."
     os.system('sct_label_utils -i {} -create-viewer 3,5 -o {} -msg {}'.format(fname, fname_label, message))
+    create_json(fname_label, name_rater)
+
+
+def create_json(fname_nifti, name_rater):
+    """
+    Create json sidecar with meta information
+    :param fname_nifti: str: File name of the nifti image to associate with the json sidecar
+    :param name_rater: str: Name of the expert rater
+    :return:
+    """
+    metadata = {'Author': name_rater, 'Date': time.strftime('%Y-%m-%d %H:%M:%S')}
+    fname_json = fname_nifti.rstrip('.nii').rstrip('.nii.gz') + '.json'
+    with open(fname_json, 'w') as outfile:
+        json.dump(metadata, outfile, indent=4)
 
 
 def main():
@@ -158,15 +179,19 @@ def main():
     # check that output folder exists and has write permission
     path_out_deriv = sg.utils.check_output_folder(args.path_out, FOLDER_DERIVATIVES)
 
+    # Get name of expert rater
+    name_rater = input("Enter your name (Firstname Lastname). It will be used to generate a json sidecar with each "
+                       "corrected file: ")
+
     # Perform manual corrections
     for task, files in dict_yml.items():
         for file in files:
             if task == 'FILES_SEG':
-                correct_segmentation(file, args.path_in, path_out_deriv)
+                correct_segmentation(file, args.path_in, path_out_deriv, name_rater=name_rater)
             elif task == 'FILES_GMSEG':
-                correct_segmentation(file, args.path_in, path_out_deriv, type_seg='graymatter')
+                correct_segmentation(file, args.path_in, path_out_deriv, type_seg='graymatter', name_rater=name_rater)
             elif task == 'FILES_LABEL':
-                correct_vertebral_labeling(file, args.path_in, path_out_deriv)
+                correct_vertebral_labeling(file, args.path_in, path_out_deriv, name_rater=name_rater)
             else:
                 sys.exit('Task not recognized from yml file: {}'.format(task))
 
