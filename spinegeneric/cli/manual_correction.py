@@ -56,9 +56,7 @@ def get_parser():
             - sub-amu01_T2star_rms.nii.gz
             FILES_LABEL:
             - sub-amu01_T1w_RPI_r.nii.gz
-            - sub-amu02_T1w_RPI_r.nii.gz
-            NAME:
-            - John Doe\n
+            - sub-amu02_T1w_RPI_r.nii.gz\n
             """)
     )
     parser.add_argument(
