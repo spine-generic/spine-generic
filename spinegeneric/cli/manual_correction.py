@@ -82,7 +82,7 @@ def get_parser():
     return parser
 
 
-def correct_segmentation(file, path_data, path_out, type_seg='spinalcord', name_rater='Anonymous'):
+def correct_segmentation(file, path_data, path_out, type_seg='spinalcord', name_rater='Anonymous', fname_qc='qc_corr'):
     """
     Open fsleyes with input file and copy saved file in path_out.
     :param file:
@@ -90,44 +90,56 @@ def correct_segmentation(file, path_data, path_out, type_seg='spinalcord', name_
     :param path_out:
     :param type_seg: {'spinalcord', 'graymatter'}
     :param name_rater: str: Name of the expert rater
+    :param fname_qc: str: Path to output QC
     :return:
     """
     def _suffix_seg(type_seg):
         return '_seg' if type_seg == 'spinalcord' else '_gmseg'
 
+    def _sct_function(type_seg):
+        return 'sct_deepseg_sc' if type_seg == 'spinalcord' else 'sct_deepseg_gm'
+
+    subject = sg.bids.get_subject(file)
     # build file names
     fname = os.path.join(path_data, sg.bids.get_subject(file), sg.bids.get_contrast(file), file)
     fname_seg = sg.utils.add_suffix(fname, _suffix_seg(type_seg))
     fname_seg_out = os.path.join(
-        path_out, sg.bids.get_subject(file), sg.bids.get_contrast(file),
+        path_out, subject, sg.bids.get_contrast(file),
         sg.utils.add_suffix(file, '{}-manual'.format(_suffix_seg(type_seg))))
     # copy to output path
-    os.makedirs(os.path.join(path_out, sg.bids.get_subject(file), sg.bids.get_contrast(file)), exist_ok=True)
+    os.makedirs(os.path.join(path_out, subject, sg.bids.get_contrast(file)), exist_ok=True)
     shutil.copy(fname_seg, fname_seg_out)
     # launch FSLeyes
     print("In FSLeyes, click on 'Edit mode', correct the segmentation, then save it with the same name (overwrite).")
     os.system('fsleyes -yh ' + fname + ' ' + fname_seg_out + ' -cm red')
+    # create json sidecar with the name of the expert rater
     create_json(fname_seg_out, name_rater)
+    # generate QC report
+    os.system('sct_qc -i {} -s {} -p {} -qc {} -qc-subject {}'.format(
+        fname, fname_seg_out, _sct_function(type_seg), fname_qc, subject))
 
 
-def correct_vertebral_labeling(file, path_data, path_out, name_rater='Anonymous'):
+def correct_vertebral_labeling(file, path_data, path_out, name_rater='Anonymous', fname_qc='qc_corr'):
     """
     Open SCT label utils to manually label vertebral levels.
     :param file:
     :param path_data:
     :param path_out:
     :param name_rater: str: Name of the expert rater
+    :param fname_qc: str: Path to output QC
     :return:
     """
     # build file names
-    fname = os.path.join(path_data, sg.bids.get_subject(file), sg.bids.get_contrast(file), file)
+    subject = sg.bids.get_subject(file)
+    fname = os.path.join(path_data, subject, sg.bids.get_contrast(file), file)
     fname_label = os.path.join(
-        path_out, sg.bids.get_subject(file), sg.bids.get_contrast(file), sg.utils.add_suffix(file, '_labels-manual'))
+        path_out, subject, sg.bids.get_contrast(file), sg.utils.add_suffix(file, '_labels-manual'))
     # create output path
-    os.makedirs(os.path.join(path_out, sg.bids.get_subject(file), sg.bids.get_contrast(file)), exist_ok=True)
+    os.makedirs(os.path.join(path_out, subject, sg.bids.get_contrast(file)), exist_ok=True)
     # launch SCT label utils
     message = "Click inside the spinal cord, at C3 and C5 mid-vertebral levels, then click 'Save and Quit'."
-    os.system('sct_label_utils -i {} -create-viewer 3,5 -o {} -msg {}'.format(fname, fname_label, message))
+    os.system('sct_label_utils -i {} -create-viewer 3,5 -o {} -msg {} -qc {} -qc-subject {}'.format(
+        fname, fname_label, message, fname_qc, subject))
     create_json(fname_label, name_rater)
 
 
@@ -181,18 +193,24 @@ def main():
     name_rater = input("Enter your name (Firstname Lastname). It will be used to generate a json sidecar with each "
                        "corrected file: ")
 
+    # Build QC report folder name
+    fname_qc = 'qc_corr_' + time.strftime('%Y%m%d%H%M%S')
+
     # Perform manual corrections
     for task, files in dict_yml.items():
         for file in files:
             if task == 'FILES_SEG':
-                correct_segmentation(file, args.path_in, path_out_deriv, name_rater=name_rater)
+                correct_segmentation(file, args.path_in, path_out_deriv, name_rater=name_rater, fname_qc=fname_qc)
             elif task == 'FILES_GMSEG':
-                correct_segmentation(file, args.path_in, path_out_deriv, type_seg='graymatter', name_rater=name_rater)
+                correct_segmentation(file, args.path_in, path_out_deriv, type_seg='graymatter', name_rater=name_rater,
+                                     fname_qc=fname_qc)
             elif task == 'FILES_LABEL':
-                correct_vertebral_labeling(file, args.path_in, path_out_deriv, name_rater=name_rater)
+                correct_vertebral_labeling(file, args.path_in, path_out_deriv, name_rater=name_rater, fname_qc=fname_qc)
             else:
                 sys.exit('Task not recognized from yml file: {}'.format(task))
 
+    shutil.make_archive(fname_qc, 'zip', fname_qc)
+    print("Archive created:\n--> {}".format(fname_qc+'.zip'))
 
 if __name__ == '__main__':
     main()
