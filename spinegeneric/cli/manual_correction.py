@@ -193,18 +193,24 @@ def main():
     name_rater = input("Enter your name (Firstname Lastname). It will be used to generate a json sidecar with each "
                        "corrected file: ")
 
+    # Build QC report folder name
+    fname_qc = 'qc_corr_' + time.strftime('%Y%m%d%H%M%S')
+
     # Perform manual corrections
     for task, files in dict_yml.items():
         for file in files:
             if task == 'FILES_SEG':
-                correct_segmentation(file, args.path_in, path_out_deriv, name_rater=name_rater)
+                correct_segmentation(file, args.path_in, path_out_deriv, name_rater=name_rater, fname_qc=fname_qc)
             elif task == 'FILES_GMSEG':
-                correct_segmentation(file, args.path_in, path_out_deriv, type_seg='graymatter', name_rater=name_rater)
+                correct_segmentation(file, args.path_in, path_out_deriv, type_seg='graymatter', name_rater=name_rater,
+                                     fname_qc=fname_qc)
             elif task == 'FILES_LABEL':
-                correct_vertebral_labeling(file, args.path_in, path_out_deriv, name_rater=name_rater)
+                correct_vertebral_labeling(file, args.path_in, path_out_deriv, name_rater=name_rater, fname_qc=fname_qc)
             else:
                 sys.exit('Task not recognized from yml file: {}'.format(task))
 
+    shutil.make_archive(fname_qc, 'zip', fname_qc)
+    print("Archive created:\n--> {}".format(fname_qc+'.zip'))
 
 if __name__ == '__main__':
     main()
