@@ -138,12 +138,9 @@ def correct_vertebral_labeling(file, path_data, path_out, name_rater='Anonymous'
     os.makedirs(os.path.join(path_out, subject, sg.bids.get_contrast(file)), exist_ok=True)
     # launch SCT label utils
     message = "Click inside the spinal cord, at C3 and C5 mid-vertebral levels, then click 'Save and Quit'."
-    os.system('sct_label_utils -i {} -create-viewer 3,5 -o {} -msg {}'.format(fname, fname_label, message))
+    os.system('sct_label_utils -i {} -create-viewer 3,5 -o {} -msg {} -qc {} -qc-subject {}'.format(
+        fname, fname_label, message, fname_qc, subject))
     create_json(fname_label, name_rater)
-    # generate QC report
-    print("QC report for sct_label_utils not implemented (yet)")
-    # os.system('sct_qc -i {} -s {} -p sct_label_utils -qc {} -qc-subject {}'.format(
-    #     fname, fname_label, fname_qc, subject))
 
 
 def create_json(fname_nifti, name_rater):
