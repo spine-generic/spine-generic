@@ -235,6 +235,27 @@ Below is an example of a defaced subject:
 
 .. _multi-center-data:
 
+
+Check acquisition parameters
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The function **sg_params_checker** enables the users and CI to compare the acquisition parameters
+(scanner manufacturer, manufacturers_model_name , contrast, TR,TE,FA) from the json sidecar file 
+against to the recommended acquisition parameters. If they don't match a warning message will be triggered.
+
+This function is also implemented in CI checks for specific datasets.
+
+Example usage and expected output:
+
+.. code-block:: bash
+  sg_params_checker -path-in ~/data-single-subject/
+  WARNING: Incorrect FlipAngle: sub-douglas_T2w.nii.gz; FA=120 instead of 180
+  WARNING: Incorrect RepetitionTime: sub-mgh_T2w.nii.gz; TR=2 instead of 1.5
+  WARNING: Incorrect FlipAngle: sub-tokyoSigna1_T2star.nii.gz; FA=20 instead of 30
+  WARNING: Incorrect FlipAngle: sub-tokyoSigna2_T2star.nii.gz; FA=20 instead of 30
+  WARNING:sub-ucl_T2star.nii.gz Missing Manufacturer in json sidecar; Cannot check parameters.
+
+
 Multi-center data
 -----------------
 
