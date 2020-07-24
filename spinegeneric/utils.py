@@ -166,6 +166,7 @@ def check_software_installed(list_software=['fsleyes', 'sct']):
         'fsleyes': 'fsleyes --version',
         'sct': 'sct_version'
         }
+    logging.info("Checking if required software are installed...")
     for software in list_software:
         try:
             output = subprocess.check_output(software_cmd[software], shell=True)
