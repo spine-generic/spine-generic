@@ -153,6 +153,13 @@ and open an interactive window for you to either correct the segmentation, or pe
 manually-corrected label is saved under the ``derivatives/labels/`` folder at the root of ``<PATH_DATA>``,
 according to the BIDS convention. The manually-corrected label files have the suffix ``-manual``.
 
+Your name will be asked at the beginning, and will be recorded in the .json files that accompany the corrected labels.
+
+A QC report of all the manual correction will be created locally and archived as a zip file. To update the
+database with the manual corrections (using git), create a pull request and upload the QC report directly in the pull
+request so the admin team can easily review the proposed changes. If the team accepts the pull request, a new release
+of the dataset will be created and the zipped QC report will be uploaded as a release object.
+
 .. note::
 
    In case processing is ran on a remote cluster, it it convenient to generate a package of the files that need
