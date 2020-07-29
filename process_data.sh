@@ -18,7 +18,7 @@
 # PATH_QC="~/qc"
 
 # Uncomment for full verbose
-# set -x
+set -x
 
 # Immediately exit if error
 set -e -o pipefail
