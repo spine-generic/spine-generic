@@ -140,7 +140,7 @@ def main():
     root_dir_tmp = os.path.join('/',*path_tmp.split('/')[0:-1])
     base_dir_name = args.o.split('/')[-1]
     shutil.move(path_tmp, os.path.join(root_dir_tmp, base_dir_name))
-    fname_archive = shutil.make_archive(args.o, 'zip', root_dir_tmp,base_dir_name)
+    fname_archive = shutil.make_archive(args.o, 'zip', root_dir_tmp, base_dir_name)
     print("-> {}".format(fname_archive))
 
 
