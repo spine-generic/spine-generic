@@ -156,9 +156,12 @@ Upload the manually-corrected files
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 A QC report of all the manual corrections will be created locally and archived as a zip file. To update the
-database with the manual corrections (using git), create a pull request and upload the QC report directly in the pull
-request so the admin team can easily review the proposed changes. If the team accepts the pull request, a new release
-of the dataset will be created and the zipped QC report will be uploaded as a release object.
+database with the manual corrections, follow this procedure:
+
+- Commit and push the manually-corrected files, which should be placed in the appropriate folders under ``derivatives/labels/``
+- Create a pull request
+- In the pull request body, briefly explain the purpose of these changes, and upload the zipped QC report so the admin team can easily review the proposed changes. 
+- If the team accepts the pull request, a new release of the dataset will be created and the zipped QC report will be uploaded as a release object.
 
 .. note::
 
