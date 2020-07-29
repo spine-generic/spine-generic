@@ -83,13 +83,13 @@ Segmentation and vertebral labeling
 If you spot segmentation or labeling issues, manually fix them using the procedure described
 below. Also see the video tutorial below.
 
-- Go to the ``~/spineGeneric_results/results/data`` folder.
+- Create a .yml file that lists the data awating manual correction. You can create this file using any text editor (vim, nano, atom, etc.).
 - In the QC report, enter the string "deepseg" to only display segmentation results or the string "vertebrae" to only
   display vertebral labeling.
 - Review all spinal cord and gray matter segmentations and vertebral labeling. Use the keyboard shortcuts up/down arrow
   to switch between subjects and the left arrow to toggle overlay.
 - If you spot *major* issues with the segmentation (e.g. noticeable leaking or under-segmentation that extends over
-  several slices) or wrong labeling, add the image name into the yaml file as in the example below:
+  several slices) or wrong labeling, add the image name into the yml file as in the example below:
 
 ::
 
@@ -103,14 +103,11 @@ below. Also see the video tutorial below.
     - sub-amu01_T1w_RPI_r.nii.gz
     - sub-amu02_T1w_RPI_r.nii.gz
 
-Some explanations about this yaml file:
+Some explanations about this yml file:
 
 - ``FILES_SEG``: Images associated with spinal cord segmentation
 - ``FILES_GMSEG``: Images associated with gray matter segmentation
 - ``FILES_LABEL``: Images associated with vertebral labeling
-
-.. Hint::
-    You can create a yaml file using any text editor (vim, nano, atom, ...).
 
 .. Hint::
    For the interest of time, you don't need to fix *all* slices of the segmentation
@@ -146,16 +143,19 @@ Some explanations about this yaml file:
 
 .. code-block:: bash
 
-    sg_manual_correction -config files.yaml -path-in ~/spineGeneric_results/results/data -path-out <PATH_DATA>
+    sg_manual_correction -config files.yml -path-in ~/spineGeneric_results/results/data -path-out <PATH_DATA>
 
-This script will loop through all the files that need correction (as per the .yaml file that you defined earlier),
+This script will loop through all the files that need correction (as per the .yml file that you created earlier),
 and open an interactive window for you to either correct the segmentation, or perform manual labels. Each
 manually-corrected label is saved under the ``derivatives/labels/`` folder at the root of ``<PATH_DATA>``,
 according to the BIDS convention. The manually-corrected label files have the suffix ``-manual``.
 
 Your name will be asked at the beginning, and will be recorded in the .json files that accompany the corrected labels.
 
-A QC report of all the manual correction will be created locally and archived as a zip file. To update the
+Upload the manually-corrected files
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+A QC report of all the manual corrections will be created locally and archived as a zip file. To update the
 database with the manual corrections (using git), create a pull request and upload the QC report directly in the pull
 request so the admin team can easily review the proposed changes. If the team accepts the pull request, a new release
 of the dataset will be created and the zipped QC report will be uploaded as a release object.
