@@ -137,7 +137,13 @@ def main():
 
     # Package to zip file
     print("Creating archive...")
-    fname_archive = shutil.make_archive(args.o, 'zip', path_tmp)
+    root_dir_tmp = os.path.split(path_tmp)[0]
+    base_dir_name = os.path.split(args.o)[1]
+    new_path_tmp = os.path.join(root_dir_tmp, base_dir_name)
+    if os.path.isdir(new_path_tmp):
+        shutil.rmtree(new_path_tmp)
+    shutil.move(path_tmp, new_path_tmp)
+    fname_archive = shutil.make_archive(args.o, 'zip', root_dir_tmp, base_dir_name)
     print("-> {}".format(fname_archive))
 
 
