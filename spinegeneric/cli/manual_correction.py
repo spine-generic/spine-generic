@@ -74,6 +74,12 @@ def get_parser():
         default='./'
     )
     parser.add_argument(
+        '-qc-only',
+        help="Only output QC report based on the manually-corrected files already present in the derivatives folder. "
+             "Skip the copy of the source files, and the opening of the manual correction pop-up windows.",
+        action='store_true'
+    )
+    parser.add_argument(
         '-v', '--verbose',
         help="Full verbose (for debugging)",
         action='store_true'
@@ -82,64 +88,57 @@ def get_parser():
     return parser
 
 
-def correct_segmentation(file, path_data, path_out, type_seg='spinalcord', name_rater='Anonymous', fname_qc='qc_corr'):
+def get_function(task):
+    if task == 'FILES_SEG':
+        return 'sct_deepseg_sc'
+    elif task == 'FILES_GMSEG':
+        return 'sct_deepseg_gm'
+    elif task == 'FILES_LABEL':
+        return 'sct_label_utils'
+    else:
+        raise ValueError("This task is not recognized: {}".format(task))
+
+
+def get_suffix(task):
+    if task == 'FILES_SEG':
+        return '_seg-manual'
+    elif task == 'FILES_GMSEG':
+        return '_gmseg-manual'
+    elif task == 'FILES_LABEL':
+        return '_labels-manual'
+    else:
+        raise ValueError("This task is not recognized: {}".format(task))
+
+
+def correct_segmentation(fname, fname_seg, fname_seg_out, name_rater='Anonymous'):
     """
-    Open fsleyes with input file and copy saved file in path_out.
-    :param file:
-    :param path_data:
-    :param path_out:
-    :param type_seg: {'spinalcord', 'graymatter'}
-    :param name_rater: str: Name of the expert rater
-    :param fname_qc: str: Path to output QC
+    Copy fname_seg in fname_seg_out, then open fsleyes with fname and fname_seg_out.
+    :param fname:
+    :param fname_seg:
+    :param fname_seg_out:
+    :param name_rater:
     :return:
     """
-    def _suffix_seg(type_seg):
-        return '_seg' if type_seg == 'spinalcord' else '_gmseg'
-
-    def _sct_function(type_seg):
-        return 'sct_deepseg_sc' if type_seg == 'spinalcord' else 'sct_deepseg_gm'
-
-    subject = sg.bids.get_subject(file)
-    # build file names
-    fname = os.path.join(path_data, sg.bids.get_subject(file), sg.bids.get_contrast(file), file)
-    fname_seg = sg.utils.add_suffix(fname, _suffix_seg(type_seg))
-    fname_seg_out = os.path.join(
-        path_out, subject, sg.bids.get_contrast(file),
-        sg.utils.add_suffix(file, '{}-manual'.format(_suffix_seg(type_seg))))
     # copy to output path
-    os.makedirs(os.path.join(path_out, subject, sg.bids.get_contrast(file)), exist_ok=True)
     shutil.copy(fname_seg, fname_seg_out)
     # launch FSLeyes
     print("In FSLeyes, click on 'Edit mode', correct the segmentation, then save it with the same name (overwrite).")
     os.system('fsleyes -yh ' + fname + ' ' + fname_seg_out + ' -cm red')
     # create json sidecar with the name of the expert rater
     create_json(fname_seg_out, name_rater)
-    # generate QC report
-    os.system('sct_qc -i {} -s {} -p {} -qc {} -qc-subject {}'.format(
-        fname, fname_seg_out, _sct_function(type_seg), fname_qc, subject))
 
 
-def correct_vertebral_labeling(file, path_data, path_out, name_rater='Anonymous', fname_qc='qc_corr'):
+def correct_vertebral_labeling(fname, fname_label, name_rater='Anonymous'):
     """
-    Open SCT label utils to manually label vertebral levels.
-    :param file:
-    :param path_data:
-    :param path_out:
-    :param name_rater: str: Name of the expert rater
-    :param fname_qc: str: Path to output QC
+    Open sct_label_utils to manually label vertebral levels.
+    :param fname:
+    :param fname_label:
+    :param name_rater:
     :return:
     """
-    # build file names
-    subject = sg.bids.get_subject(file)
-    fname = os.path.join(path_data, subject, sg.bids.get_contrast(file), file)
-    fname_label = os.path.join(
-        path_out, subject, sg.bids.get_contrast(file), sg.utils.add_suffix(file, '_labels-manual'))
-    # create output path
-    os.makedirs(os.path.join(path_out, subject, sg.bids.get_contrast(file)), exist_ok=True)
-    # launch SCT label utils
     message = "Click inside the spinal cord, at C3 and C5 mid-vertebral levels, then click 'Save and Quit'."
-    os.system('sct_label_utils -i {} -create-viewer 3,5 -o {} -msg {} -qc {} -qc-subject {}'.format(
-        fname, fname_label, message, fname_qc, subject))
+    os.system('sct_label_utils -i {} -create-viewer 3,5 -o {} -msg {}'.format(fname, fname_label, message))
+    # create json sidecar with the name of the expert rater
     create_json(fname_label, name_rater)
 
 
@@ -157,6 +156,7 @@ def create_json(fname_nifti, name_rater):
 
 
 def main():
+
     # Parse the command line arguments
     parser = get_parser()
     args = parser.parse_args()
@@ -167,8 +167,10 @@ def main():
     else:
         coloredlogs.install(fmt='%(message)s', level='INFO')
 
-    if not sg.utils.check_software_installed():
-        sys.exit("Some required software are not installed. Exit program.")
+    # Check if required software is installed (skip that if -qc-only is true)
+    if not args.qc_only:
+        if not sg.utils.check_software_installed():
+            sys.exit("Some required software are not installed. Exit program.")
 
     # check if input yml file exists
     if os.path.isfile(args.config):
@@ -189,28 +191,47 @@ def main():
     # check that output folder exists and has write permission
     path_out_deriv = sg.utils.check_output_folder(args.path_out, FOLDER_DERIVATIVES)
 
-    # Get name of expert rater
-    name_rater = input("Enter your name (Firstname Lastname). It will be used to generate a json sidecar with each "
-                       "corrected file: ")
+    # Get name of expert rater (skip if -qc-only is true)
+    if not args.qc_only:
+        name_rater = input("Enter your name (Firstname Lastname). It will be used to generate a json sidecar with each "
+                           "corrected file: ")
 
     # Build QC report folder name
     fname_qc = 'qc_corr_' + time.strftime('%Y%m%d%H%M%S')
 
-    # Perform manual corrections
-    for task, files in dict_yml.items():
-        for file in files:
-            if task == 'FILES_SEG':
-                correct_segmentation(file, args.path_in, path_out_deriv, name_rater=name_rater, fname_qc=fname_qc)
-            elif task == 'FILES_GMSEG':
-                correct_segmentation(file, args.path_in, path_out_deriv, type_seg='graymatter', name_rater=name_rater,
-                                     fname_qc=fname_qc)
-            elif task == 'FILES_LABEL':
-                correct_vertebral_labeling(file, args.path_in, path_out_deriv, name_rater=name_rater, fname_qc=fname_qc)
-            else:
-                sys.exit('Task not recognized from yml file: {}'.format(task))
+    if not args.qc_only:
+        # TODO: address "none" issue if no file present under a key
+        # Perform manual corrections
+        for task, files in dict_yml.items():
+            for file in files:
+                # build file names
+                subject = sg.bids.get_subject(file)
+                contrast = sg.bids.get_contrast(file)
+                fname = os.path.join(args.path_in, subject, contrast, file)
+                fname_label = os.path.join(
+                    path_out_deriv, subject, contrast, sg.utils.add_suffix(file, get_suffix(task)))
+                os.makedirs(os.path.join(path_out_deriv, subject, contrast), exist_ok=True)
+
+                if not args.qc_only:
+                    if task in ['FILES_SEG', 'FILES_GMSEG']:
+                        fname_seg = sg.utils.add_suffix(fname, get_suffix(task))
+                        shutil.copy(fname_seg, fname_label)
+                        correct_segmentation(fname, fname_label, name_rater=name_rater)
+                    elif task == 'FILES_LABEL':
+                        correct_vertebral_labeling(fname, fname_label, name_rater=name_rater)
+                    else:
+                        sys.exit('Task not recognized from yml file: {}'.format(task))
+                # create json sidecar with the name of the expert rater
+                create_json(fname_label, name_rater)
+                # generate QC report
+                os.system('sct_qc -i {} -s {} -p {} -qc {} -qc-subject {}'.format(
+                    fname, fname_label, get_function(task), fname_qc, subject))
+
+    # Archive QC folder
     shutil.copy(fname_yml, fname_qc)
     shutil.make_archive(fname_qc, 'zip', fname_qc)
     print("Archive created:\n--> {}".format(fname_qc+'.zip'))
+
 
 if __name__ == '__main__':
     main()
