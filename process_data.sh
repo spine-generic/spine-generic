@@ -18,7 +18,7 @@
 # PATH_QC="~/qc"
 
 # Uncomment for full verbose
-# set -x
+set -x
 
 # Immediately exit if error
 set -e -o pipefail
@@ -281,7 +281,7 @@ file_dwi_mean=${file_dwi}_dwi_mean
 segment_if_does_not_exist ${file_dwi_mean} "dwi"
 file_dwi_seg=$FILESEG
 # Register template->dwi (using template-T1w as initial transformation)
-sct_register_multimodal -i $SCT_DIR/data/PAM50/template/PAM50_t1.nii.gz -iseg $SCT_DIR/data/PAM50/template/PAM50_cord.nii.gz -d ${file_dwi_mean}.nii.gz -dseg ${file_dwi_seg}.nii.gz -param step=1,type=seg,algo=slicereg,metric=MeanSquares,smooth=2:step=2,type=im,algo=syn,metric=CC,iter=5,gradStep=0.5 -initwarp ../anat/warp_template2T1w.nii.gz -initwarpinv ../anat/warp_T1w2template.nii.gz
+sct_register_multimodal -i $SCT_DIR/data/PAM50/template/PAM50_t1.nii.gz -iseg $SCT_DIR/data/PAM50/template/PAM50_cord.nii.gz -d ${file_dwi_mean}.nii.gz -dseg ${file_dwi_seg}.nii.gz -param step=1,type=seg,algo=centermass:step=2,type=im,algo=syn,metric=CC,iter=5,gradStep=0.5 -initwarp ../anat/warp_template2T1w.nii.gz -initwarpinv ../anat/warp_T1w2template.nii.gz
 # Rename warping field for clarity
 mv warp_PAM50_t12${file_dwi_mean}.nii.gz warp_template2dwi.nii.gz
 mv warp_${file_dwi_mean}2PAM50_t1.nii.gz warp_dwi2template.nii.gz
