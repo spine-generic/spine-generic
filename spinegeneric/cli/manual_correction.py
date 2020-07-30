@@ -208,7 +208,7 @@ def main():
                 correct_vertebral_labeling(file, args.path_in, path_out_deriv, name_rater=name_rater, fname_qc=fname_qc)
             else:
                 sys.exit('Task not recognized from yml file: {}'.format(task))
-    shutil.copy(fname_yml,fname_qc)
+    shutil.copy(fname_yml, fname_qc)
     shutil.make_archive(fname_qc, 'zip', fname_qc)
     print("Archive created:\n--> {}".format(fname_qc+'.zip'))
 
