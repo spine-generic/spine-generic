@@ -193,33 +193,33 @@ def main():
     # Build QC report folder name
     fname_qc = 'qc_corr_' + time.strftime('%Y%m%d%H%M%S')
 
-    if not args.qc_only:
-        # TODO: address "none" issue if no file present under a key
-        # Perform manual corrections
-        for task, files in dict_yml.items():
-            for file in files:
-                # build file names
-                subject = sg.bids.get_subject(file)
-                contrast = sg.bids.get_contrast(file)
-                fname = os.path.join(args.path_in, subject, contrast, file)
-                fname_label = os.path.join(
-                    path_out_deriv, subject, contrast, sg.utils.add_suffix(file, get_suffix(task, '-manual')))
-                os.makedirs(os.path.join(path_out_deriv, subject, contrast), exist_ok=True)
+    # TODO: address "none" issue if no file present under a key
+    # Perform manual corrections
+    for task, files in dict_yml.items():
+        for file in files:
+            # build file names
+            subject = sg.bids.get_subject(file)
+            contrast = sg.bids.get_contrast(file)
+            fname = os.path.join(args.path_in, subject, contrast, file)
+            fname_label = os.path.join(
+                path_out_deriv, subject, contrast, sg.utils.add_suffix(file, get_suffix(task, '-manual')))
+            os.makedirs(os.path.join(path_out_deriv, subject, contrast), exist_ok=True)
 
-                if not args.qc_only:
-                    if task in ['FILES_SEG', 'FILES_GMSEG']:
-                        fname_seg = sg.utils.add_suffix(fname, get_suffix(task))
-                        shutil.copy(fname_seg, fname_label)
-                        correct_segmentation(fname, fname_label)
-                    elif task == 'FILES_LABEL':
-                        correct_vertebral_labeling(fname, fname_label)
-                    else:
-                        sys.exit('Task not recognized from yml file: {}'.format(task))
+            if not args.qc_only:
+                if task in ['FILES_SEG', 'FILES_GMSEG']:
+                    fname_seg = sg.utils.add_suffix(fname, get_suffix(task))
+                    shutil.copy(fname_seg, fname_label)
+                    correct_segmentation(fname, fname_label)
+                elif task == 'FILES_LABEL':
+                    correct_vertebral_labeling(fname, fname_label)
+                else:
+                    sys.exit('Task not recognized from yml file: {}'.format(task))
                 # create json sidecar with the name of the expert rater
                 create_json(fname_label, name_rater)
-                # generate QC report
-                os.system('sct_qc -i {} -s {} -p {} -qc {} -qc-subject {}'.format(
-                    fname, fname_label, get_function(task), fname_qc, subject))
+
+            # generate QC report
+            os.system('sct_qc -i {} -s {} -p {} -qc {} -qc-subject {}'.format(
+                fname, fname_label, get_function(task), fname_qc, subject))
 
     # Archive QC folder
     shutil.copy(fname_yml, fname_qc)
