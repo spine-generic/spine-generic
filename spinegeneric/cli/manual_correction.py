@@ -99,18 +99,18 @@ def get_function(task):
         raise ValueError("This task is not recognized: {}".format(task))
 
 
-def get_suffix(task):
+def get_suffix(task, suffix=''):
     if task == 'FILES_SEG':
-        return '_seg-manual'
+        return '_seg'+suffix
     elif task == 'FILES_GMSEG':
-        return '_gmseg-manual'
+        return '_gmseg'+suffix
     elif task == 'FILES_LABEL':
-        return '_labels-manual'
+        return '_labels'+suffix
     else:
         raise ValueError("This task is not recognized: {}".format(task))
 
 
-def correct_segmentation(fname, fname_seg, fname_seg_out, name_rater='Anonymous'):
+def correct_segmentation(fname, fname_seg_out):
     """
     Copy fname_seg in fname_seg_out, then open fsleyes with fname and fname_seg_out.
     :param fname:
@@ -119,16 +119,12 @@ def correct_segmentation(fname, fname_seg, fname_seg_out, name_rater='Anonymous'
     :param name_rater:
     :return:
     """
-    # copy to output path
-    shutil.copy(fname_seg, fname_seg_out)
     # launch FSLeyes
     print("In FSLeyes, click on 'Edit mode', correct the segmentation, then save it with the same name (overwrite).")
     os.system('fsleyes -yh ' + fname + ' ' + fname_seg_out + ' -cm red')
-    # create json sidecar with the name of the expert rater
-    create_json(fname_seg_out, name_rater)
 
 
-def correct_vertebral_labeling(fname, fname_label, name_rater='Anonymous'):
+def correct_vertebral_labeling(fname, fname_label):
     """
     Open sct_label_utils to manually label vertebral levels.
     :param fname:
@@ -138,8 +134,6 @@ def correct_vertebral_labeling(fname, fname_label, name_rater='Anonymous'):
     """
     message = "Click inside the spinal cord, at C3 and C5 mid-vertebral levels, then click 'Save and Quit'."
     os.system('sct_label_utils -i {} -create-viewer 3,5 -o {} -msg {}'.format(fname, fname_label, message))
-    # create json sidecar with the name of the expert rater
-    create_json(fname_label, name_rater)
 
 
 def create_json(fname_nifti, name_rater):
@@ -209,16 +203,16 @@ def main():
                 contrast = sg.bids.get_contrast(file)
                 fname = os.path.join(args.path_in, subject, contrast, file)
                 fname_label = os.path.join(
-                    path_out_deriv, subject, contrast, sg.utils.add_suffix(file, get_suffix(task)))
+                    path_out_deriv, subject, contrast, sg.utils.add_suffix(file, get_suffix(task, '-manual')))
                 os.makedirs(os.path.join(path_out_deriv, subject, contrast), exist_ok=True)
 
                 if not args.qc_only:
                     if task in ['FILES_SEG', 'FILES_GMSEG']:
                         fname_seg = sg.utils.add_suffix(fname, get_suffix(task))
                         shutil.copy(fname_seg, fname_label)
-                        correct_segmentation(fname, fname_label, name_rater=name_rater)
+                        correct_segmentation(fname, fname_label)
                     elif task == 'FILES_LABEL':
-                        correct_vertebral_labeling(fname, fname_label, name_rater=name_rater)
+                        correct_vertebral_labeling(fname, fname_label)
                     else:
                         sys.exit('Task not recognized from yml file: {}'.format(task))
                 # create json sidecar with the name of the expert rater
