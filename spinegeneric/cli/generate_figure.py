@@ -44,7 +44,7 @@ SUBJECTS_TO_REMOVE = [
     {'subject': 'sub-mountSinai03', 'metric': 'csa_t2'},  # T2w was re-acquired (subject repositioning)
     # DTI
     {'subject': 'sub-beijingPrisma03', 'metric': 'dti_fa'},  # wrong FOV placement
-    {'subject': 'sub-sub-mountSinai03', 'metric': 'dti_fa'},  # T2w was re-acquired (hence wrong T2w -> DWI registration)
+    {'subject': 'sub-mountSinai03', 'metric': 'dti_fa'},  # T2w was re-acquired (hence wrong T2w -> DWI registration)
     {'subject': 'sub-oxfordFmrib04', 'metric': 'dti_fa'},  # T1w scan is not aligned with other contrasts (subject repositioning)
     {'subject': 'sub-oxfordFmrib01', 'metric': 'dti_fa'},  # registration issue (segmentation OK)
     # MTR
