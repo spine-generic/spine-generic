@@ -131,10 +131,11 @@ def check_files_exist(dict_files, path_data):
     """
     missing_files = []
     for task, files in dict_files.items():
-        for file in files:
-            fname = os.path.join(path_data, sg.bids.get_subject(file), sg.bids.get_contrast(file), file)
-            if not os.path.exists(fname):
-                missing_files.append(fname)
+        if files is not None:
+            for file in files:
+                fname = os.path.join(path_data, sg.bids.get_subject(file), sg.bids.get_contrast(file), file)
+                if not os.path.exists(fname):
+                    missing_files.append(fname)
     if missing_files:
         logging.error("The following files are missing: \n{}. \nPlease check that the files listed "
                       "in the yaml file and the input path are correct.".format(missing_files))
