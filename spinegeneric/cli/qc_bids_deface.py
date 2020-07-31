@@ -8,10 +8,8 @@ import numpy as np
 from pathlib import Path
 
 home = str(Path.home())
-# path_data = input ('Please specify the path for the defaced dataset: \n')
-# path_data = '/Users/alfoi/code/data_fork_multi_subject'
+path_data = input ('Please specify the path for the defaced dataset: \n')
 output_path = input ('Please specify the path for the qc report output folder: \n')
-# output_path = '/Users/alfoi/Desktop/qc_dataset'
 
 for dirName, subdirList, fileList in os.walk(path_data):
     for file in fileList:
