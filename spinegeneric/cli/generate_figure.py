@@ -41,6 +41,7 @@ SUBJECTS_TO_REMOVE = [
     # CSA
     {'subject': 'sub-oxfordFmrib04', 'metric': 'csa_t1'},  # T1w scan is not aligned with other contrasts (subject repositioning)
     {'subject': 'sub-oxfordFmrib04', 'metric': 'csa_t2'},  # T1w scan is not aligned with other contrasts (subject repositioning)
+    {'subject': 'sub-mountSinai03', 'metric': 'csa_t1'},  # T2w was re-acquired (subject repositioning)
     {'subject': 'sub-mountSinai03', 'metric': 'csa_t2'},  # T2w was re-acquired (subject repositioning)
     # DTI
     {'subject': 'sub-beijingPrisma03', 'metric': 'dti_fa'},  # wrong FOV placement
@@ -592,9 +593,9 @@ def main():
 
         # Get T1w and T2w CSA from pandas df structure
         if metric == "csa_t1":
-            CSA_t1 = df.sort_values('vendor').values
+            CSA_t1 = df.sort_values('site').values
         elif metric == "csa_t2":
-            CSA_t2 = df.sort_values('vendor').values
+            CSA_t2 = df.sort_values('site').values
 
     # Create dictionary with CSA for T1w and T2w
     CSA_dict = defaultdict(list)
