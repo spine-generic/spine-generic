@@ -597,11 +597,11 @@ def main():
         elif metric == "csa_t2":
             CSA_t2 = df.sort_values('site').values
 
-    # Create dictionary with CSA for T1w and T2w
+    # Create dictionary with CSA for T1w and T2w per vendors
     CSA_dict = defaultdict(list)
-    for index, vendor in enumerate(df.sort_values('vendor')['vendor']):  # loop through individual vendors
-        CSA_dict[vendor + '_t1'].append(np.asarray(CSA_t1[index, 3]))
-        CSA_dict[vendor + '_t2'].append(np.asarray(CSA_t2[index, 3]))
+    for index, line in enumerate(CSA_t1):       # loop through individual sites
+        CSA_dict[line[1] + '_t1'].append(np.asarray(CSA_t1[index, 3]))      # line[1] denotes vendor
+        CSA_dict[line[1] + '_t2'].append(np.asarray(CSA_t2[index, 3]))      # line[1] denotes vendor
 
     # Generate figure for T1w and T2w agreement for all vendors together
     fig, ax = plt.subplots(figsize=(7, 7))
