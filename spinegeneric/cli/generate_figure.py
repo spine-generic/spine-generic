@@ -170,10 +170,10 @@ metric_to_label = {
     'csa_t2': 'Cord CSA from T2w [$mm^2$]',
     'csa_gm': 'Gray Matter CSA [$mm^2$]',
     'dti_fa': 'Fractional anisotropy',
-    'dti_md': 'Mean diffusivity [$mm^2.s^-1$]',
-    'dti_rd': 'Radial diffusivity [$mm^2.s^-1$]',
+    'dti_md': 'Mean diffusivity [$mm^2.s^{-1}$]',
+    'dti_rd': 'Radial diffusivity [$mm^2.s^{-1}$]',
     'mtr': 'Magnetization transfer ratio [%]',
-    'mtsat': 'Magnetization transfer saturation [a.u.]',
+    'mtsat': 'Magnetization transfer saturation',
     't1': 'T1 [ms]',
     }
 
