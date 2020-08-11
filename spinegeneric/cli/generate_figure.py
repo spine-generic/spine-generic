@@ -112,6 +112,7 @@ flags = {
     'poly': 'canada',
     'queensland': 'australia',
     'fslAchieva': 'italy',
+    'fslPrisma': 'italy',
     'sherbrooke': 'canada',
     'stanford': 'us',
     'strasbourg': 'france',
