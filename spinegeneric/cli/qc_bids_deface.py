@@ -16,6 +16,11 @@ for dirName, subdirList, fileList in os.walk(path_data):
         if file.endswith('T1w.nii.gz') or file.endswith('T2w.nii.gz'):
             originalFilePath = os.path.join(dirName,file)
             img = nib.load(originalFilePath)
+            #Check and fix image orientation
+            orientation = nib.aff2axcodes(img.affine)
+            ideal_orientation = ('R', 'A', 'S')
+            if ( orientation != ideal_orientation):
+                img=nib.as_closest_canonical(img)
             img_np = img.get_data()
             x = np.rot90(img_np[int(img_np.shape[0]/2),:,:])
             # Adjust pixel intesity between 0 and 4095 for plotting
@@ -24,6 +29,9 @@ for dirName, subdirList, fileList in os.walk(path_data):
             alpha = 0.1
             beta = 0
             x = cv2.convertScaleAbs(x, alpha=alpha, beta=beta)
+            #Fix image size
+            dim = (260, 320)
+            x = cv2.resize(x,dim,interpolation = cv2.INTER_AREA)
             file.split('.')[0]
             cv2.imwrite(output_path + '/'+file.split('.')[0]+ '.png',x)
 
