@@ -58,10 +58,10 @@ SUBJECTS_TO_REMOVE = [
     {'subject': 'sub-tehranS04', 'metric': 'mtsat'},  # TODO: check what's going on with this scan
     # T1 map
     {'subject': 'sub-oxfordFmrib04', 'metric': 't1'},  # T1w scan is not aligned with other contrasts (subject repositioning)
-    {'subject': 'sub-sapienza03', 'metric': 't1'},  # TODO: check what's going on with this scan
-    {'subject': 'sub-sapienza04', 'metric': 't1'},  # TODO: check what's going on with this scan
-    {'subject': 'sub-sapienza05', 'metric': 't1'},  # TODO: check what's going on with this scan
-    {'subject': 'sub-sapienza06', 'metric': 't1'},  # TODO: check what's going on with this scan
+    {'subject': 'sub-fslAchieva03', 'metric': 't1'},  # TODO: check what's going on with this scan
+    {'subject': 'sub-fslAchieva04', 'metric': 't1'},  # TODO: check what's going on with this scan
+    {'subject': 'sub-fslAchieva05', 'metric': 't1'},  # TODO: check what's going on with this scan
+    {'subject': 'sub-fslAchieva06', 'metric': 't1'},  # TODO: check what's going on with this scan
     ]
 
 # List of sites to exclude based on the metric
@@ -112,7 +112,8 @@ flags = {
     'perform': 'canada',
     'poly': 'canada',
     'queensland': 'australia',
-    'sapienza': 'italy',
+    'fslAchieva': 'italy',
+    'fslPrisma': 'italy',
     'sherbrooke': 'canada',
     'stanford': 'us',
     'strasbourg': 'france',
