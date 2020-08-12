@@ -37,34 +37,6 @@ logger.setLevel(logging.INFO)  # default: logging.DEBUG, logging.INFO
 hdlr = logging.StreamHandler(sys.stdout)
 logging.root.addHandler(hdlr)
 
-# List subject to remove, associated with contrast
-SUBJECTS_TO_REMOVE = [
-    # CSA
-    {'subject': 'sub-oxfordFmrib04', 'metric': 'csa_t1'},  # T1w scan is not aligned with other contrasts (subject repositioning)
-    {'subject': 'sub-oxfordFmrib04', 'metric': 'csa_t2'},  # T1w scan is not aligned with other contrasts (subject repositioning)
-    {'subject': 'sub-mountSinai03', 'metric': 'csa_t1'},  # T2w was re-acquired (subject repositioning)
-    {'subject': 'sub-mountSinai03', 'metric': 'csa_t2'},  # T2w was re-acquired (subject repositioning)
-    # DTI
-    {'subject': 'sub-beijingPrisma03', 'metric': 'dti_fa'},  # wrong FOV placement
-    {'subject': 'sub-mountSinai03', 'metric': 'dti_fa'},  # T2w was re-acquired (hence wrong T2w -> DWI registration)
-    {'subject': 'sub-oxfordFmrib04', 'metric': 'dti_fa'},  # T1w scan is not aligned with other contrasts (subject repositioning)
-    {'subject': 'sub-oxfordFmrib01', 'metric': 'dti_fa'},  # registration issue (segmentation OK)
-    # MTR
-    {'subject': 'sub-beijingPrisma04', 'metric': 'mtr'},  # different coil, shim value and FOV placement between MTon and MToff
-    {'subject': 'sub-geneva02', 'metric': 'mtr'},  # FOV positioning changed between MTon and MToff
-    {'subject': 'sub-oxfordFmrib04', 'metric': 'mtr'},  # T1w scan is not aligned with other contrasts (subject repositioning)
-    # MTsat
-    {'subject': 'sub-geneva02', 'metric': 'mtsat'},  # TODO: check what's going on with this scan
-    {'subject': 'sub-oxfordFmrib04', 'metric': 'mtsat'},  # T1w scan is not aligned with other contrasts (subject repositioning)
-    {'subject': 'sub-tehranS04', 'metric': 'mtsat'},  # TODO: check what's going on with this scan
-    # T1 map
-    {'subject': 'sub-oxfordFmrib04', 'metric': 't1'},  # T1w scan is not aligned with other contrasts (subject repositioning)
-    {'subject': 'sub-fslAchieva03', 'metric': 't1'},  # TODO: check what's going on with this scan
-    {'subject': 'sub-fslAchieva04', 'metric': 't1'},  # TODO: check what's going on with this scan
-    {'subject': 'sub-fslAchieva05', 'metric': 't1'},  # TODO: check what's going on with this scan
-    {'subject': 'sub-fslAchieva06', 'metric': 't1'},  # TODO: check what's going on with this scan
-    ]
-
 # List of sites to exclude based on the metric
 SITES_TO_EXCLUDE = {
     'mtr': ['stanford',  # Used different TR.
