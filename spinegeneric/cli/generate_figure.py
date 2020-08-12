@@ -37,13 +37,6 @@ logger.setLevel(logging.INFO)  # default: logging.DEBUG, logging.INFO
 hdlr = logging.StreamHandler(sys.stdout)
 logging.root.addHandler(hdlr)
 
-# List of sites to exclude based on the metric
-SITES_TO_EXCLUDE = {
-    'mtr': ['stanford',  # Used different TR.
-    ]
-    #         'sapienza']  # TODO: check what's going on with this site
-    }
-
 # country dictionary: key: site, value: country name
 # Flags are downloaded from: https://emojipedia.org/
 flags = {
@@ -208,6 +201,7 @@ def get_parameters():
                 - sub-beijingPrisma04
                 - sub-geneva02
                 - sub-oxfordFmrib04
+                - stanford
             mtsat:
                 - sub-geneva02
                 - sub-oxfordFmrib04
@@ -526,10 +520,13 @@ def main():
         df = pd.DataFrame.from_dict(results_dict, orient='index')
 
         # Compute statistics
-        if metric not in SITES_TO_EXCLUDE.keys():
+        if metric not in dict_exclude_subj.keys():
             sites_to_exclude = []
         else:
-            sites_to_exclude = SITES_TO_EXCLUDE[metric]
+            for subject in dict_exclude_subj[metric]:
+                if not subject.startswith('sub-'):
+                    sites_to_exclude.append(subject)
+        
         df, stats = compute_statistics(df, sites_to_exclude)
 
         # sites = list(results_agg.keys())
