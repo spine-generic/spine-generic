@@ -187,9 +187,10 @@ Generate figures
 ----------------
 
 Generate figures based on the output csv files using ``sg_generate_figures.py`` script. Run this script in ``/results``
-folder (folder containing csv files) or specify this folder using ``-path-results`` flag. Figures will be created in the
-folder `results/`:
+folder (folder containing csv files) or specify this folder using ``-path-results`` flag. The flag ``-config`` is
+mandatory and an yml file containing the subjects/sites that want to be excluded have to be provided. Figures will 
+be created in the folder `results/`:
 
 .. code-block:: bash
 
-  sg_generate_figures -path-results ~/spineGeneric_results/results
+  sg_generate_figures -config PATH_TO_EXCLUDE.yml -path-results -path-results ~/spineGeneric_results/results
