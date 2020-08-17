@@ -46,7 +46,8 @@ setup(
             'sg_package_for_correction = spinegeneric.cli.package_for_correction:main',
             'sg_populate_derivatives = spinegeneric.cli.populate_derivatives:main',
             'sg_qc_bids_deface = spinegeneric.cli.qc_bids_deface:main',
-            'sg_params_checker = spinegeneric.cli.params_checker:main'
+            'sg_params_checker = spinegeneric.cli.params_checker:main',
+            'sg_check_data_consistency = spinegeneric.cli.check_data_consistency:main'
         ],
     },
 )
