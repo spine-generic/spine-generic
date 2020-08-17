@@ -7,6 +7,7 @@
 # Authors: Alexandru Foias, Julien Cohen-Adad
 
 import spinegeneric as sg
+import spinegeneric.cli
 import spinegeneric.utils
 
 from bids import BIDSLayout
@@ -15,7 +16,7 @@ import os
 import json
 import logging
 import argparse
-from pkg_resources import resource_filename
+import importlib.resources
 
 def get_parser():
     parser = argparse.ArgumentParser(
@@ -47,10 +48,9 @@ def main():
     Contrast_list = ['T1w','T2w','T2star']
     query = layout.get(suffix=Contrast_list,extension='nii.gz')
 
-    path_specs = resource_filename('spinegeneric', 'cli/specs.json')
-
-    with open(path_specs) as json_file:
-        data = json.load(json_file)
+    with importlib.resources.path(spinegeneric.cli, 'specs.json') as path_specs:
+        with open(path_specs) as json_file:
+            data = json.load(json_file)
 
     #Loop across the contrast images to check parameters
     for item in query:
