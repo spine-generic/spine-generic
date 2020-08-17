@@ -14,8 +14,8 @@ for the "spine generic protocol" project.
    :caption: Table of contents
    :maxdepth: 2
 
-   data_acquisition.rst
-   analysis_pipeline.rst
+   data-acquisition.rst
+   analysis-pipeline.rst
 
 
 Contributors

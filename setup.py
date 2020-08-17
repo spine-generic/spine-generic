@@ -18,7 +18,7 @@ with open(req_path, "r") as f:
 setup(
     name='spinegeneric',
     version=spinegeneric.__version__,
-    python_requires='>=3.5',
+    python_requires='>=3.7',
     description='Collection of cli to process data for the Spine Generic project.',
     url='https://spine-generic.rtfd.io',
     author='NeuroPoly Lab, Polytechnique Montreal',
@@ -31,6 +31,11 @@ setup(
     ],
     keywords='',
     install_requires=install_reqs,
+    packages=find_packages(exclude=['.git', '.github', '.docs']),
+    include_package_data=True,
+    package_data={
+        '': ['*.png', '*.json', '*.r'],
+    },
     entry_points={
         'console_scripts': [
             'sg_copy_to_derivatives = spinegeneric.cli.copy_to_derivatives:main',
@@ -41,7 +46,8 @@ setup(
             'sg_package_for_correction = spinegeneric.cli.package_for_correction:main',
             'sg_populate_derivatives = spinegeneric.cli.populate_derivatives:main',
             'sg_qc_bids_deface = spinegeneric.cli.qc_bids_deface:main',
-            'sg_params_checker = spinegeneric.cli.params_checker:main'
+            'sg_params_checker = spinegeneric.cli.params_checker:main',
+            'sg_check_data_consistency = spinegeneric.cli.check_data_consistency:main'
         ],
     },
 )
