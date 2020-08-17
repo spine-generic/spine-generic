@@ -6,6 +6,9 @@
 ## License MIT
 
 import argparse,os, shutil
+import subprocess
+
+import spinegeneric.cli
 
 import spinegeneric.cli
 
@@ -52,8 +55,8 @@ def main():
                         print ('Currently processing: ' + pathContrast )
                         try:
                             with importlib.resources.path(spinegeneric.cli, 'regular_deface.r') as script:
-                                command = 'Rscript '+ script + ' -i '+pathContrast+ ' -o '+pathContrastDefaced
-                                os.system(command)
+                                command = ['Rscript', script, '-i', pathContrast, '-o', pathContrastDefaced]
+                                subprocess.run(command, check=True)
                                 pathContrastJson = (pathContrast.split('.')[0]+'.json')
                                 pathContrastDefacedJson =  (pathContrastDefaced.split('.')[0]+'.json')
                                 shutil.copy (pathContrastJson,pathContrastDefacedJson)
@@ -61,8 +64,8 @@ def main():
                             try:
                                 print ('Trying with special script... ')
                                 with importlib.resources.path(spinegeneric.cli, 'special_deface.r') as script:
-                                    command = 'Rscript '+ script + ' -i '+pathContrast+ ' -o '+pathContrastDefaced
-                                    os.system(command)
+                                    command = ['Rscript', script, '-i', pathContrast, '-o', pathContrastDefaced]
+                                    subprocess.run(command, check=True)
                             except:
                                 print ('Both scripts failed!!!')
                                 pass
