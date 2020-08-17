@@ -1,5 +1,5 @@
-## v2.2.1 (2020-08-17)
-[View detailed changelog](https://github.com/spine-generic/spine-generic/compare/v2.2...v2.2.1)
+## v2.3 (2020-08-17)
+[View detailed changelog](https://github.com/spine-generic/spine-generic/compare/v2.2...v2.3)
 
 **ENHANCEMENT**
 
