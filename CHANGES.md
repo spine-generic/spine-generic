@@ -1,3 +1,12 @@
+## v2.2.1 (2020-08-17)
+[View detailed changelog](https://github.com/spine-generic/spine-generic/compare/v2.2...v2.2.1)
+
+**ENHANCEMENT**
+
+ - Delete publish.yml.  [View pull request](https://github.com/spine-generic/spine-generic/pull/175)
+
+
+
 ## v2.2 (2020-08-17)
 [View detailed changelog](https://github.com/spine-generic/spine-generic/compare/v2.1.1...v2.2)
 
