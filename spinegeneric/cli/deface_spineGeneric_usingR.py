@@ -10,6 +10,8 @@ import subprocess
 
 import spinegeneric.cli
 
+import spinegeneric.cli
+
 def get_parameters():
     parser = argparse.ArgumentParser(description=
     "This script is used to deface T1w and T2w data from a BIDS dataset. This "
