@@ -31,6 +31,11 @@ setup(
     ],
     keywords='',
     install_requires=install_reqs,
+    packages=find_packages(exclude=['.git', '.github', '.docs']),
+    include_package_data=True,
+    package_data={
+        '': ['*.png', '*.json', '*.r'],
+    },
     entry_points={
         'console_scripts': [
             'sg_copy_to_derivatives = spinegeneric.cli.copy_to_derivatives:main',
