@@ -282,8 +282,8 @@ def add_flag(coord, name, ax):
         Get the flag of a country from the folder flags.
         :param name Name of the country
         """
-        with importlib.resources.path(spinegeneric.flags, f'{name}.png') as path_flags:
-            return plt.imread(path_flags)
+        with importlib.resources.path(spinegeneric.flags, f'{name}.png') as path_flag:
+            return plt.imread(path_flag.__str__())
 
     img = _get_flag(name)
     img_rot = ndimage.rotate(img, 45)
