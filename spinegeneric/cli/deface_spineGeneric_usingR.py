@@ -6,6 +6,11 @@
 ## License MIT
 
 import argparse,os, shutil
+import subprocess
+
+import spinegeneric.cli
+
+import spinegeneric.cli
 
 def get_parameters():
     parser = argparse.ArgumentParser(description=
@@ -36,8 +41,6 @@ def main():
     folder_copy = args.folder_copy
 
     exclude_list = []
-    currentwd = os.getcwd()
-    currentwd = os.path.dirname(os.path.realpath(__file__))
     contrastList = ('T1w', 'T2w')
     if folder_copy:
         shutil.copytree(input_path, output_path)
@@ -51,16 +54,18 @@ def main():
                     if not os.path.isfile(pathContrastDefaced) and ((subject+'_'+contrast+ '_defaced.nii.gz') not in exclude_list):
                         print ('Currently processing: ' + pathContrast )
                         try:
-                            command = 'Rscript '+ currentwd + '/regular_deface.r -i '+pathContrast+ ' -o '+pathContrastDefaced
-                            os.system(command)
-                            pathContrastJson = (pathContrast.split('.')[0]+'.json')
-                            pathContrastDefacedJson =  (pathContrastDefaced.split('.')[0]+'.json')
-                            shutil.copy (pathContrastJson,pathContrastDefacedJson)
+                            with importlib.resources.path(spinegeneric.cli, 'regular_deface.r') as script:
+                                command = ['Rscript', script, '-i', pathContrast, '-o', pathContrastDefaced]
+                                subprocess.run(command, check=True)
+                                pathContrastJson = (pathContrast.split('.')[0]+'.json')
+                                pathContrastDefacedJson =  (pathContrastDefaced.split('.')[0]+'.json')
+                                shutil.copy (pathContrastJson,pathContrastDefacedJson)
                         except:
                             try:
                                 print ('Trying with special script... ')
-                                command = 'Rscript '+ currentwd + '/special_deface.r -i '+pathContrast+ ' -o '+pathContrastDefaced
-                                os.system(command)
+                                with importlib.resources.path(spinegeneric.cli, 'special_deface.r') as script:
+                                    command = ['Rscript', script, '-i', pathContrast, '-o', pathContrastDefaced]
+                                    subprocess.run(command, check=True)
                             except:
                                 print ('Both scripts failed!!!')
                                 pass
