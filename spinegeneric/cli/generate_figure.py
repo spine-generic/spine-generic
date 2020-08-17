@@ -10,6 +10,7 @@
 
 import os
 import argparse
+import importlib.resources
 import tqdm
 import sys
 import glob
