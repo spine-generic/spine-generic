@@ -472,18 +472,23 @@ def main():
     args = get_parameters()
     display_individual_subjects = args.indiv_subj
 
-    # check if input yml file exists
-    if os.path.isfile(args.config):
-        fname_yml = args.config
-    else:
-        sys.exit("ERROR: Input yml file {} does not exist or path is wrong.".format(args.config))
+    # create dict with subjects to exclude if input yml config file is passed
+    if args.config is not None:
+        # check if input yml file exists
+        if os.path.isfile(args.config):
+            fname_yml = args.config
+        else:
+            sys.exit("ERROR: Input yml file {} does not exist or path is wrong.".format(args.config))
 
-    # fetch input yml file as dict
-    with open(fname_yml, 'r') as stream:
-        try:
-            dict_exclude_subj = yaml.safe_load(stream)
-        except yaml.YAMLError as exc:
-            print(exc)
+        # fetch input yml file as dict
+        with open(fname_yml, 'r') as stream:
+            try:
+                dict_exclude_subj = yaml.safe_load(stream)
+            except yaml.YAMLError as exc:
+                print(exc)
+    else:
+        # initialize empty dict if no config yml file is passed
+        dict_exclude_subj = dict()
 
     if args.path_results is not None:
         if os.path.isdir(args.path_results):
