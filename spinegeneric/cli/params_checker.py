@@ -6,17 +6,18 @@
 #
 # Authors: Alexandru Foias, Julien Cohen-Adad
 
-import spinegeneric as sg
-import spinegeneric.cli
-import spinegeneric.utils
-
-from bids import BIDSLayout
-from bids.tests import get_test_data_path
 import os
 import json
 import logging
 import argparse
 import importlib.resources
+
+from bids import BIDSLayout
+
+import spinegeneric as sg
+import spinegeneric.cli
+import spinegeneric.utils
+
 
 def get_parser():
     parser = argparse.ArgumentParser(
@@ -30,6 +31,7 @@ def get_parser():
                         help="Path to input BIDS dataset, which contains all the 'sub-' folders.")
     return parser
 
+
 def main():
 
     # Parse input arguments
@@ -38,14 +40,15 @@ def main():
     
     data_path = args.path_in
 
-    path_warning_log = os.path.join(data_path,'WARNING.log')
-    if os.path.isfile(path_warning_log):os.remove (path_warning_log)
+    path_warning_log = os.path.join(data_path, 'WARNING.log')
+    if os.path.isfile(path_warning_log):
+        os.remove(path_warning_log)
     logging.basicConfig(filename=path_warning_log, format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
     # Initialize the layout
     layout = BIDSLayout(data_path)
 
-    Contrast_list = ['T1w','T2w','T2star']
+    Contrast_list = ['T1w', 'T2w', 'T2star']
     query = layout.get(suffix=Contrast_list,extension='nii.gz')
 
     with importlib.resources.path(spinegeneric.cli, 'specs.json') as path_specs:
@@ -81,12 +84,13 @@ def main():
             logging.warning(item.filename + ' Missing Manufacturer in json sidecar; Cannot check parameters.')
 
     #Print WARNING log
-    if path_warning_log :
+    if path_warning_log:
         file = open(path_warning_log, 'r')
         lines = file.read().splitlines()
         file.close()
         for line in lines:
             print(line)
+
 
 if __name__ == '__main__':
     main()

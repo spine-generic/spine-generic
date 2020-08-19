@@ -5,12 +5,14 @@
 ## Author: Alexandru Foias
 ## License MIT
 
-import argparse,os, shutil
+import argparse
+import importlib.resources
+import os
+import shutil
 import subprocess
 
 import spinegeneric.cli
 
-import spinegeneric.cli
 
 def get_parameters():
     parser = argparse.ArgumentParser(description=
@@ -30,6 +32,7 @@ def get_parameters():
                         required=False)
     args = parser.parse_args()
     return args
+
 
 def main():
     """
@@ -52,7 +55,7 @@ def main():
                     pathContrastDefaced = os.path.join(pathSubject,'anat',subject+'_'+contrast+ '_defaced.nii.gz')
                     pathContrast = os.path.join(pathSubject,'anat',subject+'_'+contrast+ '.nii.gz')
                     if not os.path.isfile(pathContrastDefaced) and ((subject+'_'+contrast+ '_defaced.nii.gz') not in exclude_list):
-                        print ('Currently processing: ' + pathContrast )
+                        print('Currently processing: ' + pathContrast )
                         try:
                             with importlib.resources.path(spinegeneric.cli, 'regular_deface.r') as script:
                                 command = ['Rscript', script, '-i', pathContrast, '-o', pathContrastDefaced]
@@ -62,14 +65,15 @@ def main():
                                 shutil.copy (pathContrastJson,pathContrastDefacedJson)
                         except:
                             try:
-                                print ('Trying with special script... ')
+                                print('Trying with special script... ')
                                 with importlib.resources.path(spinegeneric.cli, 'special_deface.r') as script:
                                     command = ['Rscript', script, '-i', pathContrast, '-o', pathContrastDefaced]
                                     subprocess.run(command, check=True)
                             except:
-                                print ('Both scripts failed!!!')
+                                print('Both scripts failed!!!')
                                 pass
-                    print ('\n')
+                    print('\n')
+
 
 if __name__ == "__main__":
     main()
