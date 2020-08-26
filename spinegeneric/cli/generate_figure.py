@@ -183,11 +183,11 @@ def get_parser():
         action='store_true',
         help="Display the value of each individual subject as a red dot.")
     parser.add_argument(
-        '-config',
+        '-exclude',
         required=False,
         help=
         "R|Config yaml file listing images that you want to remove from processing."
-        "You can validate your yaml file at this website: http://www.yamllint.com/. Below is an example yaml file:\n"
+        "Yaml file can be validated at this website: http://www.yamllint.com/. Below is an example yaml file:\n"
         + dedent(
             """
             csa_t1:
@@ -231,7 +231,7 @@ def aggregate_per_site(dict_results, metric, dict_exclude_subj):
         # cluster values per site
         subject = fetch_subject(filename)
         # check if subject needs to be discarded
-        if not remove_subject(subject, metric,dict_exclude_subj):
+        if not remove_subject(subject, metric, dict_exclude_subj):
             # Fetch index of row corresponding to subject
             rowIndex = participants[participants['participant_id'] == subject].index
             # Add column "val" with metric value
@@ -458,12 +458,12 @@ def main():
     display_individual_subjects = args.indiv_subj
 
     # create dict with subjects to exclude if input yml config file is passed
-    if args.config is not None:
+    if args.exclude is not None:
         # check if input yml file exists
-        if os.path.isfile(args.config):
-            fname_yml = args.config
+        if os.path.isfile(args.exclude):
+            fname_yml = args.exclude
         else:
-            sys.exit("ERROR: Input yml file {} does not exist or path is wrong.".format(args.config))
+            sys.exit("ERROR: Input yml file {} does not exist or path is wrong.".format(args.exclude))
 
         # fetch input yml file as dict
         with open(fname_yml, 'r') as stream:
