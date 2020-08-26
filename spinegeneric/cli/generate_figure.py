@@ -17,6 +17,7 @@ import glob
 import csv
 import pandas as pd
 import subprocess
+from textwrap import dedent
 import yaml
 
 import numpy as np
@@ -30,6 +31,7 @@ import matplotlib.patches as patches
 from sklearn.linear_model import LinearRegression
 
 import spinegeneric as sg
+import spinegeneric.utils
 import spinegeneric.flags
 
 
@@ -165,9 +167,11 @@ TICKSIZE = 10
 LABELSIZE = 15
 
 
-def get_parameters():
+def get_parser():
     parser = argparse.ArgumentParser(
-        description="Generate figures for the spine-generic project.")
+        description="Generate figures for the spine-generic project.",
+        formatter_class=sg.utils.SmartFormatter,
+    )
     parser.add_argument(
         '-indiv-subj',
         type=int,
@@ -187,7 +191,7 @@ def get_parameters():
         help=
         "R|Config yaml file listing images that you want to remove from processing."
         "You can validate your yaml file at this website: http://www.yamllint.com/. Below is an example yaml file:\n"
-
+        + dedent(
             """
             csa_t1:
                 - sub-oxfordFmrib04
@@ -215,10 +219,9 @@ def get_parameters():
                 - sub-fslAchieva04
                 - sub-fslAchieva05
                 - sub-fslAchieva06\n
-            """
+            """)
     )
-    args = parser.parse_args()
-    return args
+    return parser
 
 
 def aggregate_per_site(dict_results, metric, dict_exclude_subj):
@@ -469,7 +472,9 @@ def compute_regression(CSA_dict, vendor):
 
 def main():
 
-    args = get_parameters()
+    parser = get_parser()
+    args = parser.parse_args()
+
     display_individual_subjects = args.indiv_subj
 
     # create dict with subjects to exclude if input yml config file is passed
