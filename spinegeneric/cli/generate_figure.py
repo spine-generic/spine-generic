@@ -198,27 +198,10 @@ def get_parser():
                 - sub-mountSinai03
             csa_t2:
                 - sub-oxfordFmrib04
-                - sub-mountSinai03
             dti_fa:
                 - sub-beijingPrisma03
-                - sub-mountSinai03
-                - sub-oxfordFmrib04
-                - sub-oxfordFmrib01
-            mtr:
-                - sub-beijingPrisma04
-                - sub-geneva02
-                - sub-oxfordFmrib04
-                - stanford
             mtsat:
-                - sub-geneva02
-                - sub-oxfordFmrib04
-                - sub-tehranS04
-            t1:
-                - sub-oxfordFmrib04
-                - sub-fslAchieva03
-                - sub-fslAchieva04
-                - sub-fslAchieva05
-                - sub-fslAchieva06\n
+                - sub-geneva02\n
             """)
     )
     return parser
