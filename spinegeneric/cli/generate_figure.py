@@ -169,7 +169,8 @@ LABELSIZE = 15
 
 def get_parser():
     parser = argparse.ArgumentParser(
-        description="Generate figures for the spine-generic project.",
+        description="Generate figures for the spine-generic project. "
+                    "The following metrics will be computed:\n {}".format(list(metric_to_field.keys())),
         formatter_class=sg.utils.SmartFormatter,
     )
     parser.add_argument(
@@ -186,7 +187,8 @@ def get_parser():
         '-exclude',
         required=False,
         help=
-        "R|Config yaml file listing images that you want to remove from processing."
+        "R|Config yaml file listing subjects (starting with 'sub') or sites to remove from the statistics."
+        "See the list of computed metrics in the description above for the accepted keys." 
         "Yaml file can be validated at this website: http://www.yamllint.com/. Below is an example yaml file:\n"
         + dedent(
             """
@@ -194,7 +196,7 @@ def get_parser():
                 - sub-oxfordFmrib04
                 - sub-mountSinai03
             csa_t2:
-                - sub-oxfordFmrib04
+                - oxfordFmrib  # Here, removing site entirely
             dti_fa:
                 - sub-beijingPrisma03
             mtsat:
@@ -521,10 +523,6 @@ def main():
                     sites_to_exclude.append(subject)
         
         df, stats = compute_statistics(df, sites_to_exclude)
-
-        # sites = list(results_agg.keys())
-        # val_mean = [np.mean(values_per_site) for values_per_site in list(results_agg.values())]
-        # val_std = [np.std(values_per_site) for values_per_site in list(results_agg.values())]
 
         if logger.level == 10:
             import matplotlib
