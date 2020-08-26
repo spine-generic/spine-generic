@@ -174,11 +174,8 @@ def get_parser():
     )
     parser.add_argument(
         '-indiv-subj',
-        type=int,
-        choices=(0, 1),
-        required=False,
-        help="Display the value of each individual subject as a red dot.",
-        default=1)
+        action='store_true',
+        help="Display the value of each individual subject as a red dot.")
     parser.add_argument(
         '-path-results',
         required=False,
