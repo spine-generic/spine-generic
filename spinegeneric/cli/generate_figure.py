@@ -224,8 +224,7 @@ def aggregate_per_site(dict_results, metric, dict_exclude_subj):
     # Loop across lines and fill dict of aggregated results
     subjects_removed = []
     for i in tqdm.tqdm(range(len(dict_results)), unit='iter', unit_scale=False, desc="Loop across subjects",
-                       ascii=False,
-                       ncols=80):
+                       ascii=True, ncols=80):
         filename = dict_results[i]['Filename']
         logger.debug('Filename: ' + filename)
         # Fetch metadata for the site
@@ -343,16 +342,16 @@ def compute_statistics(df, sites_to_exclude=[]):
             stats['std'] = {}
         # fetch within-site mean values for a specific vendor
         val_per_vendor = df['mean'][(df['vendor'] == vendor) & (~df['site'].isin(sites_to_exclude))]
-        # compute mean across vendors (of the mean within site)
+        # compute mean within vendor (mean of the within-site means)
         stats['mean'][vendor] = np.mean(val_per_vendor)
-        # compute the std across vendors (of the mean within site)
+        # compute std within vendor (std of the within-site means)
         stats['std'][vendor] = np.std(val_per_vendor)
-        # compute inter-site COV, within vendor (based on the mean within site)
+        # compute within-vendor inter-site COV (based on the within-site means)
         stats['cov_inter'][vendor] = np.std(val_per_vendor) / np.mean(val_per_vendor)
         # compute intra-site COV, and average it across all the sites within the same vendor
-        # TODO: exclude sites to exclude
         stats['cov_intra'][vendor] = \
-            np.mean(df['std'][df['vendor'] == vendor].values / df['mean'][df['vendor'] == vendor].values)
+            np.mean(df['std'][(df['vendor'] == vendor) & (~df['site'].isin(sites_to_exclude))].values /
+                    df['mean'][(df['vendor'] == vendor) & (~df['site'].isin(sites_to_exclude))].values)
     return df, stats
 
 
@@ -521,7 +520,7 @@ def main():
             for subject in dict_exclude_subj[metric]:
                 if not subject.startswith('sub-'):
                     sites_to_exclude.append(subject)
-        
+
         df, stats = compute_statistics(df, sites_to_exclude)
 
         if logger.level == 10:
