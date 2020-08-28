@@ -203,6 +203,10 @@ def get_parser():
                 - sub-geneva02\n
             """)
     )
+    parser.add_argument(
+        '-v',
+        action='store_true',
+        help="Increase verbosity; interactive figure.")
     return parser
 
 
@@ -372,7 +376,7 @@ def fetch_subject(filename):
 
 
 def generate_figure_metric(df, metric, stats, display_individual_subjects):
-    if logger.level == 10:
+    if logger.level == logging._nameToLevel['DEBUG']:
         import matplotlib
         matplotlib.use('TkAgg')
         plt.ion()
@@ -645,6 +649,8 @@ def main():
 
     parser = get_parser()
     args = parser.parse_args()
+    if args.v:
+        logger.setLevel(logging.DEBUG)
 
     display_individual_subjects = args.indiv_subj
 
