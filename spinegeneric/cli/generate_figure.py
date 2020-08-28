@@ -299,10 +299,10 @@ def add_stats_per_vendor(ax, x_i, x_j, y_max, mean, std, cov_intra, cov_inter, f
     """
     # add stats as strings
     if cov_intra == 0:
-        txt = "{0:.2f} $\pm$ {1:.2f}\nCOV inter:{2:.2f}%". \
+        txt = "{0:.2f} $\pm$ {1:.2f}\nCOV inter:{2:.2f}%".\
             format(mean * f, std * f, cov_inter * 100.)
     else:
-        txt = "{0:.2f} $\pm$ {1:.2f}\nCOV intra:{2:.2f}%, inter:{3:.2f}%". \
+        txt = "{0:.2f} $\pm$ {1:.2f}\nCOV intra:{2:.2f}%, inter:{3:.2f}%".\
             format(mean * f, std * f, cov_intra * 100., cov_inter * 100.)
 
     ax.annotate(txt, xy=(np.mean([x_i, x_j]), y_max), va='center', ha='center',
@@ -369,6 +369,191 @@ def fetch_subject(filename):
     path, file = os.path.split(filename)
     subject = path.split(os.sep)[-2]
     return subject
+
+
+def generate_figure_metric(df, metric, stats, display_individual_subjects):
+    if logger.level == 10:
+        import matplotlib
+        matplotlib.use('TkAgg')
+        plt.ion()
+
+    # Sort values per vendor
+    # TODO: sort per model
+    site_sorted = df.sort_values(by=['vendor', 'model', 'site']).index.values
+    vendor_sorted = df['vendor'][site_sorted].values
+    mean_sorted = df['mean'][site_sorted].values
+    std_sorted = df['std'][site_sorted].values
+    model_sorted = df['model'][site_sorted].values
+
+    # Scale values (for display)
+    mean_sorted = mean_sorted * scaling_factor[metric]
+    std_sorted = std_sorted * scaling_factor[metric]
+
+    # Get color based on vendor
+    list_colors = [vendor_to_color[i] for i in vendor_sorted]
+
+    # Create figure and plot bar graph
+    fig, ax = plt.subplots(figsize=(15, 8))
+    plt.grid(axis='y')
+    ax.set_axisbelow(True)
+    bar_plot = plt.bar(range(len(site_sorted)), height=mean_sorted, width=0.5,
+                       tick_label=site_sorted, yerr=[[0 for v in std_sorted], std_sorted], color=list_colors)
+
+    # Display individual subjects
+    if display_individual_subjects:
+        for site in site_sorted:
+            index = list(site_sorted).index(site)
+            val = df['val'][site]
+            # Set scaling
+            val = [value * scaling_factor.get(metric) for value in val]
+            plt.plot([index] * len(val), val, 'r.')
+
+    # Add ManufacturersModelName embedded in each bar
+    ax = label_bar_model(ax, bar_plot, model_sorted)
+
+    # Deal with xticklabels
+    # Rotate xticklabels at 45deg, align at end
+    plt.setp(ax.xaxis.get_majorticklabels(), rotation=45, ha="right")
+    plt.xlim([-1, len(site_sorted)])
+    # Add space after the site name to allow space for flag
+    ax.set_xticklabels([s for s in site_sorted])
+    ax.tick_params(labelsize=15)
+    # Add country flag of each site
+    for i, c in enumerate(site_sorted):
+        try:
+            ax = add_flag(i, flags[c], ax)
+        except KeyError:
+            logger.error('ERROR: Flag {} is not defined in dict flags'.format(c))
+            sys.exit(1)
+
+    # plt.ylim(ylim[contrast])
+    # plt.yticks(np.arange(ylim[contrast][0], ylim[contrast][1], step=ystep[contrast]))
+    plt.ylabel(metric_to_label[metric], fontsize=15)
+
+    # Add stats per vendor
+    x_init_vendor = 0
+    # height_bar = [rect.get_height() for idx,rect in enumerate(bar_plot)]
+    # y_max = height_bar[i_max]+std_sorted[i_max]  # used to display stats
+    y_max = ax.get_ylim()[1] * 95 / 100  # stat will be located at the top 95% of the graph
+    for vendor in list(OrderedDict.fromkeys(vendor_sorted)):
+        n_site = list(vendor_sorted).count(vendor)
+        ax = add_stats_per_vendor(ax=ax,
+                                  x_i=x_init_vendor - 0.5,
+                                  x_j=x_init_vendor + n_site - 1 + 0.5,
+                                  y_max=y_max,
+                                  mean=stats['mean'][vendor],
+                                  std=stats['std'][vendor],
+                                  cov_intra=stats['cov_intra'][vendor],
+                                  cov_inter=stats['cov_inter'][vendor],
+                                  f=scaling_factor[metric],
+                                  color=list_colors[x_init_vendor])
+        x_init_vendor += n_site
+
+    # Save figure
+    plt.tight_layout()
+    fname_fig = os.path.join('fig_' + metric + '.png')
+    plt.savefig(fname_fig)
+    logger.info('Created: ' + fname_fig)
+
+
+def generate_figure_t1_t2(df, csa_t1, csa_t2):
+
+    # Sort values per vendor
+    site_sorted = df.sort_values(by=['vendor', 'model', 'site']).index.values
+    vendor_sorted = df['vendor'][site_sorted].values
+
+    # Create dictionary with CSA for T1w and T2w per vendors
+    CSA_dict = defaultdict(list)
+    for index, line in enumerate(csa_t1):       # loop through individual sites
+        CSA_dict[line[1] + '_t1'].append(np.asarray(csa_t1[index, 3]))      # line[1] denotes vendor
+        CSA_dict[line[1] + '_t2'].append(np.asarray(csa_t2[index, 3]))      # line[1] denotes vendor
+
+    # Generate figure for T1w and T2w agreement for all vendors together
+    fig, ax = plt.subplots(figsize=(7, 7))
+    # Loop across vendors
+    for vendor in list(OrderedDict.fromkeys(vendor_sorted)):
+        plt.scatter(np.concatenate(CSA_dict[vendor + '_t2'], axis=0),
+                    np.concatenate(CSA_dict[vendor + '_t1'], axis=0),
+                    s=50,
+                    linewidths=2,
+                    facecolors='none',
+                    edgecolors=vendor_to_color[vendor],
+                    label=vendor)
+    ax.tick_params(labelsize=LABELSIZE)
+    plt.plot([50, 100], [50, 100], ls="--", c=".3")  # add diagonal line
+    plt.title("CSA agreement between T1w and T2w data")
+    plt.xlim(50, 100)
+    plt.ylim(50, 100)
+    plt.gca().set_aspect('equal', adjustable='box')
+    plt.xlabel("T2w CSA", fontsize=FONTSIZE)
+    plt.ylabel("T1w CSA", fontsize=FONTSIZE)
+    plt.grid(True)
+    plt.legend(fontsize=FONTSIZE)
+    plt.tight_layout()
+    fname_fig = 'fig_t1_t2_agreement.png'
+    plt.savefig(fname_fig, dpi=200)
+    logger.info('Created: ' + fname_fig)
+
+    # Generate figure for T1w and T2w agreement per vendor
+    plt.subplots(figsize=(15, 5))
+    # Loop across vendors (create subplot for each vendor)
+    for index, vendor in enumerate(list(OrderedDict.fromkeys(vendor_sorted))):
+        ax = plt.subplot(1, 3, index + 1)
+        x = np.concatenate(CSA_dict[vendor + '_t2'], axis=0)
+        y = np.concatenate(CSA_dict[vendor + '_t1'], axis=0)
+        plt.scatter(x,
+                    y,
+                    s=50,
+                    linewidths=2,
+                    facecolors='none',
+                    edgecolors=vendor_to_color[vendor],
+                    label=vendor)
+        ax.tick_params(labelsize=TICKSIZE)
+        # Define vendor name position
+        legend = ax.legend(loc='lower right', handletextpad=0, fontsize=FONTSIZE)
+        # Change box's frame color to black (to be same as box around linear fit equation)
+        frame = legend.get_frame()
+        frame.set_edgecolor('black')
+        ax.add_artist(legend)
+        # Dynamic scaling of individual subplots based on data
+        offset = 2
+        lim_min = min(min(x), min(y))
+        lim_max = max(max(x), max(y))
+        plt.xlim(lim_min - offset, lim_max + offset)
+        plt.ylim(lim_min - offset, lim_max + offset)
+        # Add bisection (diagonal) line
+        plt.plot([lim_min - offset , lim_max + offset],
+                 [lim_min - offset, lim_max + offset],
+                 ls="--", c=".3")
+        plt.xlabel("T2w CSA", fontsize=FONTSIZE)
+        plt.ylabel("T1w CSA", fontsize=FONTSIZE)
+        # Move grid to background (i.e. behind other elements)
+        ax.set_axisbelow(True)
+        plt.grid(True)
+        # Enforce square grid
+        plt.gca().set_aspect('equal', adjustable='box')
+        # Compute linear fit
+        intercept, slope, reg_predictor, r2_sc = compute_regression(CSA_dict, vendor)
+        # Place regression equation to upper-left corner
+        plt.text(0.1, 0.9,
+                 "y = {0:.4}x + {1:.4}\nR\u00b2 = {2:.4}".format(float(slope), float(intercept), float(r2_sc)),
+                 ha='left', va='center', transform = ax.transAxes, fontsize=TICKSIZE, color='red',
+                 bbox=dict(boxstyle='round', facecolor='white', alpha=1))   # box around equation
+        # Plot linear fit
+        axes = plt.gca()
+        x_vals = np.array(axes.get_xlim())
+        y_vals = intercept + slope * x_vals
+        y_vals = np.squeeze(y_vals)     # change shape from (1,N) to (N,)
+        plt.plot(x_vals, y_vals, color='red')
+        # Add title above middle subplot
+        if index == 1:
+            plt.title("CSA agreement between T1w and T2w data per vendors", fontsize=FONTSIZE, pad=20)
+    # Move subplots closer to each other
+    plt.subplots_adjust(wspace=-0.5)
+    plt.tight_layout()
+    fname_fig = 'fig_t1_t2_agreement_per_vendor.png'
+    plt.savefig(fname_fig, dpi=200)
+    logger.info('Created: ' + fname_fig)
 
 
 def get_env(file_param):
@@ -525,185 +710,19 @@ def main():
             for subject in dict_exclude_subj[metric]:
                 if not subject.startswith('sub-'):
                     sites_to_exclude.append(subject)
-
         df, stats = compute_statistics(df, sites_to_exclude)
 
-        if logger.level == 10:
-            import matplotlib
-            matplotlib.use('TkAgg')
-            plt.ion()
+        # Generate figure
+        generate_figure_metric(df, metric, stats, display_individual_subjects)
 
-        # Sort values per vendor
-        # TODO: sort per model
-        site_sorted = df.sort_values(by=['vendor', 'model', 'site']).index.values
-        vendor_sorted = df['vendor'][site_sorted].values
-        mean_sorted = df['mean'][site_sorted].values
-        std_sorted = df['std'][site_sorted].values
-        model_sorted = df['model'][site_sorted].values
-
-        # Scale values (for display)
-        mean_sorted = mean_sorted * scaling_factor[metric]
-        std_sorted = std_sorted * scaling_factor[metric]
-
-        # Get color based on vendor
-        list_colors = [vendor_to_color[i] for i in vendor_sorted]
-
-        # Create figure and plot bar graph
-        fig, ax = plt.subplots(figsize=(15, 8))
-        # TODO: show only superior part of STD
-        plt.grid(axis='y')
-        ax.set_axisbelow(True)
-        bar_plot = plt.bar(range(len(site_sorted)), height=mean_sorted, width=0.5,
-                           tick_label=site_sorted, yerr=[[0 for v in std_sorted], std_sorted], color=list_colors)
-
-        # Display individual subjects
-        if display_individual_subjects:
-            for site in site_sorted:
-                index = list(site_sorted).index(site)
-                val = df['val'][site]
-                # Set scaling
-                val = [value * scaling_factor.get(metric) for value in val]
-                plt.plot([index] * len(val), val, 'r.')
-        ax = label_bar_model(ax, bar_plot, model_sorted)  # add ManufacturersModelName embedded in each bar
-        plt.setp(ax.xaxis.get_majorticklabels(), rotation=45, ha="right")  # rotate xticklabels at 45deg, align at end
-        plt.xlim([-1, len(site_sorted)])
-        ax.set_xticklabels([s for s in site_sorted])  # add space after the site name to allow space for flag
-        # ax.get_xaxis().set_visible(True)
-        ax.tick_params(labelsize=15)
-        # plt.ylim(ylim[contrast])
-        # plt.yticks(np.arange(ylim[contrast][0], ylim[contrast][1], step=ystep[contrast]))
-        plt.ylabel(metric_to_label[metric], fontsize=15)
-
-        # add country flag of each site
-        for i, c in enumerate(site_sorted):
-            try:
-                ax = add_flag(i, flags[c], ax)
-            except KeyError:
-                logger.error('ERROR: Flag {} is not defined in dict flags'.format(c))
-                sys.exit(1)
-
-        # add stats per vendor
-        x_init_vendor = 0
-        # height_bar = [rect.get_height() for idx,rect in enumerate(bar_plot)]
-        # y_max = height_bar[i_max]+std_sorted[i_max]  # used to display stats
-        y_max = ax.get_ylim()[1] * 95 / 100  # stat will be located at the top 95% of the graph
-        for vendor in list(OrderedDict.fromkeys(vendor_sorted)):
-            n_site = list(vendor_sorted).count(vendor)
-            ax = add_stats_per_vendor(ax=ax,
-                                      x_i=x_init_vendor - 0.5,
-                                      x_j=x_init_vendor + n_site - 1 + 0.5,
-                                      y_max=y_max,
-                                      mean=stats['mean'][vendor],
-                                      std=stats['std'][vendor],
-                                      cov_intra=stats['cov_intra'][vendor],
-                                      cov_inter=stats['cov_inter'][vendor],
-                                      f=scaling_factor[metric],
-                                      color=list_colors[x_init_vendor])
-            x_init_vendor += n_site
-
-        plt.tight_layout()  # make sure everything fits
-        fname_fig = os.path.join('fig_' + metric + '.png')
-        plt.savefig(fname_fig)
-        logger.info('Created: ' + fname_fig)
-
-        # Get T1w and T2w CSA from pandas df structure
+        # Get T1w and T2w CSA (will be used later for another figure)
         if metric == "csa_t1":
-            CSA_t1 = df.sort_values('site').values
+            csa_t1 = df.sort_values('site').values
         elif metric == "csa_t2":
-            CSA_t2 = df.sort_values('site').values
+            csa_t2 = df.sort_values('site').values
 
-    # Create dictionary with CSA for T1w and T2w per vendors
-    CSA_dict = defaultdict(list)
-    for index, line in enumerate(CSA_t1):       # loop through individual sites
-        CSA_dict[line[1] + '_t1'].append(np.asarray(CSA_t1[index, 3]))      # line[1] denotes vendor
-        CSA_dict[line[1] + '_t2'].append(np.asarray(CSA_t2[index, 3]))      # line[1] denotes vendor
-
-    # Generate figure for T1w and T2w agreement for all vendors together
-    fig, ax = plt.subplots(figsize=(7, 7))
-    # Loop across vendors
-    for vendor in list(OrderedDict.fromkeys(vendor_sorted)):
-        plt.scatter(np.concatenate(CSA_dict[vendor + '_t2'], axis=0),
-                    np.concatenate(CSA_dict[vendor + '_t1'], axis=0),
-                    s=50,
-                    linewidths=2,
-                    facecolors='none',
-                    edgecolors=vendor_to_color[vendor],
-                    label=vendor)
-    ax.tick_params(labelsize=LABELSIZE)
-    plt.plot([50, 100], [50, 100], ls="--", c=".3")  # add diagonal line
-    plt.title("CSA agreement between T1w and T2w data")
-    plt.xlim(50, 100)
-    plt.ylim(50, 100)
-    plt.gca().set_aspect('equal', adjustable='box')
-    plt.xlabel("T2w CSA", fontsize=FONTSIZE)
-    plt.ylabel("T1w CSA", fontsize=FONTSIZE)
-    plt.grid(True)
-    plt.legend(fontsize=FONTSIZE)
-    plt.tight_layout()
-    fname_fig = 'fig_t1_t2_agreement.png'
-    plt.savefig(fname_fig, dpi=200)
-    logger.info('Created: ' + fname_fig)
-
-    # Generate figure for T1w and T2w agreement per vendor
-    plt.subplots(figsize=(15, 5))
-    # Loop across vendors (create subplot for each vendor)
-    for index, vendor in enumerate(list(OrderedDict.fromkeys(vendor_sorted))):
-        ax = plt.subplot(1, 3, index + 1)
-        x = np.concatenate(CSA_dict[vendor + '_t2'], axis=0)
-        y = np.concatenate(CSA_dict[vendor + '_t1'], axis=0)
-        plt.scatter(x,
-                    y,
-                    s=50,
-                    linewidths=2,
-                    facecolors='none',
-                    edgecolors=vendor_to_color[vendor],
-                    label=vendor)
-        ax.tick_params(labelsize=TICKSIZE)
-        # Define vendor name position
-        legend = ax.legend(loc='lower right', handletextpad=0, fontsize=FONTSIZE)
-        # Change box's frame color to black (to be same as box around linear fit equation)
-        frame = legend.get_frame()
-        frame.set_edgecolor('black')
-        ax.add_artist(legend)
-        # Dynamic scaling of individual subplots based on data
-        offset = 2
-        lim_min = min(min(x), min(y))
-        lim_max = max(max(x), max(y))
-        plt.xlim(lim_min - offset, lim_max + offset)
-        plt.ylim(lim_min - offset, lim_max + offset)
-        # Add bisection (diagonal) line
-        plt.plot([lim_min - offset , lim_max + offset],
-                 [lim_min - offset, lim_max + offset],
-                 ls="--", c=".3")
-        plt.xlabel("T2w CSA", fontsize=FONTSIZE)
-        plt.ylabel("T1w CSA", fontsize=FONTSIZE)
-        # Move grid to background (i.e. behind other elements)
-        ax.set_axisbelow(True)
-        plt.grid(True)
-        # Enforce square grid
-        plt.gca().set_aspect('equal', adjustable='box')
-        # Compute linear fit
-        intercept, slope, reg_predictor, r2_sc = compute_regression(CSA_dict, vendor)
-        # Place regression equation to upper-left corner
-        plt.text(0.1, 0.9,
-                 "y = {0:.4}x + {1:.4}\nR\u00b2 = {2:.4}".format(float(slope), float(intercept), float(r2_sc)),
-                 ha='left', va='center', transform = ax.transAxes, fontsize=TICKSIZE, color='red',
-                 bbox=dict(boxstyle='round', facecolor='white', alpha=1))   # box around equation
-        # Plot linear fit
-        axes = plt.gca()
-        x_vals = np.array(axes.get_xlim())
-        y_vals = intercept + slope * x_vals
-        y_vals = np.squeeze(y_vals)     # change shape from (1,N) to (N,)
-        plt.plot(x_vals, y_vals, color='red')
-        # Add title above middle subplot
-        if index == 1:
-            plt.title("CSA agreement between T1w and T2w data per vendors", fontsize=FONTSIZE, pad=20)
-    # Move subplots closer to each other
-    plt.subplots_adjust(wspace=-0.5)
-    plt.tight_layout()
-    fname_fig = 'fig_t1_t2_agreement_per_vendor.png'
-    plt.savefig(fname_fig, dpi=200)
-    logger.info('Created: ' + fname_fig)
+    # Generate T1w vs. T2w figure
+    generate_figure_t1_t2(df, csa_t1, csa_t2)
 
 
 if __name__ == "__main__":
