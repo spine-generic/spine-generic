@@ -412,9 +412,6 @@ def generate_figure_metric(df, metric, stats, display_individual_subjects):
             val = [value * scaling_factor.get(metric) for value in val]
             plt.plot([index] * len(val), val, 'r.')
 
-    # Add ManufacturersModelName embedded in each bar
-    ax = label_bar_model(ax, bar_plot, model_sorted)
-
     # Deal with xticklabels
     # Rotate xticklabels at 45deg, align at end
     plt.setp(ax.xaxis.get_majorticklabels(), rotation=45, ha="right")
@@ -433,6 +430,10 @@ def generate_figure_metric(df, metric, stats, display_individual_subjects):
     # plt.ylim(ylim[contrast])
     # plt.yticks(np.arange(ylim[contrast][0], ylim[contrast][1], step=ystep[contrast]))
     plt.ylabel(metric_to_label[metric], fontsize=15)
+    ax.set_ylim(0.3 * mean_sorted.max(), 1.1 * mean_sorted.max())
+
+    # Add ManufacturersModelName embedded in each bar
+    ax = label_bar_model(ax, bar_plot, model_sorted)
 
     # Add stats per vendor
     x_init_vendor = 0
@@ -596,9 +597,8 @@ def label_bar_model(ax, bar_plot, model_lst):
     :param bar_plot Matplotlib object
     :param model_lst sorted list of model names
     """
-    height = bar_plot[0].get_height()  # in order to align all the labels along y-axis
     for idx, rect in enumerate(bar_plot):
-        ax.text(rect.get_x() + rect.get_width() / 2., 0.1 * height,
+        ax.text(rect.get_x() + rect.get_width() / 2., ax.get_ylim()[0] * 1.1,
                 model_lst[idx], color='white', weight='bold',
                 ha='center', va='bottom', rotation=90)
     return ax
