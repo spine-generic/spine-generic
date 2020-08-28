@@ -457,6 +457,12 @@ def generate_figure_metric(df, metric, stats, display_individual_subjects):
     # Add ManufacturersModelName embedded in each bar
     ax = label_bar_model(ax, bar_plot, model_sorted)
 
+    # Add a red cross for sites not considered in the statistics
+    for idx, rect in enumerate(bar_plot):
+        if df['exclude'][site_sorted[idx]]:
+            ax.text(rect.get_x() + rect.get_width() / 2., rect._height, 'x', color='red', weight='bold', ha='center',
+                    va='center', size=20)
+
     # Add stats per vendor
     x_init_vendor = 0
     # height_bar = [rect.get_height() for idx,rect in enumerate(bar_plot)]
