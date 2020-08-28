@@ -260,33 +260,6 @@ def aggregate_per_site(dict_results, metric, dict_exclude_subj):
     return results_agg
 
 
-def add_flag(coord, name, ax):
-    """
-    Add flag images to the plot.
-    :param coord Coordinate of the xtick
-    :param name Name of the country
-    :param ax Matplotlib ax
-    """
-
-    def _get_flag(name):
-        """
-        Get the flag of a country from the folder flags.
-        :param name Name of the country
-        """
-        with importlib.resources.path(spinegeneric.flags, f'{name}.png') as path_flag:
-            return plt.imread(path_flag.__str__())
-
-    img = _get_flag(name)
-    img_rot = ndimage.rotate(img, 45)
-    im = OffsetImage(img_rot.clip(0, 1), zoom=0.18)
-    im.image.axes = ax
-
-    ab = AnnotationBbox(im, (coord, ax.get_ylim()[0]), frameon=False, pad=0, xycoords='data')
-
-    ax.add_artist(ab)
-    return ax
-
-
 def add_stats_per_vendor(ax, x_i, x_j, y_max, mean, std, cov_intra, cov_inter, f, color):
     """"
     Add stats per vendor to the plot.
@@ -384,6 +357,32 @@ def generate_figure_metric(df, metric, stats, display_individual_subjects):
     :param display_individual_subjects:
     :return:
     """
+
+    def add_flag(coord, name, ax):
+        """
+        Add flag images to the plot.
+        :param coord Coordinate of the xtick
+        :param name Name of the country
+        :param ax Matplotlib ax
+        """
+
+        def _get_flag(name):
+            """
+            Get the flag of a country from the folder flags.
+            :param name Name of the country
+            """
+            with importlib.resources.path(spinegeneric.flags, f'{name}.png') as path_flag:
+                return plt.imread(path_flag.__str__())
+
+        img = _get_flag(name)
+        img_rot = ndimage.rotate(img, 45)
+        im = OffsetImage(img_rot.clip(0, 1), zoom=0.18)
+        im.image.axes = ax
+
+        ab = AnnotationBbox(im, (coord, ax.get_ylim()[0]), frameon=False, pad=0, xycoords='data')
+
+        ax.add_artist(ab)
+        return ax
 
     def label_bar_model(ax, bar_plot, model_lst):
         """
