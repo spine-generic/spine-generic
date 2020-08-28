@@ -376,6 +376,28 @@ def fetch_subject(filename):
 
 
 def generate_figure_metric(df, metric, stats, display_individual_subjects):
+    """
+    Generate bar plot across sites
+    :param df:
+    :param metric:
+    :param stats:
+    :param display_individual_subjects:
+    :return:
+    """
+
+    def label_bar_model(ax, bar_plot, model_lst):
+        """
+        Add ManufacturersModelName embedded in each bar.
+        :param ax Matplotlib axes
+        :param bar_plot Matplotlib object
+        :param model_lst sorted list of model names
+        """
+        for idx, rect in enumerate(bar_plot):
+            ax.text(rect.get_x() + rect.get_width() / 2., ax.get_ylim()[0] * 1.1,
+                    model_lst[idx], color='white', weight='bold',
+                    ha='center', va='bottom', rotation=90)
+        return ax
+
     if logger.level == logging._nameToLevel['DEBUG']:
         import matplotlib
         matplotlib.use('TkAgg')
@@ -462,6 +484,13 @@ def generate_figure_metric(df, metric, stats, display_individual_subjects):
 
 
 def generate_figure_t1_t2(df, csa_t1, csa_t2):
+    """
+    Generate CSA_T1w vs. CSA_T2w
+    :param df:
+    :param csa_t1:
+    :param csa_t2:
+    :return:
+    """
 
     # Sort values per vendor
     site_sorted = df.sort_values(by=['vendor', 'model', 'site']).index.values
@@ -588,20 +617,6 @@ def get_env(file_param):
             # add to dictionary
             env[newStr.split('=')[0]] = newStr.split('=')[1]
     return env
-
-
-def label_bar_model(ax, bar_plot, model_lst):
-    """
-    Add ManufacturersModelName embedded in each bar.
-    :param ax Matplotlib axes
-    :param bar_plot Matplotlib object
-    :param model_lst sorted list of model names
-    """
-    for idx, rect in enumerate(bar_plot):
-        ax.text(rect.get_x() + rect.get_width() / 2., ax.get_ylim()[0] * 1.1,
-                model_lst[idx], color='white', weight='bold',
-                ha='center', va='bottom', rotation=90)
-    return ax
 
 
 def remove_subject(subject, metric, dict_exclude_subj):
