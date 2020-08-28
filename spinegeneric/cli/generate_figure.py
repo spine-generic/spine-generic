@@ -281,7 +281,7 @@ def add_flag(coord, name, ax):
     im = OffsetImage(img_rot.clip(0, 1), zoom=0.18)
     im.image.axes = ax
 
-    ab = AnnotationBbox(im, (coord, 0), frameon=False, pad=0, xycoords='data')
+    ab = AnnotationBbox(im, (coord, ax.get_ylim()[0]), frameon=False, pad=0, xycoords='data')
 
     ax.add_artist(ab)
     return ax
@@ -393,7 +393,8 @@ def generate_figure_metric(df, metric, stats, display_individual_subjects):
         :param model_lst sorted list of model names
         """
         for idx, rect in enumerate(bar_plot):
-            ax.text(rect.get_x() + rect.get_width() / 2., ax.get_ylim()[0] * 1.1,
+            ax.text(rect.get_x() + rect.get_width() / 2.,
+                    ax.get_ylim()[0] * 1.2,
                     model_lst[idx], color='white', weight='bold',
                     ha='center', va='bottom', rotation=90)
         return ax
@@ -441,6 +442,12 @@ def generate_figure_metric(df, metric, stats, display_individual_subjects):
     # Add space after the site name to allow space for flag
     ax.set_xticklabels([s for s in site_sorted])
     ax.tick_params(labelsize=15)
+
+    # plt.ylim(ylim[contrast])
+    # plt.yticks(np.arange(ylim[contrast][0], ylim[contrast][1], step=ystep[contrast]))
+    plt.ylabel(metric_to_label[metric], fontsize=15)
+    ax.set_ylim(0.3 * mean_sorted.max(), 1.1 * mean_sorted.max())
+
     # Add country flag of each site
     for i, c in enumerate(site_sorted):
         try:
@@ -448,11 +455,6 @@ def generate_figure_metric(df, metric, stats, display_individual_subjects):
         except KeyError:
             logger.error('ERROR: Flag {} is not defined in dict flags'.format(c))
             sys.exit(1)
-
-    # plt.ylim(ylim[contrast])
-    # plt.yticks(np.arange(ylim[contrast][0], ylim[contrast][1], step=ystep[contrast]))
-    plt.ylabel(metric_to_label[metric], fontsize=15)
-    ax.set_ylim(0.3 * mean_sorted.max(), 1.1 * mean_sorted.max())
 
     # Add ManufacturersModelName embedded in each bar
     ax = label_bar_model(ax, bar_plot, model_sorted)
