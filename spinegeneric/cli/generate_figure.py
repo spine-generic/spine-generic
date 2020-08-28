@@ -418,7 +418,8 @@ def generate_figure_metric(df, metric, stats, display_individual_subjects):
     list_colors = [vendor_to_color[i] for i in vendor_sorted]
 
     # Create figure and plot bar graph
-    fig, ax = plt.subplots(figsize=(15, 8))
+    # The horizontal size of the figure is proportional to the number of sites
+    fig, ax = plt.subplots(figsize=(len(site_sorted) * 0.4, 8))
     plt.grid(axis='y')
     ax.set_axisbelow(True)
     bar_plot = plt.bar(range(len(site_sorted)), height=mean_sorted, width=0.5,
