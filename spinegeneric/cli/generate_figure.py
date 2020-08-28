@@ -293,11 +293,10 @@ def add_stats_per_vendor(ax, x_i, x_j, y_max, mean, std, cov_intra, cov_inter, f
     return ax
 
 
-def compute_statistics(df, sites_to_exclude=[]):
+def compute_statistics(df):
     """
     Compute statistics such as mean, std, COV, etc.
     :param df Pandas structure
-    :param sites_to_exclude: list: sites to exclude from the statistics
     """
     vendors = ['GE', 'Philips', 'Siemens']
     mean_per_row = []
@@ -323,7 +322,7 @@ def compute_statistics(df, sites_to_exclude=[]):
         if not 'std' in stats.keys():
             stats['std'] = {}
         # fetch within-site mean values for a specific vendor
-        val_per_vendor = df['mean'][(df['vendor'] == vendor) & (~df['site'].isin(sites_to_exclude))]
+        val_per_vendor = df['mean'][(df['vendor'] == vendor) & ~df['exclude']]
         # compute mean within vendor (mean of the within-site means)
         stats['mean'][vendor] = np.mean(val_per_vendor)
         # compute std within vendor (std of the within-site means)
@@ -332,8 +331,8 @@ def compute_statistics(df, sites_to_exclude=[]):
         stats['cov_inter'][vendor] = np.std(val_per_vendor) / np.mean(val_per_vendor)
         # compute intra-site COV, and average it across all the sites within the same vendor
         stats['cov_intra'][vendor] = \
-            np.mean(df['std'][(df['vendor'] == vendor) & (~df['site'].isin(sites_to_exclude))].values /
-                    df['mean'][(df['vendor'] == vendor) & (~df['site'].isin(sites_to_exclude))].values)
+            np.mean(df['std'][(df['vendor'] == vendor) & ~df['exclude']].values /
+                    df['mean'][(df['vendor'] == vendor) & ~df['exclude']].values)
     return df, stats
 
 
@@ -725,14 +724,15 @@ def main():
         # Make it a pandas structure (easier for manipulations)
         df = pd.DataFrame.from_dict(results_dict, orient='index')
 
-        # Compute statistics
-        if metric not in dict_exclude_subj.keys():
-            sites_to_exclude = []
-        else:
+        # Add column to DF with excluded sites
+        df['exclude'] = False
+        if metric in dict_exclude_subj.keys():
             for subject in dict_exclude_subj[metric]:
                 if not subject.startswith('sub-'):
-                    sites_to_exclude.append(subject)
-        df, stats = compute_statistics(df, sites_to_exclude)
+                    df['exclude'][subject] = True
+
+        # Compute statistics
+        df, stats = compute_statistics(df)
 
         # Generate figure
         generate_figure_metric(df, metric, stats, display_individual_subjects)
