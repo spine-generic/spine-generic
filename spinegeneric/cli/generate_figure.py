@@ -203,6 +203,10 @@ def get_parser():
                 - sub-geneva02\n
             """)
     )
+    parser.add_argument(
+        '-v',
+        action='store_true',
+        help="Increase verbosity; interactive figure.")
     return parser
 
 
@@ -224,8 +228,7 @@ def aggregate_per_site(dict_results, metric, dict_exclude_subj):
     # Loop across lines and fill dict of aggregated results
     subjects_removed = []
     for i in tqdm.tqdm(range(len(dict_results)), unit='iter', unit_scale=False, desc="Loop across subjects",
-                       ascii=False,
-                       ncols=80):
+                       ascii=True, ncols=80):
         filename = dict_results[i]['Filename']
         logger.debug('Filename: ' + filename)
         # Fetch metadata for the site
@@ -257,33 +260,6 @@ def aggregate_per_site(dict_results, metric, dict_exclude_subj):
     return results_agg
 
 
-def add_flag(coord, name, ax):
-    """
-    Add flag images to the plot.
-    :param coord Coordinate of the xtick
-    :param name Name of the country
-    :param ax Matplotlib ax
-    """
-
-    def _get_flag(name):
-        """
-        Get the flag of a country from the folder flags.
-        :param name Name of the country
-        """
-        with importlib.resources.path(spinegeneric.flags, f'{name}.png') as path_flag:
-            return plt.imread(path_flag.__str__())
-
-    img = _get_flag(name)
-    img_rot = ndimage.rotate(img, 45)
-    im = OffsetImage(img_rot.clip(0, 1), zoom=0.18)
-    im.image.axes = ax
-
-    ab = AnnotationBbox(im, (coord, 0), frameon=False, pad=0, xycoords='data')
-
-    ax.add_artist(ab)
-    return ax
-
-
 def add_stats_per_vendor(ax, x_i, x_j, y_max, mean, std, cov_intra, cov_inter, f, color):
     """"
     Add stats per vendor to the plot.
@@ -299,8 +275,13 @@ def add_stats_per_vendor(ax, x_i, x_j, y_max, mean, std, cov_intra, cov_inter, f
     :param color
     """
     # add stats as strings
-    txt = "{0:.2f} $\pm$ {1:.2f}\nCOV intra:{2:.2f}%, inter:{3:.2f}%". \
-        format(mean * f, std * f, cov_intra * 100., cov_inter * 100.)
+    if cov_intra == 0:
+        txt = "{0:.2f} $\pm$ {1:.2f}\nCOV inter:{2:.2f}%".\
+            format(mean * f, std * f, cov_inter * 100.)
+    else:
+        txt = "{0:.2f} $\pm$ {1:.2f}\nCOV intra:{2:.2f}%, inter:{3:.2f}%".\
+            format(mean * f, std * f, cov_intra * 100., cov_inter * 100.)
+
     ax.annotate(txt, xy=(np.mean([x_i, x_j]), y_max), va='center', ha='center',
                 bbox=dict(edgecolor='none', fc=color, alpha=0.3))
     # add rectangle for variance
@@ -312,11 +293,10 @@ def add_stats_per_vendor(ax, x_i, x_j, y_max, mean, std, cov_intra, cov_inter, f
     return ax
 
 
-def compute_statistics(df, sites_to_exclude=[]):
+def compute_statistics(df):
     """
     Compute statistics such as mean, std, COV, etc.
     :param df Pandas structure
-    :param sites_to_exclude: list: sites to exclude from the statistics
     """
     vendors = ['GE', 'Philips', 'Siemens']
     mean_per_row = []
@@ -342,17 +322,17 @@ def compute_statistics(df, sites_to_exclude=[]):
         if not 'std' in stats.keys():
             stats['std'] = {}
         # fetch within-site mean values for a specific vendor
-        val_per_vendor = df['mean'][(df['vendor'] == vendor) & (~df['site'].isin(sites_to_exclude))]
-        # compute mean across vendors (of the mean within site)
+        val_per_vendor = df['mean'][(df['vendor'] == vendor) & ~df['exclude']]
+        # compute mean within vendor (mean of the within-site means)
         stats['mean'][vendor] = np.mean(val_per_vendor)
-        # compute the std across vendors (of the mean within site)
+        # compute std within vendor (std of the within-site means)
         stats['std'][vendor] = np.std(val_per_vendor)
-        # compute inter-site COV, within vendor (based on the mean within site)
+        # compute within-vendor inter-site COV (based on the within-site means)
         stats['cov_inter'][vendor] = np.std(val_per_vendor) / np.mean(val_per_vendor)
         # compute intra-site COV, and average it across all the sites within the same vendor
-        # TODO: exclude sites to exclude
         stats['cov_intra'][vendor] = \
-            np.mean(df['std'][df['vendor'] == vendor].values / df['mean'][df['vendor'] == vendor].values)
+            np.mean(df['std'][(df['vendor'] == vendor) & ~df['exclude']].values /
+                    df['mean'][(df['vendor'] == vendor) & ~df['exclude']].values)
     return df, stats
 
 
@@ -367,252 +347,167 @@ def fetch_subject(filename):
     return subject
 
 
-def get_env(file_param):
+def generate_figure_metric(df, metric, stats, display_individual_subjects):
     """
-    Get shell environment variables from a shell script.
-    Source: https://stackoverflow.com/a/19431112
-    :param file_param:
-    :return: env: dictionary of all environment variables declared in the shell script
-    """
-    logger.debug("\nFetch environment variables from file: {}".format(file_param))
-    env = {}
-    p = subprocess.Popen('env', stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-    oldEnv = p.communicate()[0].decode('utf-8')
-    p = subprocess.Popen('source {} ; env'.format(file_param), stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                         shell=True)
-    newEnv = p.communicate()[0].decode('utf-8')
-    for newStr in newEnv.split('\n'):
-        flag = True
-        for oldStr in oldEnv.split('\n'):
-            if newStr == oldStr:
-                # not exported by setenv.sh
-                flag = False
-                break
-        if flag:
-            # exported by setenv.sh
-            logger.debug("  {}".format(newStr))
-            # add to dictionary
-            env[newStr.split('=')[0]] = newStr.split('=')[1]
-    return env
-
-
-def label_bar_model(ax, bar_plot, model_lst):
-    """
-    Add ManufacturersModelName embedded in each bar.
-    :param ax Matplotlib axes
-    :param bar_plot Matplotlib object
-    :param model_lst sorted list of model names
-    """
-    height = bar_plot[0].get_height()  # in order to align all the labels along y-axis
-    for idx, rect in enumerate(bar_plot):
-        ax.text(rect.get_x() + rect.get_width() / 2., 0.1 * height,
-                model_lst[idx], color='white', weight='bold',
-                ha='center', va='bottom', rotation=90)
-    return ax
-
-
-def remove_subject(subject, metric, dict_exclude_subj):
-    """
-    Check if subject should be removed
-    :param subject:
+    Generate bar plot across sites
+    :param df:
     :param metric:
-    :param dict_exclude_subj:
-    :return: Bool
+    :param stats:
+    :param display_individual_subjects:
+    :return:
     """
-    if metric in dict_exclude_subj.keys():
-        if subject in dict_exclude_subj[metric]:
-            return True
-    return False
+
+    def add_flag(coord, name, ax):
+        """
+        Add flag images to the plot.
+        :param coord Coordinate of the xtick
+        :param name Name of the country
+        :param ax Matplotlib ax
+        """
+
+        def _get_flag(name):
+            """
+            Get the flag of a country from the folder flags.
+            :param name Name of the country
+            """
+            with importlib.resources.path(spinegeneric.flags, f'{name}.png') as path_flag:
+                return plt.imread(path_flag.__str__())
+
+        img = _get_flag(name)
+        img_rot = ndimage.rotate(img, 45)
+        im = OffsetImage(img_rot.clip(0, 1), zoom=0.18)
+        im.image.axes = ax
+
+        ab = AnnotationBbox(im, (coord, ax.get_ylim()[0]), frameon=False, pad=0, xycoords='data')
+
+        ax.add_artist(ab)
+        return ax
+
+    def label_bar_model(ax, bar_plot, model_lst):
+        """
+        Add ManufacturersModelName embedded in each bar.
+        :param ax Matplotlib axes
+        :param bar_plot Matplotlib object
+        :param model_lst sorted list of model names
+        """
+        for idx, rect in enumerate(bar_plot):
+            ax.text(rect.get_x() + rect.get_width() / 2.,
+                    ax.get_ylim()[0] * 1.2,
+                    model_lst[idx], color='white', weight='bold',
+                    ha='center', va='bottom', rotation=90)
+        return ax
+
+    if logger.level == logging._nameToLevel['DEBUG']:
+        import matplotlib
+        matplotlib.use('TkAgg')
+        plt.ion()
+
+    # Sort values per vendor
+    # TODO: sort per model
+    site_sorted = df.sort_values(by=['vendor', 'model', 'site']).index.values
+    vendor_sorted = df['vendor'][site_sorted].values
+    mean_sorted = df['mean'][site_sorted].values
+    std_sorted = df['std'][site_sorted].values
+    model_sorted = df['model'][site_sorted].values
+
+    # Scale values (for display)
+    mean_sorted = mean_sorted * scaling_factor[metric]
+    std_sorted = std_sorted * scaling_factor[metric]
+
+    # Get color based on vendor
+    list_colors = [vendor_to_color[i] for i in vendor_sorted]
+
+    # Create figure and plot bar graph
+    # The horizontal size of the figure is proportional to the number of sites
+    fig, ax = plt.subplots(figsize=(len(site_sorted) * 0.4, 8))
+    plt.grid(axis='y')
+    ax.set_axisbelow(True)
+    bar_plot = plt.bar(range(len(site_sorted)), height=mean_sorted, width=0.5,
+                       tick_label=site_sorted, yerr=[[0 for v in std_sorted], std_sorted], color=list_colors)
+
+    # Display individual subjects
+    if display_individual_subjects:
+        for site in site_sorted:
+            index = list(site_sorted).index(site)
+            val = df['val'][site]
+            # Set scaling
+            val = [value * scaling_factor.get(metric) for value in val]
+            plt.plot([index] * len(val), val, 'r.')
+
+    # Deal with xticklabels
+    # Rotate xticklabels at 45deg, align at end
+    plt.setp(ax.xaxis.get_majorticklabels(), rotation=45, ha="right")
+    plt.xlim([-1, len(site_sorted)])
+    # Add space after the site name to allow space for flag
+    ax.set_xticklabels([s for s in site_sorted])
+    ax.tick_params(labelsize=15)
+
+    # plt.ylim(ylim[contrast])
+    # plt.yticks(np.arange(ylim[contrast][0], ylim[contrast][1], step=ystep[contrast]))
+    plt.ylabel(metric_to_label[metric], fontsize=15)
+    ax.set_ylim(0.3 * mean_sorted.max(), 1.1 * mean_sorted.max())
+
+    # Add country flag of each site
+    for i, c in enumerate(site_sorted):
+        try:
+            ax = add_flag(i, flags[c], ax)
+        except KeyError:
+            logger.error('ERROR: Flag {} is not defined in dict flags'.format(c))
+            sys.exit(1)
+
+    # Add ManufacturersModelName embedded in each bar
+    ax = label_bar_model(ax, bar_plot, model_sorted)
+
+    # Add a red cross for sites not considered in the statistics
+    for idx, rect in enumerate(bar_plot):
+        if df['exclude'][site_sorted[idx]]:
+            ax.text(rect.get_x() + rect.get_width() / 2., rect._height, 'x', color='red', weight='bold', ha='center',
+                    va='center', size=20)
+
+    # Add stats per vendor
+    x_init_vendor = 0
+    # height_bar = [rect.get_height() for idx,rect in enumerate(bar_plot)]
+    # y_max = height_bar[i_max]+std_sorted[i_max]  # used to display stats
+    y_max = ax.get_ylim()[1] * 95 / 100  # stat will be located at the top 95% of the graph
+    for vendor in list(OrderedDict.fromkeys(vendor_sorted)):
+        n_site = list(vendor_sorted).count(vendor)
+        ax = add_stats_per_vendor(ax=ax,
+                                  x_i=x_init_vendor - 0.5,
+                                  x_j=x_init_vendor + n_site - 1 + 0.5,
+                                  y_max=y_max,
+                                  mean=stats['mean'][vendor],
+                                  std=stats['std'][vendor],
+                                  cov_intra=stats['cov_intra'][vendor],
+                                  cov_inter=stats['cov_inter'][vendor],
+                                  f=scaling_factor[metric],
+                                  color=list_colors[x_init_vendor])
+        x_init_vendor += n_site
+
+    # Save figure
+    plt.tight_layout()
+    fname_fig = os.path.join('fig_' + metric + '.png')
+    plt.savefig(fname_fig)
+    logger.info('Created: ' + fname_fig)
 
 
-def compute_regression(CSA_dict, vendor):
+def generate_figure_t1_t2(df, csa_t1, csa_t2):
     """
-    Compute linear regression for T1w and T2 CSA agreement
-    :param CSA_dict: dict with T1w and T2w CSA values
-    :param vendor: vendor name
-    :return: results of linear regression
+    Generate CSA_T1w vs. CSA_T2w
+    :param df:
+    :param csa_t1:
+    :param csa_t2:
+    :return:
     """
-    # Y = Slope*X + Intercept
 
-    # create object for the class
-    linear_regression = LinearRegression()
-    # perform linear regression (compute slope and intercept)
-    linear_regression.fit(np.concatenate(CSA_dict[vendor + '_t2'], axis=0).reshape(-1, 1),
-                          np.concatenate(CSA_dict[vendor + '_t1'], axis=0).reshape(-1, 1))
-    intercept = linear_regression.intercept_
-    slope = linear_regression.coef_
-
-    # compute prediction
-    reg_predictor = linear_regression.predict(
-        np.concatenate(CSA_dict[vendor + '_t2'], axis=0).reshape(-1, 1))
-    # compute coefficient of determination R^2 of the prediction
-    r2_sc = linear_regression.score(np.concatenate(CSA_dict[vendor + '_t2'], axis=0).reshape(-1, 1),
-                          np.concatenate(CSA_dict[vendor + '_t1'], axis=0).reshape(-1, 1))
-
-    return intercept, slope, reg_predictor, r2_sc
-
-
-def main():
-
-    parser = get_parser()
-    args = parser.parse_args()
-
-    display_individual_subjects = args.indiv_subj
-
-    # create dict with subjects to exclude if input yml config file is passed
-    if args.exclude is not None:
-        # check if input yml file exists
-        if os.path.isfile(args.exclude):
-            fname_yml = args.exclude
-        else:
-            sys.exit("ERROR: Input yml file {} does not exist or path is wrong.".format(args.exclude))
-
-        # fetch input yml file as dict
-        with open(fname_yml, 'r') as stream:
-            try:
-                dict_exclude_subj = yaml.safe_load(stream)
-            except yaml.YAMLError as exc:
-                print(exc)
-    else:
-        # initialize empty dict if no config yml file is passed
-        dict_exclude_subj = dict()
-
-    if args.path_results is not None:
-        if os.path.isdir(args.path_results):
-            # Go to results directory defined by user
-            os.chdir(args.path_results)
-        else:
-            raise FileNotFoundError("Directory '{}' was not found.".format(args.path_results))
-    else:
-        # Stay in current directory (assume it is results directory)
-        os.chdir(os.getcwd())
-
-    # fetch all .csv result files, assuming they are located in the current folder.
-    csv_files = glob.glob('*.csv')
-
-    if not csv_files:
-        raise RuntimeError("Variable 'csv_files' is empty, i.e. no *.csv files were found in current directory.")
-
-    # loop across results and generate figure
-    for csv_file in csv_files:
-
-        # Open CSV file and create dict
-        logger.info('\nProcessing: ' + csv_file)
-        dict_results = []
-        with open(csv_file, newline='') as f_csv:
-            reader = csv.DictReader(f_csv)
-            for row in reader:
-                dict_results.append(row)
-
-        # Fetch metric name
-        _, csv_file_small = os.path.split(csv_file)
-        metric = file_to_metric[csv_file_small]
-
-        # Fetch mean, std, etc. per site
-        results_dict = aggregate_per_site(dict_results, metric, dict_exclude_subj)
-
-        # Make it a pandas structure (easier for manipulations)
-        df = pd.DataFrame.from_dict(results_dict, orient='index')
-
-        # Compute statistics
-        if metric not in dict_exclude_subj.keys():
-            sites_to_exclude = []
-        else:
-            for subject in dict_exclude_subj[metric]:
-                if not subject.startswith('sub-'):
-                    sites_to_exclude.append(subject)
-        
-        df, stats = compute_statistics(df, sites_to_exclude)
-
-        if logger.level == 10:
-            import matplotlib
-            matplotlib.use('TkAgg')
-            plt.ion()
-
-        # Sort values per vendor
-        # TODO: sort per model
-        site_sorted = df.sort_values(by=['vendor', 'model', 'site']).index.values
-        vendor_sorted = df['vendor'][site_sorted].values
-        mean_sorted = df['mean'][site_sorted].values
-        std_sorted = df['std'][site_sorted].values
-        model_sorted = df['model'][site_sorted].values
-
-        # Scale values (for display)
-        mean_sorted = mean_sorted * scaling_factor[metric]
-        std_sorted = std_sorted * scaling_factor[metric]
-
-        # Get color based on vendor
-        list_colors = [vendor_to_color[i] for i in vendor_sorted]
-
-        # Create figure and plot bar graph
-        fig, ax = plt.subplots(figsize=(15, 8))
-        # TODO: show only superior part of STD
-        plt.grid(axis='y')
-        ax.set_axisbelow(True)
-        bar_plot = plt.bar(range(len(site_sorted)), height=mean_sorted, width=0.5,
-                           tick_label=site_sorted, yerr=[[0 for v in std_sorted], std_sorted], color=list_colors)
-
-        # Display individual subjects
-        if display_individual_subjects:
-            for site in site_sorted:
-                index = list(site_sorted).index(site)
-                val = df['val'][site]
-                # Set scaling
-                val = [value * scaling_factor.get(metric) for value in val]
-                plt.plot([index] * len(val), val, 'r.')
-        ax = label_bar_model(ax, bar_plot, model_sorted)  # add ManufacturersModelName embedded in each bar
-        plt.setp(ax.xaxis.get_majorticklabels(), rotation=45, ha="right")  # rotate xticklabels at 45deg, align at end
-        plt.xlim([-1, len(site_sorted)])
-        ax.set_xticklabels([s for s in site_sorted])  # add space after the site name to allow space for flag
-        # ax.get_xaxis().set_visible(True)
-        ax.tick_params(labelsize=15)
-        # plt.ylim(ylim[contrast])
-        # plt.yticks(np.arange(ylim[contrast][0], ylim[contrast][1], step=ystep[contrast]))
-        plt.ylabel(metric_to_label[metric], fontsize=15)
-
-        # add country flag of each site
-        for i, c in enumerate(site_sorted):
-            try:
-                ax = add_flag(i, flags[c], ax)
-            except KeyError:
-                logger.error('ERROR: Flag {} is not defined in dict flags'.format(c))
-                sys.exit(1)
-
-        # add stats per vendor
-        x_init_vendor = 0
-        # height_bar = [rect.get_height() for idx,rect in enumerate(bar_plot)]
-        # y_max = height_bar[i_max]+std_sorted[i_max]  # used to display stats
-        y_max = ax.get_ylim()[1] * 95 / 100  # stat will be located at the top 95% of the graph
-        for vendor in list(OrderedDict.fromkeys(vendor_sorted)):
-            n_site = list(vendor_sorted).count(vendor)
-            ax = add_stats_per_vendor(ax=ax,
-                                      x_i=x_init_vendor - 0.5,
-                                      x_j=x_init_vendor + n_site - 1 + 0.5,
-                                      y_max=y_max,
-                                      mean=stats['mean'][vendor],
-                                      std=stats['std'][vendor],
-                                      cov_intra=stats['cov_intra'][vendor],
-                                      cov_inter=stats['cov_inter'][vendor],
-                                      f=scaling_factor[metric],
-                                      color=list_colors[x_init_vendor])
-            x_init_vendor += n_site
-
-        plt.tight_layout()  # make sure everything fits
-        fname_fig = os.path.join('fig_' + metric + '.png')
-        plt.savefig(fname_fig)
-        logger.info('Created: ' + fname_fig)
-
-        # Get T1w and T2w CSA from pandas df structure
-        if metric == "csa_t1":
-            CSA_t1 = df.sort_values('site').values
-        elif metric == "csa_t2":
-            CSA_t2 = df.sort_values('site').values
+    # Sort values per vendor
+    site_sorted = df.sort_values(by=['vendor', 'model', 'site']).index.values
+    vendor_sorted = df['vendor'][site_sorted].values
 
     # Create dictionary with CSA for T1w and T2w per vendors
     CSA_dict = defaultdict(list)
-    for index, line in enumerate(CSA_t1):       # loop through individual sites
-        CSA_dict[line[1] + '_t1'].append(np.asarray(CSA_t1[index, 3]))      # line[1] denotes vendor
-        CSA_dict[line[1] + '_t2'].append(np.asarray(CSA_t2[index, 3]))      # line[1] denotes vendor
+    for index, line in enumerate(csa_t1):       # loop through individual sites
+        CSA_dict[line[1] + '_t1'].append(np.asarray(csa_t1[index, 3]))      # line[1] denotes vendor
+        CSA_dict[line[1] + '_t2'].append(np.asarray(csa_t2[index, 3]))      # line[1] denotes vendor
 
     # Generate figure for T1w and T2w agreement for all vendors together
     fig, ax = plt.subplots(figsize=(7, 7))
@@ -700,6 +595,163 @@ def main():
     fname_fig = 'fig_t1_t2_agreement_per_vendor.png'
     plt.savefig(fname_fig, dpi=200)
     logger.info('Created: ' + fname_fig)
+
+
+def get_env(file_param):
+    """
+    Get shell environment variables from a shell script.
+    Source: https://stackoverflow.com/a/19431112
+    :param file_param:
+    :return: env: dictionary of all environment variables declared in the shell script
+    """
+    logger.debug("\nFetch environment variables from file: {}".format(file_param))
+    env = {}
+    p = subprocess.Popen('env', stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+    oldEnv = p.communicate()[0].decode('utf-8')
+    p = subprocess.Popen('source {} ; env'.format(file_param), stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                         shell=True)
+    newEnv = p.communicate()[0].decode('utf-8')
+    for newStr in newEnv.split('\n'):
+        flag = True
+        for oldStr in oldEnv.split('\n'):
+            if newStr == oldStr:
+                # not exported by setenv.sh
+                flag = False
+                break
+        if flag:
+            # exported by setenv.sh
+            logger.debug("  {}".format(newStr))
+            # add to dictionary
+            env[newStr.split('=')[0]] = newStr.split('=')[1]
+    return env
+
+
+def remove_subject(subject, metric, dict_exclude_subj):
+    """
+    Check if subject should be removed
+    :param subject:
+    :param metric:
+    :param dict_exclude_subj:
+    :return: Bool
+    """
+    if metric in dict_exclude_subj.keys():
+        if subject in dict_exclude_subj[metric]:
+            return True
+    return False
+
+
+def compute_regression(CSA_dict, vendor):
+    """
+    Compute linear regression for T1w and T2 CSA agreement
+    :param CSA_dict: dict with T1w and T2w CSA values
+    :param vendor: vendor name
+    :return: results of linear regression
+    """
+    # Y = Slope*X + Intercept
+
+    # create object for the class
+    linear_regression = LinearRegression()
+    # perform linear regression (compute slope and intercept)
+    linear_regression.fit(np.concatenate(CSA_dict[vendor + '_t2'], axis=0).reshape(-1, 1),
+                          np.concatenate(CSA_dict[vendor + '_t1'], axis=0).reshape(-1, 1))
+    intercept = linear_regression.intercept_
+    slope = linear_regression.coef_
+
+    # compute prediction
+    reg_predictor = linear_regression.predict(
+        np.concatenate(CSA_dict[vendor + '_t2'], axis=0).reshape(-1, 1))
+    # compute coefficient of determination R^2 of the prediction
+    r2_sc = linear_regression.score(np.concatenate(CSA_dict[vendor + '_t2'], axis=0).reshape(-1, 1),
+                          np.concatenate(CSA_dict[vendor + '_t1'], axis=0).reshape(-1, 1))
+
+    return intercept, slope, reg_predictor, r2_sc
+
+
+def main():
+
+    parser = get_parser()
+    args = parser.parse_args()
+    if args.v:
+        logger.setLevel(logging.DEBUG)
+
+    display_individual_subjects = args.indiv_subj
+
+    # create dict with subjects to exclude if input yml config file is passed
+    if args.exclude is not None:
+        # check if input yml file exists
+        if os.path.isfile(args.exclude):
+            fname_yml = args.exclude
+        else:
+            sys.exit("ERROR: Input yml file {} does not exist or path is wrong.".format(args.exclude))
+
+        # fetch input yml file as dict
+        with open(fname_yml, 'r') as stream:
+            try:
+                dict_exclude_subj = yaml.safe_load(stream)
+            except yaml.YAMLError as exc:
+                print(exc)
+    else:
+        # initialize empty dict if no config yml file is passed
+        dict_exclude_subj = dict()
+
+    if args.path_results is not None:
+        if os.path.isdir(args.path_results):
+            # Go to results directory defined by user
+            os.chdir(args.path_results)
+        else:
+            raise FileNotFoundError("Directory '{}' was not found.".format(args.path_results))
+    else:
+        # Stay in current directory (assume it is results directory)
+        os.chdir(os.getcwd())
+
+    # fetch all .csv result files, assuming they are located in the current folder.
+    csv_files = glob.glob('*.csv')
+
+    if not csv_files:
+        raise RuntimeError("Variable 'csv_files' is empty, i.e. no *.csv files were found in current directory.")
+
+    # loop across results and generate figure
+    for csv_file in csv_files:
+
+        # Open CSV file and create dict
+        logger.info('\nProcessing: ' + csv_file)
+        dict_results = []
+        with open(csv_file, newline='') as f_csv:
+            reader = csv.DictReader(f_csv)
+            for row in reader:
+                dict_results.append(row)
+
+        # Fetch metric name
+        _, csv_file_small = os.path.split(csv_file)
+        metric = file_to_metric[csv_file_small]
+
+        # Fetch mean, std, etc. per site
+        results_dict = aggregate_per_site(dict_results, metric, dict_exclude_subj)
+
+        # Make it a pandas structure (easier for manipulations)
+        df = pd.DataFrame.from_dict(results_dict, orient='index')
+
+        # Add column to DF with excluded sites
+        df['exclude'] = False
+        if metric in dict_exclude_subj.keys():
+            for subject in dict_exclude_subj[metric]:
+                if not subject.startswith('sub-'):
+                    df['exclude'][subject] = True
+
+        # Compute statistics
+        df, stats = compute_statistics(df)
+
+        # Generate figure
+        generate_figure_metric(df, metric, stats, display_individual_subjects)
+
+        # Get T1w and T2w CSA (will be used later for another figure)
+        if metric == "csa_t1":
+            csa_t1 = df.sort_values('site').values
+        elif metric == "csa_t2":
+            csa_t2 = df.sort_values('site').values
+
+    # Generate T1w vs. T2w figure
+    generate_figure_t1_t2(df, csa_t1, csa_t2)
 
 
 if __name__ == "__main__":
