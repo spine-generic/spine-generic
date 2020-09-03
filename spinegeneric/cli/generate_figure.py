@@ -322,6 +322,8 @@ def compute_statistics(df):
             stats['mean'] = {}
         if not 'std' in stats.keys():
             stats['std'] = {}
+        if not 'anova_site' in stats.keys():
+            stats['anova_site'] = {}
         # fetch within-site mean values for a specific vendor
         val_per_vendor = df['mean'][(df['vendor'] == vendor) & ~df['exclude']]
         # compute mean within vendor (mean of the within-site means)
@@ -334,6 +336,10 @@ def compute_statistics(df):
         stats['cov_intra'][vendor] = \
             np.mean(df['std'][(df['vendor'] == vendor) & ~df['exclude']].values /
                     df['mean'][(df['vendor'] == vendor) & ~df['exclude']].values)
+        # ANOVA: category=[site]
+        values_per_site = [df['val'][(df['vendor'] == 'GE') & (df['site'] == i_site)][0]
+                           for i_site in df['site'][df['vendor'] == 'GE']]
+        stats['anova_site'][site] = f_oneway(*values_per_site)
 
     # ANOVA: category=[vendor]
     stats['anova_vendor'] = f_oneway(df['mean'][df['vendor'] == 'GE'],
