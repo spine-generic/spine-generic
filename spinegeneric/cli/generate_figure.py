@@ -30,6 +30,7 @@ import matplotlib.pyplot as plt
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 import matplotlib.patches as patches
 from sklearn.linear_model import LinearRegression
+from statsmodels.stats.multicomp import pairwise_tukeyhsd
 
 import spinegeneric as sg
 import spinegeneric.utils
@@ -343,7 +344,9 @@ def compute_statistics(df):
 
     # ANOVA: category=[vendor]
     stats['anova_vendor'] = f_oneway(*[df['mean'][df['vendor'] == i_vendor] for i_vendor in vendors])
-
+    # Multiple pairwise comparison with Tukey Honestly Significant Difference (HSD) test
+    tukey_test = pairwise_tukeyhsd(df['mean'], df['vendor'])
+    print(tukey_test)
     return df, stats
 
 
