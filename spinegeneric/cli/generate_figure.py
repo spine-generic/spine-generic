@@ -350,9 +350,7 @@ def compute_statistics(df):
             np.mean(df['std'][(df['vendor'] == vendor) & ~df['exclude']].values /
                     df['mean'][(df['vendor'] == vendor) & ~df['exclude']].values)
     # ANOVA: category=[vendor]
-    stats['anova_vendor'] = f_oneway(df['mean'][df['vendor'] == 'GE'],
-                                     df['mean'][df['vendor'] == 'Philips'],
-                                     df['mean'][df['vendor'] == 'Siemens'])
+    stats['anova_vendor'] = f_oneway(*[df['mean'][df['vendor'] == i_vendor] for i_vendor in vendors])
 
     return df, stats
 
