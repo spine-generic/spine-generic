@@ -186,10 +186,6 @@ def get_parser():
         action='store_false',
         help="Do not display the value of each individual subject (red dot).")
     parser.add_argument(
-        '-show-ci',
-        action='store_true',
-        help="Show 95%% confidence interval on the plot.")
-    parser.add_argument(
         '-exclude',
         required=False,
         help=
