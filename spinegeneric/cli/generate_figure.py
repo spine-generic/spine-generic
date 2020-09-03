@@ -186,6 +186,10 @@ def get_parser():
         action='store_false',
         help="Do not display the value of each individual subject (red dot).")
     parser.add_argument(
+        '-show-ci',
+        action='store_true',
+        help="Show 95%% confidence interval on the plot.")
+    parser.add_argument(
         '-exclude',
         required=False,
         help=
@@ -208,7 +212,7 @@ def get_parser():
     parser.add_argument(
         '-v',
         action='store_true',
-        help="Increase verbosity; interactive figure.")
+        help="Increase verbosity; interactive figure (for debugging).")
     return parser
 
 
@@ -262,7 +266,7 @@ def aggregate_per_site(dict_results, metric, dict_exclude_subj):
     return results_agg
 
 
-def add_stats_per_vendor(ax, x_i, x_j, y_max, mean, std, ci, cov_intra, cov_inter, f, color):
+def add_stats_per_vendor(ax, x_i, x_j, y_max, mean, std, ci, cov_intra, cov_inter, f, color, show_ci=False):
     """"
     Add stats per vendor to the plot.
     :param ax
@@ -276,6 +280,7 @@ def add_stats_per_vendor(ax, x_i, x_j, y_max, mean, std, ci, cov_intra, cov_inte
     :param cov_inter
     :param f scaling factor
     :param color
+    :param show_ci: Bool: Show 95% confidence interval
     """
     # add stats as strings
     if cov_intra == 0:
@@ -293,6 +298,10 @@ def add_stats_per_vendor(ax, x_i, x_j, y_max, mean, std, ci, cov_intra, cov_inte
     ax.add_patch(rect)
     # add dashed line for mean value
     ax.plot([x_i, x_j], [mean * f, mean * f], "k--", alpha=0.5)
+    # add line for 95% CI
+    if show_ci:
+        ax.plot([x_i, x_j], [(mean - ci) * f, (mean - ci) * f], "r--", alpha=0.5)
+        ax.plot([x_i, x_j], [(mean + ci) * f, (mean + ci) * f], "r--", alpha=0.5)
     return ax
 
 
@@ -368,13 +377,14 @@ def fetch_subject(filename):
     return subject
 
 
-def generate_figure_metric(df, metric, stats, display_individual_subjects):
+def generate_figure_metric(df, metric, stats, display_individual_subjects, show_ci=False):
     """
     Generate bar plot across sites
     :param df:
     :param metric:
     :param stats:
     :param display_individual_subjects:
+    :param show_ci: Bool: Show 95% confidence interval
     :return:
     """
 
@@ -502,7 +512,8 @@ def generate_figure_metric(df, metric, stats, display_individual_subjects):
                                   cov_intra=stats['cov_intra'][vendor],
                                   cov_inter=stats['cov_inter'][vendor],
                                   f=scaling_factor[metric],
-                                  color=list_colors[x_init_vendor])
+                                  color=list_colors[x_init_vendor],
+                                  show_ci=show_ci)
         x_init_vendor += n_site
 
     # Save figure
@@ -764,7 +775,7 @@ def main():
         df, stats = compute_statistics(df)
 
         # Generate figure
-        generate_figure_metric(df, metric, stats, display_individual_subjects)
+        generate_figure_metric(df, metric, stats, display_individual_subjects, show_ci=args.show_ci)
 
         # Get T1w and T2w CSA (will be used later for another figure)
         if metric == "csa_t1":
