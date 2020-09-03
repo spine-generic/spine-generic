@@ -333,8 +333,6 @@ def compute_statistics(df):
             stats['mean'] = {}
         if not 'std' in stats.keys():
             stats['std'] = {}
-        if not '95ci' in stats.keys():
-            stats['95ci'] = {}
         if not 'anova_site' in stats.keys():
             stats['anova_site'] = {}
         # fetch within-site mean values for a specific vendor
