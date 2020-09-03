@@ -186,6 +186,10 @@ def get_parser():
         action='store_false',
         help="Do not display the value of each individual subject (red dot).")
     parser.add_argument(
+        '-show-ci',
+        action='store_true',
+        help="Show 95%% confidence interval on the plot.")
+    parser.add_argument(
         '-exclude',
         required=False,
         help=
@@ -262,7 +266,7 @@ def aggregate_per_site(dict_results, metric, dict_exclude_subj):
     return results_agg
 
 
-def add_stats_per_vendor(ax, x_i, x_j, y_max, mean, std, ci, cov_intra, cov_inter, f, color):
+def add_stats_per_vendor(ax, x_i, x_j, y_max, mean, std, ci, cov_intra, cov_inter, f, color, show_ci=False):
     """"
     Add stats per vendor to the plot.
     :param ax
