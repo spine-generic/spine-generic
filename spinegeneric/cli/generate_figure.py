@@ -266,7 +266,7 @@ def aggregate_per_site(dict_results, metric, dict_exclude_subj):
     return results_agg
 
 
-def add_stats_per_vendor(ax, x_i, x_j, y_max, mean, std, ci, cov_intra, cov_inter, f, color, show_ci=False):
+def add_stats_per_vendor(ax, x_i, x_j, y_max, mean, std, ci, cov_intra, cov_inter, f, color):
     """"
     Add stats per vendor to the plot.
     :param ax
@@ -333,6 +333,8 @@ def compute_statistics(df):
             stats['mean'] = {}
         if not 'std' in stats.keys():
             stats['std'] = {}
+        if not '95ci' in stats.keys():
+            stats['95ci'] = {}
         if not 'anova_site' in stats.keys():
             stats['anova_site'] = {}
         # fetch within-site mean values for a specific vendor
