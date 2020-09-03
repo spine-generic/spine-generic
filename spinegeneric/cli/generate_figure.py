@@ -22,6 +22,7 @@ import yaml
 
 import numpy as np
 from scipy import ndimage
+from scipy.stats import f_oneway
 from collections import OrderedDict
 from collections import defaultdict
 import logging
@@ -333,6 +334,12 @@ def compute_statistics(df):
         stats['cov_intra'][vendor] = \
             np.mean(df['std'][(df['vendor'] == vendor) & ~df['exclude']].values /
                     df['mean'][(df['vendor'] == vendor) & ~df['exclude']].values)
+
+    # ANOVA: category=[vendor]
+    stats['anova_vendor'] = f_oneway(df['mean'][df['vendor'] == 'GE'],
+                                     df['mean'][df['vendor'] == 'Philips'],
+                                     df['mean'][df['vendor'] == 'Siemens'])
+
     return df, stats
 
 
