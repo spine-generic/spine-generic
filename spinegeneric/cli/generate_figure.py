@@ -355,14 +355,14 @@ def compute_statistics(df):
         values_per_site = [df['val'][(df['vendor'] == vendor) & (df['site'] == i_site)][0]
                            for i_site in df['site'][df['vendor'] == vendor]]
         stats['anova_site'][site] = f_oneway(*values_per_site)
-        print("ANOVA[site] for {}: {}".format(vendor, stats['anova_site'][site]))
+        logger.info("ANOVA[site] for {}: {}".format(vendor, stats['anova_site'][site]))
 
     # ANOVA: category=[vendor]
     stats['anova_vendor'] = f_oneway(*[df['mean'][df['vendor'] == i_vendor] for i_vendor in vendors])
-    print("ANOVA[vendor]: {}".format(stats['anova_vendor']))
+    logger.info("ANOVA[vendor]: {}".format(stats['anova_vendor']))
     # Multiple pairwise comparison with Tukey Honestly Significant Difference (HSD) test
     stats['tukey_test'] = pairwise_tukeyhsd(df['mean'], df['vendor'])
-    print("Tukey Honestly Significant Difference (HSD):\n{}".format(stats['tukey_test']))
+    logger.info("Tukey Honestly Significant Difference (HSD):\n{}".format(stats['tukey_test']))
     return df, stats
 
 
@@ -722,7 +722,7 @@ def main():
             try:
                 dict_exclude_subj = yaml.safe_load(stream)
             except yaml.YAMLError as exc:
-                print(exc)
+                logger.error(exc)
     else:
         # initialize empty dict if no config yml file is passed
         dict_exclude_subj = dict()
@@ -736,6 +736,10 @@ def main():
     else:
         # Stay in current directory (assume it is results directory)
         os.chdir(os.getcwd())
+
+    # Dump log file there
+    fh = logging.FileHandler(os.path.join(os.path.abspath(os.curdir), 'log_stats.txt'))
+    logging.root.addHandler(fh)
 
     # fetch all .csv result files, assuming they are located in the current folder.
     csv_files = glob.glob('*.csv')
