@@ -351,7 +351,9 @@ def compute_statistics(df):
                     df['mean'][(df['vendor'] == vendor) & ~df['exclude']].values)
     # ANOVA: category=[vendor]
     stats['anova_vendor'] = f_oneway(*[df['mean'][df['vendor'] == i_vendor] for i_vendor in vendors])
-
+    # Multiple pairwise comparison with Tukey Honestly Significant Difference (HSD) test
+    tukey_test = pairwise_tukeyhsd(df['mean'], df['vendor'])
+    print(tukey_test)
     return df, stats
 
 
