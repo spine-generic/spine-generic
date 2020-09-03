@@ -737,6 +737,10 @@ def main():
         # Stay in current directory (assume it is results directory)
         os.chdir(os.getcwd())
 
+    # Dump log file there
+    fh = logging.FileHandler(os.path.join(os.path.abspath(os.curdir), 'log_stats.txt'))
+    logging.root.addHandler(fh)
+
     # fetch all .csv result files, assuming they are located in the current folder.
     csv_files = glob.glob('*.csv')
 
