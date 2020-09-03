@@ -342,9 +342,7 @@ def compute_statistics(df):
         stats['anova_site'][site] = f_oneway(*values_per_site)
 
     # ANOVA: category=[vendor]
-    stats['anova_vendor'] = f_oneway(df['mean'][df['vendor'] == 'GE'],
-                                     df['mean'][df['vendor'] == 'Philips'],
-                                     df['mean'][df['vendor'] == 'Siemens'])
+    stats['anova_vendor'] = f_oneway(*[df['mean'][df['vendor'] == i_vendor] for i_vendor in vendors])
 
     return df, stats
 
