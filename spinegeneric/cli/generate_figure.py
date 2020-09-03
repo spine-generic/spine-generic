@@ -338,15 +338,17 @@ def compute_statistics(df):
             np.mean(df['std'][(df['vendor'] == vendor) & ~df['exclude']].values /
                     df['mean'][(df['vendor'] == vendor) & ~df['exclude']].values)
         # ANOVA: category=[site]
-        values_per_site = [df['val'][(df['vendor'] == 'GE') & (df['site'] == i_site)][0]
-                           for i_site in df['site'][df['vendor'] == 'GE']]
+        values_per_site = [df['val'][(df['vendor'] == vendor) & (df['site'] == i_site)][0]
+                           for i_site in df['site'][df['vendor'] == vendor]]
         stats['anova_site'][site] = f_oneway(*values_per_site)
+        print("ANOVA[site] for {}: {}".format(vendor, stats['anova_site'][site]))
 
     # ANOVA: category=[vendor]
     stats['anova_vendor'] = f_oneway(*[df['mean'][df['vendor'] == i_vendor] for i_vendor in vendors])
+    print("ANOVA[vendor]: {}".format(stats['anova_vendor']))
     # Multiple pairwise comparison with Tukey Honestly Significant Difference (HSD) test
-    tukey_test = pairwise_tukeyhsd(df['mean'], df['vendor'])
-    print(tukey_test)
+    stats['tukey_test'] = pairwise_tukeyhsd(df['mean'], df['vendor'])
+    print("Tukey Honestly Significant Difference (HSD):\n{}".format(stats['tukey_test']))
     return df, stats
 
 
