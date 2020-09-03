@@ -262,7 +262,7 @@ def aggregate_per_site(dict_results, metric, dict_exclude_subj):
     return results_agg
 
 
-def add_stats_per_vendor(ax, x_i, x_j, y_max, mean, std, cov_intra, cov_inter, f, color):
+def add_stats_per_vendor(ax, x_i, x_j, y_max, mean, std, ci, cov_intra, cov_inter, f, color):
     """"
     Add stats per vendor to the plot.
     :param ax
@@ -271,6 +271,7 @@ def add_stats_per_vendor(ax, x_i, x_j, y_max, mean, std, cov_intra, cov_inter, f
     :param y_max top of the higher bar of the current vendor
     :param mean
     :param std
+    :param ci
     :param cov_intra
     :param cov_inter
     :param f scaling factor
@@ -323,6 +324,8 @@ def compute_statistics(df):
             stats['mean'] = {}
         if not 'std' in stats.keys():
             stats['std'] = {}
+        if not '95ci' in stats.keys():
+            stats['95ci'] = {}
         if not 'anova_site' in stats.keys():
             stats['anova_site'] = {}
         # fetch within-site mean values for a specific vendor
@@ -331,6 +334,8 @@ def compute_statistics(df):
         stats['mean'][vendor] = np.mean(val_per_vendor)
         # compute std within vendor (std of the within-site means)
         stats['std'][vendor] = np.std(val_per_vendor)
+        # compute 95% confidence interval
+        stats['95ci'][vendor] = 1.96 * np.std(val_per_vendor) / np.sqrt(len(val_per_vendor))
         # compute within-vendor inter-site COV (based on the within-site means)
         stats['cov_inter'][vendor] = np.std(val_per_vendor) / np.mean(val_per_vendor)
         # compute intra-site COV, and average it across all the sites within the same vendor
@@ -493,6 +498,7 @@ def generate_figure_metric(df, metric, stats, display_individual_subjects):
                                   y_max=y_max,
                                   mean=stats['mean'][vendor],
                                   std=stats['std'][vendor],
+                                  ci=stats['95ci'][vendor],
                                   cov_intra=stats['cov_intra'][vendor],
                                   cov_inter=stats['cov_inter'][vendor],
                                   f=scaling_factor[metric],
