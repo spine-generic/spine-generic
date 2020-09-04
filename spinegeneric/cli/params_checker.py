@@ -68,11 +68,11 @@ def main():
                     Contrast = ((item.filename).split('_')[-1]).split('.')[0]
                     keys_contrast = data[Manufacturer][ManufacturersModelName][str(Contrast)].keys()
                     if 'RepetitionTime' in keys_contrast:
-                        if (RepetitionTime - data[Manufacturer][ManufacturersModelName][str(Contrast)]["RepetitionTime"]) > 0.1:
+                        if abs(RepetitionTime - data[Manufacturer][ManufacturersModelName][str(Contrast)]["RepetitionTime"]) > 0.1:
                             logging.warning(' Incorrect RepetitionTime: ' + item.filename + '; TR=' + str(RepetitionTime) + ' instead of ' + str(data[Manufacturer][ManufacturersModelName][str(Contrast)]["RepetitionTime"]))
                     EchoTime=item.get_metadata()['EchoTime']
                     if 'EchoTime' in keys_contrast:
-                        if (EchoTime - data[Manufacturer][ManufacturersModelName][str(Contrast)]["EchoTime"]) > 0.1:
+                        if abs(EchoTime - data[Manufacturer][ManufacturersModelName][str(Contrast)]["EchoTime"]) > 0.1:
                             logging.warning(' Incorrect EchoTime: ' + item.filename + '; TE=' + str(EchoTime) + ' instead of ' + str(data[Manufacturer][ManufacturersModelName][str(Contrast)]["EchoTime"]))
                     FlipAngle=item.get_metadata()['FlipAngle']
                     if 'FlipAngle' in keys_contrast:
