@@ -189,6 +189,8 @@ by the validator. If a parameter does not match, a warning message is triggered.
 This validator is exposed in this command line interface (CLI) function: **sg_params_checker**. This function is run 
 during continuous integration (CI), for each dataset, ensuring valid dataset throughout the life cycle of the project. 
 
+The json file containing the recommended acquisition parameters is located under `/spinegeneric/cli/specs.json`.
+
 Example usage and expected output:
 
 .. code-block:: bash
