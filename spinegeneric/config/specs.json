@@ -15,6 +15,21 @@
                     "RepetitionTime":0.6,
                     "EchoTime":0.014,
                     "FlipAngle":30
+                },
+                "MTon_MTS":{
+                    "RepetitionTime":0.035,
+                    "EchoTime":0.00313,
+                    "FlipAngle":9
+                },
+                "MToff_MTS":{
+                    "RepetitionTime":0.035,
+                    "EchoTime":0.00313,
+                    "FlipAngle":9
+                },
+                "T1w_MTS":{
+                    "RepetitionTime":0.015,
+                    "EchoTime":0.00313,
+                    "FlipAngle":15
                 }
             },
             "Prisma":{
@@ -32,6 +47,21 @@
                     "RepetitionTime":0.6,
                     "EchoTime":0.014,
                     "FlipAngle":30
+                },
+                "MTon_MTS":{
+                    "RepetitionTime":0.035,
+                    "EchoTime":0.00313,
+                    "FlipAngle":9
+                },
+                "MToff_MTS":{
+                    "RepetitionTime":0.035,
+                    "EchoTime":0.00313,
+                    "FlipAngle":9
+                },
+                "T1w_MTS":{
+                    "RepetitionTime":0.015,
+                    "EchoTime":0.00313,
+                    "FlipAngle":15
                 }
             },
             "Skyra":{
@@ -49,6 +79,21 @@
                     "RepetitionTime":0.6,
                     "EchoTime":0.014,
                     "FlipAngle":30
+                },
+                "MTon_MTS":{
+                    "RepetitionTime":0.035,
+                    "EchoTime":0.00313,
+                    "FlipAngle":9
+                },
+                "MToff_MTS":{
+                    "RepetitionTime":0.035,
+                    "EchoTime":0.00313,
+                    "FlipAngle":9
+                },
+                "T1w_MTS":{
+                    "RepetitionTime":0.015,
+                    "EchoTime":0.00313,
+                    "FlipAngle":15
                 }
             },
             "TrioTim":{
@@ -66,6 +111,21 @@
                     "RepetitionTime":0.6,
                     "EchoTime":0.013,
                     "FlipAngle":30
+                },
+                "MTon_MTS":{
+                    "RepetitionTime":0.035,
+                    "EchoTime":0.0035,
+                    "FlipAngle":9
+                },
+                "MToff_MTS":{
+                    "RepetitionTime":0.035,
+                    "EchoTime":0.0035,
+                    "FlipAngle":9
+                },
+                "T1w_MTS":{
+                    "RepetitionTime":0.015,
+                    "EchoTime":0.0035,
+                    "FlipAngle":15
                 }
             },
             "Verio":{
@@ -83,6 +143,21 @@
                     "RepetitionTime":0.6,
                     "EchoTime":0.014,
                     "FlipAngle":30
+                },
+                "MTon_MTS":{
+                    "RepetitionTime":0.035,
+                    "EchoTime":0.0035,
+                    "FlipAngle":9
+                },
+                "MToff_MTS":{
+                    "RepetitionTime":0.035,
+                    "EchoTime":0.0035,
+                    "FlipAngle":9
+                },
+                "T1w_MTS":{
+                    "RepetitionTime":0.015,
+                    "EchoTime":0.0035,
+                    "FlipAngle":15
                 }
             }
         },
@@ -99,6 +174,21 @@
                 "T2star":{
                     "RepetitionTime":0.6,
                     "FlipAngle":30
+                },
+                "MTon_MTS":{
+                    "RepetitionTime":0.035,
+                    "EchoTime":0.004,
+                    "FlipAngle":9
+                },
+                "MToff_MTS":{
+                    "RepetitionTime":0.035,
+                    "EchoTime":0.004,
+                    "FlipAngle":9
+                },
+                "T1w_MTS":{
+                    "RepetitionTime":0.015,
+                    "EchoTime":0.004,
+                    "FlipAngle":15
                 }
             },
             "DISCOVERY_MR750w":{
@@ -113,6 +203,21 @@
                 "T2star":{
                     "RepetitionTime":0.6,
                     "FlipAngle":30
+                },
+                "MTon_MTS":{
+                    "RepetitionTime":0.035,
+                    "EchoTime":0.004,
+                    "FlipAngle":9
+                },
+                "MToff_MTS":{
+                    "RepetitionTime":0.035,
+                    "EchoTime":0.004,
+                    "FlipAngle":9
+                },
+                "T1w_MTS":{
+                    "RepetitionTime":0.015,
+                    "EchoTime":0.004,
+                    "FlipAngle":15
                 }
             },
             "Signa_HDxt":{
@@ -127,6 +232,21 @@
                 "T2star":{
                     "RepetitionTime":0.6,
                     "FlipAngle":30
+                },
+                "MTon_MTS":{
+                    "RepetitionTime":0.035,
+                    "EchoTime":0.004,
+                    "FlipAngle":9
+                },
+                "MToff_MTS":{
+                    "RepetitionTime":0.035,
+                    "EchoTime":0.004,
+                    "FlipAngle":9
+                },
+                "T1w_MTS":{
+                    "RepetitionTime":0.015,
+                    "EchoTime":0.004,
+                    "FlipAngle":15
                 }
             },
             "SIGNA_PET_MR":{
@@ -141,6 +261,21 @@
                 "T2star":{
                     "RepetitionTime":0.6,
                     "FlipAngle":30
+                },
+                "MTon_MTS":{
+                    "RepetitionTime":0.035,
+                    "EchoTime":0.004,
+                    "FlipAngle":9
+                },
+                "MToff_MTS":{
+                    "RepetitionTime":0.035,
+                    "EchoTime":0.004,
+                    "FlipAngle":9
+                },
+                "T1w_MTS":{
+                    "RepetitionTime":0.015,
+                    "EchoTime":0.004,
+                    "FlipAngle":15
                 }
             }
         },
@@ -160,6 +295,21 @@
                     "RepetitionTime":0.6,
                     "EchoTime": 0.0072,
                     "FlipAngle":30
+                },
+                "MTon_MTS":{
+                    "RepetitionTime":0.057,
+                    "EchoTime":0.002,
+                    "FlipAngle":9
+                },
+                "MToff_MTS":{
+                    "RepetitionTime":0.057,
+                    "EchoTime":0.002,
+                    "FlipAngle":9
+                },
+                "T1w_MTS":{
+                    "RepetitionTime":0.015,
+                    "EchoTime":0.002,
+                    "FlipAngle":15
                 }
             },
             "Achieva_dStream":{
@@ -177,6 +327,21 @@
                     "RepetitionTime":0.6,
                     "EchoTime": 0.0072,
                     "FlipAngle":30
+                },
+                "MTon_MTS":{
+                    "RepetitionTime":0.057,
+                    "EchoTime":0.002,
+                    "FlipAngle":9
+                },
+                "MToff_MTS":{
+                    "RepetitionTime":0.057,
+                    "EchoTime":0.002,
+                    "FlipAngle":9
+                },
+                "T1w_MTS":{
+                    "RepetitionTime":0.015,
+                    "EchoTime":0.002,
+                    "FlipAngle":15
                 }
             },
             "Ingenia":{
@@ -194,6 +359,21 @@
                     "RepetitionTime":0.6,
                     "EchoTime": 0.0072,
                     "FlipAngle":30
+                },
+                "MTon_MTS":{
+                    "RepetitionTime":0.057,
+                    "EchoTime":0.002,
+                    "FlipAngle":9
+                },
+                "MToff_MTS":{
+                    "RepetitionTime":0.057,
+                    "EchoTime":0.002,
+                    "FlipAngle":9
+                },
+                "T1w_MTS":{
+                    "RepetitionTime":0.015,
+                    "EchoTime":0.002,
+                    "FlipAngle":15
                 }
             },
             "Ingenia_CX":{
@@ -211,6 +391,21 @@
                     "RepetitionTime":0.6,
                     "EchoTime": 0.0072,
                     "FlipAngle":30
+                },
+                "MTon_MTS":{
+                    "RepetitionTime":0.057,
+                    "EchoTime":0.002,
+                    "FlipAngle":9
+                },
+                "MToff_MTS":{
+                    "RepetitionTime":0.057,
+                    "EchoTime":0.002,
+                    "FlipAngle":9
+                },
+                "T1w_MTS":{
+                    "RepetitionTime":0.015,
+                    "EchoTime":0.002,
+                    "FlipAngle":15
                 }
             },
             "Ingenia_Elition_X":{
@@ -228,6 +423,21 @@
                     "RepetitionTime":0.6,
                     "EchoTime": 0.0072,
                     "FlipAngle":30
+                },
+                "MTon_MTS":{
+                    "RepetitionTime":0.057,
+                    "EchoTime":0.002,
+                    "FlipAngle":9
+                },
+                "MToff_MTS":{
+                    "RepetitionTime":0.057,
+                    "EchoTime":0.002,
+                    "FlipAngle":9
+                },
+                "T1w_MTS":{
+                    "RepetitionTime":0.015,
+                    "EchoTime":0.002,
+                    "FlipAngle":15
                 }
             }
         }

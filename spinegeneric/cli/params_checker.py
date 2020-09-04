@@ -17,6 +17,7 @@ from bids import BIDSLayout
 import spinegeneric as sg
 import spinegeneric.cli
 import spinegeneric.utils
+import spinegeneric.config
 
 
 def get_parser():
@@ -49,8 +50,7 @@ def main():
     with importlib.resources.path(spinegeneric.config, 'sg_layout_config.json') as path_sg_layout_config:
         layout = BIDSLayout(data_path,config_filename=path_sg_layout_config,validate=False)
 
-
-    Contrast_list = ['T1w', 'T2w', 'T2star']
+    Contrast_list = ['T1w', 'T2w', 'T2star', 'MTS']
     query = layout.get(suffix=Contrast_list,extension='nii.gz')
 
     with importlib.resources.path(spinegeneric.config, 'specs.json') as path_specs:
@@ -68,6 +68,9 @@ def main():
                         SoftwareVersions=item.get_metadata()['SoftwareVersions']
                     RepetitionTime=item.get_metadata()['RepetitionTime']
                     Contrast = ((item.filename).split('_')[-1]).split('.')[0]
+                    if Contrast == 'MTS':
+                        MTS_acq = (item.filename.split('_acq-')[1].split('.')[0])
+                        Contrast = MTS_acq
                     keys_contrast = data[Manufacturer][ManufacturersModelName][str(Contrast)].keys()
                     if 'RepetitionTime' in keys_contrast:
                         if abs(RepetitionTime - data[Manufacturer][ManufacturersModelName][str(Contrast)]["RepetitionTime"]) > 0.1:
@@ -92,7 +95,6 @@ def main():
         file.close()
         for line in lines:
             print(line)
-
 
 if __name__ == '__main__':
     main()
