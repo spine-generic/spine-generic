@@ -52,13 +52,6 @@ concatenate_b0_and_dwi(){
   fi
 }
 
-# Get specific field from json file
-get_field_from_json(){
-  local file="$1"
-  local field="$2"
-  echo `grep $field $file | sed 's/[^0-9]*//g'`
-}
-
 # Check if manual label already exists. If it does, copy it locally. If it does
 # not, perform labeling.
 label_if_does_not_exist(){
@@ -201,13 +194,6 @@ file_mton="${SUBJECT}_acq-MTon_MTS"
 file_mtoff="${SUBJECT}_acq-MToff_MTS"
 
 if [[ -e "${file_t1w}.nii.gz" && -e "${file_mton}.nii.gz" && -e "${file_mtoff}.nii.gz" ]]; then
-  # Fetch TR and FA from the json files
-  FA_t1w=$(get_field_from_json ${file_t1w}.json FlipAngle)
-  FA_mton=$(get_field_from_json ${file_mton}.json FlipAngle)
-  FA_mtoff=$(get_field_from_json ${file_mtoff}.json FlipAngle)
-  TR_t1w=$(get_field_from_json ${file_t1w}.json RepetitionTime)
-  TR_mton=$(get_field_from_json ${file_mton}.json RepetitionTime)
-  TR_mtoff=$(get_field_from_json ${file_mtoff}.json RepetitionTime)
   # Segment spinal cord (only if it does not exist)
   segment_if_does_not_exist $file_t1w "t1"
   file_t1w_seg=$FILESEG
@@ -223,6 +209,10 @@ if [[ -e "${file_t1w}.nii.gz" && -e "${file_mton}.nii.gz" && -e "${file_mtoff}.n
   # Register MT->T1w
   sct_register_multimodal -i ${file_mton}.nii.gz -d ${file_t1w}.nii.gz -dseg ${file_t1w_seg}.nii.gz -param step=1,type=im,algo=rigid,slicewise=1,metric=CC -x spline -qc ${PATH_QC} -qc-subject ${SUBJECT}
   file_mton="${file_mton}_reg"
+  # Copy json files to match file basename (it will later be used by sct_compute_mtsat)
+  cp ${SUBJECT}_acq-T1w_MTS.json ${file_t1w}.json
+  cp ${SUBJECT}_acq-MToff_MTS.json ${file_mtoff}.json
+  cp ${SUBJECT}_acq-MTon_MTS.json ${file_mton}.json
   # Register template->T1w_ax (using template-T1w as initial transformation)
   sct_register_multimodal -i $SCT_DIR/data/PAM50/template/PAM50_t1.nii.gz -iseg $SCT_DIR/data/PAM50/template/PAM50_cord.nii.gz -d ${file_t1w}.nii.gz -dseg ${file_t1w_seg}.nii.gz -param step=1,type=seg,algo=slicereg,metric=MeanSquares,smooth=2:step=2,type=im,algo=syn,metric=CC,iter=5,gradStep=0.5 -initwarp warp_template2T1w.nii.gz -initwarpinv warp_T1w2template.nii.gz
   # Rename warping field for clarity
@@ -233,7 +223,7 @@ if [[ -e "${file_t1w}.nii.gz" && -e "${file_mton}.nii.gz" && -e "${file_mtoff}.n
   # Compute MTR
   sct_compute_mtr -mt0 ${file_mtoff}.nii.gz -mt1 ${file_mton}.nii.gz
   # Compute MTsat
-  sct_compute_mtsat -mt ${file_mton}.nii.gz -pd ${file_mtoff}.nii.gz -t1 ${file_t1w}.nii.gz -trmt $TR_mton -trpd $TR_mtoff -trt1 $TR_t1w -famt $FA_mton -fapd $FA_mtoff -fat1 $FA_t1w
+  sct_compute_mtsat -mt ${file_mton}.nii.gz -pd ${file_mtoff}.nii.gz -t1 ${file_t1w}.nii.gz
   # Extract MTR, MTsat and T1 in WM between C2 and C5 vertebral levels
   sct_extract_metric -i mtr.nii.gz -f label_axT1w/atlas -l 51 -vert 2:5 -vertfile label_axT1w/template/PAM50_levels.nii.gz -o ${PATH_RESULTS}/MTR.csv -append 1
   sct_extract_metric -i mtsat.nii.gz -f label_axT1w/atlas -l 51 -vert 2:5 -vertfile label_axT1w/template/PAM50_levels.nii.gz -o ${PATH_RESULTS}/MTsat.csv -append 1
