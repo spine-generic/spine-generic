@@ -209,6 +209,10 @@ if [[ -e "${file_t1w}.nii.gz" && -e "${file_mton}.nii.gz" && -e "${file_mtoff}.n
   # Register MT->T1w
   sct_register_multimodal -i ${file_mton}.nii.gz -d ${file_t1w}.nii.gz -dseg ${file_t1w_seg}.nii.gz -param step=1,type=im,algo=rigid,slicewise=1,metric=CC -x spline -qc ${PATH_QC} -qc-subject ${SUBJECT}
   file_mton="${file_mton}_reg"
+  # Copy json files to match file basename (it will later be used by sct_compute_mtsat)
+  cp ${SUBJECT}_acq-T1w_MTS.json ${file_t1w}.json
+  cp ${SUBJECT}_acq-MToff_MTS.json ${file_mtoff}.json
+  cp ${SUBJECT}_acq-MTon_MTS.json ${file_mton}.json
   # Register template->T1w_ax (using template-T1w as initial transformation)
   sct_register_multimodal -i $SCT_DIR/data/PAM50/template/PAM50_t1.nii.gz -iseg $SCT_DIR/data/PAM50/template/PAM50_cord.nii.gz -d ${file_t1w}.nii.gz -dseg ${file_t1w_seg}.nii.gz -param step=1,type=seg,algo=slicereg,metric=MeanSquares,smooth=2:step=2,type=im,algo=syn,metric=CC,iter=5,gradStep=0.5 -initwarp warp_template2T1w.nii.gz -initwarpinv warp_T1w2template.nii.gz
   # Rename warping field for clarity
