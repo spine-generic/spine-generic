@@ -46,12 +46,14 @@ def main():
     logging.basicConfig(filename=path_warning_log, format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
     # Initialize the layout
-    layout = BIDSLayout(data_path)
+    with importlib.resources.path(spinegeneric.config, 'sg_layout_config.json') as path_sg_layout_config:
+        layout = BIDSLayout(data_path,config_filename=path_sg_layout_config,validate=False)
+
 
     Contrast_list = ['T1w', 'T2w', 'T2star']
     query = layout.get(suffix=Contrast_list,extension='nii.gz')
 
-    with importlib.resources.path(spinegeneric.cli, 'specs.json') as path_specs:
+    with importlib.resources.path(spinegeneric.config, 'specs.json') as path_specs:
         with open(path_specs) as json_file:
             data = json.load(json_file)
 
