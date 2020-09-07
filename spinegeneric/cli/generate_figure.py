@@ -546,6 +546,11 @@ def generate_figure_t1_t2(df, csa_t1, csa_t2):
     fig, ax = plt.subplots(figsize=(7, 7))
     # Loop across vendors
     for vendor in list(OrderedDict.fromkeys(vendor_sorted)):
+        # check if number of values (subjects) is same for t1 and t2
+        if not len(np.concatenate(CSA_dict[vendor + '_t2'], axis=0)) == len(np.concatenate(CSA_dict[vendor + '_t1'],
+                                                                                           axis=0)):
+            raise ValueError("Number of values (subjects) for csa_t1 and csa_t2 for {} is different. Check your input "
+                             "*.csv files and use exclude .yml file".format(vendor))
         plt.scatter(np.concatenate(CSA_dict[vendor + '_t2'], axis=0),
                     np.concatenate(CSA_dict[vendor + '_t1'], axis=0),
                     s=50,
@@ -723,6 +728,22 @@ def main():
                 dict_exclude_subj = yaml.safe_load(stream)
             except yaml.YAMLError as exc:
                 logger.error(exc)
+
+        # if subject is listed only in csa_t1, exclude him/her also from csa_t2 and vice versa (necessary for t1-t2
+        # agreement figure to ensure that x and y axis have same number of values)
+        # subjects are listed only in csa_t2 --> add them also to csa_t1
+        if 'csa_t1' not in dict_exclude_subj:
+            dict_exclude_subj['csa_t1'] = dict_exclude_subj['csa_t2']
+        # subjects are listed only in csa_t1 --> add them also to csa_t2
+        elif 'csa_t2' not in dict_exclude_subj:
+            dict_exclude_subj['csa_t2'] = dict_exclude_subj['csa_t1']
+        # subjects are listed in both csa_t1 and csa_t2 --> get unique subjects from both and add them to csa_t1 and
+        # csa_t2
+        elif 'csa_t1' in dict_exclude_subj and 'csa_t2' in dict_exclude_subj:
+            unique_t1_t2 = list(set(dict_exclude_subj['csa_t1'] + dict_exclude_subj['csa_t2']))
+            dict_exclude_subj['csa_t1'] = unique_t1_t2
+            dict_exclude_subj['csa_t2'] = unique_t1_t2
+
     else:
         # initialize empty dict if no config yml file is passed
         dict_exclude_subj = dict()
