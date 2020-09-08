@@ -68,20 +68,20 @@ def main():
                     Contrast = ((item.filename).split('_')[-1]).split('.')[0]
                     keys_contrast = data[Manufacturer][ManufacturersModelName][str(Contrast)].keys()
                     if 'RepetitionTime' in keys_contrast:
-                        if abs(RepetitionTime - data[Manufacturer][ManufacturersModelName][str(Contrast)]["RepetitionTime"]) > 0.1:
-                            logging.warning(' Incorrect RepetitionTime: ' + item.filename + '; TR=' + str(RepetitionTime) + ' instead of ' + str(data[Manufacturer][ManufacturersModelName][str(Contrast)]["RepetitionTime"]))
+                        if (RepetitionTime - data[Manufacturer][ManufacturersModelName][str(Contrast)]["RepetitionTime"]) > 0.1:
+                            logging.warning(' ' + item.filename + ': Incorrect RepetitionTime: TR=' + str(RepetitionTime) + ' instead of ' + str(data[Manufacturer][ManufacturersModelName][str(Contrast)]["RepetitionTime"]))
                     EchoTime=item.get_metadata()['EchoTime']
                     if 'EchoTime' in keys_contrast:
-                        if abs(EchoTime - data[Manufacturer][ManufacturersModelName][str(Contrast)]["EchoTime"]) > 0.1:
-                            logging.warning(' Incorrect EchoTime: ' + item.filename + '; TE=' + str(EchoTime) + ' instead of ' + str(data[Manufacturer][ManufacturersModelName][str(Contrast)]["EchoTime"]))
+                        if (EchoTime - data[Manufacturer][ManufacturersModelName][str(Contrast)]["EchoTime"]) > 0.1:
+                            logging.warning(' ' + item.filename + ': Incorrect EchoTime: TE=' + str(EchoTime) + ' instead of ' + str(data[Manufacturer][ManufacturersModelName][str(Contrast)]["EchoTime"]))
                     FlipAngle=item.get_metadata()['FlipAngle']
                     if 'FlipAngle' in keys_contrast:
                         if data[Manufacturer][ManufacturersModelName][str(Contrast)]["FlipAngle"] != FlipAngle:
-                            logging.warning(' Incorrect FlipAngle: ' + item.filename + '; FA=' + str(FlipAngle) + ' instead of ' + str(data[Manufacturer][ManufacturersModelName][str(Contrast)]["FlipAngle"])) 
+                            logging.warning(' ' + item.filename + ': Incorrect FlipAngle: FA=' + str(FlipAngle) + ' instead of ' + str(data[Manufacturer][ManufacturersModelName][str(Contrast)]["FlipAngle"])) 
                 else:
-                    logging.warning(item.filename + ' Missing: '+ ManufacturersModelName + '; Cannot check parameters.')
+                    logging.warning(' ' + item.filename + ': Missing: '+ ManufacturersModelName + '; Cannot check parameters.')
         else:
-            logging.warning(item.filename + ' Missing Manufacturer in json sidecar; Cannot check parameters.')
+            logging.warning(' ' + item.filename + ': Missing Manufacturer in json sidecar; Cannot check parameters.')
 
     #Print WARNING log
     if path_warning_log:
