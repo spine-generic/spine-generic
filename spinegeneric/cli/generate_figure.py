@@ -615,7 +615,9 @@ def generate_figure_t1_t2(df, csa_t1, csa_t2):
         # Enforce square grid
         plt.gca().set_aspect('equal', adjustable='box')
         # Compute linear fit
-        intercept, slope, reg_predictor, r2_sc = compute_regression(CSA_dict, vendor)
+        intercept, slope, reg_predictor, r2_sc = \
+            compute_regression(np.array(CSA_dict[vendor + '_t2']).reshape(-1, 1),
+                               np.array(CSA_dict[vendor + '_t1']).reshape(-1, 1))
         # Place regression equation to upper-left corner
         plt.text(0.1, 0.9,
                  "y = {0:.4}x + {1:.4}\nR\u00b2 = {2:.4}".format(float(slope), float(intercept), float(r2_sc)),
@@ -681,31 +683,25 @@ def remove_subject(subject, metric, dict_exclude_subj):
     return False
 
 
-def compute_regression(CSA_dict, vendor):
-    # TODO: refactor to make it lower level (ie no need to deal with dict and vendor)
+def compute_regression(x, y):
     """
-    Compute linear regression for T1w and T2 CSA agreement
-    :param CSA_dict: dict with T1w and T2w CSA values
-    :param vendor: vendor name
+    Compute linear regression between x and y:
+    y = Slope * x + Intercept
+
+    :param x: list:
+    :param y: list:
     :return: results of linear regression
     """
-    # Y = Slope*X + Intercept
-
     # create object for the class
     linear_regression = LinearRegression()
     # perform linear regression (compute slope and intercept)
-    linear_regression.fit(np.concatenate(CSA_dict[vendor + '_t2'], axis=0).reshape(-1, 1),
-                          np.concatenate(CSA_dict[vendor + '_t1'], axis=0).reshape(-1, 1))
+    linear_regression.fit(x.reshape(-1, 1), y.reshape(-1, 1))
     intercept = linear_regression.intercept_
     slope = linear_regression.coef_
-
     # compute prediction
-    reg_predictor = linear_regression.predict(
-        np.concatenate(CSA_dict[vendor + '_t2'], axis=0).reshape(-1, 1))
+    reg_predictor = linear_regression.predict(x)
     # compute coefficient of determination R^2 of the prediction
-    r2_sc = linear_regression.score(np.concatenate(CSA_dict[vendor + '_t2'], axis=0).reshape(-1, 1),
-                          np.concatenate(CSA_dict[vendor + '_t1'], axis=0).reshape(-1, 1))
-
+    r2_sc = linear_regression.score(x, y)
     return intercept, slope, reg_predictor, r2_sc
 
 
