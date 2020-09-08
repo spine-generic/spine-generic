@@ -256,10 +256,12 @@ def aggregate_per_site(dict_results, metric, dict_exclude_subj):
                 results_agg[site]['vendor'] = participants['manufacturer'][rowIndex].array[0]
                 results_agg[site]['model'] = participants['manufacturers_model_name'][rowIndex].array[0]
                 results_agg[site]['val'] = []
+                results_agg[site]['subject'] = []
             # add val for site (ignore None)
             val = dict_results[i][metric_field]
             if not val == 'None':
                 results_agg[site]['val'].append(float(val))
+                results_agg[site]['subject'].append(subject)
         else:
             subjects_removed.append(subject)
     logger.info("Subjects removed: {}".format(subjects_removed))
@@ -531,6 +533,26 @@ def generate_figure_t1_t2(df, csa_t1, csa_t2):
     :param csa_t2:
     :return:
     """
+    def compute_regression(x, y):
+        """
+        Compute linear regression between x and y:
+        y = Slope * x + Intercept
+
+        :param x: list:
+        :param y: list:
+        :return: results of linear regression
+        """
+        # create object for the class
+        linear_regression = LinearRegression()
+        # perform linear regression (compute slope and intercept)
+        linear_regression.fit(x.reshape(-1, 1), y.reshape(-1, 1))
+        intercept = linear_regression.intercept_
+        slope = linear_regression.coef_
+        # compute prediction
+        reg_predictor = linear_regression.predict(x)
+        # compute coefficient of determination R^2 of the prediction
+        r2_sc = linear_regression.score(x, y)
+        return intercept, slope, reg_predictor, r2_sc
 
     # Sort values per vendor
     site_sorted = df.sort_values(by=['vendor', 'model', 'site']).index.values
@@ -538,16 +560,21 @@ def generate_figure_t1_t2(df, csa_t1, csa_t2):
 
     # Create dictionary with CSA for T1w and T2w per vendors
     CSA_dict = defaultdict(list)
-    for index, line in enumerate(csa_t1):       # loop through individual sites
-        CSA_dict[line[1] + '_t1'].append(np.asarray(csa_t1[index, 3]))      # line[1] denotes vendor
-        CSA_dict[line[1] + '_t2'].append(np.asarray(csa_t2[index, 3]))      # line[1] denotes vendor
+    # loop across sites
+    for index, line in enumerate(csa_t1):
+        vendor = line[1]
+        # Loop across subjects, making sure to only populate the dictionary with subjects existing both for T1 and T2
+        for subject in csa_t1[index][4]:
+            if subject in csa_t2[index, 4]:
+                CSA_dict[vendor + '_t1'].append(csa_t1[index, 3][csa_t1[index, 4].index(subject)])
+                CSA_dict[vendor + '_t2'].append(csa_t2[index, 3][csa_t2[index, 4].index(subject)])
 
     # Generate figure for T1w and T2w agreement for all vendors together
     fig, ax = plt.subplots(figsize=(7, 7))
     # Loop across vendors
     for vendor in list(OrderedDict.fromkeys(vendor_sorted)):
-        plt.scatter(np.concatenate(CSA_dict[vendor + '_t2'], axis=0),
-                    np.concatenate(CSA_dict[vendor + '_t1'], axis=0),
+        plt.scatter(CSA_dict[vendor + '_t2'],
+                    CSA_dict[vendor + '_t1'],
                     s=50,
                     linewidths=2,
                     facecolors='none',
@@ -573,8 +600,8 @@ def generate_figure_t1_t2(df, csa_t1, csa_t2):
     # Loop across vendors (create subplot for each vendor)
     for index, vendor in enumerate(list(OrderedDict.fromkeys(vendor_sorted))):
         ax = plt.subplot(1, 3, index + 1)
-        x = np.concatenate(CSA_dict[vendor + '_t2'], axis=0)
-        y = np.concatenate(CSA_dict[vendor + '_t1'], axis=0)
+        x = CSA_dict[vendor + '_t2']
+        y = CSA_dict[vendor + '_t1']
         plt.scatter(x,
                     y,
                     s=50,
@@ -607,7 +634,9 @@ def generate_figure_t1_t2(df, csa_t1, csa_t2):
         # Enforce square grid
         plt.gca().set_aspect('equal', adjustable='box')
         # Compute linear fit
-        intercept, slope, reg_predictor, r2_sc = compute_regression(CSA_dict, vendor)
+        intercept, slope, reg_predictor, r2_sc = \
+            compute_regression(np.array(CSA_dict[vendor + '_t2']).reshape(-1, 1),
+                               np.array(CSA_dict[vendor + '_t1']).reshape(-1, 1))
         # Place regression equation to upper-left corner
         plt.text(0.1, 0.9,
                  "y = {0:.4}x + {1:.4}\nR\u00b2 = {2:.4}".format(float(slope), float(intercept), float(r2_sc)),
@@ -671,33 +700,6 @@ def remove_subject(subject, metric, dict_exclude_subj):
         if subject in dict_exclude_subj[metric]:
             return True
     return False
-
-
-def compute_regression(CSA_dict, vendor):
-    """
-    Compute linear regression for T1w and T2 CSA agreement
-    :param CSA_dict: dict with T1w and T2w CSA values
-    :param vendor: vendor name
-    :return: results of linear regression
-    """
-    # Y = Slope*X + Intercept
-
-    # create object for the class
-    linear_regression = LinearRegression()
-    # perform linear regression (compute slope and intercept)
-    linear_regression.fit(np.concatenate(CSA_dict[vendor + '_t2'], axis=0).reshape(-1, 1),
-                          np.concatenate(CSA_dict[vendor + '_t1'], axis=0).reshape(-1, 1))
-    intercept = linear_regression.intercept_
-    slope = linear_regression.coef_
-
-    # compute prediction
-    reg_predictor = linear_regression.predict(
-        np.concatenate(CSA_dict[vendor + '_t2'], axis=0).reshape(-1, 1))
-    # compute coefficient of determination R^2 of the prediction
-    r2_sc = linear_regression.score(np.concatenate(CSA_dict[vendor + '_t2'], axis=0).reshape(-1, 1),
-                          np.concatenate(CSA_dict[vendor + '_t1'], axis=0).reshape(-1, 1))
-
-    return intercept, slope, reg_predictor, r2_sc
 
 
 def main():
