@@ -579,12 +579,14 @@ def generate_figure_t1_t2(dict_exclude_subj):
 
     # Exlude subjects
     subjects_removed = []
-    # Loop across subjects
-    for subject, _ in t1_t2_df.iterrows():
-        # Exclude subject if is listed in csa_t1 or csa_t2 key
-        if subject in dict_exclude_subj['csa_t1'] or subject in dict_exclude_subj['csa_t2']:
-            t1_t2_df.loc[subject, 'exclude'] = True
-            subjects_removed.append(subject)
+    # Check if any subject is listed to exclude
+    if 'csa_t1' in dict_exclude_subj or 'csa_t2' in dict_exclude_subj:
+        # Loop across subjects
+        for subject, _ in t1_t2_df.iterrows():
+            # Exclude subject if is listed in csa_t1 or csa_t2 key
+            if subject in dict_exclude_subj['csa_t1'] or subject in dict_exclude_subj['csa_t2']:
+                t1_t2_df.loc[subject, 'exclude'] = True
+                subjects_removed.append(subject)
     logger.info("Subjects removed: {}".format(subjects_removed))
 
     # Generate figure for T1w and T2w agreement for all vendors together
