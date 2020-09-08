@@ -540,16 +540,22 @@ def generate_figure_t1_t2(df, csa_t1, csa_t2):
 
     # Create dictionary with CSA for T1w and T2w per vendors
     CSA_dict = defaultdict(list)
-    for index, line in enumerate(csa_t1):       # loop through individual sites
-        CSA_dict[line[1] + '_t1'].append(np.asarray(csa_t1[index, 3]))      # line[1] denotes vendor
-        CSA_dict[line[1] + '_t2'].append(np.asarray(csa_t2[index, 3]))      # line[1] denotes vendor
+    # loop across sites
+    for index, line in enumerate(csa_t1):
+        # Loop across subjects, making sure to only populate the dictionary with subjects existing both for T1 and T2
+        for subject in csa_t1[index][4]:
+            if subject in csa_t2[index, 4]:
+                # line[1] denotes vendor
+                # TODO: explicit with variable vendor
+                CSA_dict[line[1] + '_t1'].append(csa_t1[index, 3][csa_t1[index, 4].index(subject)])
+                CSA_dict[line[1] + '_t2'].append(csa_t2[index, 3][csa_t2[index, 4].index(subject)])
 
     # Generate figure for T1w and T2w agreement for all vendors together
     fig, ax = plt.subplots(figsize=(7, 7))
     # Loop across vendors
     for vendor in list(OrderedDict.fromkeys(vendor_sorted)):
-        plt.scatter(np.concatenate(CSA_dict[vendor + '_t2'], axis=0),
-                    np.concatenate(CSA_dict[vendor + '_t1'], axis=0),
+        plt.scatter(CSA_dict[vendor + '_t2'],
+                    CSA_dict[vendor + '_t1'],
                     s=50,
                     linewidths=2,
                     facecolors='none',
@@ -575,8 +581,8 @@ def generate_figure_t1_t2(df, csa_t1, csa_t2):
     # Loop across vendors (create subplot for each vendor)
     for index, vendor in enumerate(list(OrderedDict.fromkeys(vendor_sorted))):
         ax = plt.subplot(1, 3, index + 1)
-        x = np.concatenate(CSA_dict[vendor + '_t2'], axis=0)
-        y = np.concatenate(CSA_dict[vendor + '_t1'], axis=0)
+        x = CSA_dict[vendor + '_t2']
+        y = CSA_dict[vendor + '_t1']
         plt.scatter(x,
                     y,
                     s=50,
@@ -676,6 +682,7 @@ def remove_subject(subject, metric, dict_exclude_subj):
 
 
 def compute_regression(CSA_dict, vendor):
+    # TODO: refactor to make it lower level (ie no need to deal with dict and vendor)
     """
     Compute linear regression for T1w and T2 CSA agreement
     :param CSA_dict: dict with T1w and T2w CSA values
