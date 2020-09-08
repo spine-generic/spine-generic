@@ -533,6 +533,26 @@ def generate_figure_t1_t2(df, csa_t1, csa_t2):
     :param csa_t2:
     :return:
     """
+    def compute_regression(x, y):
+        """
+        Compute linear regression between x and y:
+        y = Slope * x + Intercept
+
+        :param x: list:
+        :param y: list:
+        :return: results of linear regression
+        """
+        # create object for the class
+        linear_regression = LinearRegression()
+        # perform linear regression (compute slope and intercept)
+        linear_regression.fit(x.reshape(-1, 1), y.reshape(-1, 1))
+        intercept = linear_regression.intercept_
+        slope = linear_regression.coef_
+        # compute prediction
+        reg_predictor = linear_regression.predict(x)
+        # compute coefficient of determination R^2 of the prediction
+        r2_sc = linear_regression.score(x, y)
+        return intercept, slope, reg_predictor, r2_sc
 
     # Sort values per vendor
     site_sorted = df.sort_values(by=['vendor', 'model', 'site']).index.values
@@ -681,28 +701,6 @@ def remove_subject(subject, metric, dict_exclude_subj):
         if subject in dict_exclude_subj[metric]:
             return True
     return False
-
-
-def compute_regression(x, y):
-    """
-    Compute linear regression between x and y:
-    y = Slope * x + Intercept
-
-    :param x: list:
-    :param y: list:
-    :return: results of linear regression
-    """
-    # create object for the class
-    linear_regression = LinearRegression()
-    # perform linear regression (compute slope and intercept)
-    linear_regression.fit(x.reshape(-1, 1), y.reshape(-1, 1))
-    intercept = linear_regression.intercept_
-    slope = linear_regression.coef_
-    # compute prediction
-    reg_predictor = linear_regression.predict(x)
-    # compute coefficient of determination R^2 of the prediction
-    r2_sc = linear_regression.score(x, y)
-    return intercept, slope, reg_predictor, r2_sc
 
 
 def main():
