@@ -523,36 +523,81 @@ def generate_figure_metric(df, metric, stats, display_individual_subjects, show_
     logger.info('Created: ' + fname_fig)
 
 
-def generate_figure_t1_t2(df, csa_t1, csa_t2):
+def generate_figure_t1_t2(dict_exclude_subj):
     """
-    Generate CSA_T1w vs. CSA_T2w
-    :param df:
-    :param csa_t1:
-    :param csa_t2:
+    :param dict_exclude_subj: dict with subjects to exclude
     :return:
     """
 
-    # Sort values per vendor
-    site_sorted = df.sort_values(by=['vendor', 'model', 'site']).index.values
-    vendor_sorted = df['vendor'][site_sorted].values
+    def _build_metric_df(csv_file):
+        """
+        Build pandas DF for csa-SC_T1w.csv and csa-SC_T2w.csv result files
+        :param csv_file: filename of input .csv file
+        :return: metric_df: pandas DF with mean values and subject_ID as indexes
+        """
+        # Read only columns with filename (contains sub_ID) and metric mean value
+        metric = pd.read_csv(csv_file, usecols=['Filename', 'MEAN(area)'])
 
-    # Create dictionary with CSA for T1w and T2w per vendors
-    CSA_dict = defaultdict(list)
-    for index, line in enumerate(csa_t1):       # loop through individual sites
-        CSA_dict[line[1] + '_t1'].append(np.asarray(csa_t1[index, 3]))      # line[1] denotes vendor
-        CSA_dict[line[1] + '_t2'].append(np.asarray(csa_t2[index, 3]))      # line[1] denotes vendor
+        subject_list = list()
+        mean_list = list()
+        # Loop across individual lines in metric DF (i.e., across subjects)
+        for index, line in metric.iterrows():
+            # Fetch sub_ID based on metric filename
+            subject_list.append(fetch_subject(line['Filename']))
+            # Get mean value
+            mean_list.append(line['MEAN(area)'])
+
+        # Create pandas DF from mean_list with subject_list as indexes
+        metric_df = pd.DataFrame(mean_list, index=subject_list, columns=[csv_file[:-4]])
+        return metric_df
+
+    logger.info('\nGenerating T1w and T2w agreement figures.')
+
+    # Build pandas DF of participants based on participants.tsv file (this file contains info about sites and vendors
+    # for individual subjects)
+    participants = pd.read_csv(os.path.join('participants.tsv'), sep="\t")
+    # Create pandas DF with from vendors as subjects_ID as indexes
+    vendor_pd = pd.DataFrame(list(participants['manufacturer']), index=participants['participant_id'],
+                             columns=['vendor'])
+
+    # Fetch csa-SC_T1w.csv and csa-SC_T2w.csv result files, assuming they are located in the current folder.
+    csv_files = glob.glob('csa-SC_T*w.csv')
+
+    if not csv_files:
+        raise RuntimeError("Variable 'csv_files' is empty, i.e. no *.csv files were found in current directory.")
+
+    # Loop across *csv files and read them as a pandas DF
+    t1_t2_list = list()
+    for csv_file in csv_files:
+        # Save individual pandas DF into list, then will be concatenated
+        t1_t2_list.append(_build_metric_df(csv_file))
+
+    # Concatenate t1 and t2 DF and vendor DF; subjects are as indexes
+    t1_t2_df = pd.concat([t1_t2_list[0], t1_t2_list[1], vendor_pd], axis=1, sort=False)
+    # Add column to DF with excluded subjects
+    t1_t2_df['exclude'] = False
+
+    # Exlude subjects
+    subjects_removed = []
+    # Loop across subjects
+    for subject, _ in t1_t2_df.iterrows():
+        # Exclude subject if is listed in csa_t1 or csa_t2 key
+        if subject in dict_exclude_subj['csa_t1'] or subject in dict_exclude_subj['csa_t2']:
+            t1_t2_df.loc[subject, 'exclude'] = True
+            subjects_removed.append(subject)
+    logger.info("Subjects removed: {}".format(subjects_removed))
 
     # Generate figure for T1w and T2w agreement for all vendors together
     fig, ax = plt.subplots(figsize=(7, 7))
-    # Loop across vendors
-    for vendor in list(OrderedDict.fromkeys(vendor_sorted)):
-        # check if number of values (subjects) is same for t1 and t2
-        if not len(np.concatenate(CSA_dict[vendor + '_t2'], axis=0)) == len(np.concatenate(CSA_dict[vendor + '_t1'],
-                                                                                           axis=0)):
-            raise ValueError("Number of values (subjects) for csa_t1 and csa_t2 for {} is different. Check your input "
-                             "*.csv files and use exclude .yml file".format(vendor))
-        plt.scatter(np.concatenate(CSA_dict[vendor + '_t2'], axis=0),
-                    np.concatenate(CSA_dict[vendor + '_t1'], axis=0),
+    # Loop across subjects grouped by vendors (i.e, 3 groups - GE, Philips, Siemens)
+    for vendor, value in t1_t2_df.groupby('vendor'):
+        # Exclude subjects and convert values to float
+        t2_array = value.loc[value['exclude'] == False, 'csa-SC_T2w'].values
+        t1_array = value.loc[value['exclude'] == False, 'csa-SC_T1w'].values
+        x = [float(i) for i in t2_array]
+        y = [float(i) for i in t1_array]
+        plt.scatter(x,
+                    y,
                     s=50,
                     linewidths=2,
                     facecolors='none',
@@ -575,11 +620,15 @@ def generate_figure_t1_t2(df, csa_t1, csa_t2):
 
     # Generate figure for T1w and T2w agreement per vendor
     plt.subplots(figsize=(15, 5))
-    # Loop across vendors (create subplot for each vendor)
-    for index, vendor in enumerate(list(OrderedDict.fromkeys(vendor_sorted))):
-        ax = plt.subplot(1, 3, index + 1)
-        x = np.concatenate(CSA_dict[vendor + '_t2'], axis=0)
-        y = np.concatenate(CSA_dict[vendor + '_t1'], axis=0)
+    index=1
+    # Loop across subjects grouped by vendors (i.e, 3 groups - GE, Philips, Siemens)
+    for vendor, value in t1_t2_df.groupby('vendor'):
+        ax = plt.subplot(1, 3, index)
+        # Exclude subjects and convert values to float
+        t2_array = value.loc[value['exclude'] == False, 'csa-SC_T2w'].values
+        t1_array = value.loc[value['exclude'] == False, 'csa-SC_T1w'].values
+        x = [float(i) for i in t2_array]
+        y = [float(i) for i in t1_array]
         plt.scatter(x,
                     y,
                     s=50,
@@ -601,7 +650,7 @@ def generate_figure_t1_t2(df, csa_t1, csa_t2):
         plt.xlim(lim_min - offset, lim_max + offset)
         plt.ylim(lim_min - offset, lim_max + offset)
         # Add bisection (diagonal) line
-        plt.plot([lim_min - offset , lim_max + offset],
+        plt.plot([lim_min - offset, lim_max + offset],
                  [lim_min - offset, lim_max + offset],
                  ls="--", c=".3")
         plt.xlabel("T2w CSA", fontsize=FONTSIZE)
@@ -612,28 +661,28 @@ def generate_figure_t1_t2(df, csa_t1, csa_t2):
         # Enforce square grid
         plt.gca().set_aspect('equal', adjustable='box')
         # Compute linear fit
-        intercept, slope, reg_predictor, r2_sc = compute_regression(CSA_dict, vendor)
+        intercept, slope, reg_predictor, r2_sc = compute_regression(t2_array, t1_array, vendor)
         # Place regression equation to upper-left corner
         plt.text(0.1, 0.9,
                  "y = {0:.4}x + {1:.4}\nR\u00b2 = {2:.4}".format(float(slope), float(intercept), float(r2_sc)),
-                 ha='left', va='center', transform = ax.transAxes, fontsize=TICKSIZE, color='red',
-                 bbox=dict(boxstyle='round', facecolor='white', alpha=1))   # box around equation
+                 ha='left', va='center', transform=ax.transAxes, fontsize=TICKSIZE, color='red',
+                 bbox=dict(boxstyle='round', facecolor='white', alpha=1))  # box around equation
         # Plot linear fit
         axes = plt.gca()
         x_vals = np.array(axes.get_xlim())
         y_vals = intercept + slope * x_vals
-        y_vals = np.squeeze(y_vals)     # change shape from (1,N) to (N,)
+        y_vals = np.squeeze(y_vals)  # change shape from (1,N) to (N,)
         plt.plot(x_vals, y_vals, color='red')
         # Add title above middle subplot
-        if index == 1:
+        if index == 2:
             plt.title("CSA agreement between T1w and T2w data per vendors", fontsize=FONTSIZE, pad=20)
+        index = index + 1
     # Move subplots closer to each other
     plt.subplots_adjust(wspace=-0.5)
     plt.tight_layout()
     fname_fig = 'fig_t1_t2_agreement_per_vendor.png'
     plt.savefig(fname_fig, dpi=200)
     logger.info('Created: ' + fname_fig)
-
 
 def get_env(file_param):
     """
@@ -678,10 +727,11 @@ def remove_subject(subject, metric, dict_exclude_subj):
     return False
 
 
-def compute_regression(CSA_dict, vendor):
+def compute_regression(x, y, vendor):
     """
     Compute linear regression for T1w and T2 CSA agreement
-    :param CSA_dict: dict with T1w and T2w CSA values
+    :param x: T2w CSA values
+    :param y: T1w CSA values
     :param vendor: vendor name
     :return: results of linear regression
     """
@@ -690,17 +740,14 @@ def compute_regression(CSA_dict, vendor):
     # create object for the class
     linear_regression = LinearRegression()
     # perform linear regression (compute slope and intercept)
-    linear_regression.fit(np.concatenate(CSA_dict[vendor + '_t2'], axis=0).reshape(-1, 1),
-                          np.concatenate(CSA_dict[vendor + '_t1'], axis=0).reshape(-1, 1))
+    linear_regression.fit(x.reshape(-1, 1), y.reshape(-1, 1))
     intercept = linear_regression.intercept_
     slope = linear_regression.coef_
 
     # compute prediction
-    reg_predictor = linear_regression.predict(
-        np.concatenate(CSA_dict[vendor + '_t2'], axis=0).reshape(-1, 1))
+    reg_predictor = linear_regression.predict(x.reshape(-1, 1))
     # compute coefficient of determination R^2 of the prediction
-    r2_sc = linear_regression.score(np.concatenate(CSA_dict[vendor + '_t2'], axis=0).reshape(-1, 1),
-                          np.concatenate(CSA_dict[vendor + '_t1'], axis=0).reshape(-1, 1))
+    r2_sc = linear_regression.score(x.reshape(-1, 1), y.reshape(-1, 1))
 
     return intercept, slope, reg_predictor, r2_sc
 
@@ -728,21 +775,6 @@ def main():
                 dict_exclude_subj = yaml.safe_load(stream)
             except yaml.YAMLError as exc:
                 logger.error(exc)
-
-        # if subject is listed only in csa_t1, exclude him/her also from csa_t2 and vice versa (necessary for t1-t2
-        # agreement figure to ensure that x and y axis have same number of values)
-        # subjects are listed only in csa_t2 --> add them also to csa_t1
-        if 'csa_t1' not in dict_exclude_subj:
-            dict_exclude_subj['csa_t1'] = dict_exclude_subj['csa_t2']
-        # subjects are listed only in csa_t1 --> add them also to csa_t2
-        elif 'csa_t2' not in dict_exclude_subj:
-            dict_exclude_subj['csa_t2'] = dict_exclude_subj['csa_t1']
-        # subjects are listed in both csa_t1 and csa_t2 --> get unique subjects from both and add them to csa_t1 and
-        # csa_t2
-        elif 'csa_t1' in dict_exclude_subj and 'csa_t2' in dict_exclude_subj:
-            unique_t1_t2 = list(set(dict_exclude_subj['csa_t1'] + dict_exclude_subj['csa_t2']))
-            dict_exclude_subj['csa_t1'] = unique_t1_t2
-            dict_exclude_subj['csa_t2'] = unique_t1_t2
 
     else:
         # initialize empty dict if no config yml file is passed
@@ -802,15 +834,8 @@ def main():
         # Generate figure
         generate_figure_metric(df, metric, stats, display_individual_subjects, show_ci=args.show_ci)
 
-        # Get T1w and T2w CSA (will be used later for another figure)
-        if metric == "csa_t1":
-            csa_t1 = df.sort_values('site').values
-        elif metric == "csa_t2":
-            csa_t2 = df.sort_values('site').values
-
     # Generate T1w vs. T2w figure
-    generate_figure_t1_t2(df, csa_t1, csa_t2)
-
+    generate_figure_t1_t2(dict_exclude_subj)
 
 if __name__ == "__main__":
     main()
