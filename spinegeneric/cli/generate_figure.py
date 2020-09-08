@@ -256,10 +256,12 @@ def aggregate_per_site(dict_results, metric, dict_exclude_subj):
                 results_agg[site]['vendor'] = participants['manufacturer'][rowIndex].array[0]
                 results_agg[site]['model'] = participants['manufacturers_model_name'][rowIndex].array[0]
                 results_agg[site]['val'] = []
+                results_agg[site]['subject'] = []
             # add val for site (ignore None)
             val = dict_results[i][metric_field]
             if not val == 'None':
                 results_agg[site]['val'].append(float(val))
+                results_agg[site]['subject'].append(subject)
         else:
             subjects_removed.append(subject)
     logger.info("Subjects removed: {}".format(subjects_removed))
@@ -779,7 +781,7 @@ def main():
         df, stats = compute_statistics(df)
 
         # Generate figure
-        generate_figure_metric(df, metric, stats, display_individual_subjects, show_ci=args.show_ci)
+        # generate_figure_metric(df, metric, stats, display_individual_subjects, show_ci=args.show_ci)
 
         # Get T1w and T2w CSA (will be used later for another figure)
         if metric == "csa_t1":
