@@ -47,7 +47,7 @@ def main():
     logging.basicConfig(filename=path_warning_log, format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
     # Initialize the layout
-    with importlib.resources.path(spinegeneric.config, 'sg_layout_config.json') as path_sg_layout_config:
+    with importlib.resources.path(spinegeneric.config, 'bids_specs.json') as path_sg_layout_config:
         layout = BIDSLayout(data_path,config_filename=path_sg_layout_config,validate=False)
 
     Contrast_list = ['T1w', 'T2w', 'T2star', 'MTS']
