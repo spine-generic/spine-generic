@@ -562,13 +562,12 @@ def generate_figure_t1_t2(df, csa_t1, csa_t2):
     CSA_dict = defaultdict(list)
     # loop across sites
     for index, line in enumerate(csa_t1):
+        vendor = line[1]
         # Loop across subjects, making sure to only populate the dictionary with subjects existing both for T1 and T2
         for subject in csa_t1[index][4]:
             if subject in csa_t2[index, 4]:
-                # line[1] denotes vendor
-                # TODO: explicit with variable vendor
-                CSA_dict[line[1] + '_t1'].append(csa_t1[index, 3][csa_t1[index, 4].index(subject)])
-                CSA_dict[line[1] + '_t2'].append(csa_t2[index, 3][csa_t2[index, 4].index(subject)])
+                CSA_dict[vendor + '_t1'].append(csa_t1[index, 3][csa_t1[index, 4].index(subject)])
+                CSA_dict[vendor + '_t2'].append(csa_t2[index, 3][csa_t2[index, 4].index(subject)])
 
     # Generate figure for T1w and T2w agreement for all vendors together
     fig, ax = plt.subplots(figsize=(7, 7))
@@ -782,7 +781,7 @@ def main():
         df, stats = compute_statistics(df)
 
         # Generate figure
-        # generate_figure_metric(df, metric, stats, display_individual_subjects, show_ci=args.show_ci)
+        generate_figure_metric(df, metric, stats, display_individual_subjects, show_ci=args.show_ci)
 
         # Get T1w and T2w CSA (will be used later for another figure)
         if metric == "csa_t1":
