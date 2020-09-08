@@ -164,7 +164,7 @@
         "GE":{
             "DISCOVERY_MR750":{
                 "T1w":{
-                    "InversionTime": 1,
+                    "InversionTime":1,
                     "FlipAngle":9
                 },
                 "T2w":{
@@ -193,7 +193,7 @@
             },
             "DISCOVERY_MR750w":{
                 "T1w":{
-                    "InversionTime": 1,
+                    "InversionTime":1,
                     "FlipAngle":9
                 },
                 "T2w":{
@@ -222,7 +222,7 @@
             },
             "Signa_HDxt":{
                 "T1w":{
-                    "InversionTime": 1,
+                    "InversionTime":1,
                     "FlipAngle":9
                 },
                 "T2w":{
@@ -251,7 +251,7 @@
             },
             "SIGNA_PET_MR":{
                 "T1w":{
-                    "InversionTime": 1,
+                    "InversionTime":1,
                     "FlipAngle":9
                 },
                 "T2w":{
@@ -293,7 +293,7 @@
                 },
                 "T2star":{
                     "RepetitionTime":0.6,
-                    "EchoTime": 0.0072,
+                    "EchoTime":0.0072,
                     "FlipAngle":30
                 },
                 "MTon_MTS":{
@@ -325,7 +325,7 @@
                 },
                 "T2star":{
                     "RepetitionTime":0.6,
-                    "EchoTime": 0.0072,
+                    "EchoTime":0.0072,
                     "FlipAngle":30
                 },
                 "MTon_MTS":{
@@ -357,7 +357,7 @@
                 },
                 "T2star":{
                     "RepetitionTime":0.6,
-                    "EchoTime": 0.0072,
+                    "EchoTime":0.0072,
                     "FlipAngle":30
                 },
                 "MTon_MTS":{
@@ -389,7 +389,7 @@
                 },
                 "T2star":{
                     "RepetitionTime":0.6,
-                    "EchoTime": 0.0072,
+                    "EchoTime":0.0072,
                     "FlipAngle":30
                 },
                 "MTon_MTS":{
@@ -421,7 +421,7 @@
                 },
                 "T2star":{
                     "RepetitionTime":0.6,
-                    "EchoTime": 0.0072,
+                    "EchoTime":0.0072,
                     "FlipAngle":30
                 },
                 "MTon_MTS":{
