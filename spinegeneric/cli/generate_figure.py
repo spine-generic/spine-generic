@@ -19,6 +19,7 @@ import pandas as pd
 import subprocess
 from textwrap import dedent
 import yaml
+import math
 
 import numpy as np
 from scipy import ndimage
@@ -190,6 +191,11 @@ def get_parser():
         action='store_true',
         help="Show 95%% confidence interval on the plot.")
     parser.add_argument(
+        '-output-text',
+        required=False,
+        action='store_true',
+        help="Write statistics results into text file.")
+    parser.add_argument(
         '-exclude',
         required=False,
         help=
@@ -356,8 +362,8 @@ def compute_statistics(df):
         # ANOVA: category=[site]
         values_per_site = [df['val'][(df['vendor'] == vendor) & (df['site'] == i_site)][0]
                            for i_site in df['site'][df['vendor'] == vendor]]
-        stats['anova_site'][site] = f_oneway(*values_per_site)
-        logger.info("ANOVA[site] for {}: {}".format(vendor, stats['anova_site'][site]))
+        stats['anova_site'][vendor] = f_oneway(*values_per_site)
+        logger.info("ANOVA[site] for {}: {}".format(vendor, stats['anova_site'][vendor]))
 
     # ANOVA: category=[vendor]
     stats['anova_vendor'] = f_oneway(*[df['mean'][df['vendor'] == i_vendor] for i_vendor in vendors])
@@ -367,6 +373,88 @@ def compute_statistics(df):
     logger.info("Tukey Honestly Significant Difference (HSD):\n{}".format(stats['tukey_test']))
     return df, stats
 
+
+def output_text(stats, metric):
+    """
+    # Write statistical results into text file
+    :param stats: dict with stat resutls
+    :param metric: currently processed metric (e.g, dti_fa,...)
+    """
+
+    def check_p_value(p_val):
+        """
+        Check if p-value is lower than 0.01, if so, change it to "<0.01", otherwise, round it to two decimals
+        :param p_val: input p-value
+        :return: p_val: processed p-value (replaced by "<0.01" or rounded to two decimals)
+        """
+        if p_val < 0.01:
+            p_val = "<0.01"
+        else:
+            p_val = round(p_val, 2)
+
+        return p_val
+
+    fname = os.path.join(os.path.abspath(os.curdir), "statistical_results.txt")
+    # Check if file exist, if not create it, if so, append to this file
+    if not os.path.isfile(fname):
+        file = open(fname, "w+")
+    else:
+        file = open(fname, "a+")
+
+    # Write metric name and two blank lines
+    file.write('{}:\n\n'.format(metric))
+    # Find and write highest intra-site COV (rounded up)
+    file.write("The intra-site coefficients of variation (COVs) were averaged for each vendor and found to be all "
+                "just under {}%. ".format(math.ceil(max(stats['cov_intra'].values()) * 100)))
+
+    # Write inter-site COVs and ANOVA p-values
+    file.write("The inter-site COVs (and inter-site ANOVA p-values) were ")
+    for count, vendor in enumerate(stats['cov_inter'].keys()):
+        cov_inter = stats['cov_inter'][vendor] * 100
+        p_val = stats['anova_site'][vendor][1]
+        p_val = check_p_value(p_val)
+        file.write("{:.1f}% (p={}) for {}".format(cov_inter, p_val, vendor))
+        if count == 0:
+            file.write(", ")
+        elif count == 1:
+            file.write(" and ")
+        elif count == 2:
+            file.write(". ")
+
+    p_val_anova = stats['anova_vendor'][1]
+    # Write post-hoc Tukey results if inter-vendor difference was significant
+    if p_val_anova < 0.05:
+        p_val_anova = check_p_value(p_val_anova)
+        file.write("The inter-vendor difference was significant (p={}), with the Tukey test showing significant "
+                    "differences ".format(p_val_anova))
+
+        # Get significant post-hoc results
+        index = sum(stats['tukey_test'].reject == True)     # total number of significant post-hoc tests
+        # Loop across between vendor tests (i.e, GE-Philips, GE-Siemens, Philips-Siemens)
+        for counter in range(1, 4):
+            # Check if post-hoc test was rejected or not
+            if stats['tukey_test']._results_table[counter][6].data:
+                vendor1 = stats['tukey_test']._results_table[counter][0].data   # 1st vendor
+                vendor2 = stats['tukey_test']._results_table[counter][1].data   # 2nd vendor
+                p_adj = stats['tukey_test']._results_table[counter][3].data     # adjusted p-val
+                p_adj = check_p_value(p_adj)
+                file.write('between {} and {} (p-adj={})'.format(vendor1, vendor2, p_adj))
+                index -= 1
+                # Decide which conjunction will be used
+                if index == 2:
+                    file.write(', ')
+                elif index == 1:
+                    file.write(' and ')
+    # Inter-vendor difference was not significant
+    else:
+        p_val_anova = check_p_value(p_val_anova)
+        file.write("The inter-vendor difference was not significant (p={})".format(p_val_anova))
+
+    # add two blank lines between individual metrics
+    file.write('.\n\n')
+    file.close()
+
+    return None
 
 def fetch_subject(filename):
     """
@@ -779,6 +867,10 @@ def main():
 
         # Compute statistics
         df, stats = compute_statistics(df)
+
+        # Write statistical results into text file
+        if args.output_text == True:
+            output_text(stats, metric)
 
         # Generate figure
         generate_figure_metric(df, metric, stats, display_individual_subjects, show_ci=args.show_ci)
