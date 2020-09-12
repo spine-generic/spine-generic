@@ -194,7 +194,7 @@ def get_parser():
         '-output-text',
         required=False,
         action='store_true',
-        help="Write statistics results into text file.")
+        help="Write statistical results into text file.")
     parser.add_argument(
         '-exclude',
         required=False,
@@ -869,7 +869,7 @@ def main():
         df, stats = compute_statistics(df)
 
         # Write statistical results into text file
-        if args.output_text == True:
+        if args.output_text:
             output_text(stats, metric)
 
         # Generate figure
