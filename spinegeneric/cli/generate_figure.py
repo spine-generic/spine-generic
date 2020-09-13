@@ -405,7 +405,7 @@ def output_text(stats, metric):
     file.write('{}:\n\n'.format(metric))
     # Find and write highest intra-site COV (rounded up)
     file.write("The intra-site coefficients of variation (COVs) were averaged for each vendor and found to be all "
-                "just under {}%. ".format(math.ceil(max(stats['cov_intra'].values()) * 100)))
+                "under {}%. ".format(math.ceil(max(stats['cov_intra'].values()) * 100)))
 
     # Write inter-site COVs and ANOVA p-values
     file.write("The inter-site COVs (and inter-site ANOVA p-values) were ")
@@ -450,7 +450,7 @@ def output_text(stats, metric):
         p_val_anova = format_p_value(p_val_anova)
         file.write("The inter-vendor difference was not significant (p={})".format(p_val_anova))
 
-    # add two blank lines between individual metrics
+    # add dot to the end of previous sentence and two blank lines between individual metrics
     file.write('.\n\n')
     file.close()
 
