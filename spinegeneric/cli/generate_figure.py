@@ -376,7 +376,7 @@ def compute_statistics(df):
 
 def output_text(stats, metric):
     """
-    # Write statistical results into text file
+    # Embed statistical results into sentences so they can easily be copy/pasted into a manuscript. 
     :param stats: dict with stat resutls
     :param metric: currently processed metric (e.g, dti_fa,...)
     """
