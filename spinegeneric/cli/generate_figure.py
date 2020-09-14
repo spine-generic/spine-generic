@@ -361,12 +361,12 @@ def compute_statistics(df):
                     df['mean'][(df['vendor'] == vendor) & ~df['exclude']].values)
         # ANOVA: category=[site]
         values_per_site = [df['val'][(df['vendor'] == vendor) & (df['site'] == i_site)][0]
-                           for i_site in df['site'][df['vendor'] == vendor]]
+                           for i_site in df['site'][(df['vendor'] == vendor) & ~df['exclude']]]
         stats['anova_site'][vendor] = f_oneway(*values_per_site)
         logger.info("ANOVA[site] for {}: {}".format(vendor, stats['anova_site'][vendor]))
 
     # ANOVA: category=[vendor]
-    stats['anova_vendor'] = f_oneway(*[df['mean'][df['vendor'] == i_vendor] for i_vendor in vendors])
+    stats['anova_vendor'] = f_oneway(*[df['mean'][(df['vendor'] == i_vendor) & ~df['exclude']] for i_vendor in vendors])
     logger.info("ANOVA[vendor]: {}".format(stats['anova_vendor']))
     # Multiple pairwise comparison with Tukey Honestly Significant Difference (HSD) test
     stats['tukey_test'] = pairwise_tukeyhsd(df['mean'], df['vendor'])
