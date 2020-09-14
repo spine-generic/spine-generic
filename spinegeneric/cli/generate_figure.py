@@ -384,15 +384,15 @@ def output_text(stats, metric):
     def format_p_value(p_val):
         """
         If p-value is lower than 0.01, change it to "<0.01", otherwise, round it to two decimals
-        :param p_val: input p-value
-        :return: p_val: processed p-value (replaced by "<0.01" or rounded to two decimals)
+        :param p_val: input p-value as a float
+        :return: p_val: processed p-value (replaced by "<0.01" or rounded to two decimals) as a str
         """
         if p_val < 0.01:
             p_val = "<0.01"
         else:
-            p_val = round(p_val, 2)
+            p_val = '=' + str(round(p_val, 2))
 
-        return str(p_val)
+        return p_val
 
     fname = os.path.join(os.path.abspath(os.curdir), "statistical_results.txt")
     # Check if file exist, if not create it, if so, append to this file
@@ -413,7 +413,7 @@ def output_text(stats, metric):
         cov_inter = stats['cov_inter'][vendor] * 100
         p_val = stats['anova_site'][vendor][1]
         p_val = format_p_value(p_val)
-        file.write("{:.1f}% (p={}) for {}".format(cov_inter, p_val, vendor))
+        file.write("{:.1f}% (p{}) for {}".format(cov_inter, p_val, vendor))
         if count == 0:
             file.write(", ")
         elif count == 1:
@@ -425,7 +425,7 @@ def output_text(stats, metric):
     # Write post-hoc Tukey results if inter-vendor difference was significant
     if p_val_anova < 0.05:
         p_val_anova = format_p_value(p_val_anova)
-        file.write("The inter-vendor difference was significant (p={}), with the Tukey test showing significant "
+        file.write("The inter-vendor difference was significant (p{}), with the Tukey test showing significant "
                     "differences ".format(p_val_anova))
 
         # Get significant post-hoc results
@@ -438,7 +438,7 @@ def output_text(stats, metric):
                 vendor2 = stats['tukey_test']._results_table[counter][1].data   # 2nd vendor
                 p_adj = stats['tukey_test']._results_table[counter][3].data     # adjusted p-val
                 p_adj = format_p_value(p_adj)
-                file.write('between {} and {} (p-adj={})'.format(vendor1, vendor2, p_adj))
+                file.write('between {} and {} (p-adj{})'.format(vendor1, vendor2, p_adj))
                 index -= 1
                 # Decide which conjunction will be used
                 if index == 2:
@@ -448,7 +448,7 @@ def output_text(stats, metric):
     # Inter-vendor difference was not significant
     else:
         p_val_anova = format_p_value(p_val_anova)
-        file.write("The inter-vendor difference was not significant (p={})".format(p_val_anova))
+        file.write("The inter-vendor difference was not significant (p{})".format(p_val_anova))
 
     # add dot to the end of previous sentence and two blank lines between individual metrics
     file.write('.\n\n')
