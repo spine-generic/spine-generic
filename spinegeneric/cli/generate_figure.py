@@ -117,12 +117,12 @@ file_to_metric = {
     'csa-SC_T1w.csv': 'csa_t1',
     'csa-SC_T2w.csv': 'csa_t2',
     'csa-GM_T2s.csv': 'csa_gm',
-    'DWI_FA.csv': 'dti_fa',
-    'DWI_MD.csv': 'dti_md',
-    'DWI_RD.csv': 'dti_rd',
     'MTR.csv': 'mtr',
     'MTsat.csv': 'mtsat',
     'T1.csv': 't1',
+    'DWI_FA.csv': 'dti_fa',
+    'DWI_MD.csv': 'dti_md',
+    'DWI_RD.csv': 'dti_rd',
     }
 
 # fetch metric field
@@ -831,14 +831,13 @@ def main():
     fh = logging.FileHandler(os.path.join(os.path.abspath(os.curdir), 'log_stats.txt'))
     logging.root.addHandler(fh)
 
-    # fetch all .csv result files, assuming they are located in the current folder.
-    csv_files = glob.glob('*.csv')
+    # loop across results (individual *.csv files) and generate figures and compute statistics
+    for csv_file in file_to_metric.keys():
 
-    if not csv_files:
-        raise RuntimeError("Variable 'csv_files' is empty, i.e. no *.csv files were found in current directory.")
-
-    # loop across results and generate figure
-    for csv_file in csv_files:
+        # skip metric, if *.csv file does not exist
+        if not os.path.isfile(csv_file):
+            logger.info('\n{} file is missing. Skipping to the next metric.'.format(csv_file))
+            continue
 
         # Open CSV file and create dict
         logger.info('\nProcessing: ' + csv_file)
