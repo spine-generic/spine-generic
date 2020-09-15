@@ -13,7 +13,6 @@ import argparse
 import importlib.resources
 import tqdm
 import sys
-import glob
 import csv
 import pandas as pd
 import subprocess
@@ -43,6 +42,8 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)  # default: logging.DEBUG, logging.INFO
 hdlr = logging.StreamHandler(sys.stdout)
 logging.root.addHandler(hdlr)
+
+FNAME_LOG = 'log_stats.txt'
 
 # country dictionary: key: site, value: country name
 # Flags are downloaded from: https://emojipedia.org/
@@ -172,8 +173,8 @@ LABELSIZE = 15
 
 def get_parser():
     parser = argparse.ArgumentParser(
-        description="Generate figures for the spine-generic project. "
-                    "The following metrics will be computed:\n {}".format(list(metric_to_field.keys())),
+        description="Generate figures for the spine-generic project. Statistical resuls are output in the file '{}'. "
+                    "The following metrics will be computed:\n {}".format(FNAME_LOG, list(metric_to_field.keys())),
         formatter_class=sg.utils.SmartFormatter,
     )
     parser.add_argument(
@@ -194,7 +195,7 @@ def get_parser():
         '-output-text',
         required=False,
         action='store_true',
-        help="Write statistical results into text file.")
+        help="Write statistical results into sentences for easy copy/paste into a manuscript.")
     parser.add_argument(
         '-exclude',
         required=False,
@@ -374,11 +375,10 @@ def compute_statistics(df):
     return df, stats
 
 
-def output_text(stats, metric):
+def output_text(stats):
     """
-    # Embed statistical results into sentences so they can easily be copy/pasted into a manuscript. 
+    Embed statistical results into sentences so they can easily be copy/pasted into a manuscript.
     :param stats: dict with stat resutls
-    :param metric: currently processed metric (e.g, dti_fa,...)
     """
 
     def format_p_value(p_val):
@@ -394,39 +394,46 @@ def output_text(stats, metric):
 
         return p_val
 
-    fname = os.path.join(os.path.abspath(os.curdir), "statistical_results.txt")
-    # Check if file exist, if not create it, if so, append to this file
-    if not os.path.isfile(fname):
-        file = open(fname, "w+")
-    else:
-        file = open(fname, "a+")
+    txt = ""
 
-    # Write metric name and two blank lines
-    file.write('{}:\n\n'.format(metric))
+    # Find out if this is single-subject data (single value per site)
+    if max(stats['cov_intra'].values()) == 0.0:
+        single_subject = True
+    else:
+        single_subject = False
+
     # Find and write highest intra-site COV (rounded up)
-    file.write("The intra-site coefficients of variation (COVs) were averaged for each vendor and found to be all "
-                "under {}%. ".format(math.ceil(max(stats['cov_intra'].values()) * 100)))
+    if not single_subject:
+        txt += "The intra-site COVs were averaged for each vendor and found to be all under " \
+               "{}%. ".format(math.ceil(max(stats['cov_intra'].values()) * 100))
 
     # Write inter-site COVs and ANOVA p-values
-    file.write("The inter-site COVs (and inter-site ANOVA p-values) were ")
+    if single_subject:
+        txt += "The inter-site COVs were "
+    else:
+        txt += "The inter-site COVs (and inter-site ANOVA p-values) were "
+
     for count, vendor in enumerate(stats['cov_inter'].keys()):
         cov_inter = stats['cov_inter'][vendor] * 100
         p_val = stats['anova_site'][vendor][1]
         p_val = format_p_value(p_val)
-        file.write("{:.1f}% (p{}) for {}".format(cov_inter, p_val, vendor))
+        if single_subject:
+            txt += "{:.1f}% for {}".format(cov_inter, vendor)
+        else:
+            txt += "{:.1f}% (p{}) for {}".format(cov_inter, p_val, vendor)
         if count == 0:
-            file.write(", ")
+            txt += ", "
         elif count == 1:
-            file.write(" and ")
+            txt += " and "
         elif count == 2:
-            file.write(". ")
+            txt += ". "
 
     p_val_anova = stats['anova_vendor'][1]
     # Write post-hoc Tukey results if inter-vendor difference was significant
     if p_val_anova < 0.05:
         p_val_anova = format_p_value(p_val_anova)
-        file.write("The inter-vendor difference was significant (p{}), with the Tukey test showing significant "
-                    "differences ".format(p_val_anova))
+        txt += "The inter-vendor difference was significant (p{}), with the Tukey test showing significant " \
+               "differences ".format(p_val_anova)
 
         # Get significant post-hoc results
         index = sum(stats['tukey_test'].reject == True)     # total number of significant post-hoc tests
@@ -438,23 +445,21 @@ def output_text(stats, metric):
                 vendor2 = stats['tukey_test']._results_table[counter][1].data   # 2nd vendor
                 p_adj = stats['tukey_test']._results_table[counter][3].data     # adjusted p-val
                 p_adj = format_p_value(p_adj)
-                file.write('between {} and {} (p-adj{})'.format(vendor1, vendor2, p_adj))
+                txt += "between {} and {} (p-adj{})".format(vendor1, vendor2, p_adj)
                 index -= 1
                 # Decide which conjunction will be used
                 if index == 2:
-                    file.write(', ')
+                    txt += ", "
                 elif index == 1:
-                    file.write(' and ')
+                    txt += " and "
     # Inter-vendor difference was not significant
     else:
         p_val_anova = format_p_value(p_val_anova)
-        file.write("The inter-vendor difference was not significant (p{})".format(p_val_anova))
+        txt += "The inter-vendor difference was not significant (p{})".format(p_val_anova)
 
-    # add dot to the end of previous sentence and two blank lines between individual metrics
-    file.write('.\n\n')
-    file.close()
+    txt += "."
+    logger.info(txt)
 
-    return None
 
 def fetch_subject(filename):
     """
@@ -823,15 +828,14 @@ def main():
             os.chdir(args.path_results)
         else:
             raise FileNotFoundError("Directory '{}' was not found.".format(args.path_results))
-    else:
-        # Stay in current directory (assume it is results directory)
-        os.chdir(os.getcwd())
 
     # Dump log file there
-    fh = logging.FileHandler(os.path.join(os.path.abspath(os.curdir), 'log_stats.txt'))
+    if os.path.exists(FNAME_LOG):
+        os.remove(FNAME_LOG)
+    fh = logging.FileHandler(os.path.join(os.path.abspath(os.curdir), FNAME_LOG))
     logging.root.addHandler(fh)
 
-    # loop across results (individual *.csv files) and generate figures and compute statistics
+    # loop across individual *.csv files and generate figures and compute statistics
     for csv_file in file_to_metric.keys():
 
         # skip metric, if *.csv file does not exist
@@ -840,7 +844,7 @@ def main():
             continue
 
         # Open CSV file and create dict
-        logger.info('\nProcessing: ' + csv_file)
+        logger.info("\n{}\n====================================================".format(csv_file))
         dict_results = []
         with open(csv_file, newline='') as f_csv:
             reader = csv.DictReader(f_csv)
@@ -869,7 +873,7 @@ def main():
 
         # Write statistical results into text file
         if args.output_text:
-            output_text(stats, metric)
+            output_text(stats)
 
         # Generate figure
         generate_figure_metric(df, metric, stats, display_individual_subjects, show_ci=args.show_ci)
