@@ -823,9 +823,6 @@ def main():
             os.chdir(args.path_results)
         else:
             raise FileNotFoundError("Directory '{}' was not found.".format(args.path_results))
-    else:
-        # Stay in current directory (assume it is results directory)
-        os.chdir(os.getcwd())
 
     # Dump log file there
     fh = logging.FileHandler(os.path.join(os.path.abspath(os.curdir), 'log_stats.txt'))
