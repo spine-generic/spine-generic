@@ -868,6 +868,9 @@ def main():
                 if not subject.startswith('sub-'):
                     df['exclude'][subject] = True
 
+        # Excluded sites
+        logger.info('Sites removed: {}'.format(list(df[df['exclude'] == True]['site'].values)))
+
         # Compute statistics
         df, stats = compute_statistics(df)
 
