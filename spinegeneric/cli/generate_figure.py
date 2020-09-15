@@ -44,7 +44,6 @@ hdlr = logging.StreamHandler(sys.stdout)
 logging.root.addHandler(hdlr)
 
 FNAME_LOG = 'log_stats.txt'
-FNAME_TEXT = 'statistical_results.txt'
 
 # country dictionary: key: site, value: country name
 # Flags are downloaded from: https://emojipedia.org/
@@ -196,7 +195,7 @@ def get_parser():
         '-output-text',
         required=False,
         action='store_true',
-        help="Write statistical results into text file: '{}'.".format(FNAME_TEXT))
+        help="Write statistical results into sentences for easy copy/paste into a manuscript.")
     parser.add_argument(
         '-exclude',
         required=False,
@@ -376,11 +375,10 @@ def compute_statistics(df):
     return df, stats
 
 
-def output_text(stats, metric):
+def output_text(stats):
     """
-    # Embed statistical results into sentences so they can easily be copy/pasted into a manuscript. 
+    Embed statistical results into sentences so they can easily be copy/pasted into a manuscript.
     :param stats: dict with stat resutls
-    :param metric: currently processed metric (e.g, dti_fa,...)
     """
 
     def format_p_value(p_val):
@@ -396,34 +394,33 @@ def output_text(stats, metric):
 
         return p_val
 
-    file = open(FNAME_TEXT, "a+")
+    txt = ""
 
     # Write metric name and two blank lines
-    file.write('{}:\n\n'.format(metric))
     # Find and write highest intra-site COV (rounded up)
-    file.write("The intra-site coefficients of variation (COVs) were averaged for each vendor and found to be all "
-                "under {}%. ".format(math.ceil(max(stats['cov_intra'].values()) * 100)))
+    txt += "The intra-site coefficients of variation (COVs) were averaged for each vendor and found to be all under " \
+           "{}%. ".format(math.ceil(max(stats['cov_intra'].values()) * 100))
 
     # Write inter-site COVs and ANOVA p-values
-    file.write("The inter-site COVs (and inter-site ANOVA p-values) were ")
+    txt += "The inter-site COVs (and inter-site ANOVA p-values) were "
     for count, vendor in enumerate(stats['cov_inter'].keys()):
         cov_inter = stats['cov_inter'][vendor] * 100
         p_val = stats['anova_site'][vendor][1]
         p_val = format_p_value(p_val)
-        file.write("{:.1f}% (p{}) for {}".format(cov_inter, p_val, vendor))
+        txt += "{:.1f}% (p{}) for {}".format(cov_inter, p_val, vendor)
         if count == 0:
-            file.write(", ")
+            txt += ", "
         elif count == 1:
-            file.write(" and ")
+            txt += " and "
         elif count == 2:
-            file.write(". ")
+            txt += ". "
 
     p_val_anova = stats['anova_vendor'][1]
     # Write post-hoc Tukey results if inter-vendor difference was significant
     if p_val_anova < 0.05:
         p_val_anova = format_p_value(p_val_anova)
-        file.write("The inter-vendor difference was significant (p{}), with the Tukey test showing significant "
-                    "differences ".format(p_val_anova))
+        txt += "The inter-vendor difference was significant (p{}), with the Tukey test showing significant " \
+               "differences ".format(p_val_anova)
 
         # Get significant post-hoc results
         index = sum(stats['tukey_test'].reject == True)     # total number of significant post-hoc tests
@@ -435,21 +432,21 @@ def output_text(stats, metric):
                 vendor2 = stats['tukey_test']._results_table[counter][1].data   # 2nd vendor
                 p_adj = stats['tukey_test']._results_table[counter][3].data     # adjusted p-val
                 p_adj = format_p_value(p_adj)
-                file.write('between {} and {} (p-adj{})'.format(vendor1, vendor2, p_adj))
+                txt += "between {} and {} (p-adj{})".format(vendor1, vendor2, p_adj)
                 index -= 1
                 # Decide which conjunction will be used
                 if index == 2:
-                    file.write(', ')
+                    txt += ", "
                 elif index == 1:
-                    file.write(' and ')
+                    txt += " and "
     # Inter-vendor difference was not significant
     else:
         p_val_anova = format_p_value(p_val_anova)
-        file.write("The inter-vendor difference was not significant (p{})".format(p_val_anova))
+        txt += "The inter-vendor difference was not significant (p{})".format(p_val_anova)
 
     # add dot to the end of previous sentence and two blank lines between individual metrics
-    file.write('.\n\n')
-    file.close()
+    txt += ".\n\n"
+    logger.info(txt)
 
 
 def fetch_subject(filename):
@@ -826,11 +823,6 @@ def main():
     fh = logging.FileHandler(os.path.join(os.path.abspath(os.curdir), FNAME_LOG))
     logging.root.addHandler(fh)
 
-    # If asking to output formatted text, remove existing file to prevent appending
-    if os.path.exists(FNAME_TEXT):
-        os.remove(FNAME_TEXT)
-
-
     # loop across individual *.csv files and generate figures and compute statistics
     for csv_file in file_to_metric.keys():
 
@@ -869,7 +861,7 @@ def main():
 
         # Write statistical results into text file
         if args.output_text:
-            output_text(stats, metric)
+            output_text(stats)
 
         # Generate figure
         generate_figure_metric(df, metric, stats, display_individual_subjects, show_ci=args.show_ci)
