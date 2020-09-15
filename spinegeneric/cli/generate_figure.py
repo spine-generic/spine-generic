@@ -174,8 +174,8 @@ LABELSIZE = 15
 
 def get_parser():
     parser = argparse.ArgumentParser(
-        description="Generate figures for the spine-generic project. "
-                    "The following metrics will be computed:\n {}".format(list(metric_to_field.keys())),
+        description="Generate figures for the spine-generic project. Statistical resuls are output in the file '{}'. "
+                    "The following metrics will be computed:\n {}".format(FNAME_LOG, list(metric_to_field.keys())),
         formatter_class=sg.utils.SmartFormatter,
     )
     parser.add_argument(
@@ -196,7 +196,7 @@ def get_parser():
         '-output-text',
         required=False,
         action='store_true',
-        help="Write statistical results into text file.")
+        help="Write statistical results into text file: '{}'.".format(FNAME_TEXT))
     parser.add_argument(
         '-exclude',
         required=False,
