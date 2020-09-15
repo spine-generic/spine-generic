@@ -404,7 +404,7 @@ def output_text(stats):
 
     # Find and write highest intra-site COV (rounded up)
     if not single_subject:
-        txt += "The intra-site coefficients of variation (COVs) were averaged for each vendor and found to be all under " \
+        txt += "The intra-site COVs were averaged for each vendor and found to be all under " \
                "{}%. ".format(math.ceil(max(stats['cov_intra'].values()) * 100))
 
     # Write inter-site COVs and ANOVA p-values
