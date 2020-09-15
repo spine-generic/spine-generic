@@ -445,7 +445,6 @@ def output_text(stats):
         txt += "The inter-vendor difference was not significant (p{})".format(p_val_anova)
 
     # add dot to the end of previous sentence and two blank lines between individual metrics
-    txt += ".\n\n"
     logger.info(txt)
 
 
@@ -832,7 +831,7 @@ def main():
             continue
 
         # Open CSV file and create dict
-        logger.info('\nProcessing: ' + csv_file)
+        logger.info("\n{}\n====================================================".format(csv_file))
         dict_results = []
         with open(csv_file, newline='') as f_csv:
             reader = csv.DictReader(f_csv)
