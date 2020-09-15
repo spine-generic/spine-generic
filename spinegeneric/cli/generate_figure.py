@@ -13,7 +13,6 @@ import argparse
 import importlib.resources
 import tqdm
 import sys
-import glob
 import csv
 import pandas as pd
 import subprocess
@@ -43,6 +42,9 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)  # default: logging.DEBUG, logging.INFO
 hdlr = logging.StreamHandler(sys.stdout)
 logging.root.addHandler(hdlr)
+
+FNAME_LOG = 'log_stats.txt'
+FNAME_TEXT = 'statistical_results.txt'
 
 # country dictionary: key: site, value: country name
 # Flags are downloaded from: https://emojipedia.org/
@@ -394,12 +396,7 @@ def output_text(stats, metric):
 
         return p_val
 
-    fname = os.path.join(os.path.abspath(os.curdir), "statistical_results.txt")
-    # Check if file exist, if not create it, if so, append to this file
-    if not os.path.isfile(fname):
-        file = open(fname, "w+")
-    else:
-        file = open(fname, "a+")
+    file = open(FNAME_TEXT, "a+")
 
     # Write metric name and two blank lines
     file.write('{}:\n\n'.format(metric))
@@ -454,7 +451,6 @@ def output_text(stats, metric):
     file.write('.\n\n')
     file.close()
 
-    return None
 
 def fetch_subject(filename):
     """
@@ -825,10 +821,17 @@ def main():
             raise FileNotFoundError("Directory '{}' was not found.".format(args.path_results))
 
     # Dump log file there
-    fh = logging.FileHandler(os.path.join(os.path.abspath(os.curdir), 'log_stats.txt'))
+    if os.path.exists(FNAME_LOG):
+        os.remove(FNAME_LOG)
+    fh = logging.FileHandler(os.path.join(os.path.abspath(os.curdir), FNAME_LOG))
     logging.root.addHandler(fh)
 
-    # loop across results (individual *.csv files) and generate figures and compute statistics
+    # If asking to output formatted text, remove existing file to prevent appending
+    if os.path.exists(FNAME_TEXT):
+        os.remove(FNAME_TEXT)
+
+
+    # loop across individual *.csv files and generate figures and compute statistics
     for csv_file in file_to_metric.keys():
 
         # skip metric, if *.csv file does not exist
