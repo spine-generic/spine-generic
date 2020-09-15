@@ -396,18 +396,31 @@ def output_text(stats):
 
     txt = ""
 
-    # Write metric name and two blank lines
+    # Find out if this is single-subject data (single value per site)
+    if max(stats['cov_intra'].values()) == 0.0:
+        single_subject = True
+    else:
+        single_subject = False
+
     # Find and write highest intra-site COV (rounded up)
-    txt += "The intra-site coefficients of variation (COVs) were averaged for each vendor and found to be all under " \
-           "{}%. ".format(math.ceil(max(stats['cov_intra'].values()) * 100))
+    if not single_subject:
+        txt += "The intra-site coefficients of variation (COVs) were averaged for each vendor and found to be all under " \
+               "{}%. ".format(math.ceil(max(stats['cov_intra'].values()) * 100))
 
     # Write inter-site COVs and ANOVA p-values
-    txt += "The inter-site COVs (and inter-site ANOVA p-values) were "
+    if single_subject:
+        txt += "The inter-site COVs were "
+    else:
+        txt += "The inter-site COVs (and inter-site ANOVA p-values) were "
+
     for count, vendor in enumerate(stats['cov_inter'].keys()):
         cov_inter = stats['cov_inter'][vendor] * 100
         p_val = stats['anova_site'][vendor][1]
         p_val = format_p_value(p_val)
-        txt += "{:.1f}% (p{}) for {}".format(cov_inter, p_val, vendor)
+        if single_subject:
+            txt += "{:.1f}% for {}".format(cov_inter, vendor)
+        else:
+            txt += "{:.1f}% (p{}) for {}".format(cov_inter, p_val, vendor)
         if count == 0:
             txt += ", "
         elif count == 1:
@@ -444,7 +457,7 @@ def output_text(stats):
         p_val_anova = format_p_value(p_val_anova)
         txt += "The inter-vendor difference was not significant (p{})".format(p_val_anova)
 
-    # add dot to the end of previous sentence and two blank lines between individual metrics
+    txt += "."
     logger.info(txt)
 
 
