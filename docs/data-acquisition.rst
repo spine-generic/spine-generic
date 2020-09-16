@@ -272,3 +272,42 @@ Below is an example of a defaced subject:
 
 
 .. _multi-center-data:
+
+Good data examples
+^^^^^^^^^^^^^^^^^^
+
+**T1w**
+
+.. raw:: html
+
+    <iframe src="_static/sub-vuiisAchieva02_T1w.html"  width=500 height=300 style="padding:0; border:0; display: block; margin-left: auto; margin-right: auto"></iframe>
+
+**T2w**
+
+.. raw:: html
+    
+    <iframe src="_static/sub-milan01_T2w.html"  width=500 height=300 style="padding:0; border:0; display: block; margin-left: auto; margin-right: auto"></iframe>
+
+**T2star**
+
+.. raw:: html
+
+    <iframe src="_static/sub-brnoCeitec01_T2star.html"  width=500 height=300 style="padding:0; border:0; display: block; margin-left: auto; margin-right: auto"></iframe>
+
+**MTon_MTS**
+
+.. raw:: html
+
+    <iframe src="_static/sub-barcelona04_acq-MTon_MTS.html"  width=500 height=300 style="padding:0; border:0; display: block; margin-left: auto; margin-right: auto"></iframe>
+
+**MToff_MTS**
+
+.. raw:: html
+
+    <iframe src="_static/sub-barcelona04_acq-MToff_MTS.html"  width=500 height=300 style="padding:0; border:0; display: block; margin-left: auto; margin-right: auto"></iframe>
+
+**T1w_MTS**
+
+.. raw:: html
+
+    <iframe src="_static/sub-barcelona04_acq-T1w_MTS.html"  width=500 height=300 style="padding:0; border:0; display: block; margin-left: auto; margin-right: auto"></iframe>
