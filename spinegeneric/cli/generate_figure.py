@@ -405,7 +405,7 @@ def output_text(stats):
     # Find and write highest intra-site COV (rounded up)
     if not single_subject:
         txt += "The intra-site COVs were averaged for each vendor and found to be all under " \
-               "{}%. ".format(math.ceil(max(stats['cov_intra'].values()) * 100))
+               "{:.1f}%. ".format(math.ceil(max(stats['cov_intra'].values())*1000)/10)
 
     # Write inter-site COVs and ANOVA p-values
     if single_subject:
@@ -867,6 +867,9 @@ def main():
             for subject in dict_exclude_subj[metric]:
                 if not subject.startswith('sub-'):
                     df['exclude'][subject] = True
+
+        # Excluded sites
+        logger.info('Sites removed: {}'.format(list(df[df['exclude'] == True]['site'].values)))
 
         # Compute statistics
         df, stats = compute_statistics(df)
