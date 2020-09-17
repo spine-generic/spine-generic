@@ -1,22 +1,33 @@
+## v2.4 (2020-09-17)
+[View detailed changelog](https://github.com/spine-generic/spine-generic/compare/v2.3...v2.4)
+
+ - Round intra-site COV to first decimal for output statistics text..  [View pull request](https://github.com/spine-generic/spine-generic/pull/221)
+ - List excluded sites into output txt file.  [View pull request](https://github.com/spine-generic/spine-generic/pull/217)
+ - Cosmetic improvements with formatted output of statistics.  [View pull request](https://github.com/spine-generic/spine-generic/pull/215)
+ - Exclude sites from ANOVA.  [View pull request](https://github.com/spine-generic/spine-generic/pull/213)
+ - Sort metrics results to match sequence order in the spine-generic protocol.  [View pull request](https://github.com/spine-generic/spine-generic/pull/212)
+ - Automatize text generation based on results.  [View pull request](https://github.com/spine-generic/spine-generic/pull/207)
+ - Fix different x and y size in t1-t2 agreement figure.  [View pull request](https://github.com/spine-generic/spine-generic/pull/201)
+ - Implement CI check for MTS scans.  [View pull request](https://github.com/spine-generic/spine-generic/pull/198)
+ - Parameters checker now sets tolerance on the absolute (unsigned) difference.  [View pull request](https://github.com/spine-generic/spine-generic/pull/195)
+ - Clarify output display for params checker.  [View pull request](https://github.com/spine-generic/spine-generic/pull/194)
+ - Removed shell-based fetching of BIDS metadata for MTsat.  [View pull request](https://github.com/spine-generic/spine-generic/pull/192)
+ - Add QC output for MT0->T1w and MT1->T1w registrations.  [View pull request](https://github.com/spine-generic/spine-generic/pull/188)
+ - Changed location for output stats log file.  [View pull request](https://github.com/spine-generic/spine-generic/pull/186)
+ - Compute ANOVAs and post-hoc tests across vendors and within vendors.  [View pull request](https://github.com/spine-generic/spine-generic/pull/185)
+
+
 ## v2.3 (2020-08-17)
 [View detailed changelog](https://github.com/spine-generic/spine-generic/compare/v2.2...v2.3)
 
-**ENHANCEMENT**
-
  - Delete publish.yml.  [View pull request](https://github.com/spine-generic/spine-generic/pull/175)
-
 
 
 ## v2.2 (2020-08-17)
 [View detailed changelog](https://github.com/spine-generic/spine-generic/compare/v2.1.1...v2.2)
 
-**BUG**
-
  - Fix issue when generating fig_t1_t2_agreement figures.  [View pull request](https://github.com/spine-generic/spine-generic/pull/161)
  - Fixed missing '-manual' after _seg suffix for manual corrs.  [View pull request](https://github.com/spine-generic/spine-generic/pull/133)
-
-**ENHANCEMENT**
-
  - Use subprocess.run.  [View pull request](https://github.com/spine-generic/spine-generic/pull/174)
  - Use importlib.resources to access spinegeneric/flags/*.png.  [View pull request](https://github.com/spine-generic/spine-generic/pull/173)
  - Distribute packages properly.  [View pull request](https://github.com/spine-generic/spine-generic/pull/172)
@@ -43,8 +54,5 @@
  - New script to copy manual corrections under derivatives/.  [View pull request](https://github.com/spine-generic/spine-generic/pull/106)
  - Look for manual files under derivatives/.  [View pull request](https://github.com/spine-generic/spine-generic/pull/104)
  - manual_correction.py script.  [View pull request](https://github.com/spine-generic/spine-generic/pull/103)
-
-**DOCUMENTATION**
-
  - Documentation updates.  [View pull request](https://github.com/spine-generic/spine-generic/pull/122)
  - switch from relative to absolute links in documentation.  [View pull request](https://github.com/spine-generic/spine-generic/pull/102)
