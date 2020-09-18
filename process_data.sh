@@ -153,7 +153,7 @@ file_t1="${file_t1}_RPI_r"
 # Segment spinal cord (only if it does not exist)
 segment_if_does_not_exist $file_t1 "t1"
 file_t1_seg=$FILESEG
-# Create labels in the cord at C2 and C5 mid-vertebral levels (only if it does not exist)
+# Create mid-vertebral levels in the cord (only if it does not exist)
 label_if_does_not_exist ${file_t1} ${file_t1_seg}
 file_label=$FILELABEL
 # Register to PAM50 template
