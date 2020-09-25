@@ -234,6 +234,12 @@ def aggregate_per_site(dict_results, metric, dict_exclude_subj):
     # Build Panda DF of participants based on participants.tsv file
     participants = pd.read_csv(os.path.join('participants.tsv'), sep="\t")
 
+    # Compute min, max and median for age across all subjects and save it to log
+    age_stat = participants['age'].agg(['median', 'min', 'max'])
+    logger.info('..., age between {} and {} y.o., median age {} y.o..'.format(age_stat['min'],
+                                                                              age_stat['max'],
+                                                                              age_stat['median']))
+
     # Fetch specific field for the selected metric
     metric_field = metric_to_field[metric]
     # Build a dictionary that aggregates values per site
