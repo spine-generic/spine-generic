@@ -223,7 +223,7 @@ def get_parser():
     return parser
 
 
-def aggregate_per_site(dict_results, metric, dict_exclude_subj):
+def aggregate_per_site(dict_results, metric, dict_exclude_subj, counter):
     """
     Aggregate metrics per site. This function assumes that the file participants.tsv is present in the -path-results
     folder.
@@ -234,11 +234,12 @@ def aggregate_per_site(dict_results, metric, dict_exclude_subj):
     # Build Panda DF of participants based on participants.tsv file
     participants = pd.read_csv(os.path.join('participants.tsv'), sep="\t")
 
-    # Compute min, max and median for age across all subjects and save it to log
-    age_stat = participants['age'].agg(['median', 'min', 'max'])
-    logger.info('..., age between {} and {} y.o., median age {} y.o..'.format(age_stat['min'],
-                                                                              age_stat['max'],
-                                                                              age_stat['median']))
+    if counter == 0:        # save age to log_stats.txt only one time
+        # Compute min, max and median for age across all subjects and save it to log
+        age_stats = participants['age'].agg(['median', 'min', 'max'])
+        logger.info('..., age between {} and {} y.o., median age {} y.o..'.format(age_stats['min'],
+                                                                                  age_stats['max'],
+                                                                                  age_stats['median']))
 
     # Fetch specific field for the selected metric
     metric_field = metric_to_field[metric]
@@ -841,6 +842,9 @@ def main():
     fh = logging.FileHandler(os.path.join(os.path.abspath(os.curdir), FNAME_LOG))
     logging.root.addHandler(fh)
 
+    # Counter for saving age min, max and median into log_stats.txt only one time
+    counter = 0
+
     # loop across individual *.csv files and generate figures and compute statistics
     for csv_file in file_to_metric.keys():
 
@@ -862,7 +866,8 @@ def main():
         metric = file_to_metric[csv_file_small]
 
         # Fetch mean, std, etc. per site
-        results_dict = aggregate_per_site(dict_results, metric, dict_exclude_subj)
+        results_dict = aggregate_per_site(dict_results, metric, dict_exclude_subj, counter)
+        counter += 1
 
         # Make it a pandas structure (easier for manipulations)
         df = pd.DataFrame.from_dict(results_dict, orient='index')
