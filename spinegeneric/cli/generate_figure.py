@@ -225,14 +225,14 @@ def get_parser():
 
 def aggregate_per_site(dict_results, metric, dict_exclude_subj):
     """
-    Aggregate metrics per site. This function assumes that the file participants.tsv is present in the -path-results
+    Aggregate metrics per site.
     folder.
     :param dict_results:
     :param metric: Metric type
     :return:
     """
     # Build Panda DF of participants based on participants.tsv file
-    participants = pd.read_csv(os.path.join('participants.tsv'), sep="\t")
+    participants = load_participants_file()
 
     # Fetch specific field for the selected metric
     metric_field = metric_to_field[metric]
@@ -470,6 +470,30 @@ def fetch_subject(filename):
     path, file = os.path.split(filename)
     subject = path.split(os.sep)[-2]
     return subject
+
+
+def load_participants_file():
+    """
+    Load participants.tsv file and build pandas DF of participants
+    This function assumes that the file participants.tsv is present in the -path-results
+    :return: participants: pandas dataframe
+    """
+    participants = pd.read_csv(os.path.join('participants.tsv'), sep="\t")
+    return participants
+
+
+def compute_age_statistics():
+    """
+    Compute age statistics across subjects and write them into output txt file
+    :return:
+    """
+    participants = load_participants_file()
+    logger.info('Age statistics:')
+    # Compute min, max and median for age across all subjects and save it to log
+    age_stats = participants['age'].agg(['median', 'min', 'max'])
+    logger.info('..., age between {} and {} y.o., median age {} y.o..'.format(age_stats['min'],
+                                                                              age_stats['max'],
+                                                                              age_stats['median']))
 
 
 def generate_figure_metric(df, metric, stats, display_individual_subjects, show_ci=False):
@@ -834,6 +858,9 @@ def main():
         os.remove(FNAME_LOG)
     fh = logging.FileHandler(os.path.join(os.path.abspath(os.curdir), FNAME_LOG))
     logging.root.addHandler(fh)
+
+    # Compute age statistics and write them at the beginning of output txt file
+    compute_age_statistics()
 
     # loop across individual *.csv files and generate figures and compute statistics
     for csv_file in file_to_metric.keys():
