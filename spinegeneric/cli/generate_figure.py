@@ -223,23 +223,16 @@ def get_parser():
     return parser
 
 
-def aggregate_per_site(dict_results, metric, dict_exclude_subj, counter):
+def aggregate_per_site(dict_results, metric, dict_exclude_subj):
     """
-    Aggregate metrics per site. This function assumes that the file participants.tsv is present in the -path-results
+    Aggregate metrics per site.
     folder.
     :param dict_results:
     :param metric: Metric type
     :return:
     """
     # Build Panda DF of participants based on participants.tsv file
-    participants = pd.read_csv(os.path.join('participants.tsv'), sep="\t")
-
-    if counter == 0:        # save age to log_stats.txt only one time
-        # Compute min, max and median for age across all subjects and save it to log
-        age_stats = participants['age'].agg(['median', 'min', 'max'])
-        logger.info('..., age between {} and {} y.o., median age {} y.o..'.format(age_stats['min'],
-                                                                                  age_stats['max'],
-                                                                                  age_stats['median']))
+    participants = load_participants_file()
 
     # Fetch specific field for the selected metric
     metric_field = metric_to_field[metric]
@@ -477,6 +470,30 @@ def fetch_subject(filename):
     path, file = os.path.split(filename)
     subject = path.split(os.sep)[-2]
     return subject
+
+
+def load_participants_file():
+    """
+    Load participants.tsv file and build pandas DF of participants
+    This function assumes that the file participants.tsv is present in the -path-results
+    :return: participants: pandas dataframe
+    """
+    participants = pd.read_csv(os.path.join('participants.tsv'), sep="\t")
+    return participants
+
+
+def compute_age_statistics():
+    """
+    Compute age statistics across subjects and write them into output txt file
+    :return:
+    """
+    participants = load_participants_file()
+    logger.info('Age statistics:')
+    # Compute min, max and median for age across all subjects and save it to log
+    age_stats = participants['age'].agg(['median', 'min', 'max'])
+    logger.info('..., age between {} and {} y.o., median age {} y.o..'.format(age_stats['min'],
+                                                                              age_stats['max'],
+                                                                              age_stats['median']))
 
 
 def generate_figure_metric(df, metric, stats, display_individual_subjects, show_ci=False):
@@ -842,8 +859,8 @@ def main():
     fh = logging.FileHandler(os.path.join(os.path.abspath(os.curdir), FNAME_LOG))
     logging.root.addHandler(fh)
 
-    # Counter for saving age min, max and median into log_stats.txt only one time
-    counter = 0
+    # Compute age statistics and write them at the beginning of output txt file
+    compute_age_statistics()
 
     # loop across individual *.csv files and generate figures and compute statistics
     for csv_file in file_to_metric.keys():
@@ -866,8 +883,7 @@ def main():
         metric = file_to_metric[csv_file_small]
 
         # Fetch mean, std, etc. per site
-        results_dict = aggregate_per_site(dict_results, metric, dict_exclude_subj, counter)
-        counter += 1
+        results_dict = aggregate_per_site(dict_results, metric, dict_exclude_subj)
 
         # Make it a pandas structure (easier for manipulations)
         df = pd.DataFrame.from_dict(results_dict, orient='index')
