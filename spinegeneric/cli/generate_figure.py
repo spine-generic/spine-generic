@@ -671,6 +671,14 @@ def generate_figure_t1_t2(df, csa_t1, csa_t2):
         r2_sc = linear_regression.score(x, y)
         return intercept, slope, reg_predictor, r2_sc
 
+    def format_number(number):
+        """
+        Round number to two decimals
+        :param number: input number
+        :return: number rounded to two decimals
+        """
+        return format(float(number), '.2f')
+
     # Sort values per vendor
     site_sorted = df.sort_values(by=['vendor', 'model', 'site']).index.values
     vendor_sorted = df['vendor'][site_sorted].values
@@ -755,9 +763,9 @@ def generate_figure_t1_t2(df, csa_t1, csa_t2):
             compute_regression(np.array(CSA_dict[vendor + '_t2']).reshape(-1, 1),
                                np.array(CSA_dict[vendor + '_t1']).reshape(-1, 1))
         # Place regression equation to upper-left corner
-        plt.text(0.1, 0.9,
-                 'y = ' + format(float(slope), '.2f') + 'x + ' + format(float(intercept), '.2f') + '\nR\u00b2 = ' +
-                 format(float(r2_sc), '.2f'),       # force two decimal digits
+        plt.text(0.1, 0.9, 'y = {}x + {}\nR\u00b2 = {}'.format(format_number(slope),
+                                                               format_number(intercept),
+                                                               format_number(r2_sc)),
                  ha='left', va='center', transform = ax.transAxes, fontsize=TICKSIZE, color='red',
                  bbox=dict(boxstyle='round', facecolor='white', alpha=1))   # box around equation
         # Plot linear fit
