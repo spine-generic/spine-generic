@@ -756,7 +756,8 @@ def generate_figure_t1_t2(df, csa_t1, csa_t2):
                                np.array(CSA_dict[vendor + '_t1']).reshape(-1, 1))
         # Place regression equation to upper-left corner
         plt.text(0.1, 0.9,
-                 "y = {0:.4}x + {1:.4}\nR\u00b2 = {2:.4}".format(float(slope), float(intercept), float(r2_sc)),
+                 'y = ' + format(float(slope), '.2f') + 'x + ' + format(float(intercept), '.2f') + '\nR\u00b2 = ' +
+                 format(float(r2_sc), '.2f'),       # force two decimal digits
                  ha='left', va='center', transform = ax.transAxes, fontsize=TICKSIZE, color='red',
                  bbox=dict(boxstyle='round', facecolor='white', alpha=1))   # box around equation
         # Plot linear fit
