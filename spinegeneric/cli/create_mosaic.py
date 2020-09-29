@@ -22,6 +22,7 @@ import nibabel as nib
 import matplotlib.pyplot as plt
 from skimage.exposure import equalize_adapthist, rescale_intensity
 from skimage.transform import resize
+sys.path.append(os.environ['SCT_DIR'])
 from spinalcordtoolbox.utils import __sct_dir__
 sys.path.append(os.path.join(__sct_dir__, "scripts"))
 from spinalcordtoolbox.image import Image
@@ -41,7 +42,7 @@ def scale_intensity(data, out_min=0, out_max=255):
 def get_mosaic(images, n_col, n_row=1):
     dim_x, dim_y, dim_z = images.shape
 
-    matrix_sz = (int(dim_x * nb_row), int(dim_y * nb_column))
+    matrix_sz = (int(dim_x * n_row), int(dim_y * n_col))
 
     matrix = np.zeros(matrix_sz)
     for i in range(dim_z):
@@ -78,6 +79,16 @@ def equalized(a, winsize):
 
 
 def main():
+    args = get_parameters()
+    print(args)
+    im_string = args.input
+    i_folder = args.input_folder
+    seg_string = args.segmentation
+    plane = args.plane
+    nb_column = int(args.col)
+    nb_row = int(args.row)
+    winsize = int(args.winsize_CLAHE)
+    o_fname = args.output
     # find all the images of interest and store the mid slice in slice_lst
     slice_lst = []
     for x in os.walk(i_folder):
@@ -196,13 +207,4 @@ def get_parameters():
 
 
 if __name__ == "__main__":
-    args = get_parameters()
-    im_string = args.input
-    i_folder = args.input_folder
-    seg_string = args.segmentation
-    plane = args.plane
-    nb_column = int(args.col)
-    nb_row = int(args.row)
-    winsize = int(args.winsize_CLAHE)
-    o_fname = args.output
     main()
