@@ -92,18 +92,11 @@ def main():
     winsize = int(args.winsize_CLAHE)
     o_fname = args.output
     # List input folders
-    # Fest input files matching regex
     files = glob.glob(os.path.join(args.input_folder, '**/sub' + im_string), recursive=True)
-
-    # folder_subjects = glob.glob(os.path.join(i_folder, 'sub-*'))
-    # find all the images of interest and store the mid slice in slice_lst
+    # Initialize list that will store each mosaic element
     slice_lst = []
     for file in files:
         print("Processing ({}/{}): {}".format(files.index(file), len(files), file))
-    # for x in os.walk(i_folder):
-    #     for file in glob.glob(os.path.join(x[0], 'sub' + im_string)):  # prefixe sub: to prevent from fetching warp files
-    #         print('\nLoading: '+file)
-            # load data
         if plane == 'ax':
             file_seg = add_suffix(file, args.segmentation)
 
