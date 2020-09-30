@@ -30,7 +30,6 @@ import spinalcordtoolbox.reports.slice as qcslice
 from spinalcordtoolbox.resampling import resample_nib
 
 from spinegeneric.utils import add_suffix
-import sct_utils as sct
 
 affine = np.eye(4)
 
@@ -99,20 +98,20 @@ def main():
         print("Processing ({}/{}): {}".format(files.index(file), len(files), file))
         if plane == 'ax':
             file_seg = add_suffix(file, args.segmentation)
-
-            # workaround to save some time
+            # Extract the mid-slice
             img, seg = Image(file).change_orientation('RPI'), Image(file_seg).change_orientation('RPI')
             mid_slice_idx = int(float(img.dim[2]) // 2)
             nii_mid = nib.nifti1.Nifti1Image(img.data[:, :, mid_slice_idx], affine)
             nii_mid_seg = nib.nifti1.Nifti1Image(seg.data[:, :, mid_slice_idx], affine)
             img_mid = Image(img.data[:, :, mid_slice_idx], hdr=nii_mid.header, dim=nii_mid.header.get_data_shape())
             seg_mid = Image(seg.data[:, :, mid_slice_idx], hdr=nii_mid_seg.header, dim=nii_mid_seg.header.get_data_shape())
-            del img, seg
-
+            # Instantiate spinalcordtoolbox.reports.slice.Axial class
             qcslice_cur = qcslice.Axial([img_mid, seg_mid])
-            center_x_lst, center_y_lst = qcslice_cur.get_center()  # find seg center of mass
-            mid_slice = qcslice_cur.get_slice(qcslice_cur._images[0].data, 0)  # get the mid slice
-            # crop image around SC seg
+            # Find center of mass of the segmentation
+            center_x_lst, center_y_lst = qcslice_cur.get_center()
+            # Select the mid-slice
+            mid_slice = qcslice_cur.get_slice(qcslice_cur._images[0].data, 0)
+            # Crop image around SC seg
             mid_slice = qcslice_cur.crop(mid_slice,
                                          int(center_x_lst[0]), int(center_y_lst[0]),
                                          30, 30)
@@ -125,12 +124,12 @@ def main():
             mid_slice = sag_im.data[mid_slice_idx, :, :]
             del sag_im
 
-        # histogram equalization using CLAHE
+        # Histogram equalization using CLAHE
         slice_cur = equalized(mid_slice, winsize)
-        # scale intensities of all slices (ie of all subjects) in a common range of values
+        # Scale intensities of all slices (ie of all subjects) in a common range of values
         slice_cur = scale_intensity(slice_cur)
 
-        # resize all slices with the shape of the first loaded slice
+        # Resize all slices with the shape of the first loaded slice
         if len(slice_lst):
             slice_cur = resize(slice_cur, slice_size, anti_aliasing=True)
         else:
@@ -138,7 +137,7 @@ def main():
 
         slice_lst.append(slice_cur)
 
-    # create a new Image object containing the samples to display
+    # Create a new Image object containing the samples to display
     data = np.stack(slice_lst, axis=-1)
     nii = nib.nifti1.Nifti1Image(data, affine)
     img = Image(data, hdr=nii.header, dim=nii.header.get_data_shape())
