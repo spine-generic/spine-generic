@@ -301,19 +301,19 @@ Example of datasets
 
 .. raw:: html
 
-    <iframe src="_static/sub-barcelona04_acq-MTon_MTS.html"  width=800 height=400 style="padding:0; border:0; display: block; margin-left: auto; margin-right: auto"></iframe>
+    <iframe src="_static/sub-barcelona04_acq-MTon_MTS.html"  width=800 height=600 style="padding:0; border:0; display: block; margin-left: auto; margin-right: auto"></iframe>
 
 **MToff_MTS - sub-barcelona04**
 
 .. raw:: html
 
-    <iframe src="_static/sub-barcelona04_acq-MToff_MTS.html" width=800 height=400 style="padding:0; border:0; display: block; margin-left: auto; margin-right: auto"></iframe>
+    <iframe src="_static/sub-barcelona04_acq-MToff_MTS.html" width=800 height=600 style="padding:0; border:0; display: block; margin-left: auto; margin-right: auto"></iframe>
 
 **T1w_MTS - sub-barcelona04**
 
 .. raw:: html
 
-    <iframe src="_static/sub-barcelona04_acq-T1w_MTS.html"  width=800 height=400 style="padding:0; border:0; display: block; margin-left: auto; margin-right: auto"></iframe>
+    <iframe src="_static/sub-barcelona04_acq-T1w_MTS.html"  width=800 height=600 style="padding:0; border:0; display: block; margin-left: auto; margin-right: auto"></iframe>
 
 **DWI - sub-barcelona04**
 
