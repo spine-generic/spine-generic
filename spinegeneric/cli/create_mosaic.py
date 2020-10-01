@@ -92,6 +92,7 @@ def main():
     o_fname = args.output
     # List input folders
     files = glob.glob(os.path.join(args.input_folder, '**/sub' + im_string), recursive=True)
+    files.sort()
     # Initialize list that will store each mosaic element
     slice_lst = []
     for file in files:
