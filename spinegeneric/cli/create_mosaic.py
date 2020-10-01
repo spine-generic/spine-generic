@@ -113,7 +113,7 @@ def main():
             # Crop image around SC seg
             mid_slice = qcslice_cur.crop(mid_slice,
                                          int(center_x_lst[0]), int(center_y_lst[0]),
-                                         30, 30)
+                                         20, 20)
         elif plane == 'sag':
             sag_im = Image(file).change_orientation('RSP')
             # check if data is not isotropic resolution
@@ -136,26 +136,20 @@ def main():
 
         slice_lst.append(slice_cur)
 
-    # Create a new Image object containing the samples to display
+    # Create a 2d array containing the samples to display
     data = np.stack(slice_lst, axis=-1)
-    nii = nib.nifti1.Nifti1Image(data, affine)
-    img = Image(data, hdr=nii.header, dim=nii.header.get_data_shape())
-
-    nb_img = img.data.shape[2]
+    nb_img = data.shape[2]
     nb_items_mosaic = nb_column * nb_row
-    nb_mosaic = np.ceil(float(nb_img) / (nb_items_mosaic))
+    nb_mosaic = np.ceil(float(nb_img) / nb_items_mosaic)
     for i in range(int(nb_mosaic)):
         if nb_mosaic == 1:
             fname_out = o_fname
         else:
             fname_out = os.path.splitext(o_fname)[0] + '_' + str(i).zfill(3) + os.path.splitext(o_fname)[1]
-        print('\nCreating: ' + fname_out)
-
         # create mosaic
         idx_end = (i+1)*nb_items_mosaic if (i+1)*nb_items_mosaic <= nb_img else nb_img
-        data_mosaic = img.data[:, :, i*(nb_items_mosaic) : idx_end]
+        data_mosaic = data[:, :, i*nb_items_mosaic: idx_end]
         mosaic = get_mosaic(data_mosaic, nb_column, nb_row)
-
         # save mosaic
         plt.figure()
         plt.subplot(1, 1, 1)
@@ -163,6 +157,7 @@ def main():
         plt.imshow(mosaic, interpolation='bilinear', cmap='gray', aspect='equal')
         plt.savefig(fname_out, dpi=300, bbox_inches='tight', pad_inches=0)
         plt.close()
+        print('\nCreated: {}'.format(fname_out))
 
 
 def get_parameters():
