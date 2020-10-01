@@ -31,8 +31,6 @@ from spinalcordtoolbox.resampling import resample_nib
 
 from spinegeneric.utils import add_suffix
 
-affine = np.eye(4)
-
 
 def scale_intensity(data, out_min=0, out_max=255):
     """Scale intensity of data in a range defined by [out_min, out_max], based on the 2nd and 98th percentiles."""
@@ -102,8 +100,8 @@ def main():
             # Extract the mid-slice
             img, seg = Image(file).change_orientation('RPI'), Image(file_seg).change_orientation('RPI')
             mid_slice_idx = int(float(img.dim[2]) // 2)
-            nii_mid = nib.nifti1.Nifti1Image(img.data[:, :, mid_slice_idx], affine)
-            nii_mid_seg = nib.nifti1.Nifti1Image(seg.data[:, :, mid_slice_idx], affine)
+            nii_mid = nib.nifti2.Nifti2Image(img.data[:, :, mid_slice_idx], img.hdr.get_best_affine())
+            nii_mid_seg = nib.nifti2.Nifti2Image(seg.data[:, :, mid_slice_idx], seg.hdr.get_best_affine())
             img_mid = Image(img.data[:, :, mid_slice_idx], hdr=nii_mid.header, dim=nii_mid.header.get_data_shape())
             seg_mid = Image(seg.data[:, :, mid_slice_idx], hdr=nii_mid_seg.header, dim=nii_mid_seg.header.get_data_shape())
             # Instantiate spinalcordtoolbox.reports.slice.Axial class
