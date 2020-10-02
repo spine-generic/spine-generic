@@ -1,3 +1,12 @@
+## v2.5 (2020-10-02)
+[View detailed changelog](https://github.com/spine-generic/spine-generic/compare/v2.4...v2.5)
+ - sg_create_mosaic: Fix issues with modules compatibility; various improvements.  [View pull request](https://github.com/spine-generic/spine-generic/pull/229)
+ - Force two decimal digits in regression box in t1-t2 agreement figure.  [View pull request](https://github.com/spine-generic/spine-generic/pull/228)
+ - Compute min, max and median age across subjects.  [View pull request](https://github.com/spine-generic/spine-generic/pull/226)
+ - Fix inconsistencies in proces_data.sh comments.  [View pull request](https://github.com/spine-generic/spine-generic/pull/224)
+ - Add iframe to show good-quality data.  [View pull request](https://github.com/spine-generic/spine-generic/pull/218)
+
+
 ## v2.4 (2020-09-17)
 [View detailed changelog](https://github.com/spine-generic/spine-generic/compare/v2.3...v2.4)
 
