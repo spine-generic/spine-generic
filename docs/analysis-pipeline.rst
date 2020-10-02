@@ -20,7 +20,7 @@ Dependencies
 MANDATORY:
 
 - For processing: `SCT 4.3.0 <https://github.com/neuropoly/spinalcordtoolbox/releases/tag/4.3.0>`__.
-- For generating figures: Python >= 3.6
+- For generating figures: Python >= 3.7
 
 OPTIONAL:
 
@@ -193,3 +193,12 @@ to a yml file containing the subjects to be excluded from the statistics:
 .. code-block:: bash
 
   sg_generate_figures -path-results ~/spineGeneric_results/results -exclude subject_to_exclude.yml
+
+To generate a mosaic of images, run:
+
+.. code-block:: bash
+
+  # Sagittal views of 3D T1w data
+  sg_create_mosaic -i *T1w_RPI_r_flatten.nii.gz -ifolder ~/project/results_multi_20200907/data_processed/ -p sag -col 20 -row 13 -o fig_mosaic_T1w.png
+  # Axial views of GRE-T1w data
+  sg_create_mosaic -i *acq-T1w_MTS.nii.gz -ifolder ~/spineGeneric_results/data_processed -s _seg -p ax -col 20 -row 13 -o fig_mosaic_GRE-T1w.png
