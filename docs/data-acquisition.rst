@@ -295,7 +295,7 @@ Example of datasets
 
 .. raw:: html
 
-    <iframe src="_static/sub-brnoCeitec01_T2star.html"  width=800 height=400 style="padding:0; border:0; display: block; margin-left: auto; margin-right: auto"></iframe>
+    <iframe src="_static/sub-brnoCeitec01_T2star.html"  width=800 height=300 style="padding:0; border:0; display: block; margin-left: auto; margin-right: auto"></iframe>
 
 **MTon_MTS - sub-barcelona04**
 
