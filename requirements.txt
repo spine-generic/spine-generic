@@ -8,3 +8,5 @@ sklearn
 statsmodels
 pyyaml
 pybids
+scikit-image~=0.17.2
+transforms3d~=0.3.1

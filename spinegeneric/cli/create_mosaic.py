@@ -22,14 +22,14 @@ import nibabel as nib
 import matplotlib.pyplot as plt
 from skimage.exposure import equalize_adapthist, rescale_intensity
 from skimage.transform import resize
+sys.path.append(os.environ['SCT_DIR'])
 from spinalcordtoolbox.utils import __sct_dir__
 sys.path.append(os.path.join(__sct_dir__, "scripts"))
 from spinalcordtoolbox.image import Image
 import spinalcordtoolbox.reports.slice as qcslice
 from spinalcordtoolbox.resampling import resample_nib
-import sct_utils as sct
 
-affine = np.eye(4)
+from spinegeneric.utils import add_suffix
 
 
 def scale_intensity(data, out_min=0, out_max=255):
@@ -41,7 +41,7 @@ def scale_intensity(data, out_min=0, out_max=255):
 def get_mosaic(images, n_col, n_row=1):
     dim_x, dim_y, dim_z = images.shape
 
-    matrix_sz = (int(dim_x * nb_row), int(dim_y * nb_column))
+    matrix_sz = (int(dim_x * n_row), int(dim_y * n_col))
 
     matrix = np.zeros(matrix_sz)
     for i in range(dim_z):
@@ -78,72 +78,78 @@ def equalized(a, winsize):
 
 
 def main():
-    # find all the images of interest and store the mid slice in slice_lst
+    args = get_parameters()
+    print(args)
+    im_string = args.input
+    # i_folder = args.input_folder
+    # seg_string = args.segmentation
+    plane = args.plane
+    nb_column = int(args.col)
+    nb_row = int(args.row)
+    winsize = int(args.winsize_CLAHE)
+    o_fname = args.output
+    # List input folders
+    files = glob.glob(os.path.join(args.input_folder, '**/sub' + im_string), recursive=True)
+    files.sort()
+    # Initialize list that will store each mosaic element
     slice_lst = []
-    for x in os.walk(i_folder):
-        for file in glob.glob(os.path.join(x[0], 'sub' + im_string)):  # prefixe sub: to prevent from fetching warp files
-            print('\nLoading: '+file)
-            # load data
-            if plane == 'ax':
-                file_seg = glob.glob(os.path.join(x[0], 'sub'+seg_string))[0]
+    for file in files:
+        print("Processing ({}/{}): {}".format(files.index(file), len(files), file))
+        if plane == 'ax':
+            file_seg = add_suffix(file, args.segmentation)
+            # Extract the mid-slice
+            img, seg = Image(file).change_orientation('RPI'), Image(file_seg).change_orientation('RPI')
+            mid_slice_idx = int(float(img.dim[2]) // 2)
+            nii_mid = nib.nifti2.Nifti2Image(img.data[:, :, mid_slice_idx], img.hdr.get_best_affine())
+            nii_mid_seg = nib.nifti2.Nifti2Image(seg.data[:, :, mid_slice_idx], seg.hdr.get_best_affine())
+            img_mid = Image(img.data[:, :, mid_slice_idx], hdr=nii_mid.header, dim=nii_mid.header.get_data_shape())
+            seg_mid = Image(seg.data[:, :, mid_slice_idx], hdr=nii_mid_seg.header, dim=nii_mid_seg.header.get_data_shape())
+            # Instantiate spinalcordtoolbox.reports.slice.Axial class
+            qcslice_cur = qcslice.Axial([img_mid, seg_mid])
+            # Find center of mass of the segmentation
+            center_x_lst, center_y_lst = qcslice_cur.get_center()
+            # Select the mid-slice
+            mid_slice = qcslice_cur.get_slice(qcslice_cur._images[0].data, 0)
+            # Crop image around SC seg
+            mid_slice = qcslice_cur.crop(mid_slice,
+                                         int(center_x_lst[0]), int(center_y_lst[0]),
+                                         20, 20)
+        elif plane == 'sag':
+            sag_im = Image(file).change_orientation('RSP')
+            # check if data is not isotropic resolution
+            if not np.isclose(sag_im.dim[5], sag_im.dim[6]):
+                sag_im = resample_nib(sag_im.copy(), new_size=[sag_im.dim[4], sag_im.dim[5], sag_im.dim[5]], new_size_type='mm')
+            mid_slice_idx = int(sag_im.dim[0] // 2)
+            mid_slice = sag_im.data[mid_slice_idx, :, :]
+            del sag_im
 
-                # workaround to save some time
-                img, seg = Image(file).change_orientation('RPI'), Image(file_seg).change_orientation('RPI')
-                mid_slice_idx = int(float(img.dim[2]) // 2)
-                nii_mid = nib.nifti1.Nifti1Image(img.data[:, :, mid_slice_idx], affine)
-                nii_mid_seg = nib.nifti1.Nifti1Image(seg.data[:, :, mid_slice_idx], affine)
-                img_mid = Image(img.data[:, :, mid_slice_idx], hdr=nii_mid.header, dim=nii_mid.header.get_data_shape())
-                seg_mid = Image(seg.data[:, :, mid_slice_idx], hdr=nii_mid_seg.header, dim=nii_mid_seg.header.get_data_shape())
-                del img, seg
+        # Histogram equalization using CLAHE
+        slice_cur = equalized(mid_slice, winsize)
+        # Scale intensities of all slices (ie of all subjects) in a common range of values
+        slice_cur = scale_intensity(slice_cur)
 
-                qcslice_cur = qcslice.Axial([img_mid, seg_mid])
-                center_x_lst, center_y_lst = qcslice_cur.get_center()  # find seg center of mass
-                mid_slice = qcslice_cur.get_slice(qcslice_cur._images[0].data, 0)  # get the mid slice
-                # crop image around SC seg
-                mid_slice = qcslice_cur.crop(mid_slice,
-                                            int(center_x_lst[0]), int(center_y_lst[0]),
-                                            30, 30)
-            else:
-                sag_im = Image(file).change_orientation('RSP')
-                if not np.isclose(sag_im.dim[5], sag_im.dim[6]):  # in case data is anisotropic
-                    sag_im = resample_nib(sag_im.copy(), new_size=[sag_im.dim[4], sag_im.dim[5], sag_im.dim[5]], new_size_type='mm')
-                mid_slice_idx = int(sag_im.dim[0] // 2)
-                mid_slice = sag_im.data[mid_slice_idx, :, :]
-                del sag_im
+        # Resize all slices with the shape of the first loaded slice
+        if len(slice_lst):
+            slice_cur = resize(slice_cur, slice_size, anti_aliasing=True)
+        else:
+            slice_size = slice_cur.shape
 
-            # histogram equalization using CLAHE
-            slice_cur = equalized(mid_slice, winsize)
-            # scale intensities of all slices (ie of all subjects) in a common range of values
-            slice_cur = scale_intensity(slice_cur)
+        slice_lst.append(slice_cur)
 
-            # resize all slices with the shape of the first loaded slice
-            if len(slice_lst):
-                slice_cur = resize(slice_cur, slice_size, anti_aliasing=True)
-            else:
-                slice_size = slice_cur.shape
-
-            slice_lst.append(slice_cur)
-
-    # create a new Image object containing the samples to display
+    # Create a 2d array containing the samples to display
     data = np.stack(slice_lst, axis=-1)
-    nii = nib.nifti1.Nifti1Image(data, affine)
-    img = Image(data, hdr=nii.header, dim=nii.header.get_data_shape())
-
-    nb_img = img.data.shape[2]
+    nb_img = data.shape[2]
     nb_items_mosaic = nb_column * nb_row
-    nb_mosaic = np.ceil(float(nb_img) / (nb_items_mosaic))
+    nb_mosaic = np.ceil(float(nb_img) / nb_items_mosaic)
     for i in range(int(nb_mosaic)):
         if nb_mosaic == 1:
             fname_out = o_fname
         else:
             fname_out = os.path.splitext(o_fname)[0] + '_' + str(i).zfill(3) + os.path.splitext(o_fname)[1]
-        print('\nCreating: ' + fname_out)
-
         # create mosaic
         idx_end = (i+1)*nb_items_mosaic if (i+1)*nb_items_mosaic <= nb_img else nb_img
-        data_mosaic = img.data[:, :, i*(nb_items_mosaic) : idx_end]
+        data_mosaic = data[:, :, i*nb_items_mosaic: idx_end]
         mosaic = get_mosaic(data_mosaic, nb_column, nb_row)
-
         # save mosaic
         plt.figure()
         plt.subplot(1, 1, 1)
@@ -151,6 +157,7 @@ def main():
         plt.imshow(mosaic, interpolation='bilinear', cmap='gray', aspect='equal')
         plt.savefig(fname_out, dpi=300, bbox_inches='tight', pad_inches=0)
         plt.close()
+        print('\nCreated: {}'.format(fname_out))
 
 
 def get_parameters():
@@ -166,15 +173,14 @@ def get_parameters():
                         help='Folder with BIDS format.')
     parser.add_argument('-s', '--segmentation',
                         required=False,
-                        help="Segmentation suffix, the string appended to the filename before .nii.gz, "
-                             "Example: '_seg.nii.gz', '_seg_manual.nii.gz' ",
-                        default="*_seg.nii.gz")
+                        help="Segmentation suffix. Only used with '--plane ax'. Example: '_seg'.",
+                        default="_seg")
     parser.add_argument('-p', '--plane',
                         required=False,
                         default='ax',
                         choices=['ax', 'sag'],
                         help='Define the visualisation plane of the samples:\
-                        ax --> axial view ; \
+                        ax --> axial view; \
                         sag --> sagittal view')
     parser.add_argument('-col', '--col',
                         required=True,
@@ -196,13 +202,4 @@ def get_parameters():
 
 
 if __name__ == "__main__":
-    args = get_parameters()
-    im_string = args.input
-    i_folder = args.input_folder
-    seg_string = args.segmentation
-    plane = args.plane
-    nb_column = int(args.col)
-    nb_row = int(args.row)
-    winsize = int(args.winsize_CLAHE)
-    o_fname = args.output
     main()
