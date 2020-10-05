@@ -11,6 +11,8 @@ import os
 from pprint import pprint
 import spinegeneric as sg
 import spinegeneric.utils
+from pandas_schema import Column, Schema
+from pandas_schema.validation import LeadingWhitespaceValidation, TrailingWhitespaceValidation, InRangeValidation, InListValidation, DateFormatValidation
 
 
 def get_parser():
@@ -61,5 +63,26 @@ def main():
                     if os.path.exists(jsonSidecarPath) == False:
                         print ("Missing jsonSidecar: " + jsonSidecarPath)
 
+    # Checking participants.tsv contents
+    schema = Schema([
+    Column('participant_id', [LeadingWhitespaceValidation(), TrailingWhitespaceValidation()]),
+    Column('sex', [InListValidation(['M', 'F'])]),
+    Column('age', [InRangeValidation(18, 60)]),
+    Column('height', [InRangeValidation(0, 250)]),
+    Column('weight', [InRangeValidation(0, 250)]),
+    Column('date_of_scan', [DateFormatValidation('%Y-%m-%d')]),
+    Column('institution_id', [LeadingWhitespaceValidation(), TrailingWhitespaceValidation()]),
+    Column('institution', [LeadingWhitespaceValidation(), TrailingWhitespaceValidation()]),
+    Column('manufacturer', [LeadingWhitespaceValidation(), TrailingWhitespaceValidation()]),
+    Column('manufacturers_model_name', [LeadingWhitespaceValidation(), TrailingWhitespaceValidation()]),
+    Column('receive_coil_name', [LeadingWhitespaceValidation(), TrailingWhitespaceValidation()]),
+    Column('software_versions', [LeadingWhitespaceValidation(), TrailingWhitespaceValidation()]),
+    Column('researcher', [LeadingWhitespaceValidation(), TrailingWhitespaceValidation()]),
+    ])
+
+    errors = schema.validate(tsv_file)
+    print ('\n Checking the contents of participants.tsv')
+    for error in errors:
+        print(error)
 if __name__ == '__main__':
     main()
