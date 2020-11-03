@@ -133,7 +133,7 @@ cd $PATH_DATA_PROCESSED
 if [[ ! -f "participants.tsv" ]]; then
   rsync -avzh $PATH_DATA/participants.tsv .
 fi
-# Copy list of participants in restuls folder (used by spine-generic scripts)
+# Copy list of participants in results folder (used by spine-generic scripts)
 if [[ ! -f $PATH_RESULTS/"participants.tsv" ]]; then
   rsync -avzh $PATH_DATA/participants.tsv $PATH_RESULTS/"participants.tsv"
 fi
