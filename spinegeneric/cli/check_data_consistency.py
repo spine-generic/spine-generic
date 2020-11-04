@@ -13,7 +13,7 @@ import spinegeneric as sg
 import spinegeneric.utils
 from pandas_schema import Column, Schema
 from pandas_schema.validation import LeadingWhitespaceValidation, TrailingWhitespaceValidation, InRangeValidation, \
-    InListValidation, DateFormatValidation
+    InListValidation, DateFormatValidation, MatchesPatternValidation
 
 
 def get_parser():
@@ -69,8 +69,8 @@ def main():
         Column('participant_id', [LeadingWhitespaceValidation(), TrailingWhitespaceValidation()]),
         Column('sex', [InListValidation(['M', 'F'])]),
         Column('age', [InRangeValidation(18, 60)]),
-        Column('height', [InRangeValidation(0, 250)]),
-        Column('weight', [InRangeValidation(0, 250)]),
+        Column('height', [MatchesPatternValidation(r"[0-9]|-")]),
+        Column('weight', [MatchesPatternValidation(r"[0-9]|-")]),
         Column('date_of_scan', [DateFormatValidation('%Y-%m-%d')]),
         Column('institution_id', [LeadingWhitespaceValidation(), TrailingWhitespaceValidation()]),
         Column('institution', [LeadingWhitespaceValidation(), TrailingWhitespaceValidation()]),
