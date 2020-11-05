@@ -71,7 +71,7 @@ def main():
         Column('age', [InRangeValidation(18, 60)]),
         Column('height', [MatchesPatternValidation(r"[0-9]|-")]),
         Column('weight', [MatchesPatternValidation(r"[0-9]|-")]),
-        Column('date_of_scan', [DateFormatValidation('%Y-%m-%d')]),
+        Column('date_of_scan', [DateFormatValidation('%Y-%m-%d')|MatchesPatternValidation(r"-")]),
         Column('institution_id', [LeadingWhitespaceValidation(), TrailingWhitespaceValidation()]),
         Column('institution', [LeadingWhitespaceValidation(), TrailingWhitespaceValidation()]),
         Column('manufacturer', [LeadingWhitespaceValidation(), TrailingWhitespaceValidation()]),
