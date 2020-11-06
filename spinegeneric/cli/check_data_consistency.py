@@ -82,7 +82,7 @@ def main():
     ])
 
     errors = schema.validate(tsv_file)
-    print('\n Checking the contents of participants.tsv')
+    print('\nChecking the contents of participants.tsv')
     for error in errors:
         print(error)
 
