@@ -83,8 +83,11 @@ def main():
 
     errors = schema.validate(tsv_file)
     print('\nChecking the contents of participants.tsv')
-    for error in errors:
-        print(error)
+    if not errors:
+        print("--> all good 👍")
+    else:
+        for error in errors:
+            print(error)
 
 
 if __name__ == '__main__':
