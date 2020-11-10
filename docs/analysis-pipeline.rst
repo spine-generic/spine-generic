@@ -202,3 +202,9 @@ To generate a mosaic of images, run:
   sg_create_mosaic -i *T1w_RPI_r_flatten.nii.gz -ifolder ~/project/results_multi_20200907/data_processed/ -p sag -col 20 -row 13 -o fig_mosaic_T1w.png
   # Axial views of GRE-T1w data
   sg_create_mosaic -i *acq-T1w_MTS.nii.gz -ifolder ~/spineGeneric_results/data_processed -s _seg -p ax -col 20 -row 13 -o fig_mosaic_GRE-T1w.png
+
+Results
+----------------
+.. raw:: html
+
+    <iframe src="_static/CSA-T1.html"  width=800 height=400 style="padding:0; border:0; display: block; margin-left: auto; margin-right: auto"></iframe>
