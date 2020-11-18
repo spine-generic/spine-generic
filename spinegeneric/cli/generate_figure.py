@@ -37,17 +37,9 @@ import spinegeneric.utils
 import spinegeneric.flags
 
 #For plotly
-import base64
-import dash
-import dash_core_components as dcc
-import dash_html_components as html
+from plotly.subplots import make_subplots
 import plotly.graph_objs as go
 import plotly.express as px
-import pathlib
-from plotly.tools import mpl_to_plotly
-import chart_studio.plotly as py
-
-
 
 
 # Initialize logging
