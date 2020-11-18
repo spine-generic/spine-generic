@@ -206,5 +206,4 @@ To generate a mosaic of images, run:
 Results
 ----------------
 .. raw:: html
-
-    <iframe src="_static/CSA-T1.html"  width=800 height=400 style="padding:0; border:0; display: block; margin-left: auto; margin-right: auto"></iframe>
+  :file: _static/csa_t1.html
