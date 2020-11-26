@@ -209,65 +209,54 @@ Results
 **Cord CSA from T1w**
 
 .. raw:: html
-
   :file: _static/csa_t1.html
 
 **Cord CSA from T2w**
 
 .. raw:: html
-
   :file: _static/csa_t2.html
 
 **Gray matter**
 
 .. raw:: html
-
   :file: _static/csa_gm.html
 
 **Fractional anisotropy**
 
 .. raw:: html
-
   :file: _static/dti_fa.html
 
 **Mean diffusivity**
 
 .. raw:: html
-
   :file: _static/dti_md.html
 
 **Radial diffusivity**
 
 .. raw:: html
-
   :file: _static/dti_rd.html
 
 **Cord CSA from T1w**
 
 .. raw:: html
-
   :file: _static/mtr.html
 
 **Magnetization transfer ratio**
 
 .. raw:: html
-
   :file: _static/mtsat.html
 
 **T1**
 
 .. raw:: html
-
   :file: _static/t1.html
 
 **CSA agreement between T1w and T2w data**
 
 .. raw:: html
-
   :file: _static/fig_t1_t2_agreement.html
 
 **CSA agreement between T1w and T2w data per vendors**
 
 .. raw:: html
-
   :file: _static/fig_t1_t2_agreement_per_vendor.html
