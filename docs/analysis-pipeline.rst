@@ -236,12 +236,12 @@ Results
 .. raw:: html
   :file: _static/dti_rd.html
 
-**Cord CSA from T1w**
+**Magnetization transfer ratio**
 
 .. raw:: html
   :file: _static/mtr.html
 
-**Magnetization transfer ratio**
+**Magnetization transfer saturation**
 
 .. raw:: html
   :file: _static/mtsat.html
