@@ -17,9 +17,16 @@ import sys
 
 
 def generate_html_figures(app):
-    text_file = open(os.getcwd() + "/_static/dummyhtml.html", "w")
+    text_file = open(os.getcwd() + '/_static/dummyhtml.html', 'w')
     products = ["<html>","<head></head>","<body><p>Hello World!</p><p>THIS IS A DUMMY HTML GENERATED DURING BUILD</p></body>","</html>"]
     text_file.write("\n".join(products))
+    # folder_data_stats = os.makedirs(os.path.join(root_path,'data_stats'))
+    # os.system('wget -O ' + str(folder_data_stats) + 'exclude.yml' + ' https://raw.githubusercontent.com/spine-generic/data-multi-subject/master/exclude.yml')
+    os.system('wget -O '+ os.getcwd() + '/_static/exclude.yml https://raw.githubusercontent.com/spine-generic/data-multi-subject/master/exclude.yml')
+    print (os.system('ls '+ os.getcwd() + '/_static/'))
+    # file_url = "https://raw.githubusercontent.com/spine-generic/data-multi-subject/master/exclude.yml"
+    # file_name = wget.download(file_url,str(folder_data_stats) + 'exclude.yml')
+    # testfile.retrieve("https://raw.githubusercontent.com/spine-generic/data-multi-subject/master/exclude.yml", str(folder_data_stats) + 'exclude.yml')
 
 def setup(app):
     app.connect('builder-inited', generate_html_figures)
