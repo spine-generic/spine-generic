@@ -17,9 +17,6 @@ import sys
 
 
 def generate_html_figures(app):
-    text_file = open(os.getcwd() + '/_static/dummyhtml.html', 'w')
-    products = ["<html>","<head></head>","<body><p>Hello World!</p><p>THIS IS A DUMMY HTML GENERATED DURING BUILD</p></body>","</html>"]
-    text_file.write("\n".join(products))
 
     ### Get exclude.yml from multi-subject
     path_data_stats = os.path.join(os.getcwd(),'data_stats')

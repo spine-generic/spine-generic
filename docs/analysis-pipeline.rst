@@ -206,12 +206,6 @@ To generate a mosaic of images, run:
 Results
 ----------------
 
-**Dummy**
-
-.. raw:: html
-  :file: _static/dummyhtml.html
-
-
 **Cord CSA from T1w**
 
 .. raw:: html
