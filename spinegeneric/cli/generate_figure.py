@@ -190,7 +190,7 @@ TICKSIZE = 10
 LABELSIZE = 15
 
 
-def get_parser():
+def get_parser(args):
     parser = argparse.ArgumentParser(
         description="Generate figures for the spine-generic project. Statistical resuls are output in the file '{}'. "
                     "The following metrics will be computed:\n {}".format(FNAME_LOG, list(metric_to_field.keys())),
@@ -239,8 +239,7 @@ def get_parser():
         '-v',
         action='store_true',
         help="Increase verbosity; interactive figure (for debugging).")
-    return parser
-
+    return parser.parse_args(args)
 
 def aggregate_per_site(dict_results, metric, dict_exclude_subj):
     """
@@ -1056,10 +1055,10 @@ def remove_subject(subject, metric, dict_exclude_subj):
     return False
 
 
-def main():
-
-    parser = get_parser()
-    args = parser.parse_args()
+def main(args):
+    args = get_parser(args)
+    # args = parser.parse_args()
+    # print(args)
     if args.v:
         logger.setLevel(logging.DEBUG)
 
@@ -1164,4 +1163,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    import sys
+    main(sys.argv[1:])

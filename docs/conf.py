@@ -16,7 +16,6 @@ import os
 import sys
 
 sys.path.insert(0, os.path.abspath('../'))
-
 print(sys.path)
 from spinegeneric import __version__
 
@@ -29,7 +28,6 @@ author = u'Julien Cohen-Adad'
 
 # The short X.Y version
 version = __version__
-
 
 # -- General configuration ---------------------------------------------------
 
@@ -180,3 +178,12 @@ epub_title = project
 
 # A list of files that should not be packed into the epub file.
 epub_exclude_files = ['search.html']
+
+def load_data():
+    import subprocess
+    import spinegeneric.cli.generate_figure
+    # spinegeneric.cli.generate_figure.main(['/Users/alex/Downloads/spine_generic_multi_20201001/results', '/Users/alex/data/data-multi-subject/exclude.yml'])
+    # os.chdir('/Users/alex/Downloads/spine_generic_multi_20201001/results')
+    spinegeneric.cli.generate_figure.main(["-path-results /Users/alex/Downloads/spine_generic_multi_20201001/results"])
+
+load_data()
