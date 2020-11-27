@@ -15,6 +15,15 @@
 import os
 import sys
 
+
+def generate_html_figures(app):
+    text_file = open(os.getcwd() + "/_static/dummyhtml.html", "w")
+    products = ["<html>","<head></head>","<body><p>Hello World!</p><p>THIS IS A DUMMY HTML GENERATED DURING BUILD</p></body>","</html>"]
+    text_file.write("\n".join(products))
+
+def setup(app):
+    app.connect('builder-inited', generate_html_figures)
+
 sys.path.insert(0, os.path.abspath('../'))
 print(sys.path)
 from spinegeneric import __version__
@@ -178,12 +187,3 @@ epub_title = project
 
 # A list of files that should not be packed into the epub file.
 epub_exclude_files = ['search.html']
-
-def load_data():
-    import subprocess
-    import spinegeneric.cli.generate_figure
-    # spinegeneric.cli.generate_figure.main(['/Users/alex/Downloads/spine_generic_multi_20201001/results', '/Users/alex/data/data-multi-subject/exclude.yml'])
-    # os.chdir('/Users/alex/Downloads/spine_generic_multi_20201001/results')
-    spinegeneric.cli.generate_figure.main(["-path-results /Users/alex/Downloads/spine_generic_multi_20201001/results"])
-
-load_data()
