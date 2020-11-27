@@ -38,6 +38,10 @@ def generate_html_figures(app):
     ### Extract only *.csv
     os.system('unzip -j ' + path_zip_results_multisubject + ' *.csv -d' + path_data_stats)
 
+    import spinegeneric.cli.generate_figure
+    generate_figure.main()
+
+
 
 
 def setup(app):
