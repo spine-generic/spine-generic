@@ -18,11 +18,20 @@ import sys
 
 def generate_html_figures(app):
 
-    ### Get exclude.yml from multi-subject
+    ### Create folder to store temp data
     path_data_stats = os.path.join(os.getcwd(),'data_stats')
     if not os.path.isdir(path_data_stats):
         os.makedirs(path_data_stats)
-    os.system('wget -O ' + str(path_data_stats) + '/exclude.yml' + ' https://raw.githubusercontent.com/spine-generic/data-multi-subject/master/exclude.yml')
+
+    ### Get exclude.yml from latest release of multi-subject
+    path_zip_data_multisubject = os.path.join(path_data_stats, 'data_multisubject.zip')
+    os.system("""
+    LOCATION=$(curl -s https://api.github.com/repos/spine-generic/data-multi-subject/releases/latest \
+    | grep "tag_name" \
+    | awk '{print "https://github.com/spine-generic/data-multi-subject/archive/" substr($2, 2, length($2)-3) ".zip"}') \
+    ;curl -L -o """ + path_zip_data_multisubject + """ $LOCATION""")
+    ### Extract only *exclude.yml
+    os.system('unzip -j ' + path_zip_data_multisubject + ' *exclude.yml -d' + path_data_stats)
 
     ### Get results from latest release of multi-subject
     path_zip_results_multisubject = os.path.join(path_data_stats,'results.zip')
@@ -38,7 +47,6 @@ def generate_html_figures(app):
 
     ###Generate html figures
     from spinegeneric.cli import generate_figure
-    os.chdir(path_data_stats)
     generate_figure.main(['-path-results',  path_data_stats, '-exclude' ,str(path_data_stats) + '/exclude.yml'])
     os.system('mv *.html ../_static')
 
