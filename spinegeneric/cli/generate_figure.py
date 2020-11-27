@@ -36,7 +36,6 @@ import spinegeneric as sg
 import spinegeneric.utils
 import spinegeneric.flags
 
-#For plotly
 from plotly.subplots import make_subplots
 import plotly.graph_objs as go
 import plotly.express as px
@@ -158,7 +157,7 @@ metric_to_label = {
     }
 
 # fetch metric field for Plotly
-# need to create new label so superscripts can display, since Plotly does not understand Latex, 
+# need to create new label so superscripts can display, since Plotly does not understand Latex 
 metric_to_label_plotly = {
     'csa_t1': 'Cord CSA from T1w [mm<sup>2</sup>]',
     'csa_t2': 'Cord CSA from T2w [mm<sup>2</sup>]',
@@ -239,6 +238,11 @@ def get_parser():
         '-v',
         action='store_true',
         help="Increase verbosity; interactive figure (for debugging).")
+    parser.add_argument(
+        '-output-html',
+        action='store_true',
+        help="Generate interactive graph in .html with Plotly"
+    )
     return parser
 
 
@@ -661,7 +665,7 @@ def generate_figure_metric(df, metric, stats, display_individual_subjects, show_
     logger.info('Created: ' + fname_fig)
 
 
-def generate_figure_metric_plotly(df,metric,stats):
+def generate_figure_metric_plotly(df, metric, stats):
     """
     Generate interactive bar plot across sites
     :param df:
@@ -699,7 +703,7 @@ def generate_figure_metric_plotly(df,metric,stats):
             marker_color='red', 
             name=x
         ))
-        i=i+1
+        i = i + 1
     fig.update_traces(marker=dict(size=4))
 
     fig.add_trace(go.Bar(
@@ -750,7 +754,7 @@ def generate_figure_metric_plotly(df,metric,stats):
         xaxis_tickangle=-45,
         bargap=0.4
     )
-        
+
     #Save graph in .html
     fig.write_html(metric+'.html')
 
@@ -948,7 +952,6 @@ def generate_figure_t1_t2_plotly(df,csa_t1,csa_t2):
 
     fig_v.write_html("fig_t1_t2_agreement.html")
 
-
     # Figure T1w vs t2w per vendor
     fig_2 = go.Figure()
     fig_2 = make_subplots(rows=1, cols=3)
@@ -962,7 +965,7 @@ def generate_figure_t1_t2_plotly(df,csa_t1,csa_t2):
                 x=x,
                 y=y,
                 mode='markers',
-                marker=dict(symbol="circle-open",size=10),
+                marker=dict(symbol="circle-open", size=10),
                 marker_color=vendor_to_color[vendor],
                 name=vendor,
                 showlegend=False),
@@ -980,7 +983,7 @@ def generate_figure_t1_t2_plotly(df,csa_t1,csa_t2):
         # Add bisection (diagonal) line
         fig_2.add_trace(go.Scatter(
                 x=[lim_min-offset, lim_max+offset], 
-                y=[lim_min-offset,lim_max+offset], 
+                y=[lim_min-offset, lim_max+offset], 
                 line=dict(color='black', width=1, dash='dash'), 
                 showlegend=False), 
             row=1, col=i
@@ -1002,14 +1005,13 @@ def generate_figure_t1_t2_plotly(df,csa_t1,csa_t2):
                 x=x_vals, 
                 y=y_vals, 
                 line=dict(color='red', width=1), 
-                showlegend=False,name='regression'),
-            row=1,col=i
+                showlegend=False, name='regression'),
+            row=1, col=i
         )
         i=i+1
 
     #fig_2.update_layout(
         #title_text="CSA agreement between T1w and T2w data per vendor")
-    
     fig_2.write_html("fig_t1_t2_agreement_per_vendor.html")
 
 
@@ -1145,8 +1147,9 @@ def main():
         # Generate figure
         generate_figure_metric(df, metric, stats, display_individual_subjects, show_ci=args.show_ci)
 
-        # Generate interactive html figure
-        generate_figure_metric_plotly(df, metric, stats)
+        if args.output_html:
+            # Generate interactive html figure
+            generate_figure_metric_plotly(df, metric, stats)
 
         # Get T1w and T2w CSA (will be used later for another figure)
         if metric == "csa_t1":
@@ -1154,13 +1157,12 @@ def main():
         elif metric == "csa_t2":
             csa_t2 = df.sort_values('site').values
 
-
-
     # Generate T1w vs. T2w figure
     generate_figure_t1_t2(df, csa_t1, csa_t2)
 
-    # Generate interactive html T1w vs. T2w figure
-    generate_figure_t1_t2_plotly(df,csa_t1,csa_t2)
+    if args.output_html:
+        # Generate interactive html T1w vs. T2w figure
+        generate_figure_t1_t2_plotly(df, csa_t1, csa_t2)
 
 
 if __name__ == "__main__":
