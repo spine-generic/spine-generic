@@ -188,7 +188,7 @@ Generate figures
 
 Generate figures based on the output csv files using ``sg_generate_figures.py`` script. Run this script in ``/results``
 folder (folder containing csv files) or specify this folder using ``-path-results`` flag. The flag ``-exclude`` points
-to a yml file containing the subjects to be excluded from the statistics:
+to a yml file containing the subjects to be excluded from the statistics. To generate html that contrains interactive figures, add the flag ``-output-html`` :
 
 .. code-block:: bash
 
@@ -206,6 +206,7 @@ To generate a mosaic of images, run:
 Results
 ----------------
 
+https://github.com/spine-generic/website-data/releases/tag/wd-20201128
 
 .. raw:: html
   :file: _static/csa_t1.html

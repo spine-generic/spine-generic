@@ -697,7 +697,7 @@ def generate_figure_metric_plotly(df, metric, stats):
         val = [value * scaling_factor.get(metric) for value in val]
         x = site_sorted[i]
         fig.add_trace(go.Scatter(
-            x=[x,x,x,x,x,x], 
+            x=[x, x, x, x, x, x], 
             y=val, 
             mode='markers', 
             marker_color='red', 
@@ -734,7 +734,7 @@ def generate_figure_metric_plotly(df, metric, stats):
         color=list_colors[x_init_vendor]
 
         fig.add_trace(go.Scatter(
-            x=[site_sorted[x_init_vendor],site_sorted[x_init_vendor-1+n_site]],
+            x=[site_sorted[x_init_vendor], site_sorted[x_init_vendor-1 + n_site]],
             y=[mean*f,mean*f],
             line=dict(color='black', width=1, dash='dash')
         ))
@@ -749,13 +749,11 @@ def generate_figure_metric_plotly(df, metric, stats):
 
     fig.update_layout(
         showlegend=False,
-        #title='Figure' + ' ' + metric,
         yaxis_title=metric_to_label_plotly[metric],
         xaxis_tickangle=-45,
         bargap=0.4
     )
 
-    #Save graph in .html
     fig.write_html(metric+'.html')
 
 
@@ -901,7 +899,7 @@ def generate_figure_t1_t2(df, csa_t1, csa_t2):
     logger.info('Created: ' + fname_fig)
 
 
-def generate_figure_t1_t2_plotly(df,csa_t1,csa_t2):
+def generate_figure_t1_t2_plotly(df, csa_t1, csa_t2):
     """
     Generate inteactive CSA_T1w vs. CSA_T2w figure
     :param df:
@@ -932,16 +930,15 @@ def generate_figure_t1_t2_plotly(df,csa_t1,csa_t2):
             x=CSA_dict[vendor + '_t2'],
             y=CSA_dict[vendor + '_t1'],
             mode='markers',
-            marker=dict(symbol = "circle-open", size=10),
+            marker=dict(symbol="circle-open", size=10),
             marker_color=vendor_to_color[vendor],
             name=vendor
             ))
-    x = np.linspace(50,100,50)
-    y = np.linspace(50,100,50)
+    x = np.linspace(50, 100, 50)
+    y = np.linspace(50, 100, 50)
     fig_v.add_trace(go.Scatter(x=x, y=y, line=dict(color='black', width=2, dash='dash'), showlegend=False))
     fig_v.update_layout(
         showlegend=True,
-        #title="CSA agreement between T1w and T2w data",
         yaxis_title="T1w CSA",
         xaxis_title="T2w CSA"
     )
@@ -992,14 +989,14 @@ def generate_figure_t1_t2_plotly(df,csa_t1,csa_t2):
         # Compute linear fit
         linear_regression = LinearRegression()
         # perform linear regression (compute slope and intercept)
-        linear_regression.fit((np.array(x).reshape(-1, 1)).reshape(-1,1), (np.array(y).reshape(-1, 1)).reshape(-1,1))
+        linear_regression.fit((np.array(x).reshape(-1, 1)).reshape(-1, 1), (np.array(y).reshape(-1, 1)).reshape(-1, 1))
         intercept = linear_regression.intercept_
         slope = linear_regression.coef_
         # compute prediction
         reg_predictor = linear_regression.predict(np.array(x).reshape(-1, 1))
 
         # Plot linear fit
-        x_vals = np.linspace(50,100,50)
+        x_vals = np.linspace(50, 100, 50)
         y_vals = np.squeeze(intercept + (slope * x_vals))
         fig_2.add_trace(go.Scatter(
                 x=x_vals, 
@@ -1010,8 +1007,6 @@ def generate_figure_t1_t2_plotly(df,csa_t1,csa_t2):
         )
         i=i+1
 
-    #fig_2.update_layout(
-        #title_text="CSA agreement between T1w and T2w data per vendor")
     fig_2.write_html("fig_t1_t2_agreement_per_vendor.html")
 
 
