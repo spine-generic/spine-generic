@@ -19,7 +19,7 @@ Dependencies
 
 MANDATORY:
 
-- For processing: `SCT 4.3.0 <https://github.com/neuropoly/spinalcordtoolbox/releases/tag/4.3.0>`__.
+- For processing: `SCT 5.0.1 <https://github.com/neuropoly/spinalcordtoolbox/releases/tag/5.0.1>`__.
 - For generating figures: Python >= 3.7
 
 OPTIONAL:
