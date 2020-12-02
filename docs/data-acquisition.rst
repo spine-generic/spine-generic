@@ -1,6 +1,9 @@
 Data collection and organization
 ================================
 
+
+Imaging Protocol
+-----------------
 The "Spine Generic" MRI acquisition protocol is available at `this
 link <http://www.spinalcordmri.org/protocols>`__. Each site was instructed to scan six healthy subjects
 (3 men, 3 women), aged between 20 and 40 y.o. Note: there was some

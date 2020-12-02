@@ -19,7 +19,7 @@ Dependencies
 
 MANDATORY:
 
-- For processing: `SCT 4.3.0 <https://github.com/neuropoly/spinalcordtoolbox/releases/tag/4.3.0>`__.
+- For processing: `SCT 5.0.1 <https://github.com/neuropoly/spinalcordtoolbox/releases/tag/5.0.1>`__.
 - For generating figures: Python >= 3.7
 
 OPTIONAL:
@@ -188,7 +188,7 @@ Generate figures
 
 Generate figures based on the output csv files using ``sg_generate_figures.py`` script. Run this script in ``/results``
 folder (folder containing csv files) or specify this folder using ``-path-results`` flag. The flag ``-exclude`` points
-to a yml file containing the subjects to be excluded from the statistics:
+to a yml file containing the subjects to be excluded from the statistics. To generate html that contrains interactive figures, add the flag ``-output-html`` :
 
 .. code-block:: bash
 
@@ -202,3 +202,51 @@ To generate a mosaic of images, run:
   sg_create_mosaic -i *T1w_RPI_r_flatten.nii.gz -ifolder ~/project/results_multi_20200907/data_processed/ -p sag -col 20 -row 13 -o fig_mosaic_T1w.png
   # Axial views of GRE-T1w data
   sg_create_mosaic -i *acq-T1w_MTS.nii.gz -ifolder ~/spineGeneric_results/data_processed -s _seg -p ax -col 20 -row 13 -o fig_mosaic_GRE-T1w.png
+
+Results
+----------------
+
+https://github.com/spine-generic/website-data/releases/tag/wd-20201128
+
+.. raw:: html
+  :file: _static/csa_t1.html
+
+
+.. raw:: html
+  :file: _static/csa_t2.html
+
+
+.. raw:: html
+  :file: _static/csa_gm.html
+
+
+.. raw:: html
+  :file: _static/dti_fa.html
+
+
+.. raw:: html
+  :file: _static/dti_md.html
+
+
+.. raw:: html
+  :file: _static/dti_rd.html
+
+
+.. raw:: html
+  :file: _static/mtr.html
+
+
+.. raw:: html
+  :file: _static/mtsat.html
+
+
+.. raw:: html
+  :file: _static/t1.html
+
+
+.. raw:: html
+  :file: _static/fig_t1_t2_agreement.html
+
+
+.. raw:: html
+  :file: _static/fig_t1_t2_agreement_per_vendor.html
