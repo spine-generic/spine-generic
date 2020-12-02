@@ -233,12 +233,10 @@ Results
 
 **Radial diffusivity**
 
-
 .. raw:: html
   :file: _static/dti_rd.html
 
 **Magnetization transfer ratio**
-
 
 .. raw:: html
   :file: _static/mtr.html
@@ -258,7 +256,7 @@ Results
 .. raw:: html
   :file: _static/fig_t1_t2_agreement.html
 
-**CSA agreement between T1w and T2w data per vendors**
+**CSA agreement between T1w and T2w data per vendor**
 
 .. raw:: html
   :file: _static/fig_t1_t2_agreement_per_vendor.html

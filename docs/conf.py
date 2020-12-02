@@ -47,7 +47,7 @@ def generate_html_figures(app):
 
     ###Generate html figures
     from spinegeneric.cli import generate_figure
-    generate_figure.main(['-path-results',  path_data_stats, '-exclude' ,str(path_data_stats) + '/exclude.yml'])
+    generate_figure.main(['-path-results',  path_data_stats, '-exclude', str(path_data_stats) + '/exclude.yml', '-output-html'])
     os.system('mv *.html ../_static')
 
 
