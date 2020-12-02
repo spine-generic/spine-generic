@@ -36,7 +36,6 @@ import spinegeneric as sg
 import spinegeneric.utils
 import spinegeneric.flags
 
-# For plotly
 from plotly.subplots import make_subplots
 import plotly.graph_objs as go
 import plotly.express as px
@@ -170,6 +169,20 @@ metric_to_label_plotly = {
     't1': 'T1 [ms]',
 }
 
+# fetch metric field for Plotly
+# need to create new label so superscripts can display, since Plotly does not understand Latex 
+metric_to_label_plotly = {
+    'csa_t1': 'Cord CSA from T1w [mm<sup>2</sup>]',
+    'csa_t2': 'Cord CSA from T2w [mm<sup>2</sup>]',
+    'csa_gm': 'Gray Matter CSA [mm<sup>2</sup>]',
+    'dti_fa': 'Fractional anisotropy',
+    'dti_md': 'Mean diffusivity [mm<sup>2</sup>s<sup>-1</sup>]',
+    'dti_rd': 'Radial diffusivity [mm<sup>2</sup>s<sup>-1</sup>]',
+    'mtr': 'Magnetization transfer ratio [%]',
+    'mtsat': 'Magnetization transfer saturation [%]',
+    't1': 'T1 [ms]',
+    }
+
 # scaling factor (for display)
 scaling_factor = {
     'csa_t1': 1,
@@ -238,6 +251,11 @@ def get_parser():
         '-v',
         action='store_true',
         help="Increase verbosity; interactive figure (for debugging).")
+    parser.add_argument(
+        '-output-html',
+        action='store_true',
+        help="Generate interactive graph in .html with Plotly"
+    )
     return parser
 
 
@@ -692,10 +710,10 @@ def generate_figure_metric_plotly(df, metric, stats):
         val = [value * scaling_factor.get(metric) for value in val]
         x = site_sorted[i]
         fig.add_trace(go.Scatter(
-            x=[x, x, x, x, x, x],
-            y=val,
-            mode='markers',
-            marker_color='red',
+            x=[x, x, x, x, x, x], 
+            y=val, 
+            mode='markers', 
+            marker_color='red', 
             name=x
         ))
         i = i + 1
@@ -710,48 +728,46 @@ def generate_figure_metric_plotly(df, metric, stats):
         insidetextanchor="start",
         textangle=-90,
         error_y=dict(array=std_sorted,
-                     color='#000000',
-                     width=3),
+                    color='#000000',
+                    width=3),
         marker_color=(list_colors)))
 
     # Add stats per vendor
     x_init_vendor = 0
     for vendor in list(OrderedDict.fromkeys(vendor_sorted)):
         n_site = list(vendor_sorted).count(vendor)
-        x_i = x_init_vendor - 0.5
-        x_j = x_init_vendor + n_site - 1 + 0.5
-        mean = stats['mean'][vendor]
-        std = stats['std'][vendor]
-        ci = stats['95ci'][vendor]
-        cov_intra = stats['cov_intra'][vendor]
-        cov_inter = stats['cov_inter'][vendor]
-        f = scaling_factor[metric]
-        color = list_colors[x_init_vendor]
+        x_i=x_init_vendor - 0.5
+        x_j=x_init_vendor + n_site - 1 + 0.5
+        mean=stats['mean'][vendor]
+        std=stats['std'][vendor]
+        ci=stats['95ci'][vendor]
+        cov_intra=stats['cov_intra'][vendor]
+        cov_inter=stats['cov_inter'][vendor]
+        f=scaling_factor[metric]
+        color=list_colors[x_init_vendor]
 
         fig.add_trace(go.Scatter(
-            x=[site_sorted[x_init_vendor], site_sorted[x_init_vendor - 1 + n_site]],
-            y=[mean * f, mean * f],
+            x=[site_sorted[x_init_vendor], site_sorted[x_init_vendor-1 + n_site]],
+            y=[mean*f,mean*f],
             line=dict(color='black', width=1, dash='dash')
         ))
 
         fig.add_shape(type="rect",
-                      x0=x_i, y0=(mean - std) * f, x1=x_j, y1=(mean + std) * f,
-                      line=dict(width=0),
-                      opacity=0.2,
-                      fillcolor=color)
+            x0=x_i, y0=(mean-std)*f, x1=x_j, y1=(mean+std)*f,
+            line=dict(width=0),
+            opacity=0.2,
+        fillcolor=color)
 
         x_init_vendor += n_site
 
     fig.update_layout(
         showlegend=False,
-        # title='Figure' + ' ' + metric,
         yaxis_title=metric_to_label_plotly[metric],
         xaxis_tickangle=-45,
         bargap=0.4
     )
 
-    # Save graph in .html
-    fig.write_html(metric + '.html')
+    fig.write_html(metric+'.html')
 
 
 def generate_figure_t1_t2(df, csa_t1, csa_t2):
@@ -920,7 +936,7 @@ def generate_figure_t1_t2_plotly(df, csa_t1, csa_t2):
             if subject in csa_t2[index, 4]:
                 CSA_dict[vendor + '_t1'].append(csa_t1[index, 3][csa_t1[index, 4].index(subject)])
                 CSA_dict[vendor + '_t2'].append(csa_t2[index, 3][csa_t2[index, 4].index(subject)])
-
+    
     fig_v = go.Figure()
     # Loop across vendors
     for vendor in list(OrderedDict.fromkeys(vendor_sorted)):
@@ -931,13 +947,12 @@ def generate_figure_t1_t2_plotly(df, csa_t1, csa_t2):
             marker=dict(symbol="circle-open", size=10),
             marker_color=vendor_to_color[vendor],
             name=vendor
-        ))
+            ))
     x = np.linspace(50, 100, 50)
     y = np.linspace(50, 100, 50)
     fig_v.add_trace(go.Scatter(x=x, y=y, line=dict(color='black', width=2, dash='dash'), showlegend=False))
     fig_v.update_layout(
         showlegend=True,
-        # title="CSA agreement between T1w and T2w data",
         yaxis_title="T1w CSA",
         xaxis_title="T2w CSA"
     )
@@ -965,7 +980,7 @@ def generate_figure_t1_t2_plotly(df, csa_t1, csa_t2):
                 marker_color=vendor_to_color[vendor],
                 name=vendor,
                 showlegend=False),
-            row=1, col=i
+                row=1, col=i
         )
 
         # Dynamic scaling of individual subplots based on data
@@ -978,10 +993,10 @@ def generate_figure_t1_t2_plotly(df, csa_t1, csa_t2):
 
         # Add bisection (diagonal) line
         fig_2.add_trace(go.Scatter(
-            x=[lim_min - offset, lim_max + offset],
-            y=[lim_min - offset, lim_max + offset],
-            line=dict(color='black', width=1, dash='dash'),
-            showlegend=False),
+                x=[lim_min-offset, lim_max+offset], 
+                y=[lim_min-offset, lim_max+offset], 
+                line=dict(color='black', width=1, dash='dash'), 
+                showlegend=False), 
             row=1, col=i
         )
 
@@ -998,16 +1013,13 @@ def generate_figure_t1_t2_plotly(df, csa_t1, csa_t2):
         x_vals = np.linspace(50, 100, 50)
         y_vals = np.squeeze(intercept + (slope * x_vals))
         fig_2.add_trace(go.Scatter(
-            x=x_vals,
-            y=y_vals,
-            line=dict(color='red', width=1),
-            showlegend=False, name='regression'),
+                x=x_vals, 
+                y=y_vals, 
+                line=dict(color='red', width=1), 
+                showlegend=False, name='regression'),
             row=1, col=i
         )
-        i = i + 1
-
-    # fig_2.update_layout(
-    # title_text="CSA agreement between T1w and T2w data per vendor")
+        i=i+1
 
     fig_2.write_html("fig_t1_t2_agreement_per_vendor.html")
 
@@ -1143,8 +1155,9 @@ def main(argv=sys.argv[1:]):
         # Generate figure
         generate_figure_metric(df, metric, stats, display_individual_subjects, show_ci=args.show_ci)
 
-        # Generate interactive html figure
-        generate_figure_metric_plotly(df, metric, stats)
+        if args.output_html:
+            # Generate interactive html figure
+            generate_figure_metric_plotly(df, metric, stats)
 
         # Get T1w and T2w CSA (will be used later for another figure)
         if metric == "csa_t1":
@@ -1155,8 +1168,9 @@ def main(argv=sys.argv[1:]):
     # Generate T1w vs. T2w figure
     generate_figure_t1_t2(df, csa_t1, csa_t2)
 
-    # Generate interactive html T1w vs. T2w figure
-    generate_figure_t1_t2_plotly(df, csa_t1, csa_t2)
+    if args.output_html:
+        # Generate interactive html T1w vs. T2w figure
+        generate_figure_t1_t2_plotly(df, csa_t1, csa_t2)
 
 
 if __name__ == "__main__":
