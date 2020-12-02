@@ -15,8 +15,46 @@
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath('../'))
 
+def generate_html_figures(app):
+
+    ### Create folder to store temp data
+    path_data_stats = os.path.join(os.getcwd(),'data_stats')
+    if not os.path.isdir(path_data_stats):
+        os.makedirs(path_data_stats)
+
+    ### Get exclude.yml from latest release of multi-subject
+    path_zip_data_multisubject = os.path.join(path_data_stats, 'data_multisubject.zip')
+    os.system("""
+    LOCATION=$(curl -s https://api.github.com/repos/spine-generic/data-multi-subject/releases/latest \
+    | grep "tag_name" \
+    | awk '{print "https://github.com/spine-generic/data-multi-subject/archive/" substr($2, 2, length($2)-3) ".zip"}') \
+    ;curl -L -o """ + path_zip_data_multisubject + """ $LOCATION""")
+    ### Extract only *exclude.yml
+    os.system('unzip -j ' + path_zip_data_multisubject + ' *exclude.yml -d' + path_data_stats)
+
+    ### Get results from latest release of multi-subject
+    path_zip_results_multisubject = os.path.join(path_data_stats,'results.zip')
+    os.system("""
+    LOCATION=$(curl -s https://api.github.com/repos/spine-generic/data-multi-subject/releases/latest \
+    | grep "tag_name" \
+    | awk '{print "https://github.com/spine-generic/data-multi-subject/releases/download/" substr($2, 2, length($2)-3) "/results.zip"}') \
+    ;curl -L -o """ + path_zip_results_multisubject + """ $LOCATION""")
+
+    ### Extract only *.csv
+    os.system('unzip -j ' + path_zip_results_multisubject + ' *.csv -d' + path_data_stats)
+    os.system('unzip -j ' + path_zip_results_multisubject + ' *.tsv -d' + path_data_stats)
+
+    ###Generate html figures
+    from spinegeneric.cli import generate_figure
+    generate_figure.main(['-path-results',  path_data_stats, '-exclude', str(path_data_stats) + '/exclude.yml', '-output-html'])
+    os.system('mv *.html ../_static')
+
+
+def setup(app):
+    app.connect('builder-inited', generate_html_figures)
+
+sys.path.insert(0, os.path.abspath('../'))
 print(sys.path)
 from spinegeneric import __version__
 
@@ -29,7 +67,6 @@ author = u'Julien Cohen-Adad'
 
 # The short X.Y version
 version = __version__
-
 
 # -- General configuration ---------------------------------------------------
 
