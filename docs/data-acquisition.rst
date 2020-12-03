@@ -19,8 +19,8 @@ Multi-center data
 In the context of this project, the following dataset have been acquired and are
 available as open-access:
 
-- `Multi-center, single-subject <https://github.com/spine-generic/data-single-subject>`__
-- `Multi-center, multi-subject <https://github.com/spine-generic/data-multi-subject>`__
+- `Multi-center, single-subject <https://github.com/spine-generic/data-single-subject#spine-generic-public-database-single-subject>`__
+- `Multi-center, multi-subject <https://github.com/spine-generic/data-multi-subject#spine-generic-public-database-multi-subject>`__
 
 
 Data conversion: DICOM to BIDS
