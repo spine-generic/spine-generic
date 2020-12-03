@@ -204,59 +204,69 @@ To generate a mosaic of images, run:
   sg_create_mosaic -i *acq-T1w_MTS.nii.gz -ifolder ~/spineGeneric_results/data_processed -s _seg -p ax -col 20 -row 13 -o fig_mosaic_GRE-T1w.png
 
 Results
-----------------
+-------
 
-**Cord CSA from T1w**
+Cord CSA from T1w
+^^^^^^^^^^^^^^^^^
 
 .. raw:: html
   :file: _static/csa_t1.html
 
-**Cord CSA from T2w**
+Cord CSA from T2w
+^^^^^^^^^^^^^^^^^^^^^
 
 .. raw:: html
   :file: _static/csa_t2.html
 
-**Gray matter**
-
-.. raw:: html
-  :file: _static/csa_gm.html
-
-**Fractional anisotropy**
-
-.. raw:: html
-  :file: _static/dti_fa.html
-
-**Mean diffusivity**
-
-.. raw:: html
-  :file: _static/dti_md.html
-
-**Radial diffusivity**
-
-.. raw:: html
-  :file: _static/dti_rd.html
-
-**Magnetization transfer ratio**
-
-.. raw:: html
-  :file: _static/mtr.html
-
-**Magnetization transfer saturation**
-
-.. raw:: html
-  :file: _static/mtsat.html
-
-**T1**
-
-.. raw:: html
-  :file: _static/t1.html
-
-**CSA agreement between T1w and T2w data**
+CSA agreement between T1w and T2w data
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. raw:: html
   :file: _static/fig_t1_t2_agreement.html
 
-**CSA agreement between T1w and T2w data per vendor**
-
+CSA agreement between T1w and T2w data per vendor
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. raw:: html
   :file: _static/fig_t1_t2_agreement_per_vendor.html
+
+Gray matter CSA
+^^^^^^^^^^^^^^^
+
+.. raw:: html
+  :file: _static/csa_gm.html
+
+Magnetization Transfer Ratio
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. raw:: html
+  :file: _static/mtr.html
+
+Magnetization transfer saturation
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. raw:: html
+  :file: _static/mtsat.html
+
+T1
+^^
+
+.. raw:: html
+  :file: _static/t1.html
+
+Fractional Anisotropy
+^^^^^^^^^^^^^^^^^^^^^
+
+.. raw:: html
+  :file: _static/dti_fa.html
+
+Mean diffusivity
+^^^^^^^^^^^^^^^^
+
+.. raw:: html
+  :file: _static/dti_md.html
+
+Radial diffusivity
+^^^^^^^^^^^^^^^^^^
+
+.. raw:: html
+  :file: _static/dti_rd.html
