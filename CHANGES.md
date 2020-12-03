@@ -1,3 +1,10 @@
+## v2.6 (2020-12-03)
+[View detailed changelog](https://github.com/spine-generic/spine-generic/compare/v2.5...v2.6)
+ - Generate the interactive Plotly figures dynamically during documentation build.  [View pull request](https://github.com/spine-generic/spine-generic/pull/240)
+ - Add interactive graphs in RTD (currently not working-- dependent on #240).  [View pull request](https://github.com/spine-generic/spine-generic/pull/237)
+ - DOC: Remove duplicate Multi-center data entry.  [View pull request](https://github.com/spine-generic/spine-generic/pull/235)
+
+
 ## v2.5 (2020-10-02)
 [View detailed changelog](https://github.com/spine-generic/spine-generic/compare/v2.4...v2.5)
  - sg_create_mosaic: Fix issues with modules compatibility; various improvements.  [View pull request](https://github.com/spine-generic/spine-generic/pull/229)
