@@ -1,6 +1,9 @@
 Data collection and organization
 ================================
 
+
+Imaging Protocol
+-----------------
 The "Spine Generic" MRI acquisition protocol is available at `this
 link <http://www.spinalcordmri.org/protocols>`__. Each site was instructed to scan six healthy subjects
 (3 men, 3 women), aged between 20 and 40 y.o. Note: there was some
@@ -16,8 +19,8 @@ Multi-center data
 In the context of this project, the following dataset have been acquired and are
 available as open-access:
 
-- `Multi-center, single-subject <https://github.com/spine-generic/data-single-subject>`__
-- `Multi-center, multi-subject <https://github.com/spine-generic/data-multi-subject>`__
+- `Multi-center, single-subject <https://github.com/spine-generic/data-single-subject#spine-generic-public-database-single-subject>`__
+- `Multi-center, multi-subject <https://github.com/spine-generic/data-multi-subject#spine-generic-public-database-multi-subject>`__
 
 
 Data conversion: DICOM to BIDS
@@ -269,12 +272,6 @@ Below is an example of a defaced subject:
    :scale: 70%
 
    Example of manual defacing.
-
-
-.. _multi-center-data:
-
-Multi-center data
--------------------
 
 Example of datasets
 -------------------

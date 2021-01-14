@@ -36,6 +36,9 @@ import spinegeneric as sg
 import spinegeneric.utils
 import spinegeneric.flags
 
+from plotly.subplots import make_subplots
+import plotly.graph_objs as go
+import plotly.express as px
 
 # Initialize logging
 logger = logging.getLogger(__name__)
@@ -104,14 +107,14 @@ flags = {
     'vallHebron': 'spain',
     'vuiisAchieva': 'us',
     'vuiisIngenia': 'us',
-    }
+}
 
 # color to assign to each MRI model for the figure
 vendor_to_color = {
     'GE': 'black',
     'Philips': 'dodgerblue',
     'Siemens': 'limegreen',
-    }
+}
 
 # fetch contrast based on csv file
 file_to_metric = {
@@ -124,7 +127,7 @@ file_to_metric = {
     'DWI_FA.csv': 'dti_fa',
     'DWI_MD.csv': 'dti_md',
     'DWI_RD.csv': 'dti_rd',
-    }
+}
 
 # fetch metric field
 metric_to_field = {
@@ -137,7 +140,7 @@ metric_to_field = {
     'mtr': 'WA()',
     'mtsat': 'WA()',
     't1': 'WA()',
-    }
+}
 
 # fetch metric field
 metric_to_label = {
@@ -147,6 +150,34 @@ metric_to_label = {
     'dti_fa': 'Fractional anisotropy',
     'dti_md': 'Mean diffusivity [$mm^2.s^{-1}$]',
     'dti_rd': 'Radial diffusivity [$mm^2.s^{-1}$]',
+    'mtr': 'Magnetization transfer ratio [%]',
+    'mtsat': 'Magnetization transfer saturation [%]',
+    't1': 'T1 [ms]',
+}
+
+# fetch metric field for Plotly
+# need to create new label so superscripts can display, since Plotly does not understand Latex, 
+metric_to_label_plotly = {
+    'csa_t1': 'Cord CSA from T1w [mm<sup>2</sup>]',
+    'csa_t2': 'Cord CSA from T2w [mm<sup>2</sup>]',
+    'csa_gm': 'Gray Matter CSA [mm<sup>2</sup>]',
+    'dti_fa': 'Fractional anisotropy',
+    'dti_md': 'Mean diffusivity [mm<sup>2</sup>s<sup>-1</sup>]',
+    'dti_rd': 'Radial diffusivity [mm<sup>2</sup>s<sup>-1</sup>]',
+    'mtr': 'Magnetization transfer ratio [%]',
+    'mtsat': 'Magnetization transfer saturation [%]',
+    't1': 'T1 [ms]',
+}
+
+# fetch metric field for Plotly
+# need to create new label so superscripts can display, since Plotly does not understand Latex 
+metric_to_label_plotly = {
+    'csa_t1': 'Cord CSA from T1w [mm<sup>2</sup>]',
+    'csa_t2': 'Cord CSA from T2w [mm<sup>2</sup>]',
+    'csa_gm': 'Gray Matter CSA [mm<sup>2</sup>]',
+    'dti_fa': 'Fractional anisotropy',
+    'dti_md': 'Mean diffusivity [mm<sup>2</sup>s<sup>-1</sup>]',
+    'dti_rd': 'Radial diffusivity [mm<sup>2</sup>s<sup>-1</sup>]',
     'mtr': 'Magnetization transfer ratio [%]',
     'mtsat': 'Magnetization transfer saturation [%]',
     't1': 'T1 [ms]',
@@ -163,7 +194,7 @@ scaling_factor = {
     'mtr': 1,
     'mtsat': 1,
     't1': 1000,
-    }
+}
 
 # FIGURE PARAMETERS
 FONTSIZE = 15
@@ -201,7 +232,7 @@ def get_parser():
         required=False,
         help=
         "R|Config yaml file listing subjects (starting with 'sub') or sites to remove from the statistics."
-        "See the list of computed metrics in the description above for the accepted keys." 
+        "See the list of computed metrics in the description above for the accepted keys."
         "Yaml file can be validated at this website: http://www.yamllint.com/. Below is an example yaml file:\n"
         + dedent(
             """
@@ -220,6 +251,11 @@ def get_parser():
         '-v',
         action='store_true',
         help="Increase verbosity; interactive figure (for debugging).")
+    parser.add_argument(
+        '-output-html',
+        action='store_true',
+        help="Generate interactive graph in .html with Plotly"
+    )
     return parser
 
 
@@ -293,10 +329,10 @@ def add_stats_per_vendor(ax, x_i, x_j, y_max, mean, std, ci, cov_intra, cov_inte
     """
     # add stats as strings
     if cov_intra == 0:
-        txt = "{0:.2f} $\pm$ {1:.2f}\nCOV inter:{2:.2f}%".\
+        txt = "{0:.2f} $\pm$ {1:.2f}\nCOV inter:{2:.2f}%". \
             format(mean * f, std * f, cov_inter * 100.)
     else:
-        txt = "{0:.2f} $\pm$ {1:.2f}\nCOV intra:{2:.2f}%, inter:{3:.2f}%".\
+        txt = "{0:.2f} $\pm$ {1:.2f}\nCOV intra:{2:.2f}%, inter:{3:.2f}%". \
             format(mean * f, std * f, cov_intra * 100., cov_inter * 100.)
 
     ax.annotate(txt, xy=(np.mean([x_i, x_j]), y_max), va='center', ha='center',
@@ -405,7 +441,7 @@ def output_text(stats):
     # Find and write highest intra-site COV (rounded up)
     if not single_subject:
         txt += "The intra-site COVs were averaged for each vendor and found to be all under " \
-               "{:.1f}%. ".format(math.ceil(max(stats['cov_intra'].values())*1000)/10)
+               "{:.1f}%. ".format(math.ceil(max(stats['cov_intra'].values()) * 1000) / 10)
 
     # Write inter-site COVs and ANOVA p-values
     if single_subject:
@@ -436,14 +472,14 @@ def output_text(stats):
                "differences ".format(p_val_anova)
 
         # Get significant post-hoc results
-        index = sum(stats['tukey_test'].reject == True)     # total number of significant post-hoc tests
+        index = sum(stats['tukey_test'].reject == True)  # total number of significant post-hoc tests
         # Loop across between vendor tests (i.e, GE-Philips, GE-Siemens, Philips-Siemens)
         for counter in range(1, 4):
             # Check if post-hoc test was rejected or not
             if stats['tukey_test']._results_table[counter][6].data:
-                vendor1 = stats['tukey_test']._results_table[counter][0].data   # 1st vendor
-                vendor2 = stats['tukey_test']._results_table[counter][1].data   # 2nd vendor
-                p_adj = stats['tukey_test']._results_table[counter][3].data     # adjusted p-val
+                vendor1 = stats['tukey_test']._results_table[counter][0].data  # 1st vendor
+                vendor2 = stats['tukey_test']._results_table[counter][1].data  # 2nd vendor
+                p_adj = stats['tukey_test']._results_table[counter][3].data  # adjusted p-val
                 p_adj = format_p_value(p_adj)
                 txt += "between {} and {} (p-adj{})".format(vendor1, vendor2, p_adj)
                 index -= 1
@@ -642,6 +678,98 @@ def generate_figure_metric(df, metric, stats, display_individual_subjects, show_
     logger.info('Created: ' + fname_fig)
 
 
+def generate_figure_metric_plotly(df, metric, stats):
+    """
+    Generate interactive bar plot across sites
+    :param df:
+    :param metric:
+    :param stats:
+    :return:
+    """
+    # Sort values per vendor
+    site_sorted = df.sort_values(by=['vendor', 'model', 'site']).index.values
+    vendor_sorted = df['vendor'][site_sorted].values
+    mean_sorted = df['mean'][site_sorted].values
+    std_sorted = df['std'][site_sorted].values
+    model_sorted = df['model'][site_sorted].values
+
+    # Scale values (for display)
+    mean_sorted = mean_sorted * scaling_factor[metric]
+    std_sorted = std_sorted * scaling_factor[metric]
+
+    # Get color based on vendor
+    list_colors = [vendor_to_color[i] for i in vendor_sorted]
+
+    fig = go.Figure()
+
+    # Display individual subjects
+    i = 0
+    for site in site_sorted:
+        index = list(site_sorted).index(site)
+        val = df['val'][site]
+        val = [value * scaling_factor.get(metric) for value in val]
+        x = site_sorted[i]
+        fig.add_trace(go.Scatter(
+            x=[x, x, x, x, x, x], 
+            y=val, 
+            mode='markers', 
+            marker_color='red', 
+            name=x
+        ))
+        i = i + 1
+    fig.update_traces(marker=dict(size=4))
+
+    fig.add_trace(go.Bar(
+        y=mean_sorted,
+        x=site_sorted,
+        text=model_sorted,
+        textfont=dict(color="white", size=30),
+        textposition="inside",
+        insidetextanchor="start",
+        textangle=-90,
+        error_y=dict(array=std_sorted,
+                    color='#000000',
+                    width=3),
+        marker_color=(list_colors)))
+
+    # Add stats per vendor
+    x_init_vendor = 0
+    for vendor in list(OrderedDict.fromkeys(vendor_sorted)):
+        n_site = list(vendor_sorted).count(vendor)
+        x_i=x_init_vendor - 0.5
+        x_j=x_init_vendor + n_site - 1 + 0.5
+        mean=stats['mean'][vendor]
+        std=stats['std'][vendor]
+        ci=stats['95ci'][vendor]
+        cov_intra=stats['cov_intra'][vendor]
+        cov_inter=stats['cov_inter'][vendor]
+        f=scaling_factor[metric]
+        color=list_colors[x_init_vendor]
+
+        fig.add_trace(go.Scatter(
+            x=[site_sorted[x_init_vendor], site_sorted[x_init_vendor-1 + n_site]],
+            y=[mean*f,mean*f],
+            line=dict(color='black', width=1, dash='dash')
+        ))
+
+        fig.add_shape(type="rect",
+            x0=x_i, y0=(mean-std)*f, x1=x_j, y1=(mean+std)*f,
+            line=dict(width=0),
+            opacity=0.2,
+        fillcolor=color)
+
+        x_init_vendor += n_site
+
+    fig.update_layout(
+        showlegend=False,
+        yaxis_title=metric_to_label_plotly[metric],
+        xaxis_tickangle=-45,
+        bargap=0.4
+    )
+
+    fig.write_html(metric+'.html')
+
+
 def generate_figure_t1_t2(df, csa_t1, csa_t2):
     """
     Generate CSA_T1w vs. CSA_T2w
@@ -650,11 +778,11 @@ def generate_figure_t1_t2(df, csa_t1, csa_t2):
     :param csa_t2:
     :return:
     """
+
     def compute_regression(x, y):
         """
         Compute linear regression between x and y:
         y = Slope * x + Intercept
-
         :param x: list:
         :param y: list:
         :return: results of linear regression
@@ -748,7 +876,7 @@ def generate_figure_t1_t2(df, csa_t1, csa_t2):
         plt.xlim(lim_min - offset, lim_max + offset)
         plt.ylim(lim_min - offset, lim_max + offset)
         # Add bisection (diagonal) line
-        plt.plot([lim_min - offset , lim_max + offset],
+        plt.plot([lim_min - offset, lim_max + offset],
                  [lim_min - offset, lim_max + offset],
                  ls="--", c=".3")
         plt.xlabel("T2w CSA", fontsize=FONTSIZE)
@@ -766,13 +894,13 @@ def generate_figure_t1_t2(df, csa_t1, csa_t2):
         plt.text(0.1, 0.9, 'y = {}x + {}\nR\u00b2 = {}'.format(format_number(slope),
                                                                format_number(intercept),
                                                                format_number(r2_sc)),
-                 ha='left', va='center', transform = ax.transAxes, fontsize=TICKSIZE, color='red',
-                 bbox=dict(boxstyle='round', facecolor='white', alpha=1))   # box around equation
+                 ha='left', va='center', transform=ax.transAxes, fontsize=TICKSIZE, color='red',
+                 bbox=dict(boxstyle='round', facecolor='white', alpha=1))  # box around equation
         # Plot linear fit
         axes = plt.gca()
         x_vals = np.array(axes.get_xlim())
         y_vals = intercept + slope * x_vals
-        y_vals = np.squeeze(y_vals)     # change shape from (1,N) to (N,)
+        y_vals = np.squeeze(y_vals)  # change shape from (1,N) to (N,)
         plt.plot(x_vals, y_vals, color='red')
         # Add title above middle subplot
         if index == 1:
@@ -783,6 +911,117 @@ def generate_figure_t1_t2(df, csa_t1, csa_t2):
     fname_fig = 'fig_t1_t2_agreement_per_vendor.png'
     plt.savefig(fname_fig, dpi=200)
     logger.info('Created: ' + fname_fig)
+
+
+def generate_figure_t1_t2_plotly(df, csa_t1, csa_t2):
+    """
+    Generate inteactive CSA_T1w vs. CSA_T2w figure
+    :param df:
+    :param csa_t1:
+    :param csa_t2:
+    :return:
+    """
+
+    # Sort values per vendor
+    site_sorted = df.sort_values(by=['vendor', 'model', 'site']).index.values
+    vendor_sorted = df['vendor'][site_sorted].values
+
+    # Create dictionary with CSA for T1w and T2w per vendors
+    CSA_dict = defaultdict(list)
+    # loop across sites
+    for index, line in enumerate(csa_t1):
+        vendor = line[1]
+        # Loop across subjects, making sure to only populate the dictionary with subjects existing both for T1 and T2
+        for subject in csa_t1[index][4]:
+            if subject in csa_t2[index, 4]:
+                CSA_dict[vendor + '_t1'].append(csa_t1[index, 3][csa_t1[index, 4].index(subject)])
+                CSA_dict[vendor + '_t2'].append(csa_t2[index, 3][csa_t2[index, 4].index(subject)])
+    
+    fig_v = go.Figure()
+    # Loop across vendors
+    for vendor in list(OrderedDict.fromkeys(vendor_sorted)):
+        fig_v.add_trace(go.Scatter(
+            x=CSA_dict[vendor + '_t2'],
+            y=CSA_dict[vendor + '_t1'],
+            mode='markers',
+            marker=dict(symbol="circle-open", size=10),
+            marker_color=vendor_to_color[vendor],
+            name=vendor
+            ))
+    x = np.linspace(50, 100, 50)
+    y = np.linspace(50, 100, 50)
+    fig_v.add_trace(go.Scatter(x=x, y=y, line=dict(color='black', width=2, dash='dash'), showlegend=False))
+    fig_v.update_layout(
+        showlegend=True,
+        yaxis_title="T1w CSA",
+        xaxis_title="T2w CSA"
+    )
+
+    fig_v.update_yaxes(range=[50, 100])
+    fig_v.update_xaxes(range=[50, 100])
+    fig_v.update_layout(width=700, height=700)
+
+    fig_v.write_html("fig_t1_t2_agreement.html")
+
+    # Figure T1w vs t2w per vendor
+    fig_2 = go.Figure()
+    fig_2 = make_subplots(rows=1, cols=3)
+    i = 1
+    # Loop across vendors (create subplot for each vendor)
+    for index, vendor in enumerate(list(OrderedDict.fromkeys(vendor_sorted))):
+        x = CSA_dict[vendor + '_t2']
+        y = CSA_dict[vendor + '_t1']
+        fig_2.add_trace(
+            go.Scatter(
+                x=x,
+                y=y,
+                mode='markers',
+                marker=dict(symbol="circle-open", size=10),
+                marker_color=vendor_to_color[vendor],
+                name=vendor,
+                showlegend=False),
+                row=1, col=i
+        )
+
+        # Dynamic scaling of individual subplots based on data
+        offset = 2
+        lim_min = min(min(x), min(y))
+        lim_max = max(max(x), max(y))
+
+        fig_2.update_yaxes(range=[lim_min - offset, lim_max + offset], title_text="T1w CSA", row=1, col=i)
+        fig_2.update_xaxes(range=[lim_min - offset, lim_max + offset], title_text="T2w CSA", row=1, col=i)
+
+        # Add bisection (diagonal) line
+        fig_2.add_trace(go.Scatter(
+                x=[lim_min-offset, lim_max+offset], 
+                y=[lim_min-offset, lim_max+offset], 
+                line=dict(color='black', width=1, dash='dash'), 
+                showlegend=False), 
+            row=1, col=i
+        )
+
+        # Compute linear fit
+        linear_regression = LinearRegression()
+        # perform linear regression (compute slope and intercept)
+        linear_regression.fit((np.array(x).reshape(-1, 1)).reshape(-1, 1), (np.array(y).reshape(-1, 1)).reshape(-1, 1))
+        intercept = linear_regression.intercept_
+        slope = linear_regression.coef_
+        # compute prediction
+        reg_predictor = linear_regression.predict(np.array(x).reshape(-1, 1))
+
+        # Plot linear fit
+        x_vals = np.linspace(50, 100, 50)
+        y_vals = np.squeeze(intercept + (slope * x_vals))
+        fig_2.add_trace(go.Scatter(
+                x=x_vals, 
+                y=y_vals, 
+                line=dict(color='red', width=1), 
+                showlegend=False, name='regression'),
+            row=1, col=i
+        )
+        i=i+1
+
+    fig_2.write_html("fig_t1_t2_agreement_per_vendor.html")
 
 
 def get_env(file_param):
@@ -828,10 +1067,9 @@ def remove_subject(subject, metric, dict_exclude_subj):
     return False
 
 
-def main():
-
+def main(argv=sys.argv[1:]):
     parser = get_parser()
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     if args.v:
         logger.setLevel(logging.DEBUG)
 
@@ -917,6 +1155,10 @@ def main():
         # Generate figure
         generate_figure_metric(df, metric, stats, display_individual_subjects, show_ci=args.show_ci)
 
+        if args.output_html:
+            # Generate interactive html figure
+            generate_figure_metric_plotly(df, metric, stats)
+
         # Get T1w and T2w CSA (will be used later for another figure)
         if metric == "csa_t1":
             csa_t1 = df.sort_values('site').values
@@ -926,6 +1168,11 @@ def main():
     # Generate T1w vs. T2w figure
     generate_figure_t1_t2(df, csa_t1, csa_t2)
 
+    if args.output_html:
+        # Generate interactive html T1w vs. T2w figure
+        generate_figure_t1_t2_plotly(df, csa_t1, csa_t2)
+
 
 if __name__ == "__main__":
     main()
+
