@@ -10,4 +10,5 @@ pyyaml
 pybids
 scikit-image~=0.17.2
 transforms3d~=0.3.1
+pandas-schema
 plotly~=4.12.0
