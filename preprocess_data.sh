@@ -148,7 +148,10 @@ sct_create_mask -i ${file_dwi}_dwi_mean.nii.gz -p centerline,${file_dwi}_dwi_mea
 # Motion correction
 sct_dmri_moco -i ${file_dwi}.nii.gz -bvec ${file_dwi}.bvec -m mask_${file_dwi}_dwi_mean.nii.gz -x spline
 
-# Remove intermediate files, Do we rename file_dwi_mean??
+# Rename _moco_dwi_mean file
+mv ${FILE_DWI}_moco_dwi_mean.nii.gz ${SUBJECT}_rec-average_dwi.nii.gz
+
+# Remove intermediate files
 if [[ -e ${SUBJECT}_acq-b0_dwi.nii.gz ]]; then
     rm -f mask_${FILE_DWI}_dwi_mean.nii.gz moco_params.tsv moco_params_x.nii.gz moco_params_y.nii.gz ${FILE_DWI}.bval ${FILE_DWI}.bvec ${FILE_DWI}.nii.gz ${FILE_DWI}_b0.nii.gz ${FILE_DWI}_b0_mean.nii.gz ${FILE_DWI}_dwi.nii.gz ${FILE_DWI}_dwi_mean.nii.gz ${FILE_DWI}_dwi_mean_centerline.nii.gz ${FILE_DWI}_moco.nii.gz ${FILE_DWI}_moco_b0_mean.nii.gz ${FILE_DWI}_dwi_mean_centerline.csv
 else
@@ -164,8 +167,7 @@ FILES_TO_CHECK=(
   "anat/${SUBJECT}_T1w.nii.gz"
   "anat/${SUBJECT}_T2w.nii.gz"
   "anat/${SUBJECT}_T2star.nii.gz"
-  "dwi/${FILE_DWI}_moco_dwi_mean.nii.gz" # Maybe to change --> if we rename
-  
+  "dwi/${SUBJECT}_rec-average_dwi.nii.gz"
 )
 pwd
 for file in ${FILES_TO_CHECK[@]}; do

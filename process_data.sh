@@ -148,18 +148,8 @@ segment_gm_if_does_not_exist $file_t2s "t2s"
 
 # DWI
 # ------------------------------------------------------------------------------
-file_dwi="${SUBJECT}_dwi"
 cd ../dwi
-if [[ -e ${SUBJECT}_acq-b0_dwi.nii.gz ]]; then
-  echo "Found additional b=0 scans: $file_b0.nii.gz"
-  # Update global variable
-  FILE_DWI="${file_dwi}_concat"
-else
-  echo "No additional b=0 scans was found."
-  FILE_DWI="${file_dwi}"
-fi
-
-file_dwi_mean="${FILE_DWI}_moco_dwi_mean" # TO RENAME
+file_dwi_mean="${SUBJECT}_rec-average_dwi"
 
 # Segment spinal cord (only if it does not exist)
 segment_if_does_not_exist ${file_dwi_mean} "dwi"
@@ -176,7 +166,7 @@ FILES_TO_CHECK=(
   "anat/${SUBJECT}_acq-MTon_MTS_seg.nii.gz"
   "anat/${SUBJECT}_T2star_seg.nii.gz"
   "anat/${SUBJECT}_T2star_gmseg.nii.gz"
-  "dwi/${FILE_DWI}_moco_dwi_mean_seg.nii.gz" # MAYBE change if we rename
+  "dwi${SUBJECT}_rec-average_dwi_seg.nii.gz"
 )
 for file in ${FILES_TO_CHECK[@]}; do
   if [[ ! -e $file ]]; then
