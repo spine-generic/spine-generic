@@ -124,14 +124,8 @@ segment_if_does_not_exist $file_t2 "t2"
 file_t1w="${SUBJECT}_acq-T1w_MTS"
 file_mton="${SUBJECT}_acq-MTon_MTS"
 
-if [[ -e "${file_t1w}.nii.gz" && -e "${file_mton}.nii.gz" && -e "${file_mtoff}.nii.gz" ]]; then 
-  # Segment spinal cord (only if it does not exist)
-  segment_if_does_not_exist $file_t1w "t1" 
-  segment_if_does_not_exist $file_mton "t2s"
- 
-else
-  echo "WARNING: MTS dataset is incomplete."
-fi
+segment_if_does_not_exist $file_t1w "t1" 
+segment_if_does_not_exist $file_mton "t2s"
 
 
 # T2s
