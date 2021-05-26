@@ -127,9 +127,8 @@ file_mtoff="${SUBJECT}_acq-MToff_MTS"
 
 if [[ -e "${file_t1w}.nii.gz" && -e "${file_mton}.nii.gz" && -e "${file_mtoff}.nii.gz" ]]; then 
   # Segment spinal cord (only if it does not exist)
-  segment_if_does_not_exist $file_t1w "t1" # Do we keep it or not?
-  segment_if_does_not_exist $file_mton "t2s" # or T2
-  #segment_if_does_not_exist $file_mtoff "t1" # or DWI or t1 = NO --> automatic segmentation doesn't work with sct_deepseg_sc
+  segment_if_does_not_exist $file_t1w "t1" 
+  segment_if_does_not_exist $file_mton "t2s"
  
 else
   echo "WARNING: MTS dataset is incomplete."
@@ -160,7 +159,7 @@ else
   FILE_DWI="${file_dwi}"
 fi
 
-file_dwi_mean="${FILE_DWI}_moco_dwi_mean"
+file_dwi_mean="${FILE_DWI}_moco_dwi_mean" # TO RENAME
 
 # Segment spinal cord (only if it does not exist)
 segment_if_does_not_exist ${file_dwi_mean} "dwi"
@@ -173,9 +172,8 @@ cd ..
 FILES_TO_CHECK=(
   "anat/${SUBJECT}_T1w_seg.nii.gz"
   "anat/${SUBJECT}_T2w_seg.nii.gz"
-  "anat/${SUBJECT}_acq-T1w_MTS_seg.nii.gz" # Maybe remove
+  "anat/${SUBJECT}_acq-T1w_MTS_seg.nii.gz"
   "anat/${SUBJECT}_acq-MTon_MTS_seg.nii.gz"
-  "anat/${SUBJECT}_acq-MToff_MTS_seg.nii.gz" # Maybe remove --> automatic seg fails
   "anat/${SUBJECT}_T2star_seg.nii.gz"
   "anat/${SUBJECT}_T2star_gmseg.nii.gz"
   "dwi/${FILE_DWI}_moco_dwi_mean_seg.nii.gz" # MAYBE change if we rename
