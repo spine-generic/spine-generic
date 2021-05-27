@@ -159,7 +159,7 @@ FILES_TO_CHECK=(
   "anat/${SUBJECT}_acq-MTon_MTS_seg.nii.gz"
   "anat/${SUBJECT}_T2star_seg.nii.gz"
   "anat/${SUBJECT}_T2star_gmseg.nii.gz"
-  "dwi${SUBJECT}_rec-average_dwi_seg.nii.gz"
+  "dwi/${SUBJECT}_rec-average_dwi_seg.nii.gz"
 )
 for file in ${FILES_TO_CHECK[@]}; do
   if [[ ! -e $file ]]; then
