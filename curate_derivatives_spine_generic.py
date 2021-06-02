@@ -23,7 +23,7 @@ def get_parser():
     parser = argparse.ArgumentParser(
         description="Gets derivatives with label _seg-manual, removes suffix _RPI_r, creates json sidecar if it does not exist and creates a new curated derivatives folder. Ouptuts a .yml list with all manually corrected files." )
     parser.add_argument('-path-in', required=True, type=str,
-                        help="Input path to derivatives folder to curate.")
+                        help="Input path to derivatives folder to curate. Example: /derivatives/labels/")
     parser.add_argument('-path-out', required=True, type=str,
                         help="Output curated derivatives folder.")
     return parser
@@ -90,7 +90,7 @@ def main():
     file_list = [os.path.split(path)[-1] for path in path_list]
 
     # Initialize empty dict to create a list of all corrected files.
-    manual_correction_list = {'FILESEG':[]}
+    manual_correction_list = {'FILES_SEG':[]}
 
     for file in file_list:
         # build file names
@@ -101,7 +101,7 @@ def main():
         else:
             file_curated = remove_suffix(file, '_RPI_r')
         # Append file to list.    
-        manual_correction_list['FILESEG'].append(file_curated)
+        manual_correction_list['FILES_SEG'].append(remove_suffix(file_curated, '_seg-manual'))
         fname = os.path.join(args.path_in, subject, contrast, file)
         fname_label = os.path.join(
             path_out_deriv, subject, contrast, file_curated)
