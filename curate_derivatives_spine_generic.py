@@ -9,6 +9,7 @@ import argparse
 import glob
 import os
 import shutil
+import yaml
 
 import spinegeneric as sg
 import spinegeneric.cli.manual_correction
@@ -20,12 +21,11 @@ FOLDER_DERIVATIVES = os.path.join('derivatives', 'labels')
 
 def get_parser():
     parser = argparse.ArgumentParser(
-        description="Gets derivatives with label _seg-manual, removes suffix _RPI_r, creates json sidecar and creates a new curated derivatives folder." )
+        description="Gets derivatives with label _seg-manual, removes suffix _RPI_r, creates json sidecar if it does not exist and creates a new curated derivatives folder. Ouptuts a .yml list with all manually corrected files." )
     parser.add_argument('-path-in', required=True, type=str,
                         help="Input path to derivatives folder to curate.")
     parser.add_argument('-path-out', required=True, type=str,
-                        help="Ouput curated derivatives folder.")
-
+                        help="Output curated derivatives folder.")
     return parser
 
 
@@ -86,8 +86,11 @@ def main():
                            "corrected file: ")
 
     path_list = glob.glob(args.path_in + "/**/*seg-manual.nii.gz", recursive=True) # TODO: add other extension
-    # Get only filenames without suffix _seg  to match files in -config .yml list
+    # Get only filenames without absolute path
     file_list = [os.path.split(path)[-1] for path in path_list]
+
+    # Initialize empty dict to create a list of all corrected files.
+    manual_correction_list = {'FILESEG':[]}
 
     for file in file_list:
         # build file names
@@ -97,19 +100,23 @@ def main():
             file_curated = subject + '_rec-average_dwi_seg-manual.nii.gz'
         else:
             file_curated = remove_suffix(file, '_RPI_r')
+        # Append file to list.    
+        manual_correction_list['FILESEG'].append(file_curated)
         fname = os.path.join(args.path_in, subject, contrast, file)
         fname_label = os.path.join(
             path_out_deriv, subject, contrast, file_curated)
         os.makedirs(os.path.join(path_out_deriv, subject, contrast), exist_ok=True)
         shutil.copy(fname, fname_label)
         
-        # create json sidecar with the name of the expert rater
+        # create json sidecar with the name of the expert rater if it doesn't exist.
         fname_json = fname.rstrip('.nii').rstrip('.nii.gz') + '.json'
         if not os.path.isfile(fname_json):
             sg.cli.manual_correction.create_json(fname_label, name_rater)
         else:
             fname_json_curated = fname_label.rstrip('.nii').rstrip('.nii.gz') + '.json'
             shutil.copy(fname_json, fname_json_curated)
+    with open(os.path.join(args.path_out, 'manual_seg.yml'), 'w') as file:
+        yaml.dump(manual_correction_list, file)
 
 if __name__ == '__main__':
     main()
