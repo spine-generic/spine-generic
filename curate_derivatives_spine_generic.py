@@ -21,7 +21,7 @@ FOLDER_DERIVATIVES = os.path.join('derivatives', 'labels')
 
 def get_parser():
     parser = argparse.ArgumentParser(
-        description="Gets derivatives with label _seg-manual, removes suffix _RPI_r, creates json sidecar if it does not exist and creates a new curated derivatives folder. Ouptuts a .yml list with all manually corrected files." )
+        description="Gets derivatives with label _seg-manual, removes suffix _RPI_r or _rms, creates json sidecar if it does not exist and creates a new curated derivatives folder. Ouptuts a .yml list with all manually corrected files." )
     parser.add_argument('-path-in', required=True, type=str,
                         help="Input path to derivatives folder to curate. Example: /derivatives/labels/")
     parser.add_argument('-path-out', required=True, type=str,
@@ -79,7 +79,7 @@ def curate_csgseg(fname):
     """
     Reorient to RPI and resample _csg_seg-manual.nii.gz images.
     :param fname: absolute or relative file to curate.
-    :return: reoriented and resampled image.
+    :return:
     """
     os.system('sct_image -i {} -setorient RPI -o {}'.format(fname, sg.utils.add_suffix(fname, '_RPI')))
     os.system('sct_resample -i {} -mm 0.8x0.8x0.8 -o {}'.format(sg.utils.add_suffix(fname, '_RPI'), sg.utils.add_suffix(fname, '_RPI_r')))
