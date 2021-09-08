@@ -11,6 +11,7 @@ Quantitative spinal cord MRI is fraught with a number of challenges, among which
 The protocols and datasets are open-access and the data analysis code is open-source. Full documentation, including a description of the processing pipeline with detailed text and video instructions can be found in this website. 
 
 The main publications for this project are:
+
 - https://www.nature.com/articles/s41596-021-00588-0
 - https://www.nature.com/articles/s41597-021-00941-8
 
