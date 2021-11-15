@@ -12,7 +12,7 @@ import logging
 import argparse
 import importlib.resources
 
-from bids import BIDSLayout
+from bids import BIDSLayout, BIDSLayoutIndexer
 
 import spinegeneric as sg
 import spinegeneric.cli
@@ -48,7 +48,7 @@ def main():
 
     # Initialize the layout
     with importlib.resources.path(spinegeneric.config, 'bids_specs.json') as path_sg_layout_config:
-        layout = BIDSLayout(data_path,config_filename=path_sg_layout_config,validate=False)
+        layout = BIDSLayout(data_path,indexer=BIDSLayoutIndexer(config_filename=path_sg_layout_config),validate=False)
 
     Contrast_list = ['T1w', 'T2w', 'T2star', 'MTS']
     query = layout.get(suffix=Contrast_list,extension='nii.gz')
