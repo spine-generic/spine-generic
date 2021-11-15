@@ -7,7 +7,7 @@ tqdm
 sklearn
 statsmodels
 pyyaml
-pybids
+pybids~=0.13.0 # pinned until https://github.com/bids-standard/pybids/pull/791 is fixed
 scikit-image~=0.17.2
 transforms3d~=0.3.1
 pandas-schema
