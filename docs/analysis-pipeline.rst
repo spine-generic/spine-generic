@@ -61,7 +61,7 @@ Launch processing:
 
 .. code-block:: bash
 
-  sct_run_batch -jobs -1 -path-data <PATH_DATA> -path-output ~/spineGeneric_results/ process_data.sh
+  sct_run_batch -jobs -1 -path-data <PATH_DATA> -path-output ~/spineGeneric_results/ -script process_data.sh
 
 .. note::
 
