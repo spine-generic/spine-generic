@@ -192,7 +192,7 @@ to a yml file containing the subjects to be excluded from the statistics. To gen
 
 .. code-block:: bash
 
-  sg_generate_figures -path-results ~/spineGeneric_results/results -exclude subject_to_exclude.yml
+  sg_generate_figure -path-results ~/spineGeneric_results/results -exclude subject_to_exclude.yml
 
 To generate a mosaic of images, run:
 
