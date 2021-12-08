@@ -250,10 +250,18 @@ sct_process_segmentation -i ${file_t2s_seg}.nii.gz -angle-corr 0 -vert 3:4 -vert
 
 # DWI
 # ------------------------------------------------------------------------------
-file_dwi="${SUBJECT}_dwi"
+if [ -f ${SUBJECT}_dwi.nii.gz ];then
+  file_dwi="${SUBJECT}_dwi"
+else
+  file_dwi="${SUBJECT}_run-01_dwi"
+fi
 cd ../dwi
 # If there is an additional b=0 scan, add it to the main DWI data
-concatenate_b0_and_dwi "${SUBJECT}_acq-b0_dwi" $file_dwi
+if [ -f ${SUBJECT}_acq-b0_dwi.nii.gz ];then
+  concatenate_b0_and_dwi "${SUBJECT}_acq-b0_dwi" $file_dwi
+else
+  concatenate_b0_and_dwi "${SUBJECT}_acq-b0_run-01_dwi" $file_dwi # RL-20211208: I am not 100% sure, if this is the right naming format for $1
+fi
 file_dwi=$FILE_DWI
 file_bval=${file_dwi}.bval
 file_bvec=${file_dwi}.bvec
