@@ -250,12 +250,12 @@ sct_process_segmentation -i ${file_t2s_seg}.nii.gz -angle-corr 0 -vert 3:4 -vert
 
 # DWI
 # ------------------------------------------------------------------------------
+cd ../dwi
 if [ -f ${SUBJECT}_dwi.nii.gz ];then
   file_dwi="${SUBJECT}_dwi"
 else
   file_dwi="${SUBJECT}_run-01_dwi"
 fi
-cd ../dwi
 # If there is an additional b=0 scan, add it to the main DWI data
 if [ -f ${SUBJECT}_acq-b0_dwi.nii.gz ];then
   concatenate_b0_and_dwi "${SUBJECT}_acq-b0_dwi" $file_dwi
