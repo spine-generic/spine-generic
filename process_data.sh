@@ -260,7 +260,7 @@ fi
 if [ -f ${SUBJECT}_acq-b0_dwi.nii.gz ];then
   concatenate_b0_and_dwi "${SUBJECT}_acq-b0_dwi" $file_dwi
 else
-  concatenate_b0_and_dwi "${SUBJECT}_acq-b0_run-01_dwi" $file_dwi # RL-20211208: I am not 100% sure, if this is the right naming format for $1
+  concatenate_b0_and_dwi "${SUBJECT}_run-01_acq-b0_dwi" $file_dwi # RL-20211208: I am not 100% sure, if this is the right naming format for $1
 fi
 file_dwi=$FILE_DWI
 file_bval=${file_dwi}.bval
