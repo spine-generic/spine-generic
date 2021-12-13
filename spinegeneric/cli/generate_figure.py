@@ -103,6 +103,7 @@ flags = {
     'tokyoIngenia': 'japan',
     'ubc': 'canada',
     'ucl': 'uk',
+    'ucdavis': 'us',
     'unf': 'canada',
     'vallHebron': 'spain',
     'vuiisAchieva': 'us',
