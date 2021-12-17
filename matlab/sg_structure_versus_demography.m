@@ -21,9 +21,22 @@ function [csa_r, csa_p_r] = sg_structure_versus_demography(path_results)
     demography(:,1)=participants.age;
     
     csa_filename = {'csa-SC_T1w.csv', 'csa-SC_T2w.csv', 'csa-GM_T2s.csv'};
-    csa_name = {'CSA-SC-T1w [mm^2]', 'CSA-SC-T2w [mm^2]' 'CSA-GM-T2star [mm^2]'};
+    csa_name = {'CSA-SC-T1w-C23 [mm^2]', 'CSA-SC-T2w-C23 [mm^2]' 'CSA-GM-T2star-C34 [mm^2]'};
     csa_lvl = {'2:3', '2:3', '3:4'};
     csa = NaN*ones(size(participants.age,1),size(csa_filename,2));
+    
+    dwi_filename = {'DWI_FA.csv', 'DWI_MD.csv', 'DWI_RD.csv'};
+    dwi_name = {'FA-SC-C25', 'MD-SC-C25' 'RD-SC-C25'};
+    dwi_lvl = {'2:5', '2:5', '2:5'};
+    dwi = NaN*ones(size(participants.age,1),size(dwi_filename,2));
+    
+    tick_csat1 = 55:5:85;
+    tick_csat2 = 55:5:95;
+    tick_csat2star_gm = 8:2:20;
+    tick_age = 20:5:55;
+    tick_height = 150:10:200;
+    tick_weight = 50:10:120;
+    tick_bmi = 18:3:33;
     
     corr_text = {'all: r=', 'female: r=', 'male: r='};
     
@@ -66,71 +79,95 @@ function [csa_r, csa_p_r] = sg_structure_versus_demography(path_results)
     end
     csa(strcmp(participants.participant_id,'sub-oxfordFmrib04'),2)=NaN;
     
+    for vr = 1:size(dwi_name,2)
+        tbl = readtable(fullfile(csv_path,dwi_filename{1,vr}),'PreserveVariableNames',1);
+        for ind = 1:size(tbl,1)
+            if strcmp(char(table2cell(tbl(ind,'VertLevel'))),dwi_lvl{1,vr})
+                id = split(char(table2cell(tbl(ind,'Filename'))),delimiter);
+                val = table2cell(tbl(ind,'WA()'));
+                val = val{1,1};
+                if ischar(val)
+                    val = str2double(val);
+                end
+                dwi(strcmp(participants.participant_id,id{end-2}),vr) = val;
+            end
+        end
+    end
+    dwi(:,2:3) = 1000*dwi(:,2:3);
+    
+    csa_r = zeros(size(csa,2),size(demography,2),3);csa_p_r = csa_r;
     h.fig=figure(1);
-    set(h.fig,'Position',[50 50 2200 1270])
+    set(h.fig,'Position',[1550 600 2200 1270])
     pl=1;
     for cs = 1:size(csa,2)
         for dm = 1:size(demography,2)
-            [rr, pp]=corrcoef(demography(:,dm),csa(:,cs),'Rows','Pairwise');
-            csa_r(cs,dm,1)=rr(1,2);
-            csa_p_r(cs,dm,1)=pp(1,2);
-            [rr, pp]=corrcoef(demography(sex==1,dm),csa(sex==1,cs),'Rows','Pairwise');
-            csa_r(cs,dm,2)=rr(1,2);
-            csa_p_r(cs,dm,2)=pp(1,2);
-            [rr, pp]=corrcoef(demography(sex==0,dm),csa(sex==0,cs),'Rows','Pairwise');
-            csa_r(cs,dm,3)=rr(1,2);
-            csa_p_r(cs,dm,3)=pp(1,2);
-            
-            mindem=min(demography(:,dm));
-            maxdem=max(demography(:,dm));
-            mincsa=min(csa(:,cs));
-            maxcsa=max(csa(:,cs));
-            
-            ps = ~isnan(demography(:,dm)) & ~isnan(csa(:,cs));
-            c = polyfit(demography(ps,dm),csa(ps,cs),1);
-            x = [mindem maxdem];
-            y = c(1)*x + c(2);
-            
-            
-            sie_female = strcmp(participants.manufacturer,'Siemens') & sex==1;
-            sie_male = strcmp(participants.manufacturer,'Siemens') & sex==0;
-            ge_female = strcmp(participants.manufacturer,'GE') & sex==1;
-            ge_male = strcmp(participants.manufacturer,'GE') & sex==0;
-            phi_female = strcmp(participants.manufacturer,'Philips') & sex==1;
-            phi_male = strcmp(participants.manufacturer,'Philips') & sex==0;
-            
             subplot(size(csa,2),size(demography,2),pl)
-            plot(x,y,'k-.','LineWidth',4)
-            hold on
-            plot(demography(sie_female,dm),csa(sie_female,cs),'go','LineStyle','none','LineWidth',2,'MarkerSize',8)
-            plot(demography(sie_male,dm),csa(sie_male,cs),'gx','LineStyle','none','LineWidth',2,'MarkerSize',8)
-            plot(demography(phi_female,dm),csa(phi_female,cs),'bo','LineStyle','none','LineWidth',2,'MarkerSize',8)
-            plot(demography(phi_male,dm),csa(phi_male,cs),'bx','LineStyle','none','LineWidth',2,'MarkerSize',8)
-            plot(demography(ge_female,dm),csa(ge_female,cs),'ro','LineStyle','none','LineWidth',2,'MarkerSize',8)
-            plot(demography(ge_male,dm),csa(ge_male,cs),'rx','LineStyle','none','LineWidth',2,'MarkerSize',8)
-            hold off
-            if csa_p_r(cs,dm,1) < 0.05
-                for cr = 1:3
-                    if csa_p_r(cs,dm,cr) < 0.0001
-                        text(0.99*maxdem,(1.15-0.05*(cr-1))*mincsa,[corr_text{1,cr} num2str(csa_r(cs,dm,cr),'%.3f') '; p<0.0001'],'HorizontalAlignment','right','FontWeight','bold')
-                    else
-                        if csa_p_r(cs,dm,cr) < 0.05
-                            text(0.99*maxdem,(1.15-0.05*(cr-1))*mincsa,[corr_text{1,cr} num2str(csa_r(cs,dm,cr),'%.3f') '; p=' num2str(csa_p_r(cs,dm,cr),'%.4f')],'HorizontalAlignment','right','FontWeight','bold')
-                        else
-                            text(0.99*maxdem,(1.15-0.05*(cr-1))*mincsa,[corr_text{1,cr} num2str(csa_r(cs,dm,cr),'%.3f') '; p=' num2str(csa_p_r(cs,dm,cr),'%.4f')],'HorizontalAlignment','right')
-                        end
-                    end
-                end
-            end
-            axis([mindem maxdem mincsa maxcsa])
-            grid on
+            [csa_r(cs,dm,:), csa_p_r(cs,dm,:)] = sg_draw_corrplot(demography(:,dm),csa(:,cs),sex,participants,corr_text);
             if cs == size(csa,2)
                 xlabel(demography_name{1,dm})
             end
             if dm == 1
                 ylabel(csa_name{1,cs})
             end
-            set(gca,'FontSize',14,'LineWidth',2)
+            if dm == 1
+                if cs ==1
+                    set(gca,'Ytick',tick_csat1,'Yticklabel',tick_csat1)
+                elseif cs == 2
+                    set(gca,'Ytick',tick_csat2,'Yticklabel',tick_csat2)
+                elseif cs == size(csa,2)
+                    set(gca,'Ytick',tick_csat2star_gm,'Yticklabel',tick_csat2star_gm)
+                end
+            end
+            if dm >=2
+                if cs == 1
+                    set(gca,'Ytick',tick_csat1,'Yticklabel',' ')
+                elseif cs == 2
+                    set(gca,'Ytick',tick_csat2,'Yticklabel',' ')
+                elseif cs == 3
+                    set(gca,'Ytick',tick_csat2star_gm,'Yticklabel',' ')
+                end
+            end
+            if cs<size(csa,2)
+                if dm == 1
+                    set(gca,'Xtick',tick_age,'Xticklabel',' ')
+                elseif dm == 2
+                    set(gca,'Xtick',tick_height,'Xticklabel',' ')
+                elseif dm == 3
+                    set(gca,'Xtick',tick_weight,'Xticklabel',' ')
+                elseif dm == 4
+                    set(gca,'Xtick',tick_bmi,'Xticklabel',' ')
+                end
+            end
+            if cs == size(csa,2)
+                if dm == 1
+                    set(gca,'Xtick',tick_age,'Xticklabel',tick_age)
+                elseif dm == 2
+                    set(gca,'Xtick',tick_height,'Xticklabel',tick_height)
+                elseif dm == 3
+                    set(gca,'Xtick',tick_weight,'Xticklabel',tick_weight)
+                elseif dm == 4
+                    set(gca,'Xtick',tick_bmi,'Xticklabel',tick_bmi)
+                end
+            end
+            pl = pl + 1;
+        end
+    end
+    
+    
+    dwi_r = zeros(size(dwi,2),size(demography,2),3);dwi_p_r = dwi_r;
+    h(2).fig=figure(2);
+    set(h(2).fig,'Position',[1550 600 2200 1270])
+    pl=1;
+    for cs = 1:size(dwi,2)
+        for dm = 1:size(demography,2)
+            subplot(size(dwi,2),size(demography,2),pl)
+            [dwi_r(cs,dm,:), dwi_p_r(cs,dm,:)] = sg_draw_corrplot(demography(:,dm),dwi(:,cs),sex,participants,corr_text);
+            if cs == size(dwi,2)
+                xlabel(demography_name{1,dm})
+            end
+            if dm == 1
+                ylabel(dwi_name{1,cs})
+            end
             pl = pl + 1;
         end
     end
