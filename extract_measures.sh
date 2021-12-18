@@ -51,9 +51,9 @@ cd $PATH_DATA_PROCESSED
 cd ${SUBJECT}/dwi
 
 # Compute FA, MD and RD in LCST between C2 and C5 vertebral levels
-sct_extract_metric -i dti_FA.nii.gz -f label/atlas -l 11,17 -vert 2:5 -o ${PATH_RESULTS}/DWI_FA_LCST.csv -append 1 -combine 1
-sct_extract_metric -i dti_MD.nii.gz -f label/atlas -l 11,17 -vert 2:5 -o ${PATH_RESULTS}/DWI_MD_LCST.csv -append 1 -combine 1
-sct_extract_metric -i dti_RD.nii.gz -f label/atlas -l 11,17 -vert 2:5 -o ${PATH_RESULTS}/DWI_RD_LCST.csv -append 1 -combine 1
+sct_extract_metric -i dti_FA.nii.gz -f label/atlas -l 2,17 -vert 2:5 -o ${PATH_RESULTS}/DWI_FA_LCST.csv -append 1 -combine 1
+sct_extract_metric -i dti_MD.nii.gz -f label/atlas -l 2,17 -vert 2:5 -o ${PATH_RESULTS}/DWI_MD_LCST.csv -append 1 -combine 1
+sct_extract_metric -i dti_RD.nii.gz -f label/atlas -l 2,17 -vert 2:5 -o ${PATH_RESULTS}/DWI_RD_LCST.csv -append 1 -combine 1
 
 # Display useful info for the log
 end=`date +%s`
