@@ -39,15 +39,31 @@ function [r,p] = sg_draw_corrplot(xdata,ydata,sex,participants,corr_text)
     plot(xdata(ge_female),ydata(ge_female),'ro','LineStyle','none','LineWidth',3,'MarkerSize',11)
     plot(xdata(ge_male),ydata(ge_male),'rx','LineStyle','none','LineWidth',3,'MarkerSize',11)
     hold off
+    
+    if miny > 0.45
+        coefy1 = 1.15;
+        coefy2 = 0.05;
+    elseif miny <= 0.45 && miny > 0.3
+        if maxy < 1
+            coefy1 = 1.25;
+            coefy2 = 0.07;
+        else
+            coefy1 = 1.32;
+            coefy2 = 0.10;
+        end
+    else
+        coefy1 = 1.75;
+        coefy2 = 0.25;
+    end
     if p(1) < 0.05
         for cr = 1:3
             if p(cr) < 0.0001
-                text(0.99*maxx,(1.15-0.05*(cr-1))*miny,[corr_text{1,cr} num2str(r(cr),'%.3f') '; p<0.0001'],'HorizontalAlignment','right','FontWeight','bold')
+                text(0.99*maxx,(coefy1-coefy2*(cr-1))*miny,[corr_text{1,cr} num2str(r(cr),'%.3f') '; p<0.0001'],'HorizontalAlignment','right','FontWeight','bold')
             else
                 if p(cr) < 0.05
-                    text(0.99*maxx,(1.15-0.05*(cr-1))*miny,[corr_text{1,cr} num2str(r(cr),'%.3f') '; p=' num2str(p(cr),'%.4f')],'HorizontalAlignment','right','FontWeight','bold')
+                    text(0.99*maxx,(coefy1-coefy2*(cr-1))*miny,[corr_text{1,cr} num2str(r(cr),'%.3f') '; p=' num2str(p(cr),'%.4f')],'HorizontalAlignment','right','FontWeight','bold')
                 else
-                    text(0.99*maxx,(1.15-0.05*(cr-1))*miny,[corr_text{1,cr} num2str(r(cr),'%.3f') '; p=' num2str(p(cr),'%.4f')],'HorizontalAlignment','right')
+                    text(0.99*maxx,(coefy1-coefy2*(cr-1))*miny,[corr_text{1,cr} num2str(r(cr),'%.3f') '; p=' num2str(p(cr),'%.4f')],'HorizontalAlignment','right')
                 end
             end
         end

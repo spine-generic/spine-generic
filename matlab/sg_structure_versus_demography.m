@@ -28,7 +28,10 @@ function [csa_r, csa_p_r] = sg_structure_versus_demography(path_results)
     dwi_filename = {'DWI_FA.csv', 'DWI_MD.csv', 'DWI_RD.csv'};
     dwi_name = {'FA-SC-C25', 'MD-SC-C25' 'RD-SC-C25'};
     dwi_lvl = {'2:5', '2:5', '2:5'};
-    dwi = NaN*ones(size(participants.age,1),size(dwi_filename,2));
+    
+    dwilcst_filename = {'DWI_FA_LCST.csv', 'DWI_MD_LCST.csv', 'DWI_RD_LCST.csv'};
+    dwilcst_name = {'FA-LCST-C25', 'MD-LCST-C25' 'RD-LCST-C25'};
+    dwilcst_lvl = {'2:5', '2:5', '2:5'};
     
     tick_csat1 = 55:5:85;
     tick_csat2 = 55:5:95;
@@ -37,6 +40,8 @@ function [csa_r, csa_p_r] = sg_structure_versus_demography(path_results)
     tick_height = 150:10:200;
     tick_weight = 50:10:120;
     tick_bmi = 18:3:33;
+    
+    fig_dimensions = [50 50 2200 1270];
     
     corr_text = {'all: r=', 'female: r=', 'male: r='};
     
@@ -79,25 +84,15 @@ function [csa_r, csa_p_r] = sg_structure_versus_demography(path_results)
     end
     csa(strcmp(participants.participant_id,'sub-oxfordFmrib04'),2)=NaN;
     
-    for vr = 1:size(dwi_name,2)
-        tbl = readtable(fullfile(csv_path,dwi_filename{1,vr}),'PreserveVariableNames',1);
-        for ind = 1:size(tbl,1)
-            if strcmp(char(table2cell(tbl(ind,'VertLevel'))),dwi_lvl{1,vr})
-                id = split(char(table2cell(tbl(ind,'Filename'))),delimiter);
-                val = table2cell(tbl(ind,'WA()'));
-                val = val{1,1};
-                if ischar(val)
-                    val = str2double(val);
-                end
-                dwi(strcmp(participants.participant_id,id{end-2}),vr) = val;
-            end
-        end
-    end
+    dwi = sg_extract_csv(dwi_name,csv_path,dwi_filename,dwi_lvl,'WA()',participants);
     dwi(:,2:3) = 1000*dwi(:,2:3);
+    
+    dwilcst = sg_extract_csv(dwilcst_name,csv_path,dwilcst_filename,dwilcst_lvl,'WA()',participants);
+    dwilcst(:,2:3) = 1000*dwilcst(:,2:3);
     
     csa_r = zeros(size(csa,2),size(demography,2),3);csa_p_r = csa_r;
     h.fig=figure(1);
-    set(h.fig,'Position',[1550 600 2200 1270])
+    set(h.fig,'Position',fig_dimensions)
     pl=1;
     for cs = 1:size(csa,2)
         for dm = 1:size(demography,2)
@@ -156,7 +151,7 @@ function [csa_r, csa_p_r] = sg_structure_versus_demography(path_results)
     
     dwi_r = zeros(size(dwi,2),size(demography,2),3);dwi_p_r = dwi_r;
     h(2).fig=figure(2);
-    set(h(2).fig,'Position',[1550 600 2200 1270])
+    set(h(2).fig,'Position',fig_dimensions)
     pl=1;
     for cs = 1:size(dwi,2)
         for dm = 1:size(demography,2)
@@ -167,6 +162,24 @@ function [csa_r, csa_p_r] = sg_structure_versus_demography(path_results)
             end
             if dm == 1
                 ylabel(dwi_name{1,cs})
+            end
+            pl = pl + 1;
+        end
+    end
+    
+    dwilcst_r = zeros(size(dwilcst,2),size(demography,2),3);dwilcst_p_r = dwi_r;
+    h(3).fig=figure(3);
+    set(h(3).fig,'Position',fig_dimensions)
+    pl=1;
+    for cs = 1:size(dwilcst,2)
+        for dm = 1:size(demography,2)
+            subplot(size(dwilcst,2),size(demography,2),pl)
+            [dwilcst_r(cs,dm,:), dwilcst_p_r(cs,dm,:)] = sg_draw_corrplot(demography(:,dm),dwilcst(:,cs),sex,participants,corr_text);
+            if cs == size(dwilcst,2)
+                xlabel(demography_name{1,dm})
+            end
+            if dm == 1
+                ylabel(dwilcst_name{1,cs})
             end
             pl = pl + 1;
         end
