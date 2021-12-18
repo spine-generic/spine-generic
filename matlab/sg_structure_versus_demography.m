@@ -1,4 +1,4 @@
-function [csa_r, csa_p_r] = sg_structure_versus_demography(path_results)
+function [r, p] = sg_structure_versus_demography(path_results)
 %SG_STRUCTURE_VERSUS_DEMOGRAPHY Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -26,7 +26,7 @@ function [csa_r, csa_p_r] = sg_structure_versus_demography(path_results)
     csa = NaN*ones(size(participants.age,1),size(csa_filename,2));
     
     dwi_filename = {'DWI_FA.csv', 'DWI_MD.csv', 'DWI_RD.csv'};
-    dwi_name = {'FA-SC-C25', 'MD-SC-C25' 'RD-SC-C25'};
+    dwi_name = {'FA-WM-C25', 'MD-WM-C25' 'RD-WM-C25'};
     dwi_lvl = {'2:5', '2:5', '2:5'};
     
     dwilcst_filename = {'DWI_FA_LCST.csv', 'DWI_MD_LCST.csv', 'DWI_RD_LCST.csv'};
@@ -44,6 +44,10 @@ function [csa_r, csa_p_r] = sg_structure_versus_demography(path_results)
     dwiSpThCerTracts_filename = {'DWI_FA_SpThCerTracts.csv', 'DWI_MD_SpThCerTracts.csv', 'DWI_RD_SpThCerTracts.csv'};
     dwiSpThCerTracts_name = {'FA-SpThCerTracts-C25', 'MD-SpThCerTracts-C25' 'RD-SpThCerTracts-C25'};
     dwiSpThCerTracts_lvl = {'2:5', '2:5', '2:5'};
+    
+    dwivlc_filename = {'DWI_FA_VLC.csv', 'DWI_MD_VLC.csv', 'DWI_RD_VLC.csv'};
+    dwivlc_name = {'FA-VLC-C25', 'MD-VLC-C25' 'RD-VLC-C25'};
+    dwivlc_lvl = {'2:5', '2:5', '2:5'};
     
     tick_csat1 = 55:5:85;
     tick_csat2 = 55:5:95;
@@ -111,14 +115,17 @@ function [csa_r, csa_p_r] = sg_structure_versus_demography(path_results)
     dwiSpThCerTracts = sg_extract_csv(dwiSpThCerTracts_name,csv_path,dwiSpThCerTracts_filename,dwiSpThCerTracts_lvl,'WA()',participants);
     dwiSpThCerTracts(:,2:3) = 1000*dwiSpThCerTracts(:,2:3);
     
-    csa_r = zeros(size(csa,2),size(demography,2),3);csa_p_r = csa_r;
+    dwivlc = sg_extract_csv(dwivlc_name,csv_path,dwivlc_filename,dwivlc_lvl,'WA()',participants);
+    dwivlc(:,2:3) = 1000*dwivlc(:,2:3);
+    
+    r = zeros(size(csa,2),size(demography,2),3);p = r;
     h.fig=figure(1);
     set(h.fig,'Position',fig_dimensions)
     pl=1;
     for cs = 1:size(csa,2)
         for dm = 1:size(demography,2)
             subplot(size(csa,2),size(demography,2),pl)
-            [csa_r(cs,dm,:), csa_p_r(cs,dm,:)] = sg_draw_corrplot(demography(:,dm),csa(:,cs),sex,participants,corr_text);
+            [r(cs,dm,:), p(cs,dm,:)] = sg_draw_corrplot(demography(:,dm),csa(:,cs),sex,participants,corr_text);
             if cs == size(csa,2)
                 xlabel(demography_name{1,dm})
             end
@@ -170,94 +177,10 @@ function [csa_r, csa_p_r] = sg_structure_versus_demography(path_results)
     end
     
     
-    dwi_r = zeros(size(dwi,2),size(demography,2),3);dwi_p_r = dwi_r;
-    h(2).fig=figure(2);
-    set(h(2).fig,'Position',fig_dimensions)
-    pl=1;
-    for cs = 1:size(dwi,2)
-        for dm = 1:size(demography,2)
-            subplot(size(dwi,2),size(demography,2),pl)
-            [dwi_r(cs,dm,:), dwi_p_r(cs,dm,:)] = sg_draw_corrplot(demography(:,dm),dwi(:,cs),sex,participants,corr_text);
-            if cs == size(dwi,2)
-                xlabel(demography_name{1,dm})
-            end
-            if dm == 1
-                ylabel(dwi_name{1,cs})
-            end
-            pl = pl + 1;
-        end
-    end
-    
-    dwilcst_r = zeros(size(dwilcst,2),size(demography,2),3);dwilcst_p_r = dwi_r;
-    h(3).fig=figure(3);
-    set(h(3).fig,'Position',fig_dimensions)
-    pl=1;
-    for cs = 1:size(dwilcst,2)
-        for dm = 1:size(demography,2)
-            subplot(size(dwilcst,2),size(demography,2),pl)
-            [dwilcst_r(cs,dm,:), dwilcst_p_r(cs,dm,:)] = sg_draw_corrplot(demography(:,dm),dwilcst(:,cs),sex,participants,corr_text);
-            if cs == size(dwilcst,2)
-                xlabel(demography_name{1,dm})
-            end
-            if dm == 1
-                ylabel(dwilcst_name{1,cs})
-            end
-            pl = pl + 1;
-        end
-    end
-    
-    dwivcst_r = zeros(size(dwivcst,2),size(demography,2),3);dwivcst_p_r = dwi_r;
-    h(4).fig=figure(4);
-    set(h(4).fig,'Position',fig_dimensions)
-    pl=1;
-    for cs = 1:size(dwivcst,2)
-        for dm = 1:size(demography,2)
-            subplot(size(dwivcst,2),size(demography,2),pl)
-            [dwivcst_r(cs,dm,:), dwivcst_p_r(cs,dm,:)] = sg_draw_corrplot(demography(:,dm),dwivcst(:,cs),sex,participants,corr_text);
-            if cs == size(dwivcst,2)
-                xlabel(demography_name{1,dm})
-            end
-            if dm == 1
-                ylabel(dwivcst_name{1,cs})
-            end
-            pl = pl + 1;
-        end
-    end
-    
-    dwidc_r = zeros(size(dwidc,2),size(demography,2),3);dwidc_p_r = dwi_r;
-    h(5).fig=figure(5);
-    set(h(5).fig,'Position',fig_dimensions)
-    pl=1;
-    for cs = 1:size(dwidc,2)
-        for dm = 1:size(demography,2)
-            subplot(size(dwidc,2),size(demography,2),pl)
-            [dwidc_r(cs,dm,:), dwidc_p_r(cs,dm,:)] = sg_draw_corrplot(demography(:,dm),dwidc(:,cs),sex,participants,corr_text);
-            if cs == size(dwidc,2)
-                xlabel(demography_name{1,dm})
-            end
-            if dm == 1
-                ylabel(dwidc_name{1,cs})
-            end
-            pl = pl + 1;
-        end
-    end
-    
-    dwiSpThCerTracts_r = zeros(size(dwiSpThCerTracts,2),size(demography,2),3);dwiSpThCerTracts_p_r = dwi_r;
-    h(6).fig=figure(6);
-    set(h(6).fig,'Position',fig_dimensions)
-    pl=1;
-    for cs = 1:size(dwiSpThCerTracts,2)
-        for dm = 1:size(demography,2)
-            subplot(size(dwiSpThCerTracts,2),size(demography,2),pl)
-            [dwiSpThCerTracts_r(cs,dm,:), dwiSpThCerTracts_p_r(cs,dm,:)] = sg_draw_corrplot(demography(:,dm),dwiSpThCerTracts(:,cs),sex,participants,corr_text);
-            if cs == size(dwiSpThCerTracts,2)
-                xlabel(demography_name{1,dm})
-            end
-            if dm == 1
-                ylabel(dwiSpThCerTracts_name{1,cs})
-            end
-            pl = pl + 1;
-        end
-    end
+    [r(:,:,:,2),p(:,:,:,2)] = sg_draw_corrplot_loop(demography,dwi,demography_name,dwi_name,sex,participants,corr_text,2,fig_dimensions);
+    [r(:,:,:,3),p(:,:,:,3)] = sg_draw_corrplot_loop(demography,dwilcst,demography_name,dwilcst_name,sex,participants,corr_text,3,fig_dimensions);
+    [r(:,:,:,4),p(:,:,:,4)] = sg_draw_corrplot_loop(demography,dwivcst,demography_name,dwivcst_name,sex,participants,corr_text,4,fig_dimensions);
+    [r(:,:,:,5),p(:,:,:,5)] = sg_draw_corrplot_loop(demography,dwidc,demography_name,dwidc_name,sex,participants,corr_text,5,fig_dimensions);
+    [r(:,:,:,6),p(:,:,:,6)] = sg_draw_corrplot_loop(demography,dwiSpThCerTracts,demography_name,dwiSpThCerTracts_name,sex,participants,corr_text,6,fig_dimensions);
+    [r(:,:,:,7),p(:,:,:,7)] = sg_draw_corrplot_loop(demography,dwivlc,demography_name,dwivlc_name,sex,participants,corr_text,7,fig_dimensions);
 end
-

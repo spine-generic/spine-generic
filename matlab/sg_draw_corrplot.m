@@ -1,6 +1,13 @@
 function [r,p] = sg_draw_corrplot(xdata,ydata,sex,participants,corr_text)
 %UNTITLED2 Summary of this function goes here
 %   Detailed explanation goes here
+    sie_female = strcmp(participants.manufacturer,'Siemens') & sex==1;
+    sie_male = strcmp(participants.manufacturer,'Siemens') & sex==0;
+    ge_female = strcmp(participants.manufacturer,'GE') & sex==1;
+    ge_male = strcmp(participants.manufacturer,'GE') & sex==0;
+    phi_female = strcmp(participants.manufacturer,'Philips') & sex==1;
+    phi_male = strcmp(participants.manufacturer,'Philips') & sex==0;
+
     [rr, pp]=corrcoef(xdata,ydata,'Rows','Pairwise');
     r(1)=rr(1,2);
     p(1)=pp(1,2);
@@ -20,15 +27,6 @@ function [r,p] = sg_draw_corrplot(xdata,ydata,sex,participants,corr_text)
     c = polyfit(xdata(ps),ydata(ps),1);
     x = [minx maxx];
     y = c(1)*x + c(2);
-
-
-    sie_female = strcmp(participants.manufacturer,'Siemens') & sex==1;
-    sie_male = strcmp(participants.manufacturer,'Siemens') & sex==0;
-    ge_female = strcmp(participants.manufacturer,'GE') & sex==1;
-    ge_male = strcmp(participants.manufacturer,'GE') & sex==0;
-    phi_female = strcmp(participants.manufacturer,'Philips') & sex==1;
-    phi_male = strcmp(participants.manufacturer,'Philips') & sex==0;
-
 
     plot(x,y,'k-.','LineWidth',4)
     hold on
