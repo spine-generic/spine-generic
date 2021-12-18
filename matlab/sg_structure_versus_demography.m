@@ -33,6 +33,18 @@ function [csa_r, csa_p_r] = sg_structure_versus_demography(path_results)
     dwilcst_name = {'FA-LCST-C25', 'MD-LCST-C25' 'RD-LCST-C25'};
     dwilcst_lvl = {'2:5', '2:5', '2:5'};
     
+    dwivcst_filename = {'DWI_FA_VCST.csv', 'DWI_MD_VCST.csv', 'DWI_RD_VCST.csv'};
+    dwivcst_name = {'FA-VCST-C25', 'MD-VCST-C25' 'RD-VCST-C25'};
+    dwivcst_lvl = {'2:5', '2:5', '2:5'};
+    
+    dwidc_filename = {'DWI_FA_DC.csv', 'DWI_MD_DC.csv', 'DWI_RD_DC.csv'};
+    dwidc_name = {'FA-DC-C25', 'MD-DC-C25' 'RD-DC-C25'};
+    dwidc_lvl = {'2:5', '2:5', '2:5'};
+    
+    dwiSpThCerTracts_filename = {'DWI_FA_SpThCerTracts.csv', 'DWI_MD_SpThCerTracts.csv', 'DWI_RD_SpThCerTracts.csv'};
+    dwiSpThCerTracts_name = {'FA-SpThCerTracts-C25', 'MD-SpThCerTracts-C25' 'RD-SpThCerTracts-C25'};
+    dwiSpThCerTracts_lvl = {'2:5', '2:5', '2:5'};
+    
     tick_csat1 = 55:5:85;
     tick_csat2 = 55:5:95;
     tick_csat2star_gm = 8:2:20;
@@ -89,6 +101,15 @@ function [csa_r, csa_p_r] = sg_structure_versus_demography(path_results)
     
     dwilcst = sg_extract_csv(dwilcst_name,csv_path,dwilcst_filename,dwilcst_lvl,'WA()',participants);
     dwilcst(:,2:3) = 1000*dwilcst(:,2:3);
+    
+    dwivcst = sg_extract_csv(dwivcst_name,csv_path,dwivcst_filename,dwivcst_lvl,'WA()',participants);
+    dwivcst(:,2:3) = 1000*dwivcst(:,2:3);
+    
+    dwidc = sg_extract_csv(dwidc_name,csv_path,dwidc_filename,dwidc_lvl,'WA()',participants);
+    dwidc(:,2:3) = 1000*dwidc(:,2:3);
+    
+    dwiSpThCerTracts = sg_extract_csv(dwiSpThCerTracts_name,csv_path,dwiSpThCerTracts_filename,dwiSpThCerTracts_lvl,'WA()',participants);
+    dwiSpThCerTracts(:,2:3) = 1000*dwiSpThCerTracts(:,2:3);
     
     csa_r = zeros(size(csa,2),size(demography,2),3);csa_p_r = csa_r;
     h.fig=figure(1);
@@ -180,6 +201,60 @@ function [csa_r, csa_p_r] = sg_structure_versus_demography(path_results)
             end
             if dm == 1
                 ylabel(dwilcst_name{1,cs})
+            end
+            pl = pl + 1;
+        end
+    end
+    
+    dwivcst_r = zeros(size(dwivcst,2),size(demography,2),3);dwivcst_p_r = dwi_r;
+    h(4).fig=figure(4);
+    set(h(4).fig,'Position',fig_dimensions)
+    pl=1;
+    for cs = 1:size(dwivcst,2)
+        for dm = 1:size(demography,2)
+            subplot(size(dwivcst,2),size(demography,2),pl)
+            [dwivcst_r(cs,dm,:), dwivcst_p_r(cs,dm,:)] = sg_draw_corrplot(demography(:,dm),dwivcst(:,cs),sex,participants,corr_text);
+            if cs == size(dwivcst,2)
+                xlabel(demography_name{1,dm})
+            end
+            if dm == 1
+                ylabel(dwivcst_name{1,cs})
+            end
+            pl = pl + 1;
+        end
+    end
+    
+    dwidc_r = zeros(size(dwidc,2),size(demography,2),3);dwidc_p_r = dwi_r;
+    h(5).fig=figure(5);
+    set(h(5).fig,'Position',fig_dimensions)
+    pl=1;
+    for cs = 1:size(dwidc,2)
+        for dm = 1:size(demography,2)
+            subplot(size(dwidc,2),size(demography,2),pl)
+            [dwidc_r(cs,dm,:), dwidc_p_r(cs,dm,:)] = sg_draw_corrplot(demography(:,dm),dwidc(:,cs),sex,participants,corr_text);
+            if cs == size(dwidc,2)
+                xlabel(demography_name{1,dm})
+            end
+            if dm == 1
+                ylabel(dwidc_name{1,cs})
+            end
+            pl = pl + 1;
+        end
+    end
+    
+    dwiSpThCerTracts_r = zeros(size(dwiSpThCerTracts,2),size(demography,2),3);dwiSpThCerTracts_p_r = dwi_r;
+    h(6).fig=figure(6);
+    set(h(6).fig,'Position',fig_dimensions)
+    pl=1;
+    for cs = 1:size(dwiSpThCerTracts,2)
+        for dm = 1:size(demography,2)
+            subplot(size(dwiSpThCerTracts,2),size(demography,2),pl)
+            [dwiSpThCerTracts_r(cs,dm,:), dwiSpThCerTracts_p_r(cs,dm,:)] = sg_draw_corrplot(demography(:,dm),dwiSpThCerTracts(:,cs),sex,participants,corr_text);
+            if cs == size(dwiSpThCerTracts,2)
+                xlabel(demography_name{1,dm})
+            end
+            if dm == 1
+                ylabel(dwiSpThCerTracts_name{1,cs})
             end
             pl = pl + 1;
         end
