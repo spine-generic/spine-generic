@@ -55,25 +55,17 @@ sct_extract_metric -i dti_FA.nii.gz -f label/atlas -l 2,17 -vert 2:5 -o ${PATH_R
 sct_extract_metric -i dti_MD.nii.gz -f label/atlas -l 2,17 -vert 2:5 -o ${PATH_RESULTS}/DWI_MD_LCST.csv -append 1 -combine 1
 sct_extract_metric -i dti_RD.nii.gz -f label/atlas -l 2,17 -vert 2:5 -o ${PATH_RESULTS}/DWI_RD_LCST.csv -append 1 -combine 1
 
-# Compute FA, MD and RD in VCST between C2 and C5 vertebral levels
-sct_extract_metric -i dti_FA.nii.gz -f label/atlas -l 11,26 -vert 2:5 -o ${PATH_RESULTS}/DWI_FA_VCST.csv -append 1 -combine 1
-sct_extract_metric -i dti_MD.nii.gz -f label/atlas -l 11,26 -vert 2:5 -o ${PATH_RESULTS}/DWI_MD_VCST.csv -append 1 -combine 1
-sct_extract_metric -i dti_RD.nii.gz -f label/atlas -l 11,26 -vert 2:5 -o ${PATH_RESULTS}/DWI_RD_VCST.csv -append 1 -combine 1
-
 # Compute FA, MD and RD in DC between C2 and C5 vertebral levels
 sct_extract_metric -i dti_FA.nii.gz -f label/atlas -l 0,1,15,16 -vert 2:5 -o ${PATH_RESULTS}/DWI_FA_DC.csv -append 1 -combine 1
 sct_extract_metric -i dti_MD.nii.gz -f label/atlas -l 0,1,15,16 -vert 2:5 -o ${PATH_RESULTS}/DWI_MD_DC.csv -append 1 -combine 1
 sct_extract_metric -i dti_RD.nii.gz -f label/atlas -l 0,1,15,16 -vert 2:5 -o ${PATH_RESULTS}/DWI_RD_DC.csv -append 1 -combine 1
 
-# Compute FA, MD and RD in DC between C2 and C5 vertebral levels
-sct_extract_metric -i dti_FA.nii.gz -f label/atlas -l 3,6,18,21 -vert 2:5 -o ${PATH_RESULTS}/DWI_FA_SpThCerTracts.csv -append 1 -combine 1
-sct_extract_metric -i dti_MD.nii.gz -f label/atlas -l 3,6,18,21 -vert 2:5 -o ${PATH_RESULTS}/DWI_MD_SpThCerTracts.csv -append 1 -combine 1
-sct_extract_metric -i dti_RD.nii.gz -f label/atlas -l 3,6,18,21 -vert 2:5 -o ${PATH_RESULTS}/DWI_RD_SpThCerTracts.csv -append 1 -combine 1
+cd ../anat
+# Compute MTR in LCST between C2 and C5 vertebral levels
+sct_extract_metric -i mtr.nii.gz -f label_axT1w/atlas -l 2,17 -vert 2:5 -vertfile label_axT1w/template/PAM50_levels.nii.gz -o ${PATH_RESULTS}/MTR_LCST.csv -append 1 -combine 1
 
-# Compute FA, MD and RD in LCST between C2 and C5 vertebral levels
-sct_extract_metric -i dti_FA.nii.gz -f label/atlas -l 2,17,11,26,3,6,18,21 -vert 2:5 -o ${PATH_RESULTS}/DWI_FA_VLC.csv -append 1 -combine 1
-sct_extract_metric -i dti_MD.nii.gz -f label/atlas -l 2,17,11,26,3,6,18,21 -vert 2:5 -o ${PATH_RESULTS}/DWI_MD_VLC.csv -append 1 -combine 1
-sct_extract_metric -i dti_RD.nii.gz -f label/atlas -l 2,17,11,26,3,6,18,21 -vert 2:5 -o ${PATH_RESULTS}/DWI_RD_VLC.csv -append 1 -combine 1
+# Compute MTR in LCST between C2 and C5 vertebral levels
+sct_extract_metric -i mtr.nii.gz -f label_axT1w/atlas -l 0,1,15,16 -vert 2:5 -vertfile label_axT1w/template/PAM50_levels.nii.gz -o ${PATH_RESULTS}/MTR_DC.csv -append 1 -combine 1
 
 # Display useful info for the log
 end=`date +%s`
