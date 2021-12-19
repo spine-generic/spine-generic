@@ -3,7 +3,7 @@ function [r, p] = sg_structure_versus_demography(path_results)
 %   Detailed explanation goes here
 
     fig_dimensions = [50 50 2200 1270];
-    fig_dimensions1 = [50 50 2200 423];
+%     fig_dimensions1 = [50 50 2200 423];
 
     tick_csa = 55:5:85;
     tick_csagm = 8:2:20;
@@ -15,7 +15,7 @@ function [r, p] = sg_structure_versus_demography(path_results)
     tick_demography = {tick_age; tick_height; tick_weight; tick_bmi};
     tick_csa = {tick_csa; tick_csa; tick_csagm};
     tick_dwi = {0.55:0.05:0.8; 0.5:0.1:1.3; 0.3:0.1:0.8}; % {FA-range; MD-range; RD-range}
-    tick_mtr = {30:5:60};
+    tick_mtr = {30:5:60; 30:5:60; 30:5:60};
     
     csv_path=fullfile(path_results,'results');
     
@@ -24,6 +24,7 @@ function [r, p] = sg_structure_versus_demography(path_results)
     participants.participant_id=cellstr(participants.participant_id);
     participants.institution_id=cellstr(participants.institution_id);
     participants.manufacturer=cellstr(participants.manufacturer);
+    participants.sex=cellstr(participants.sex);
     
     demography_name={'Age [y.o.]','Height [cm]' 'Weight [kg]' 'BMI'};
     demography = zeros(size(participants.age,1),size(demography_name,2));
@@ -45,22 +46,18 @@ function [r, p] = sg_structure_versus_demography(path_results)
     dwidc_name = {'FA-DC-C25', 'MD-DC-C25' 'RD-DC-C25'};
     dwidc_lvl = {'2:5', '2:5', '2:5'};
     
-    mtr_filename = {'MTR.csv'};
-    mtr_name = {'MTR-WM-C25 [%]'};
-    mtr_lvl = {'2:5'};
+    mtr_filename = {'MTR.csv', 'MTR_LCST.csv', 'MTR_DC.csv'};
+    mtr_name = {'MTR-WM-C25 [%]', 'MTR-LCST-C25 [%]', 'MTR-DC-C25 [%]'};
+    mtr_lvl = {'2:5', '2:5', '2:5'};
     
     corr_text = {'all: r=', 'female: r=', 'male: r='};
     
-    age_pos = strcmp(demography_name,'Age [y.o.]')==1;
+%     age_pos = strcmp(demography_name,'Age [y.o.]')==1;
     height_pos = strcmp(demography_name,'Height [cm]')==1;
     weight_pos = strcmp(demography_name,'Weight [kg]')==1;
     bmi_pos = strcmp(demography_name,'BMI')==1;
-    sex = zeros(size(participants.age,1),1);
     
     for ind = 1:size(participants.age,1)
-        if strcmp(participants.sex(ind),'F')
-            sex(ind,1) = 1;
-        end
         if strcmp(participants.height(ind,1),'-')
             demography(ind,height_pos) = NaN;
         else
@@ -87,11 +84,11 @@ function [r, p] = sg_structure_versus_demography(path_results)
     dwidc(:,2:3) = 1000*dwidc(:,2:3);
     
     mtr = sg_extract_csv(mtr_name,csv_path,mtr_filename,mtr_lvl,'WA()',participants);
-    mtr(strcmp(participants.participant_id,'sub-geneva02'),1)=NaN;
+    mtr(strcmp(participants.participant_id,'sub-geneva02'),:)=NaN;
     
-    [r(:,:,:,1),p(:,:,:,1)] = sg_draw_corrplot_loop(demography,csa,demography_name,csa_name,sex,participants,corr_text,1,fig_dimensions,'All',tick_demography,tick_csa);
-    [r(:,:,:,2),p(:,:,:,2)] = sg_draw_corrplot_loop(demography,dwi,demography_name,dwi_name,sex,participants,corr_text,2,fig_dimensions,'GEout',tick_demography,tick_dwi);
-    [r(:,:,:,3),p(:,:,:,3)] = sg_draw_corrplot_loop(demography,dwilcst,demography_name,dwilcst_name,sex,participants,corr_text,3,fig_dimensions,'GEout',tick_demography,tick_dwi);
-    [r(:,:,:,4),p(:,:,:,4)] = sg_draw_corrplot_loop(demography,dwidc,demography_name,dwidc_name,sex,participants,corr_text,4,fig_dimensions,'GEout',tick_demography,tick_dwi);
-    [r(1,:,:,5),p(1,:,:,5)] = sg_draw_corrplot_loop(demography,mtr,demography_name,mtr_name,sex,participants,corr_text,5,fig_dimensions1,'GEout',tick_demography,tick_mtr);
+    [r(:,:,:,1),p(:,:,:,1)] = sg_draw_corrplot_loop(demography,csa,demography_name,csa_name,participants,corr_text,1,fig_dimensions,'All',tick_demography,tick_csa);
+    [r(:,:,:,2),p(:,:,:,2)] = sg_draw_corrplot_loop(demography,dwi,demography_name,dwi_name,participants,corr_text,2,fig_dimensions,'GEout',tick_demography,tick_dwi);
+    [r(:,:,:,3),p(:,:,:,3)] = sg_draw_corrplot_loop(demography,dwilcst,demography_name,dwilcst_name,participants,corr_text,3,fig_dimensions,'GEout',tick_demography,tick_dwi);
+    [r(:,:,:,4),p(:,:,:,4)] = sg_draw_corrplot_loop(demography,dwidc,demography_name,dwidc_name,participants,corr_text,4,fig_dimensions,'GEout',tick_demography,tick_dwi);
+    [r(:,:,:,5),p(:,:,:,5)] = sg_draw_corrplot_loop(demography,mtr,demography_name,mtr_name,participants,corr_text,5,fig_dimensions,'GEout',tick_demography,tick_mtr);
 end
