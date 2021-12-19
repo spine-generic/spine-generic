@@ -1,4 +1,4 @@
-function [r,p] = sg_draw_corrplot(xdata,ydata,sex,participants,corr_text)
+function [r,p] = sg_draw_corrplot(xdata,ydata,sex,participants,corr_text,usedata)
 %UNTITLED2 Summary of this function goes here
 %   Detailed explanation goes here
     sie_female = strcmp(participants.manufacturer,'Siemens') & sex==1;
@@ -8,22 +8,30 @@ function [r,p] = sg_draw_corrplot(xdata,ydata,sex,participants,corr_text)
     phi_female = strcmp(participants.manufacturer,'Philips') & sex==1;
     phi_male = strcmp(participants.manufacturer,'Philips') & sex==0;
 
-    [rr, pp]=corrcoef(xdata,ydata,'Rows','Pairwise');
-    r(1)=rr(1,2);
-    p(1)=pp(1,2);
-    [rr, pp]=corrcoef(xdata(sex==1),ydata(sex==1),'Rows','Pairwise');
-    r(2)=rr(1,2);
-    p(2)=pp(1,2);
-    [rr, pp]=corrcoef(xdata(sex==0),ydata(sex==0),'Rows','Pairwise');
-    r(3)=rr(1,2);
-    p(3)=pp(1,2);
+    if strcmp(usedata,'All')
+        [rr, pp]=corrcoef(xdata,ydata,'Rows','Pairwise');
+        r(1)=rr(1,2);p(1)=pp(1,2);
+        [rr, pp]=corrcoef(xdata(sex==1),ydata(sex==1),'Rows','Pairwise');
+        r(2)=rr(1,2);p(2)=pp(1,2);
+        [rr, pp]=corrcoef(xdata(sex==0),ydata(sex==0),'Rows','Pairwise');
+        r(3)=rr(1,2);p(3)=pp(1,2);
+        ps = ~isnan(xdata) & ~isnan(ydata);
+    elseif strcmp(usedata,'GEout')
+        useonly=~strcmp(participants.manufacturer,'GE');
+        [rr, pp]=corrcoef(xdata(useonly),ydata(useonly),'Rows','Pairwise');
+        r(1)=rr(1,2);p(1)=pp(1,2);
+        [rr, pp]=corrcoef(xdata(useonly & sex==1),ydata(useonly & sex==1),'Rows','Pairwise');
+        r(2)=rr(1,2);p(2)=pp(1,2);
+        [rr, pp]=corrcoef(xdata(useonly & sex==0),ydata(useonly & sex==0),'Rows','Pairwise');
+        r(3)=rr(1,2);p(3)=pp(1,2);
+        ps = ~isnan(xdata) & ~isnan(ydata) & useonly;
+    end
     
     minx=min(xdata);
     maxx=max(xdata);
     miny=min(ydata);
     maxy=max(ydata);
 
-    ps = ~isnan(xdata) & ~isnan(ydata);
     c = polyfit(xdata(ps),ydata(ps),1);
     x = [minx maxx];
     y = c(1)*x + c(2);
