@@ -1,4 +1,4 @@
-function data = sg_extract_csv(data_name,csv_path,filename,lvl,column_name,participants)
+function data = sg_extract_csv(data_name,csv_path,filename,lvl,column_name,participants,excl)
 %UNTITLED2 Summary of this function goes here
 %   Detailed explanation goes here
     if ispc
@@ -12,12 +12,18 @@ function data = sg_extract_csv(data_name,csv_path,filename,lvl,column_name,parti
         for ind = 1:size(tbl,1)
             if strcmp(char(table2cell(tbl(ind,'VertLevel'))),lvl{1,vr})
                 id = split(char(table2cell(tbl(ind,'Filename'))),delimiter);
-                val = table2cell(tbl(ind,column_name));
-                val = val{1,1};
-                if ischar(val)
-                    val = str2double(val);
+                notuse = 0;
+                for wrng = 1:size(excl{1,vr},2)
+                    notuse = notuse + double(contains(id{end-2},excl{1,vr}{1,wrng}));
                 end
-                data(strcmp(participants.participant_id,id{end-2}),vr) = val;
+                if notuse == 0
+                    val = table2cell(tbl(ind,column_name));
+                    val = val{1,1};
+                    if ischar(val)
+                        val = str2double(val);
+                    end
+                    data(strcmp(participants.participant_id,id{end-2}),vr) = val;
+                end
             end
         end
     end

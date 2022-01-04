@@ -1,4 +1,4 @@
-function [r,p] = sg_draw_corrplot_loop(xdata,ydata,xdata_name,ydata_name,participants,corr_text,fig_ind,fig_dimensions,usedata,tick_xdata,tick_ydata)
+function [r,p] = sg_draw_corrplot_loop(xdata,ydata,xdata_name,ydata_name,participants,corr_text,fig_ind,fig_dimensions,usedata,tick_xdata,tick_ydata,fig_filename)
 %UNTITLED2 Summary of this function goes here
 %   Detailed explanation goes here
     r = zeros(size(ydata,2),size(xdata,2),3);p=r;
@@ -24,5 +24,7 @@ function [r,p] = sg_draw_corrplot_loop(xdata,ydata,xdata_name,ydata_name,partici
             pl = pl + 1;
         end
     end
+    print(fig_filename, '-dpng', '-r300')
+    pause(0.2)
 end
 
