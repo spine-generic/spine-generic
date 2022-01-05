@@ -61,7 +61,7 @@ Launch processing:
 
 .. code-block:: bash
 
-  sct_run_batch -jobs -1 -path-data <PATH_DATA> -path-output ~/spineGeneric_results/ process_data.sh
+  sct_run_batch -jobs -1 -path-data <PATH_DATA> -path-output ~/spineGeneric_results/ -script process_data.sh
 
 .. note::
 
@@ -192,7 +192,7 @@ to a yml file containing the subjects to be excluded from the statistics. To gen
 
 .. code-block:: bash
 
-  sg_generate_figures -path-results ~/spineGeneric_results/results -exclude subject_to_exclude.yml
+  sg_generate_figure -path-results ~/spineGeneric_results/results -exclude subject_to_exclude.yml
 
 To generate a mosaic of images, run:
 
