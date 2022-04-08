@@ -59,8 +59,9 @@ function [r,p] = sg_draw_corrplot(xdata,ydata,participants,corr_text,usedata)
         coefy2 = 0.10;
     end
     if p(1) < 0.05
+        set(gca,'Color',[255 255 224]/255)
         for cr = 1:3
-            if miny > 0.7
+            if miny > 0.7 && miny < 40
                 txty = (coefy1-coefy2*(cr-1))*miny;
             else
                 txty = maxy - coefy2*cr*miny;

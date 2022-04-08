@@ -169,6 +169,8 @@ sct_qc -i ${file_t1}.nii.gz -s label_T1w/template/PAM50_levels.nii.gz -p sct_lab
 sct_flatten_sagittal -i ${file_t1}.nii.gz -s ${file_t1_seg}.nii.gz
 # Compute average cord CSA between C2 and C3
 sct_process_segmentation -i ${file_t1_seg}.nii.gz -vert 2:3 -vertfile label_T1w/template/PAM50_levels.nii.gz -o ${PATH_RESULTS}/csa-SC_T1w.csv -append 1
+# Compute average cord CSA between C3 and C4
+sct_process_segmentation -i ${file_t1_seg}.nii.gz -vert 3:4 -vertfile label_T1w/template/PAM50_levels.nii.gz -o ${PATH_RESULTS}/csa-SC_T1w_c34.csv -append 1
 
 # T2
 # ------------------------------------------------------------------------------
@@ -186,6 +188,8 @@ sct_flatten_sagittal -i ${file_t2}.nii.gz -s ${file_t2_seg}.nii.gz
 sct_register_multimodal -i label_T1w/template/PAM50_levels.nii.gz -d ${file_t2_seg}.nii.gz -o PAM50_levels2${file_t2}.nii.gz -identity 1 -x nn
 # Compute average cord CSA between C2 and C3
 sct_process_segmentation -i ${file_t2_seg}.nii.gz -vert 2:3 -vertfile PAM50_levels2${file_t2}.nii.gz -o ${PATH_RESULTS}/csa-SC_T2w.csv -append 1
+# Compute average cord CSA between C3 and C4
+sct_process_segmentation -i ${file_t2_seg}.nii.gz -vert 3:4 -vertfile PAM50_levels2${file_t2}.nii.gz -o ${PATH_RESULTS}/csa-SC_T2w_c34.csv -append 1
 
 # MTS
 # ------------------------------------------------------------------------------
@@ -228,6 +232,10 @@ if [[ -e "${file_t1w}.nii.gz" && -e "${file_mton}.nii.gz" && -e "${file_mtoff}.n
   sct_extract_metric -i mtr.nii.gz -f label_axT1w/atlas -l 51 -vert 2:5 -vertfile label_axT1w/template/PAM50_levels.nii.gz -o ${PATH_RESULTS}/MTR.csv -append 1
   sct_extract_metric -i mtsat.nii.gz -f label_axT1w/atlas -l 51 -vert 2:5 -vertfile label_axT1w/template/PAM50_levels.nii.gz -o ${PATH_RESULTS}/MTsat.csv -append 1
   sct_extract_metric -i t1map.nii.gz -f label_axT1w/atlas -l 51 -vert 2:5 -vertfile label_axT1w/template/PAM50_levels.nii.gz -o ${PATH_RESULTS}/T1.csv -append 1
+  # Compute MTR in LCST between C2 and C5 vertebral levels
+  sct_extract_metric -i mtr.nii.gz -f label_axT1w/atlas -l 2,17 -vert 2:5 -vertfile label_axT1w/template/PAM50_levels.nii.gz -o ${PATH_RESULTS}/MTR_LCST.csv -append 1 -combine 1
+  # Compute MTR in LCST between C2 and C5 vertebral levels
+  sct_extract_metric -i mtr.nii.gz -f label_axT1w/atlas -l 0,1,15,16 -vert 2:5 -vertfile label_axT1w/template/PAM50_levels.nii.gz -o ${PATH_RESULTS}/MTR_DC.csv -append 1 -combine 1
 else
   echo "WARNING: MTS dataset is incomplete."
 fi
@@ -243,10 +251,14 @@ sct_register_multimodal -i label_T1w/template/PAM50_levels.nii.gz -d ${file_t2s}
 # Segment gray matter (only if it does not exist)
 segment_gm_if_does_not_exist $file_t2s "t2s"
 file_t2s_seg=$FILESEG
+# Segment spinal cord (only if it does not exist)
+segment_if_does_not_exist $file_t2s "t2s"
+file_t2s_scseg=$FILESEG
 # Compute the gray matter CSA between C3 and C4 levels
 # NB: Here we set -no-angle 1 because we do not want angle correction: it is too
 # unstable with GM seg, and t2s data were acquired orthogonal to the cord anyways.
 sct_process_segmentation -i ${file_t2s_seg}.nii.gz -angle-corr 0 -vert 3:4 -vertfile PAM50_levels2${file_t2s}.nii.gz -o ${PATH_RESULTS}/csa-GM_T2s.csv -append 1
+sct_process_segmentation -i ${file_t2s_scseg}.nii.gz -angle-corr 0 -vert 3:4 -vertfile PAM50_levels2${file_t2s}.nii.gz -o ${PATH_RESULTS}/csa-SC_T2s.csv -append 1
 
 # DWI
 # ------------------------------------------------------------------------------
@@ -293,6 +305,14 @@ sct_dmri_compute_dti -i ${file_dwi}.nii.gz -bvec ${file_bvec} -bval ${file_bval}
 sct_extract_metric -i dti_FA.nii.gz -f label/atlas -l 51 -vert 2:5 -o ${PATH_RESULTS}/DWI_FA.csv -append 1
 sct_extract_metric -i dti_MD.nii.gz -f label/atlas -l 51 -vert 2:5 -o ${PATH_RESULTS}/DWI_MD.csv -append 1
 sct_extract_metric -i dti_RD.nii.gz -f label/atlas -l 51 -vert 2:5 -o ${PATH_RESULTS}/DWI_RD.csv -append 1
+# Compute FA, MD and RD in LCST between C2 and C5 vertebral levels
+sct_extract_metric -i dti_FA.nii.gz -f label/atlas -l 2,17 -vert 2:5 -o ${PATH_RESULTS}/DWI_FA_LCST.csv -append 1 -combine 1
+sct_extract_metric -i dti_MD.nii.gz -f label/atlas -l 2,17 -vert 2:5 -o ${PATH_RESULTS}/DWI_MD_LCST.csv -append 1 -combine 1
+sct_extract_metric -i dti_RD.nii.gz -f label/atlas -l 2,17 -vert 2:5 -o ${PATH_RESULTS}/DWI_RD_LCST.csv -append 1 -combine 1
+# Compute FA, MD and RD in DC between C2 and C5 vertebral levels
+sct_extract_metric -i dti_FA.nii.gz -f label/atlas -l 0,1,15,16 -vert 2:5 -o ${PATH_RESULTS}/DWI_FA_DC.csv -append 1 -combine 1
+sct_extract_metric -i dti_MD.nii.gz -f label/atlas -l 0,1,15,16 -vert 2:5 -o ${PATH_RESULTS}/DWI_MD_DC.csv -append 1 -combine 1
+sct_extract_metric -i dti_RD.nii.gz -f label/atlas -l 0,1,15,16 -vert 2:5 -o ${PATH_RESULTS}/DWI_RD_DC.csv -append 1 -combine 1
 # Go back to parent folder
 cd ..
 
