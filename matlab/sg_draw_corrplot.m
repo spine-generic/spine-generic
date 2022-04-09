@@ -1,12 +1,24 @@
-function [r,p] = sg_draw_corrplot(xdata,ydata,participants,corr_text,usedata)
+function [r, p, r_norm, p_norm] = sg_draw_corrplot(xdata,ydata,participants,usedata)
 %UNTITLED2 Summary of this function goes here
-%   Detailed explanation goes here
+%   
+%   OUTPUTS:
+%   r(1) ... Pearson correlation for all dataset (including or excluding GE scanner values based on the usedata input)
+%   r(2) ... Pearson correlation for females (including or excluding GE scanner values based on the usedata input)
+%   r(3) ... Pearson correlation for males (including or excluding GE scanner values based on the usedata input)
+%
+%   p(1) ... p-value of Pearson correlation for all dataset (including or excluding GE scanner values based on the usedata input)
+%   p(2) ... p-value of Pearson correlation for females (including or excluding GE scanner values based on the usedata input)
+%   p(3) ... p-value of Pearson correlation for males (including or excluding GE scanner values based on the usedata input)
     sie_female = strcmp(participants.manufacturer,'Siemens') & strcmp(participants.sex,'F');
     sie_male = strcmp(participants.manufacturer,'Siemens') & strcmp(participants.sex,'M');
     ge_female = strcmp(participants.manufacturer,'GE') & strcmp(participants.sex,'F');
     ge_male = strcmp(participants.manufacturer,'GE') & strcmp(participants.sex,'M');
     phi_female = strcmp(participants.manufacturer,'Philips') & strcmp(participants.sex,'F');
     phi_male = strcmp(participants.manufacturer,'Philips') & strcmp(participants.sex,'M');
+
+    sie_pos = strcmp(participants.manufacturer,'Siemens');
+    ge_pos = strcmp(participants.manufacturer,'GE');
+    phi_pos = strcmp(participants.manufacturer,'Philips');
 
     minx=min(xdata);
     maxx=max(xdata);
@@ -36,6 +48,23 @@ function [r,p] = sg_draw_corrplot(xdata,ydata,participants,corr_text,usedata)
         y2 = c2(1)*x + c2(2);
     end
 
+    mean_siemens = mean(ydata(sie_pos & ~isnan(ydata)));
+    mean_philips = mean(ydata(phi_pos & ~isnan(ydata)));
+    mean_ge = mean(ydata(ge_pos & ~isnan(ydata)));
+    mean_vec = zeros(size(ydata));
+    mean_vec(sie_pos)= mean_siemens;
+    mean_vec(phi_pos)= mean_philips;
+    mean_vec(ge_pos)= mean_ge;
+
+    ydata_norm = ydata - mean_vec;
+
+    [rr, pp]=corrcoef(xdata,ydata_norm,'Rows','Pairwise');
+    r_norm(1)=rr(1,2);p_norm(1)=pp(1,2);
+    [rr, pp]=corrcoef(xdata(strcmp(participants.sex,'F')),ydata_norm(strcmp(participants.sex,'F')),'Rows','Pairwise');
+    r_norm(2)=rr(1,2);p_norm(2)=pp(1,2);
+    [rr, pp]=corrcoef(xdata(strcmp(participants.sex,'M')),ydata_norm(strcmp(participants.sex,'M')),'Rows','Pairwise');
+    r_norm(3)=rr(1,2);p_norm(3)=pp(1,2);
+
     c = polyfit(xdata(ps),ydata(ps),1);
     y = c(1)*x + c(2);
 
@@ -52,29 +81,24 @@ function [r,p] = sg_draw_corrplot(xdata,ydata,participants,corr_text,usedata)
     plot(xdata(ge_male),ydata(ge_male),'rx','LineStyle','none','LineWidth',3,'MarkerSize',11)
     hold off
     
-    if miny > 0.7
-        coefy1 = 1.15;
-        coefy2 = 0.05;
+    if r(1)>0
+        coefy1 = 1.05;
+    elseif r(1)<=0 && maxy<5
+        coefy1 = 0.10;
     else
-        coefy2 = 0.10;
+        coefy1 = 0.05;
     end
     if p(1) < 0.05
         set(gca,'Color',[255 255 224]/255)
-        for cr = 1:3
-            if miny > 0.7 && miny < 40
-                txty = (coefy1-coefy2*(cr-1))*miny;
-            else
-                txty = maxy - coefy2*cr*miny;
-            end
-            if p(cr) < 0.0001
-                text(0.99*maxx,txty,[corr_text{1,cr} num2str(r(cr),'%.3f') '; p<0.0001'],'HorizontalAlignment','right','FontWeight','bold')
-            else
-                if p(cr) < 0.05
-                    text(0.99*maxx,txty,[corr_text{1,cr} num2str(r(cr),'%.3f') '; p=' num2str(p(cr),'%.4f')],'HorizontalAlignment','right','FontWeight','bold')
-                else
-                    text(0.99*maxx,txty,[corr_text{1,cr} num2str(r(cr),'%.3f') '; p=' num2str(p(cr),'%.4f')],'HorizontalAlignment','right')
-                end
-            end
+        if r(1)>0
+            txty = coefy1*miny;
+        else
+            txty = maxy - coefy1*miny;
+        end
+        if p(1) < 0.0001
+            text(0.99*maxx,txty,['r=' num2str(r(1),'%.3f') '; p<0.0001'],'HorizontalAlignment','right','FontWeight','bold')
+        else
+            text(0.99*maxx,txty,['r=' num2str(r(1),'%.3f') '; p=' num2str(p(1),'%.4f')],'HorizontalAlignment','right','FontWeight','bold')
         end
     end
     axis([minx maxx miny maxy])
