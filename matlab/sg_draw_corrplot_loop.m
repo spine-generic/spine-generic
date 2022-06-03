@@ -24,6 +24,8 @@ function [r, p, r_norm, p_norm] = sg_draw_corrplot_loop(xdata,ydata,xdata_name,y
             pl = pl + 1;
         end
     end
+    set(gcf, 'color', [1 1 1])
+    set(gcf, 'InvertHardcopy', 'off')
     print(fig_filename, '-dpng', '-r300')
     pause(0.2)
 end

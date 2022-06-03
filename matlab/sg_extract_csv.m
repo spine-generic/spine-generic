@@ -10,11 +10,20 @@ function data = sg_extract_csv(data_name,csv_path,filename,lvl,column_name,parti
     for vr = 1:size(data_name,2)
         tbl = readtable(fullfile(csv_path,filename{1,vr}),'PreserveVariableNames',1);
         for ind = 1:size(tbl,1)
-            if strcmp(char(table2cell(tbl(ind,'VertLevel'))),lvl{1,vr})
+            if strcmp('brain',lvl{1,vr})
+                subid = table2cell(tbl(ind,'SubID'));
+                id = {subid; subid; subid};
+            elseif strcmp(char(table2cell(tbl(ind,'VertLevel'))),lvl{1,vr})
                 id = split(char(table2cell(tbl(ind,'Filename'))),delimiter);
+            else
+                id = 'n/a';
+            end
+            if ~strcmp(id,'n/a')
                 notuse = 0;
-                for wrng = 1:size(excl{1,vr},2)
-                    notuse = notuse + double(contains(id{end-2},excl{1,vr}{1,wrng}));
+                if ~isempty(excl{1,vr})
+                    for wrng = 1:size(excl{1,vr},2)
+                        notuse = notuse + double(contains(id{end-2},excl{1,vr}{1,wrng}));
+                    end
                 end
                 if notuse == 0
                     val = table2cell(tbl(ind,column_name));
