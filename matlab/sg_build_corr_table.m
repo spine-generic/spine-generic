@@ -1,6 +1,16 @@
 function tbl = sg_build_corr_table(r,p,r_norm,p_norm,fs_r,fs_p,fs_r_norm,fs_p_norm,thick_r,thick_p,thick_r_norm,thick_p_norm)
 %SG_BUILD_CORR_TABLE Summary of this function goes here
 %   Detailed explanation goes here
+%
+%   AUTHOR:
+%   Rene Labounek
+%   email: rlaboune@umn.edu
+%
+%   Masonic Institute for the Developing Brain
+%   Division of Clinical Behavioral Neuroscience
+%   Deparmtnet of Pediatrics
+%   University of Minnesota
+%   Minneapolis, Minnesota, USA
 
     tbl{3,1} = 'Correlation pair';
     tbl{1,2} = 'Absolute values';
@@ -75,9 +85,9 @@ function tbl = sg_build_corr_table(r,p,r_norm,p_norm,fs_r,fs_p,fs_r_norm,fs_p_no
     tbl{28,1} = 'BrainGMVol vs CSA-SC';
     tbl{29,1} = 'BrainGMVol vs CSA-WM';
     tbl{30,1} = 'BrainGMVol vs CSA-GM';
-    tbl{31,1} = 'CortexVol vs CSA-SC';
-    tbl{32,1} = 'CortexVol vs CSA-WM';
-    tbl{33,1} = 'CortexVol vs CSA-GM';
+    tbl{31,1} = 'CorticalGMVol vs CSA-SC';
+    tbl{32,1} = 'CorticalGMVol vs CSA-WM';
+    tbl{33,1} = 'CorticalGMVol vs CSA-GM';
     tbl{34,1} = 'CorticalWMVol vs CSA-SC';
     tbl{35,1} = 'CorticalWMVol vs CSA-WM';
     tbl{36,1} = 'CorticalWMVol vs CSA-GM';
@@ -112,16 +122,91 @@ function tbl = sg_build_corr_table(r,p,r_norm,p_norm,fs_r,fs_p,fs_r_norm,fs_p_no
     tbl{49,1} = 'Cortical Thickness vs CSA-SC';
     tbl{50,1} = 'Cortical Thickness vs CSA-WM';
     tbl{51,1} = 'Cortical Thickness vs CSA-GM';
-    tbl{52,1} = 'Precentral Thickness vs CSA-SC';
-    tbl{53,1} = 'Precentral Thickness vs CSA-WM';
-    tbl{54,1} = 'Precentral Thickness vs CSA-GM';
-    tbl{55,1} = 'Postcentral Thickness vs CSA-SC';
-    tbl{56,1} = 'Postcentral Thickness vs CSA-WM';
-    tbl{57,1} = 'Postcentral Thickness vs CSA-GM';
+    tbl{52,1} = 'PrecentralG Thickness vs CSA-SC';
+    tbl{53,1} = 'PrecentralG Thickness vs CSA-WM';
+    tbl{54,1} = 'PrecentralG Thickness vs CSA-GM';
+    tbl{55,1} = 'PostcentralG Thickness vs CSA-SC';
+    tbl{56,1} = 'PostcentralG Thickness vs CSA-WM';
+    tbl{57,1} = 'PostcentralG Thickness vs CSA-GM';
     tbl{58,1} = 'PrecentralGMVol vs CSA-SC';
     tbl{59,1} = 'PrecentralGMVol vs CSA-WM';
     tbl{60,1} = 'PrecentralGMVol vs CSA-GM';
     tbl{61,1} = 'PostcentralGMVol vs CSA-SC';
     tbl{62,1} = 'PostcentralGMVol vs CSA-WM';
     tbl{63,1} = 'PostcentralGMVol vs CSA-GM';
+    tbl(49:63,:) = tbl([58:63 49:57],:);
+
+    row_shift = size(tbl,1);
+    mdl = 1;
+    for modality = [5 6]
+        for gender = 1:size(fs_r,3) 
+            for dm = 1:size(fs_r,2)
+                for sc = 1:size(fs_r,1)
+                    tbl{row_shift+sc+size(fs_r,1)*(dm-1)+size(fs_r,2)*size(fs_r,1)*(mdl-1),2+2*(gender-1)} = fs_r(sc,dm,gender,modality);
+                    tbl{row_shift+sc+size(fs_r,1)*(dm-1)+size(fs_r,2)*size(fs_r,1)*(mdl-1),3+2*(gender-1)} = fs_p(sc,dm,gender,modality);
+                    tbl{row_shift+sc+size(fs_r,1)*(dm-1)+size(fs_r,2)*size(fs_r,1)*(mdl-1),8+2*(gender-1)} = fs_r_norm(sc,dm,gender,modality);
+                    tbl{row_shift+sc+size(fs_r,1)*(dm-1)+size(fs_r,2)*size(fs_r,1)*(mdl-1),9+2*(gender-1)} = fs_p_norm(sc,dm,gender,modality);
+                end
+            end
+        end
+        mdl = mdl + 1;
+    end
+    tbl{64,1} = 'BrainVol vs Age';
+    tbl{65,1} = 'BrainVol vs Height';
+    tbl{66,1} = 'BrainVol vs Weight';
+    tbl{67,1} = 'BrainGMVol vs Age';
+    tbl{68,1} = 'BrainGMVol vs Height';
+    tbl{69,1} = 'BrainGMVol vs Weight';
+    tbl{70,1} = 'CorticalGMVol vs Age';
+    tbl{71,1} = 'CorticalGMVol vs Height';
+    tbl{72,1} = 'CorticalGMVol vs Weight';
+    tbl{73,1} = 'CorticalWMVol vs Age';
+    tbl{74,1} = 'CorticalWMVol vs Height';
+    tbl{75,1} = 'CorticalWMVol vs Weight';
+    tbl{76,1} = 'SubCortGMVol vs Age';
+    tbl{77,1} = 'SubCortGMVol vs Height';
+    tbl{78,1} = 'SubCortGMVol vs Weight';
+    tbl{79,1} = 'ThalamusVol vs Age';
+    tbl{80,1} = 'ThalamusVol vs Height';
+    tbl{81,1} = 'ThalamusVol vs Weight';
+    tbl{82,1} = 'CerebellumVol vs Age';
+    tbl{83,1} = 'CerebellumVol vs Height';
+    tbl{84,1} = 'CerebellumVol vs Weight';
+    tbl{85,1} = 'BrainStemVol vs Age';
+    tbl{86,1} = 'BrainStemVol vs Height';
+    tbl{87,1} = 'BrainStemVol vs Weight';
+
+    row_shift = size(tbl,1);
+    mdl = 1;
+    for modality = 3
+        for gender = 1:size(thick_r,3) 
+            for dm = 1:size(thick_r,2)
+                for sc = 1:size(thick_r,1)
+                    tbl{row_shift+sc+size(thick_r,1)*(dm-1)+size(thick_r,2)*size(thick_r,1)*(mdl-1),2+2*(gender-1)} = thick_r(sc,dm,gender,modality);
+                    tbl{row_shift+sc+size(thick_r,1)*(dm-1)+size(thick_r,2)*size(thick_r,1)*(mdl-1),3+2*(gender-1)} = thick_p(sc,dm,gender,modality);
+                    tbl{row_shift+sc+size(thick_r,1)*(dm-1)+size(thick_r,2)*size(thick_r,1)*(mdl-1),8+2*(gender-1)} = thick_r_norm(sc,dm,gender,modality);
+                    tbl{row_shift+sc+size(thick_r,1)*(dm-1)+size(thick_r,2)*size(thick_r,1)*(mdl-1),9+2*(gender-1)} = thick_p_norm(sc,dm,gender,modality);
+                end
+            end
+        end
+        mdl = mdl + 1;
+    end
+    tbl{88,1} = 'Cortical Thickness vs Age';
+    tbl{89,1} = 'Cortical Thickness vs Height';
+    tbl{90,1} = 'Cortical Thickness vs Weight';
+    tbl{91,1} = 'PrecentralG Thickness vs Age';
+    tbl{92,1} = 'PrecentralG Thickness vs Height';
+    tbl{93,1} = 'PrecentralG Thickness vs Weight';
+    tbl{94,1} = 'PostcentralG Thickness vs Age';
+    tbl{95,1} = 'PostcentralG Thickness vs Height';
+    tbl{96,1} = 'PostcentralG Thickness vs Weight';
+    tbl{97,1} = 'PrecentralGMVol vs Age';
+    tbl{98,1} = 'PrecentralGMVol vs Height';
+    tbl{99,1} = 'PrecentralGMVol vs Weight';
+    tbl{100,1} = 'PostcentralGMVol vs Age';
+    tbl{101,1} = 'PostcentralGMVol vs Height';
+    tbl{102,1} = 'PostcentralGMVol vs Weight';
+    tbl(88:102,:) = tbl([97:102 88:96],:);
+
+    tbl(64:102,8:13)={[]};
 end

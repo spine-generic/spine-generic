@@ -1,6 +1,17 @@
 function [r, p, r_norm, p_norm] = sg_draw_corrplot_loop(xdata,ydata,xdata_name,ydata_name,participants,fig_ind,fig_dimensions,usedata,tick_xdata,tick_ydata,fig_filename)
-%UNTITLED2 Summary of this function goes here
+%SG_DRAW_CORRPLOT_LOOP Summary of this function goes here
 %   Detailed explanation goes here
+%
+%   AUTHOR:
+%   Rene Labounek
+%   email: rlaboune@umn.edu
+%
+%   Masonic Institute for the Developing Brain
+%   Division of Clinical Behavioral Neuroscience
+%   Deparmtnet of Pediatrics
+%   University of Minnesota
+%   Minneapolis, Minnesota, USA
+
     r = zeros(size(ydata,2),size(xdata,2),3);p=r;r_norm=r;p_norm=r;
     pl=1;
     h.fig=figure(fig_ind);

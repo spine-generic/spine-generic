@@ -1,5 +1,5 @@
 function [r, p, r_norm, p_norm] = sg_draw_corrplot(xdata,ydata,participants,usedata)
-%UNTITLED2 Summary of this function goes here
+%SG_DRAW_CORRPLOT Summary of this function goes here
 %   
 %   OUTPUTS:
 %   r(1) ... Pearson correlation for all dataset (including or excluding GE scanner values based on the usedata input)
@@ -9,6 +9,17 @@ function [r, p, r_norm, p_norm] = sg_draw_corrplot(xdata,ydata,participants,used
 %   p(1) ... p-value of Pearson correlation for all dataset (including or excluding GE scanner values based on the usedata input)
 %   p(2) ... p-value of Pearson correlation for females (including or excluding GE scanner values based on the usedata input)
 %   p(3) ... p-value of Pearson correlation for males (including or excluding GE scanner values based on the usedata input)
+%
+%   AUTHOR:
+%   Rene Labounek
+%   email: rlaboune@umn.edu
+%
+%   Masonic Institute for the Developing Brain
+%   Division of Clinical Behavioral Neuroscience
+%   Deparmtnet of Pediatrics
+%   University of Minnesota
+%   Minneapolis, Minnesota, USA
+
     sie_female = strcmp(participants.manufacturer,'Siemens') & strcmp(participants.sex,'F');
     sie_male = strcmp(participants.manufacturer,'Siemens') & strcmp(participants.sex,'M');
     ge_female = strcmp(participants.manufacturer,'GE') & strcmp(participants.sex,'F');
@@ -82,9 +93,21 @@ function [r, p, r_norm, p_norm] = sg_draw_corrplot(xdata,ydata,participants,used
     hold off
     
     if r(1)>0
-        coefy1 = 1.05;
-    elseif r(1)<=0 && maxy<5
-        coefy1 = 0.10;
+        if miny>140
+            coefy1 = 1.025;
+        elseif maxy>110 && miny>40
+            coefy1 = 1.10;
+        else
+            coefy1 = 1.05;
+        end
+    elseif r(1)<=0
+        if maxy<5
+            coefy1 = 0.10;
+        elseif miny>25
+            coefy1 = 0.03;
+        else
+            coefy1 = 0.08;
+        end
     else
         coefy1 = 0.05;
     end

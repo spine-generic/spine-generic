@@ -1,6 +1,16 @@
 function [data, data_name] = sg_extract_xlsx(xlsx_file,cols_idx,participants)
 %SG_EXTRACT_XLSX Summary of this function goes here
 %   Detailed explanation goes here
+%
+%   AUTHOR:
+%   Rene Labounek
+%   email: rlaboune@umn.edu
+%
+%   Masonic Institute for the Developing Brain
+%   Division of Clinical Behavioral Neuroscience
+%   Deparmtnet of Pediatrics
+%   University of Minnesota
+%   Minneapolis, Minnesota, USA
 
     [~, ~, raw] = xlsread(xlsx_file);
     data = NaN*ones(size(participants,1),size(cols_idx,2));
