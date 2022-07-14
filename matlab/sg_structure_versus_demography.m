@@ -28,15 +28,14 @@ function stat = sg_structure_versus_demography(path_results,path_data)
 %   The stat_labounek2022.mat file with stat variable and all graphical outputs are
 %   stored in the folder (variable) csv_path=path_results/results
 %
-%   AUTHOR:
-%   Rene Labounek
+%   AUTHORS:
+%   Rene Labounek (1), Julien Cohen-Adad (2), Christophe Lenglet (3), Igor Nestrasil (1,3)
 %   email: rlaboune@umn.edu
 %
-%   Masonic Institute for the Developing Brain
-%   Division of Clinical Behavioral Neuroscience
-%   Deparmtnet of Pediatrics
-%   University of Minnesota
-%   Minneapolis, Minnesota, USA
+%   INSTITUTIONS:
+%   (1) Masonic Institute for the Developing Brain, Division of Clinical Behavioral Neuroscience, Deparmtnet of Pediatrics, University of Minnesota, Minneapolis, Minnesota, USA
+%   (2) NeuroPoly Lab, Institute of Biomedical Engineering, Polytechnique Montreal, Montreal, Quebec, Canada
+%   (3) Center for Magnetic Resonance Research, Department of Radiology, University of Minnesota, Minneapolis, Minnesota, USA
 
     %% Basic setups
     include_body_indexes = 0;

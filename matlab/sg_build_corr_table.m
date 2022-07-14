@@ -2,15 +2,14 @@ function tbl = sg_build_corr_table(r,p,r_norm,p_norm,fs_r,fs_p,fs_r_norm,fs_p_no
 %SG_BUILD_CORR_TABLE Summary of this function goes here
 %   Detailed explanation goes here
 %
-%   AUTHOR:
-%   Rene Labounek
+%   AUTHORS:
+%   Rene Labounek (1), Julien Cohen-Adad (2), Christophe Lenglet (3), Igor Nestrasil (1,3)
 %   email: rlaboune@umn.edu
 %
-%   Masonic Institute for the Developing Brain
-%   Division of Clinical Behavioral Neuroscience
-%   Deparmtnet of Pediatrics
-%   University of Minnesota
-%   Minneapolis, Minnesota, USA
+%   INSTITUTIONS:
+%   (1) Masonic Institute for the Developing Brain, Division of Clinical Behavioral Neuroscience, Deparmtnet of Pediatrics, University of Minnesota, Minneapolis, Minnesota, USA
+%   (2) NeuroPoly Lab, Institute of Biomedical Engineering, Polytechnique Montreal, Montreal, Quebec, Canada
+%   (3) Center for Magnetic Resonance Research, Department of Radiology, University of Minnesota, Minneapolis, Minnesota, USA
 
     tbl{3,1} = 'Correlation pair';
     tbl{1,2} = 'Absolute values';

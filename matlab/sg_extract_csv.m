@@ -2,15 +2,14 @@ function data = sg_extract_csv(data_name,csv_path,filename,lvl,column_name,parti
 %UNTITLED2 Summary of this function goes here
 %   Detailed explanation goes here
 %
-%   AUTHOR:
-%   Rene Labounek
+%   AUTHORS:
+%   Rene Labounek (1), Julien Cohen-Adad (2), Christophe Lenglet (3), Igor Nestrasil (1,3)
 %   email: rlaboune@umn.edu
 %
-%   Masonic Institute for the Developing Brain
-%   Division of Clinical Behavioral Neuroscience
-%   Deparmtnet of Pediatrics
-%   University of Minnesota
-%   Minneapolis, Minnesota, USA
+%   INSTITUTIONS:
+%   (1) Masonic Institute for the Developing Brain, Division of Clinical Behavioral Neuroscience, Deparmtnet of Pediatrics, University of Minnesota, Minneapolis, Minnesota, USA
+%   (2) NeuroPoly Lab, Institute of Biomedical Engineering, Polytechnique Montreal, Montreal, Quebec, Canada
+%   (3) Center for Magnetic Resonance Research, Department of Radiology, University of Minnesota, Minneapolis, Minnesota, USA
 
     if ispc
         delimiter = '\';

@@ -10,15 +10,14 @@ function [r, p, r_norm, p_norm] = sg_draw_corrplot(xdata,ydata,participants,used
 %   p(2) ... p-value of Pearson correlation for females (including or excluding GE scanner values based on the usedata input)
 %   p(3) ... p-value of Pearson correlation for males (including or excluding GE scanner values based on the usedata input)
 %
-%   AUTHOR:
-%   Rene Labounek
+%   AUTHORS:
+%   Rene Labounek (1), Julien Cohen-Adad (2), Christophe Lenglet (3), Igor Nestrasil (1,3)
 %   email: rlaboune@umn.edu
 %
-%   Masonic Institute for the Developing Brain
-%   Division of Clinical Behavioral Neuroscience
-%   Deparmtnet of Pediatrics
-%   University of Minnesota
-%   Minneapolis, Minnesota, USA
+%   INSTITUTIONS:
+%   (1) Masonic Institute for the Developing Brain, Division of Clinical Behavioral Neuroscience, Deparmtnet of Pediatrics, University of Minnesota, Minneapolis, Minnesota, USA
+%   (2) NeuroPoly Lab, Institute of Biomedical Engineering, Polytechnique Montreal, Montreal, Quebec, Canada
+%   (3) Center for Magnetic Resonance Research, Department of Radiology, University of Minnesota, Minneapolis, Minnesota, USA
 
     sie_female = strcmp(participants.manufacturer,'Siemens') & strcmp(participants.sex,'F');
     sie_male = strcmp(participants.manufacturer,'Siemens') & strcmp(participants.sex,'M');

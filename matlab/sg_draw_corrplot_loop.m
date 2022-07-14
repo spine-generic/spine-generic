@@ -2,15 +2,14 @@ function [r, p, r_norm, p_norm] = sg_draw_corrplot_loop(xdata,ydata,xdata_name,y
 %SG_DRAW_CORRPLOT_LOOP Summary of this function goes here
 %   Detailed explanation goes here
 %
-%   AUTHOR:
-%   Rene Labounek
+%   AUTHORS:
+%   Rene Labounek (1), Julien Cohen-Adad (2), Christophe Lenglet (3), Igor Nestrasil (1,3)
 %   email: rlaboune@umn.edu
 %
-%   Masonic Institute for the Developing Brain
-%   Division of Clinical Behavioral Neuroscience
-%   Deparmtnet of Pediatrics
-%   University of Minnesota
-%   Minneapolis, Minnesota, USA
+%   INSTITUTIONS:
+%   (1) Masonic Institute for the Developing Brain, Division of Clinical Behavioral Neuroscience, Deparmtnet of Pediatrics, University of Minnesota, Minneapolis, Minnesota, USA
+%   (2) NeuroPoly Lab, Institute of Biomedical Engineering, Polytechnique Montreal, Montreal, Quebec, Canada
+%   (3) Center for Magnetic Resonance Research, Department of Radiology, University of Minnesota, Minneapolis, Minnesota, USA
 
     r = zeros(size(ydata,2),size(xdata,2),3);p=r;r_norm=r;p_norm=r;
     pl=1;
