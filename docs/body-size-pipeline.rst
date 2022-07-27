@@ -1,5 +1,5 @@
 Body size pipeline
-=================
+==================
 
 This pipeline extends the original `Analysis pipeline <https://spine-generic.readthedocs.io/analysis-pipeline.html>`__ and assesses the influence of body size on the structure of the central nervous system. All prerequisities and methods described for the `Analysis pipeline <https://spine-generic.readthedocs.io/analysis-pipeline.html>`__ applies even here with additional required dependencies and methods as described bellow.
 
@@ -13,7 +13,7 @@ Dependencies
 MANDATORY:
 
 - For processing: `All Analysis pipeline dependencies <https://spine-generic.readthedocs.io/analysis-pipeline.html#dependencies>`__.
-- For generating figures: Matlab >= 2017b (utilized version 2021b; This version automatically aligns axis labels. Lower version will work, but labels can be worse readable.); `YAMLMatlab toolbox 0.4.3 <https://code.google.com/archive/p/yamlmatlab/downloads>`__)
+- For generating figures: `YAMLMatlab toolbox 0.4.3 <https://code.google.com/archive/p/yamlmatlab/downloads>`__; Matlab >= 2017b (utilized version 2021b; This version automatically aligns axis labels. Lower version will work, but labels can be worse readable.)
 
 OPTIONAL:
 
@@ -67,9 +67,9 @@ Generate figures
     % path to the spine-generic source code 
     path_spinegeneric = '/home/user/git/spine-generic';
     % path to the <PATH_RESULTS> folder
-    path_results='/home/user/spine-generic/data-multi-subject_results';
+    path_results = '/home/user/spine-generic/data-multi-subject_results';
     % path to the <PATH_DATA> folder
-    path_data='/home/user/spine-generic/data-multi-subject';
+    path_data = '/home/user/spine-generic/data-multi-subject';
     % Execute
     addpath(path_yamltoolbox);
     addpath(fullfile(path_spinegeneric,'matlab'))
