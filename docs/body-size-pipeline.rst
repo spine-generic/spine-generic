@@ -82,4 +82,4 @@ Generate figures
 Results
 -------
 
-(to be extended when whole dataset analyzed)
+(to be extended once the whole dataset is analyzed)
