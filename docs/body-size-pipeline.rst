@@ -13,7 +13,7 @@ Dependencies
 MANDATORY:
 
 - For processing: `All Analysis pipeline dependencies <https://spine-generic.readthedocs.io/analysis-pipeline.html#dependencies>`__.
-- For generating figures: `YAMLMatlab toolbox 0.4.3 <https://code.google.com/archive/p/yamlmatlab/downloads>`__; Matlab >= 2017b (utilized version 2021b; This version automatically aligns axis labels. Lower version will work, but labels can be worse readable.)
+- For generating figures: `YAMLMatlab >= 0.4.3 <https://code.google.com/archive/p/yamlmatlab/downloads>`__; Matlab >= 2017b (utilized version 2021b; This version automatically aligns axis labels. Lower version will work, but labels can be worse readable.)
 
 OPTIONAL:
 
