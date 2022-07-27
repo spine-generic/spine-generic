@@ -57,7 +57,7 @@ Generate figures
 ----------------
 
 -   Make copy and re-edit the `spine-generic/matlab/sg_example_script.m <https://github.com/renelabounek/spine-generic/blob/rl/height-weight-analysis/matlab/sg_example_script.m>`__ regarding to your own HDD.
--   Open MATLAB >=2017b (>=2021b recomended due to automated axis label orientations)
+-   Open MATLAB >= R2017b (>= R2021b recomended due to automated axis label orientations)
 -   Execute re-edited script or execute following commands with a variable setting fitting your HDD
 
  .. code-block:: octave
