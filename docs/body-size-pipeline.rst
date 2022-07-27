@@ -32,7 +32,7 @@ The same methods as used in the `Analysis pipeline <https://spine-generic.readth
 Cerebral image analysis
 -----------------------
 
-You need to proceed your own automated cerebral segmentation of **T1** scans through the `FreeSurfer >=7.2 <https://surfer.nmr.mgh.harvard.edu>`__ software or download values obtained by the `UMN MILab <https://github.com/umn-milab>`__, which visually inspected and corrected (if necessary) all segmentation outcomes prior to exttraction of the quantitative measurements.
+You need to proceed your own automated cerebral segmentation of **T1** scans through the `FreeSurfer >=7.2 <https://surfer.nmr.mgh.harvard.edu>`__ software or download values obtained by the `UMN MILab <https://github.com/umn-milab>`__, which visually inspected and corrected (if necessary) all segmentation outcomes prior to extraction of the quantitative measurements.
 
 Where to download UMN MILab measurements?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
