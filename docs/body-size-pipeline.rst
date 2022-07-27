@@ -46,7 +46,7 @@ Where to download UMN MILab measurements?
 Your own FreeSurfer segmentation and measurements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
--   Group ``brain_t1`` in the `exclude.yml <https://github.com/spine-generic/data-multi-subject/blob/master/exclude.yml>`__ file defines list of scans whose cerebral volumes are not possible to be sgemented correctly due to listed reasons.
+-   Group ``brain_t1`` in the `exclude.yml <https://github.com/spine-generic/data-multi-subject/blob/master/exclude.yml>`__ file defines list of scans whose cerebral volumes are not possible to be segmented correctly due to listed reasons.
 -   You need to build your own ``fs_measurements.xlsx`` table.
 -   The bash script `extract_fs_measures.sh <https://github.com/renelabounek/spine-generic/blob/rl/height-weight-analysis/extract_fs_measures.sh>`__ can help you to automatically export the sg.*.aparc.stats.*.csv files.
 -   Store all table files in the ``<PATH_RESULTS>`` folder.
