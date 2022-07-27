@@ -56,7 +56,7 @@ Your own FreeSurfer segmentation and measurements
 Generate figures
 ----------------
 
--   Make copy and re-edit the `spine-generic/matlab/sg_example_script.m <https://github.com/renelabounek/spine-generic/blob/rl/height-weight-analysis/matlab/sg_example_script.m>`__ regarding to your own HDD.
+-   Make a copy and re-edit the `spine-generic/matlab/sg_example_script.m <https://github.com/renelabounek/spine-generic/blob/rl/height-weight-analysis/matlab/sg_example_script.m>`__ regarding to your own HDD.
 -   Open MATLAB >= R2017b (>= R2021b recomended due to automated axis label orientations)
 -   Execute re-edited script or execute following commands with a variable setting fitting your HDD
 
