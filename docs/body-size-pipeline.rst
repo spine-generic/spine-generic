@@ -13,12 +13,12 @@ Dependencies
 MANDATORY:
 
 - For processing: `All Analysis pipeline dependencies <https://spine-generic.readthedocs.io/analysis-pipeline.html#dependencies>`__.
-- For generating figures: `YAMLMatlab >= 0.4.3 <https://code.google.com/archive/p/yamlmatlab/downloads>`__; Matlab >= 2017b (utilized version 2021b; This version automatically aligns axis labels. Lower version will work, but labels can be worse readable.)
+- For generating figures: `YAMLMatlab <https://code.google.com/archive/p/yamlmatlab/downloads>`__ >= 0.4.3; `Matlab <https://www.mathworks.com>`__ >= R2017b (utilized version R2021b; This version automatically aligns axis labels. Lower version will work, but labels can be worse readable.)
 
 OPTIONAL:
 
 - `FSLeyes <https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FSLeyes>`__ for correcting segmentations.
-- `FreeSurfer >=7.2 <https://surfer.nmr.mgh.harvard.edu>`__ for segmentation and assessmnet of cerebral morphology from the **T1** scan.
+- `FreeSurfer <https://surfer.nmr.mgh.harvard.edu>`__ >=7.2 for segmentation and assessmnet of cerebral morphology from the **T1** scan.
 
 .. _spinal-cord-image-analysis:
 
