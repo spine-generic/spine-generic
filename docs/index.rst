@@ -22,6 +22,7 @@ The main publications for this project are:
 
    data-acquisition.rst
    analysis-pipeline.rst
+   body-size-pipeline.rst
 
 
 Contributors
