@@ -18,7 +18,7 @@ with open(req_path, "r") as f:
 setup(
     name='spinegeneric',
     version=spinegeneric.__version__,
-    python_requires='>=3.7',
+    python_requires='>=3.7,<=3.10',
     description='Collection of cli to process data for the Spine Generic project.',
     url='https://spine-generic.rtfd.io',
     author='NeuroPoly Lab, Polytechnique Montreal',
