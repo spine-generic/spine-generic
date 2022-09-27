@@ -9,7 +9,7 @@ def get_subject(file):
     :param file:
     :return: subject
     """
-    return file.split('_')[0]
+    return file.split("_")[0]
 
 
 def get_contrast(file):
@@ -18,4 +18,4 @@ def get_contrast(file):
     :param file:
     :return:
     """
-    return 'dwi' if file.split('_')[1] == 'dwi' else 'anat'
+    return "dwi" if file.split("_")[1] == "dwi" else "anat"

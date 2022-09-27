@@ -21,6 +21,7 @@ class Metavar(Enum):
     """
     This class is used to display intuitive input types via the metavar field of argparse
     """
+
     file = "<file>"
     str = "<str>"
     folder = "<folder>"
@@ -38,6 +39,7 @@ class SmartFormatter(argparse.HelpFormatter):
     and that gives the possibility to bypass argparse's default formatting by adding "R|" at the beginning of the text.
     Inspired from: https://pythonhosted.org/skaff/_modules/skaff/cli.html
     """
+
     def __init__(self, *args, **kw):
         self._add_defaults = None
         super(SmartFormatter, self).__init__(*args, **kw)
@@ -45,29 +47,35 @@ class SmartFormatter(argparse.HelpFormatter):
         try:
             self._width = shutil.get_terminal_size()[0]
         except (KeyError, ValueError):
-            logging.warning('Not able to fetch Terminal width. Using default: %s'.format(self._width))
+            logging.warning(
+                "Not able to fetch Terminal width. Using default: %s".format(
+                    self._width
+                )
+            )
 
     # this is the RawTextHelpFormatter._fill_text
     def _fill_text(self, text, width, indent):
         # print("splot",text)
-        if text.startswith('R|'):
+        if text.startswith("R|"):
             paragraphs = text[2:].splitlines()
             rebroken = [textwrap.wrap(tpar, width) for tpar in paragraphs]
             rebrokenstr = []
             for tlinearr in rebroken:
-                if (len(tlinearr) == 0):
+                if len(tlinearr) == 0:
                     rebrokenstr.append("")
                 else:
                     for tlinepiece in tlinearr:
                         rebrokenstr.append(tlinepiece)
-            return '\n'.join(rebrokenstr)  # (argparse._textwrap.wrap(text[2:], width))
-        return argparse.RawDescriptionHelpFormatter._fill_text(self, text, width, indent)
+            return "\n".join(rebrokenstr)  # (argparse._textwrap.wrap(text[2:], width))
+        return argparse.RawDescriptionHelpFormatter._fill_text(
+            self, text, width, indent
+        )
 
     # this is the RawTextHelpFormatter._split_lines
     def _split_lines(self, text, width):
-        if text.startswith('R|'):
+        if text.startswith("R|"):
             lines = text[2:].splitlines()
-            while lines[0] == '':  # Discard empty start lines
+            while lines[0] == "":  # Discard empty start lines
                 lines = lines[1:]
             offsets = [re.match("^[ \t]*", l).group(0) for l in lines]
             wrapped = []
@@ -110,9 +118,9 @@ def add_suffix(fname, suffix):
         (``os.path.splitext()`` would want to do the latter, hence the special case).
         """
         dir, filename = os.path.split(fname)
-        for special_ext in ['.nii.gz', '.tar.gz']:
+        for special_ext in [".nii.gz", ".tar.gz"]:
             if filename.endswith(special_ext):
-                stem, ext = filename[:-len(special_ext)], special_ext
+                stem, ext = filename[: -len(special_ext)], special_ext
                 return os.path.join(dir, stem), ext
         # If no special case, behaves like the regular splitext
         stem, ext = os.path.splitext(filename)
@@ -133,12 +141,19 @@ def check_files_exist(dict_files, path_data):
     for task, files in dict_files.items():
         if files is not None:
             for file in files:
-                fname = os.path.join(path_data, sg.bids.get_subject(file), sg.bids.get_contrast(file), file)
+                fname = os.path.join(
+                    path_data,
+                    sg.bids.get_subject(file),
+                    sg.bids.get_contrast(file),
+                    file,
+                )
                 if not os.path.exists(fname):
                     missing_files.append(fname)
     if missing_files:
-        logging.error("The following files are missing: \n{}. \nPlease check that the files listed "
-                      "in the yaml file and the input path are correct.".format(missing_files))
+        logging.error(
+            "The following files are missing: \n{}. \nPlease check that the files listed "
+            "in the yaml file and the input path are correct.".format(missing_files)
+        )
 
 
 def check_output_folder(path_bids, folder_derivatives):
@@ -156,30 +171,41 @@ def check_output_folder(path_bids, folder_derivatives):
     return path_bids_derivatives
 
 
-def check_software_installed(list_software=['fsleyes', 'sct']):
+def check_software_installed(list_software=["fsleyes", "sct"]):
     """
     Make sure software are installed
     :param list_software: {'fsleyes', 'sct'}
     :return:
     """
     install_ok = True
-    software_cmd = {
-        'fsleyes': 'fsleyes --version',
-        'sct': 'sct_version'
-        }
+    software_cmd = {"fsleyes": "fsleyes --version", "sct": "sct_version"}
     logging.info("Checking if required software are installed...")
     for software in list_software:
         try:
             output = subprocess.check_output(software_cmd[software], shell=True)
-            logging.info("'{}' (version: {}) is installed.".format(software, output.decode('utf-8').strip('\n')))
+            logging.info(
+                "'{}' (version: {}) is installed.".format(
+                    software, output.decode("utf-8").strip("\n")
+                )
+            )
         except:
-            logging.error("'{}' is not installed. Please install it before using this program.".format(software))
+            logging.error(
+                "'{}' is not installed. Please install it before using this program.".format(
+                    software
+                )
+            )
             install_ok = False
     return install_ok
 
 
-def copy_files_that_match_suffix(path_in, suffix, path_bids_out, folder_derivatives, suffix_out='',
-                                 extension='.nii.gz'):
+def copy_files_that_match_suffix(
+    path_in,
+    suffix,
+    path_bids_out,
+    folder_derivatives,
+    suffix_out="",
+    extension=".nii.gz",
+):
     """
     Crawl in BIDS directory, and copy files that match suffix
     :param path_in: Path to input BIDS dataset, which contains all the 'sub-' folders.
@@ -190,11 +216,16 @@ def copy_files_that_match_suffix(path_in, suffix, path_bids_out, folder_derivati
     :param extension:
     :return:
     """
-    fnames = list(Path(path_in).rglob('*' + suffix + extension))
+    fnames = list(Path(path_in).rglob("*" + suffix + extension))
     for fname in fnames:
         file = fname.parts[-1]
         # build output path, create dir
-        path_out = Path(path_bids_out, folder_derivatives, sg.bids.get_subject(file), sg.bids.get_contrast(file))
+        path_out = Path(
+            path_bids_out,
+            folder_derivatives,
+            sg.bids.get_subject(file),
+            sg.bids.get_contrast(file),
+        )
         os.makedirs(path_out, exist_ok=True)
         # copy
         fname_out = path_out.joinpath(add_suffix(file, suffix_out))
