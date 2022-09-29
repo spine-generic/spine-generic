@@ -13,17 +13,17 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import os
-import sys
+import importlib.metadata
 
 
 def generate_html_figures(app):
 
-    ### Create folder to store temp data
+    # Create folder to store temp data
     path_data_stats = os.path.join(os.getcwd(), "data_stats")
     if not os.path.isdir(path_data_stats):
         os.makedirs(path_data_stats)
 
-    ### Get exclude.yml from latest release of multi-subject
+    # Get exclude.yml from latest release of multi-subject
     path_zip_data_multisubject = os.path.join(path_data_stats, "data_multisubject.zip")
     os.system(
         """
@@ -34,12 +34,13 @@ def generate_html_figures(app):
         + path_zip_data_multisubject
         + """ $LOCATION"""
     )
-    ### Extract only *exclude.yml
+
+    # Extract only *exclude.yml
     os.system(
         "unzip -j " + path_zip_data_multisubject + " *exclude.yml -d" + path_data_stats
     )
 
-    ### Get results from latest release of multi-subject
+    # Get results from latest release of multi-subject
     path_zip_results_multisubject = os.path.join(path_data_stats, "results.zip")
     os.system(
         """
@@ -51,7 +52,7 @@ def generate_html_figures(app):
         + """ $LOCATION"""
     )
 
-    ### Extract only *.csv
+    # Extract only *.csv
     os.system(
         "unzip -j " + path_zip_results_multisubject + " *.csv -d" + path_data_stats
     )
@@ -59,7 +60,7 @@ def generate_html_figures(app):
         "unzip -j " + path_zip_results_multisubject + " *.tsv -d" + path_data_stats
     )
 
-    ###Generate html figures
+    # Generate html figures
     from spinegeneric.cli import generate_figure
 
     generate_figure.main(
@@ -78,11 +79,6 @@ def setup(app):
     app.connect("builder-inited", generate_html_figures)
 
 
-sys.path.insert(0, os.path.abspath("../"))
-print(sys.path)
-from spinegeneric import __version__
-
-
 # -- Project information -----------------------------------------------------
 
 project = "spine-generic"
@@ -90,7 +86,7 @@ copyright = "2019, Julien Cohen-Adad"
 author = "Julien Cohen-Adad"
 
 # The short X.Y version
-version = __version__
+version = importlib.metadata.version("spinegeneric")
 
 # -- General configuration ---------------------------------------------------
 

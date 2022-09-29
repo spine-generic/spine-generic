@@ -48,7 +48,7 @@ class SmartFormatter(argparse.HelpFormatter):
             self._width = shutil.get_terminal_size()[0]
         except (KeyError, ValueError):
             logging.warning(
-                "Not able to fetch Terminal width. Using default: %s".format(
+                "Not able to fetch Terminal width. Using default: {}".format(
                     self._width
                 )
             )
@@ -77,7 +77,7 @@ class SmartFormatter(argparse.HelpFormatter):
             lines = text[2:].splitlines()
             while lines[0] == "":  # Discard empty start lines
                 lines = lines[1:]
-            offsets = [re.match("^[ \t]*", l).group(0) for l in lines]
+            offsets = [re.match("^[ \t]*", line).group(0) for line in lines]
             wrapped = []
             for i in range(len(lines)):
                 li = lines[i]
@@ -188,7 +188,7 @@ def check_software_installed(list_software=["fsleyes", "sct"]):
                     software, output.decode("utf-8").strip("\n")
                 )
             )
-        except:
+        except Exception:
             logging.error(
                 "'{}' is not installed. Please install it before using this program.".format(
                     software

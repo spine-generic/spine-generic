@@ -38,7 +38,6 @@ import spinegeneric.flags
 
 from plotly.subplots import make_subplots
 import plotly.graph_objs as go
-import plotly.express as px
 
 # Initialize logging
 logger = logging.getLogger(__name__)
@@ -305,7 +304,7 @@ def aggregate_per_site(dict_results, metric, dict_exclude_subj):
             # Add column "val" with metric value
             participants.loc[rowIndex, "val"] = dict_results[i][metric_field]
             site = participants["institution_id"][rowIndex].array[0]
-            if not site in results_agg.keys():
+            if site not in results_agg.keys():
                 # if this is a new site, initialize sub-dict
                 results_agg[site] = {}
                 results_agg[site][
@@ -321,7 +320,7 @@ def aggregate_per_site(dict_results, metric, dict_exclude_subj):
                 results_agg[site]["subject"] = []
             # add val for site (ignore None)
             val = dict_results[i][metric_field]
-            if not val == "None":
+            if val != "None":
                 results_agg[site]["val"].append(float(val))
                 results_agg[site]["subject"].append(subject)
         else:
@@ -350,11 +349,11 @@ def add_stats_per_vendor(
     """
     # add stats as strings
     if cov_intra == 0:
-        txt = "{0:.2f} $\pm$ {1:.2f}\nCOV inter:{2:.2f}%".format(
+        txt = "{0:.2f} $\\pm$ {1:.2f}\nCOV inter:{2:.2f}%".format(
             mean * f, std * f, cov_inter * 100.0
         )
     else:
-        txt = "{0:.2f} $\pm$ {1:.2f}\nCOV intra:{2:.2f}%, inter:{3:.2f}%".format(
+        txt = "{0:.2f} $\\pm$ {1:.2f}\nCOV intra:{2:.2f}%, inter:{3:.2f}%".format(
             mean * f, std * f, cov_intra * 100.0, cov_inter * 100.0
         )
 
@@ -406,17 +405,17 @@ def compute_statistics(df):
     # Compute intra-vendor COV
     for vendor in vendors:
         # init dict
-        if not "cov_inter" in stats.keys():
+        if "cov_inter" not in stats.keys():
             stats["cov_inter"] = {}
-        if not "cov_intra" in stats.keys():
+        if "cov_intra" not in stats.keys():
             stats["cov_intra"] = {}
-        if not "mean" in stats.keys():
+        if "mean" not in stats.keys():
             stats["mean"] = {}
-        if not "std" in stats.keys():
+        if "std" not in stats.keys():
             stats["std"] = {}
-        if not "95ci" in stats.keys():
+        if "95ci" not in stats.keys():
             stats["95ci"] = {}
-        if not "anova_site" in stats.keys():
+        if "anova_site" not in stats.keys():
             stats["anova_site"] = {}
         # fetch within-site mean values for a specific vendor
         val_per_vendor = df["mean"][(df["vendor"] == vendor) & ~df["exclude"]]
@@ -527,7 +526,7 @@ def output_text(stats):
 
         # Get significant post-hoc results
         index = sum(
-            stats["tukey_test"].reject == True
+            bool(stats["tukey_test"].reject)
         )  # total number of significant post-hoc tests
         # Loop across between vendor tests (i.e, GE-Philips, GE-Siemens, Philips-Siemens)
         for counter in range(1, 4):
@@ -800,9 +799,7 @@ def generate_figure_metric_plotly(df, metric, stats):
     fig = go.Figure()
 
     # Display individual subjects
-    i = 0
-    for site in site_sorted:
-        index = list(site_sorted).index(site)
+    for i, site in enumerate(site_sorted):
         val = df["val"][site]
         val = [value * scaling_factor.get(metric) for value in val]
         x = site_sorted[i]
@@ -811,7 +808,6 @@ def generate_figure_metric_plotly(df, metric, stats):
                 x=[x, x, x, x, x, x], y=val, mode="markers", marker_color="red", name=x
             )
         )
-        i = i + 1
     fig.update_traces(marker=dict(size=4))
 
     fig.add_trace(
@@ -836,9 +832,10 @@ def generate_figure_metric_plotly(df, metric, stats):
         x_j = x_init_vendor + n_site - 1 + 0.5
         mean = stats["mean"][vendor]
         std = stats["std"][vendor]
-        ci = stats["95ci"][vendor]
-        cov_intra = stats["cov_intra"][vendor]
-        cov_inter = stats["cov_inter"][vendor]
+        # TODO: there are also these stats that could be plotted
+        # ci = stats["95ci"][vendor]
+        # cov_intra = stats["cov_intra"][vendor]
+        # cov_inter = stats["cov_inter"][vendor]
         f = scaling_factor[metric]
         color = list_colors[x_init_vendor]
 
@@ -1001,7 +998,7 @@ def generate_figure_t1_t2(df, csa_t1, csa_t2):
         # Enforce square grid
         plt.gca().set_aspect("equal", adjustable="box")
         # Compute linear fit
-        intercept, slope, reg_predictor, r2_sc = compute_regression(
+        intercept, slope, _, r2_sc = compute_regression(
             np.array(CSA_dict[vendor + "_t2"]).reshape(-1, 1),
             np.array(CSA_dict[vendor + "_t1"]).reshape(-1, 1),
         )
@@ -1157,8 +1154,6 @@ def generate_figure_t1_t2_plotly(df, csa_t1, csa_t2):
         )
         intercept = linear_regression.intercept_
         slope = linear_regression.coef_
-        # compute prediction
-        reg_predictor = linear_regression.predict(np.array(x).reshape(-1, 1))
 
         # Plot linear fit
         x_vals = np.linspace(50, 100, 50)
@@ -1317,7 +1312,7 @@ def main(argv=sys.argv[1:]):
 
         # Excluded sites
         logger.info(
-            "Sites removed: {}".format(list(df[df["exclude"] == True]["site"].values))
+            "Sites removed: {}".format(list(df[df["exclude"]]["site"].values))
         )
 
         # Compute statistics

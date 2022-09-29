@@ -78,7 +78,6 @@ def main():
         path_output = os.path.join(path_output, folder_contrast)
         os.makedirs(path_output, exist_ok=True)
         # copy
-        file_out = os.path.join(path_output, file)
         print("{} -> {}".format(file, path_output + os.path.sep))
         shutil.copy(file, path_output)
 

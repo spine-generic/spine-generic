@@ -78,8 +78,8 @@ def main():
             if Manufacturer in data.keys():
                 ManufacturersModelName = item.get_metadata()["ManufacturersModelName"]
                 if ManufacturersModelName in data[Manufacturer].keys():
-                    if "SoftwareVersions" in item.get_metadata():
-                        SoftwareVersions = item.get_metadata()["SoftwareVersions"]
+                    # if "SoftwareVersions" in item.get_metadata(): # TODO: check this as well
+                    #     SoftwareVersions = item.get_metadata()["SoftwareVersions"]
                     RepetitionTime = item.get_metadata()["RepetitionTime"]
                     Contrast = ((item.filename).split("_")[-1]).split(".")[0]
                     if Contrast == "MTS":

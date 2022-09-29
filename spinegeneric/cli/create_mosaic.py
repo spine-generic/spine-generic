@@ -6,7 +6,11 @@
 #   ${SCT_DIR}/python/envs/venv_sct/bin/python create_mosaic.py
 #
 # EXAMPLE:
-#   ${SCT_DIR}/python/envs/venv_sct/bin/python create_mosaic.py -i *T1w_RPI_r_flatten.nii.gz -ifolder /Volumes/projects/spine_generic/spineGeneric_20191104/results/data -s _seg.nii.gz -p sag -col 18 -row 12 -o fig_mosaic_t1.png
+#   ${SCT_DIR}/python/envs/venv_sct/bin/python create_mosaic.py \
+#        -i *T1w_RPI_r_flatten.nii.gz \
+#        -ifolder /Volumes/projects/spine_generic/spineGeneric_20191104/results/data \
+#        -s _seg.nii.gz -p sag -col 18 -row 12 \
+#        -o fig_mosaic_t1.png
 #
 #
 # DEPENDENCIES:
@@ -151,10 +155,8 @@ def main():
         slice_cur = scale_intensity(slice_cur)
 
         # Resize all slices with the shape of the first loaded slice
-        if len(slice_lst):
-            slice_cur = resize(slice_cur, slice_size, anti_aliasing=True)
-        else:
-            slice_size = slice_cur.shape
+        if slice_lst:
+            slice_cur = resize(slice_cur, slice_lst[0].shape, anti_aliasing=True)
 
         slice_lst.append(slice_cur)
 
@@ -177,7 +179,7 @@ def main():
         idx_end = (
             (i + 1) * nb_items_mosaic if (i + 1) * nb_items_mosaic <= nb_img else nb_img
         )
-        data_mosaic = data[:, :, i * nb_items_mosaic : idx_end]
+        data_mosaic = data[:, :, (i * nb_items_mosaic):idx_end]
         mosaic = get_mosaic(data_mosaic, nb_column, nb_row)
         # save mosaic
         plt.figure()
