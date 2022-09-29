@@ -5,4 +5,9 @@ docs/_build/
 .DS_Store
 spine_generic.egg-info/
 spinegeneric.egg-info/
+*.swp
 
+# results_dummy/ contains test input, but those tests
+# write back these outputs to the same place
+spinegeneric/tests/results_dummy/*.png
+spinegeneric/tests/results_dummy/log_stats.txt
