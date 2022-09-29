@@ -7,4 +7,4 @@ import os
 
 def test_copy_to_derivatives():
     """Check if CLI script can execute without error"""
-    assert os.system('sg_copy_to_derivatives -h') == 0
+    assert os.system("sg_copy_to_derivatives -h") == 0
