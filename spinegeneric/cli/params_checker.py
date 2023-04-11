@@ -23,8 +23,8 @@ import spinegeneric.config
 def get_parser():
     parser = argparse.ArgumentParser(
         description="Acquisition parameters checker feature. This feature allows the users"
-        "to compare the acquisition parameters that can be found in the json "
-        "sidecar to the recommended acquisition parameters.",
+                    "to compare the acquisition parameters that can be found in the json "
+                    "sidecar to the recommended acquisition parameters.",
         formatter_class=sg.utils.SmartFormatter,
         prog=os.path.basename(__file__).strip(".py"),
     )
