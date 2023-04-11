@@ -71,14 +71,18 @@ def main():
 
     # Loop across the contrast images to check parameters
     for item in query:
-        if "Manufacturer" in item.get_metadata():
+        if "Manufacturer" not in item.get_metadata():
+            logging.warning(f" {item.filename}: Missing Manufacturer in json sidecar; Cannot check parameters.")
+        else:
             Manufacturer = item.get_metadata()["Manufacturer"]
             if Manufacturer not in data.keys():
                 logging.warning(f" {item.filename}: Manufacturer '{Manufacturer}' not in list "
                                 f"of known manufacturers: {data.keys()}. Cannot check parameters.")
             else:
                 ManufacturersModelName = item.get_metadata()["ManufacturersModelName"]
-                if ManufacturersModelName in data[Manufacturer].keys():
+                if ManufacturersModelName not in data[Manufacturer].keys():
+                    logging.warning(f" {item.filename}: Missing: {ManufacturersModelName}; Cannot check parameters.")
+                else:
                     if "SoftwareVersions" in item.get_metadata():
                         SoftwareVersions = item.get_metadata()["SoftwareVersions"]
                     RepetitionTime = item.get_metadata()["RepetitionTime"]
@@ -148,20 +152,6 @@ def main():
                                     ]["FlipAngle"]
                                 )
                             )
-                else:
-                    logging.warning(
-                        " "
-                        + item.filename
-                        + ": Missing: "
-                        + ManufacturersModelName
-                        + "; Cannot check parameters."
-                    )
-        else:
-            logging.warning(
-                " "
-                + item.filename
-                + ": Missing Manufacturer in json sidecar; Cannot check parameters."
-            )
 
     # Print WARNING log
     if path_warning_log:
