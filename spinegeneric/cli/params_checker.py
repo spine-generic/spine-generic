@@ -84,7 +84,7 @@ def main():
             logging.warning(f" {item.filename}: Missing: {ManufacturersModelName}; Cannot check parameters.")
             continue
 
-        Contrast = ((item.filename).split("_")[-1]).split(".")[0]
+        Contrast = (item.filename.split("_")[-1]).split(".")[0]
         if Contrast == "MTS":
             MTS_acq = item.filename.split("_acq-")[1].split(".")[0]
             Contrast = MTS_acq
