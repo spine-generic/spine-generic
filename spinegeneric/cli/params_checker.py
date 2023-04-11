@@ -55,9 +55,7 @@ def main():
     )
 
     # Initialize the layout
-    with importlib.resources.path(
-        spinegeneric.config, "bids_specs.json"
-    ) as path_sg_layout_config:
+    with importlib.resources.path(spinegeneric.config, "bids_specs.json") as path_sg_layout_config:
         layout = BIDSLayout(
             data_path,
             indexer=BIDSLayoutIndexer(config_filename=path_sg_layout_config),
