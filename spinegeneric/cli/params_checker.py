@@ -69,7 +69,7 @@ def main():
     # Loop across the contrast images to check parameters
     for item in query:
         if "Manufacturer" not in item.get_metadata():
-            logging.warning(f" {item.filename}: Missing Manufacturer in json sidecar; Cannot check parameters.")
+            logging.warning(f" {item.filename}: Missing 'Manufacturer' key in json sidecar; Cannot check parameters.")
             continue
         Manufacturer = item.get_metadata()["Manufacturer"]
         if Manufacturer not in data.keys():
@@ -78,7 +78,8 @@ def main():
             continue
         ManufacturersModelName = item.get_metadata()["ManufacturersModelName"]
         if ManufacturersModelName not in data[Manufacturer].keys():
-            logging.warning(f" {item.filename}: Missing: {ManufacturersModelName}; Cannot check parameters.")
+            logging.warning(f" {item.filename}: Model '{ManufacturersModelName}' not present in list of known "
+                            f"models for manufacturer '{Manufacturer}'. Cannot check parameters.")
             continue
 
         Contrast = (item.filename.split("_")[-1]).split(".")[0]
@@ -93,7 +94,7 @@ def main():
             ExpectedRT = data[Manufacturer][ManufacturersModelName][str(Contrast)]["RepetitionTime"]
             if RepetitionTime - ExpectedRT > 0.1:
                 logging.warning(f" {item.filename}: Incorrect RepetitionTime: "
-                                f"TR={RepetitionTime} instead of {ExpectedRT}.")
+                                f"TR={RepetitionTime} instead of {ExpectedRT} +/- 0.1.")
 
         # Validate echo time against manufacturer's specifications
         EchoTime = item.get_metadata()["EchoTime"]
@@ -101,7 +102,7 @@ def main():
             ExpectedTE = data[Manufacturer][ManufacturersModelName][str(Contrast)]["EchoTime"]
             if EchoTime - ExpectedTE > 0.1:
                 logging.warning(f" {item.filename}: Incorrect EchoTime: "
-                                f"TE={EchoTime} instead of {ExpectedTE}.")
+                                f"TE={EchoTime} instead of {ExpectedTE} +/- 0.1.")
 
         # Validate flip angle against manufacturer's specifications
         FlipAngle = item.get_metadata()["FlipAngle"]
