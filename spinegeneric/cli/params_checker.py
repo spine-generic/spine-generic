@@ -100,10 +100,16 @@ def main():
         # Parse the file's contrast from its suffix (sans `.nii.gz`)
         Contrast = (item.filename.split("_")[-1]).split(".")[0]
         # In the case of MTS files, manufacturers won't just specify 'MTS'. Instead, 'MTon_MTS',
-        # 'MToff_MTS', 'T1w_MTS' etc. will be used. So, we need to parse the type of MTS from the filename.
+        # 'MToff_MTS', 'T1w_MTS' etc. will be used. So, we need to parse the type of MTS from the filename,
+        # then convert it to the specific names expected by the 'manufacturer params' dictionary.
         if Contrast == "MTS":
-            MTS_acq = item.filename.split("_acq-")[1].split(".")[0]
-            Contrast = MTS_acq
+            try:
+                # Try new method for renamed, BIDS-compliant 'data-multi-subject'
+                MTS_acq = item.filename.split('_')[-2]
+                Contrast = {'mt-off': "MToff_MTS", 'mt-on': "MTon_MTS"}[MTS_acq]
+            except KeyError:
+                # Fall back to the old method for backwards compatibility with older datasets
+                Contrast = item.filename.split("_acq-")[1].split(".")[0]
 
         # Fetch the names of each available parameter for the given manufacturer + model
         keys_contrast = data[Manufacturer][ManufacturersModelName][str(Contrast)].keys()
