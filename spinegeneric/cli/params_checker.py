@@ -60,8 +60,7 @@ def main():
             validate=False,
         )
 
-    Contrast_list = ["T1w", "T2w", "T2star", "MTS"]
-    query = layout.get(suffix=Contrast_list, extension="nii.gz")
+    query = layout.get(suffix=["T1w", "T2w", "T2star", "MTS"], extension="nii.gz")
 
     with importlib.resources.path(spinegeneric.config, "specs.json") as path_specs:
         with open(path_specs) as json_file:
