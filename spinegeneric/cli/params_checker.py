@@ -57,10 +57,15 @@ def main():
     # From the BIDS documentation:
     #   "A BIDSLayout instance is a lightweight container for all files in the BIDS project directory."
     with importlib.resources.path(spinegeneric.config, "bids_specs.json") as path_sg_layout_config:
+        # TODO: This step takes quite a long time, but nothing gets logged during. Maybe we could provide some feedback?
         layout = BIDSLayout(
             data_path,
             # BIDSLayoutIndexer is a class that indexes files based on pattern-matching defined in the config.
-            # By default, BIDS has its own config. But, SG specifies its own custom config instead.
+            # By default, BIDS has its own config. But, SG specifies its own custom config instead. (Why?)
+            # TODO: The default config fetches 1573 files from data-multi-subject, but the modified config
+            #       *also* fetches 1573 files. Do they always perform identically? In what cases is the custom
+            #       config even needed? It would be nice to add comments to `bids_specs.json` to highlight the
+            #       areas where the custom config deviates from the built-in, default config.
             indexer=BIDSLayoutIndexer(config_filename=str(path_sg_layout_config)),
             # From BIDS documentation for `validate`:
             #     > If True, all files are checked for BIDS compliance when first indexed,
@@ -78,7 +83,7 @@ def main():
     # Fetch acquisition parameters from various vendors (Siemens, GE, Phillips) and MRI models
     with importlib.resources.path(spinegeneric.config, "specs.json") as path_specs:
         with open(path_specs) as json_file:
-            data = json.load(json_file)
+            data = json.load(json_file)  # TODO: We could probably be more descriptive with this filename?
 
     # Loop across the contrast images to check parameters
     for item in query:
@@ -103,6 +108,10 @@ def main():
         # 'MToff_MTS', 'T1w_MTS' etc. will be used. So, we need to parse the type of MTS from the filename,
         # then convert it to the specific names expected by the 'manufacturer params' dictionary.
         if Contrast == "MTS":
+            # TODO: The manufacturer param dicts specifically contains the key "T1w_MTS", but I can't
+            #       find a single file in `data-multi-subject` that is MTS + T1w. Instead, all I see are
+            #       'mt-off' and 'mt-on'. So, this new method for parsing filenames passes for
+            #       data-multi-subject, but may fail for "T1w_MTS" data, if such data even exists?
             try:
                 # Try new method for renamed, BIDS-compliant 'data-multi-subject'
                 MTS_acq = item.filename.split('_')[-2]
@@ -118,6 +127,7 @@ def main():
         RepetitionTime = item.get_metadata()["RepetitionTime"]
         if "RepetitionTime" in keys_contrast:
             ExpectedRT = data[Manufacturer][ManufacturersModelName][str(Contrast)]["RepetitionTime"]
+            # TODO: We check against at threshold here, rather than FA, which checks for exactness. Do we want this?
             if RepetitionTime - ExpectedRT > 0.1:
                 logging.warning(f" {item.filename}: Incorrect RepetitionTime: "
                                 f"TR={RepetitionTime} instead of {ExpectedRT} +/- 0.1.")
@@ -126,6 +136,7 @@ def main():
         EchoTime = item.get_metadata()["EchoTime"]
         if "EchoTime" in keys_contrast:
             ExpectedTE = data[Manufacturer][ManufacturersModelName][str(Contrast)]["EchoTime"]
+            # TODO: We check against at threshold here, rather than FA, which checks for exactness. Do we want this?
             if EchoTime - ExpectedTE > 0.1:
                 logging.warning(f" {item.filename}: Incorrect EchoTime: "
                                 f"TE={EchoTime} instead of {ExpectedTE} +/- 0.1.")
