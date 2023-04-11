@@ -38,11 +38,9 @@ def get_parser():
 
 
 def main():
-
     # Parse input arguments
     parser = get_parser()
     args = parser.parse_args()
-
     data_path = args.path_in
 
     path_warning_log = os.path.join(data_path, "WARNING.log")
