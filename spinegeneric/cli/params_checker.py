@@ -102,26 +102,14 @@ def main():
                 logging.warning(f" {item.filename}: Incorrect RepetitionTime: "
                                 f"TR={RepetitionTime} instead of {ExpectedRT}.")
 
+        # Validate echo time against manufacturer's specifications
         EchoTime = item.get_metadata()["EchoTime"]
         if "EchoTime" in keys_contrast:
-            if (
-                EchoTime
-                - data[Manufacturer][ManufacturersModelName][str(Contrast)][
-                    "EchoTime"
-                ]
-            ) > 0.1:
-                logging.warning(
-                    " "
-                    + item.filename
-                    + ": Incorrect EchoTime: TE="
-                    + str(EchoTime)
-                    + " instead of "
-                    + str(
-                        data[Manufacturer][ManufacturersModelName][
-                            str(Contrast)
-                        ]["EchoTime"]
-                    )
-                )
+            ExpectedTE = data[Manufacturer][ManufacturersModelName][str(Contrast)]["EchoTime"]
+            if EchoTime - ExpectedTE > 0.1:
+                logging.warning(f" {item.filename}: Incorrect EchoTime: "
+                                f"TE={EchoTime} instead of {ExpectedTE}.")
+
         FlipAngle = item.get_metadata()["FlipAngle"]
         if "FlipAngle" in keys_contrast:
             if (
