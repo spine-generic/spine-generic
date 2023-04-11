@@ -73,7 +73,10 @@ def main():
     for item in query:
         if "Manufacturer" in item.get_metadata():
             Manufacturer = item.get_metadata()["Manufacturer"]
-            if Manufacturer in data.keys():
+            if Manufacturer not in data.keys():
+                logging.warning(f" {item.filename}: Manufacturer '{Manufacturer}' not in list "
+                                f"of known manufacturers: {data.keys()}. Cannot check parameters.")
+            else:
                 ManufacturersModelName = item.get_metadata()["ManufacturersModelName"]
                 if ManufacturersModelName in data[Manufacturer].keys():
                     if "SoftwareVersions" in item.get_metadata():
