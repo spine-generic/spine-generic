@@ -86,7 +86,6 @@ def main():
 
         if "SoftwareVersions" in item.get_metadata():
             SoftwareVersions = item.get_metadata()["SoftwareVersions"]
-        RepetitionTime = item.get_metadata()["RepetitionTime"]
         Contrast = ((item.filename).split("_")[-1]).split(".")[0]
         if Contrast == "MTS":
             MTS_acq = item.filename.split("_acq-")[1].split(".")[0]
@@ -94,25 +93,15 @@ def main():
         keys_contrast = data[Manufacturer][ManufacturersModelName][
             str(Contrast)
         ].keys()
+
+        # Validate repetition time against manufacturer's specifications
+        RepetitionTime = item.get_metadata()["RepetitionTime"]
         if "RepetitionTime" in keys_contrast:
-            if (
-                RepetitionTime
-                - data[Manufacturer][ManufacturersModelName][str(Contrast)][
-                    "RepetitionTime"
-                ]
-            ) > 0.1:
-                logging.warning(
-                    " "
-                    + item.filename
-                    + ": Incorrect RepetitionTime: TR="
-                    + str(RepetitionTime)
-                    + " instead of "
-                    + str(
-                        data[Manufacturer][ManufacturersModelName][
-                            str(Contrast)
-                        ]["RepetitionTime"]
-                    )
-                )
+            ExpectedRT = data[Manufacturer][ManufacturersModelName][str(Contrast)]["RepetitionTime"]
+            if RepetitionTime - ExpectedRT > 0.1:
+                logging.warning(f" {item.filename}: Incorrect RepetitionTime: "
+                                f"TR={RepetitionTime} instead of {ExpectedRT}.")
+
         EchoTime = item.get_metadata()["EchoTime"]
         if "EchoTime" in keys_contrast:
             if (
