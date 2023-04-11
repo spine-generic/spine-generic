@@ -85,9 +85,7 @@ def main():
         if Contrast == "MTS":
             MTS_acq = item.filename.split("_acq-")[1].split(".")[0]
             Contrast = MTS_acq
-        keys_contrast = data[Manufacturer][ManufacturersModelName][
-            str(Contrast)
-        ].keys()
+        keys_contrast = data[Manufacturer][ManufacturersModelName][str(Contrast)].keys()
 
         # Validate repetition time against manufacturer's specifications
         RepetitionTime = item.get_metadata()["RepetitionTime"]
