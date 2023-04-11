@@ -110,26 +110,13 @@ def main():
                 logging.warning(f" {item.filename}: Incorrect EchoTime: "
                                 f"TE={EchoTime} instead of {ExpectedTE}.")
 
+        # Validate flip angle against manufacturer's specifications
         FlipAngle = item.get_metadata()["FlipAngle"]
         if "FlipAngle" in keys_contrast:
-            if (
-                data[Manufacturer][ManufacturersModelName][str(Contrast)][
-                    "FlipAngle"
-                ]
-                != FlipAngle
-            ):
-                logging.warning(
-                    " "
-                    + item.filename
-                    + ": Incorrect FlipAngle: FA="
-                    + str(FlipAngle)
-                    + " instead of "
-                    + str(
-                        data[Manufacturer][ManufacturersModelName][
-                            str(Contrast)
-                        ]["FlipAngle"]
-                    )
-                )
+            ExpectedFA = data[Manufacturer][ManufacturersModelName][str(Contrast)]["FlipAngle"]
+            if FlipAngle != ExpectedFA:
+                logging.warning(f" {item.filename}: Incorrect FlipAngle: "
+                                f"FA={FlipAngle} instead of {ExpectedFA}.")
 
     # Print WARNING log
     if path_warning_log:
