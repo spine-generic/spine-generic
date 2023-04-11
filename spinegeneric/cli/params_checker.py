@@ -43,6 +43,7 @@ def main():
     args = parser.parse_args()
     data_path = args.path_in
 
+    # Initialize logging
     path_warning_log = os.path.join(data_path, "WARNING.log")
     if os.path.isfile(path_warning_log):
         os.remove(path_warning_log)
@@ -52,22 +53,36 @@ def main():
         level=logging.DEBUG,
     )
 
-    # Initialize the layout
+    # Initialize the BIDSLayout object directed at the input dataset.
+    # From the BIDS documentation:
+    #   "A BIDSLayout instance is a lightweight container for all files in the BIDS project directory."
     with importlib.resources.path(spinegeneric.config, "bids_specs.json") as path_sg_layout_config:
         layout = BIDSLayout(
             data_path,
-            indexer=BIDSLayoutIndexer(config_filename=path_sg_layout_config),
+            # BIDSLayoutIndexer is a class that indexes files based on pattern-matching defined in the config.
+            # By default, BIDS has its own config. But, SG specifies its own custom config instead.
+            indexer=BIDSLayoutIndexer(config_filename=str(path_sg_layout_config)),
+            # From BIDS documentation for `validate`:
+            #     > If True, all files are checked for BIDS compliance when first indexed,
+            #     > and non-compliant files are ignored. This provides a convenient way to
+            #     > restrict file indexing to only those files defined in the “core” BIDS spec,
+            #     > as setting validate=True will lead files in supplementary folders like
+            #     > derivatives/, code/, etc. to be ignored.
+            # I presume that by setting `validate=False`, we want to keep `derivatives/`, etc.
             validate=False,
         )
 
+    # Fetch a list of `BIDSImageFile` objects from the layout that meet the requirements below
     query = layout.get(suffix=["T1w", "T2w", "T2star", "MTS"], extension="nii.gz")
 
+    # Fetch acquisition parameters from various vendors (Siemens, GE, Phillips) and MRI models
     with importlib.resources.path(spinegeneric.config, "specs.json") as path_specs:
         with open(path_specs) as json_file:
             data = json.load(json_file)
 
     # Loop across the contrast images to check parameters
     for item in query:
+        # Check that the json sidecar has the correct keys and values
         if "Manufacturer" not in item.get_metadata():
             logging.warning(f" {item.filename}: Missing 'Manufacturer' key in json sidecar; Cannot check parameters.")
             continue
@@ -82,10 +97,15 @@ def main():
                             f"models for manufacturer '{Manufacturer}'. Cannot check parameters.")
             continue
 
+        # Parse the file's contrast from its suffix (sans `.nii.gz`)
         Contrast = (item.filename.split("_")[-1]).split(".")[0]
+        # In the case of MTS files, manufacturers won't just specify 'MTS'. Instead, 'MTon_MTS',
+        # 'MToff_MTS', 'T1w_MTS' etc. will be used. So, we need to parse the type of MTS from the filename.
         if Contrast == "MTS":
             MTS_acq = item.filename.split("_acq-")[1].split(".")[0]
             Contrast = MTS_acq
+
+        # Fetch the names of each available parameter for the given manufacturer + model
         keys_contrast = data[Manufacturer][ManufacturersModelName][str(Contrast)].keys()
 
         # Validate repetition time against manufacturer's specifications
