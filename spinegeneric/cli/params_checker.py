@@ -127,7 +127,7 @@ def main():
         RepetitionTime = item.get_metadata()["RepetitionTime"]
         if "RepetitionTime" in keys_contrast:
             ExpectedRT = data[Manufacturer][ManufacturersModelName][str(Contrast)]["RepetitionTime"]
-            # TODO: We check against at threshold here, rather than FA, which checks for exactness. Do we want this?
+            # TODO: We only check `val > 0.1`, rather than `abs(val) > 0.1`. Is this a bug?
             if RepetitionTime - ExpectedRT > 0.1:
                 logging.warning(f" {item.filename}: Incorrect RepetitionTime: "
                                 f"TR={RepetitionTime} instead of {ExpectedRT} +/- 0.1.")
@@ -136,7 +136,7 @@ def main():
         EchoTime = item.get_metadata()["EchoTime"]
         if "EchoTime" in keys_contrast:
             ExpectedTE = data[Manufacturer][ManufacturersModelName][str(Contrast)]["EchoTime"]
-            # TODO: We check against at threshold here, rather than FA, which checks for exactness. Do we want this?
+            # TODO: We only check `val > 0.1`, rather than `abs(val) > 0.1`. Is this a bug?
             if EchoTime - ExpectedTE > 0.1:
                 logging.warning(f" {item.filename}: Incorrect EchoTime: "
                                 f"TE={EchoTime} instead of {ExpectedTE} +/- 0.1.")
