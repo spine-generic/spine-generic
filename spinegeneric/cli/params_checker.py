@@ -108,10 +108,6 @@ def main():
         # 'MToff_MTS', 'T1w_MTS' etc. are used. So, we need to parse the type of MTS from the filename,
         # then convert it to the specific names expected by the 'manufacturer params' dictionary.
         if Contrast == "MTS":
-            # TODO: The manufacturer param dicts specifically contains the key "T1w_MTS", but I can't
-            #       find a single file in `data-multi-subject` that is MTS + T1w. Instead, all I see are
-            #       'mt-off' and 'mt-on'. So, this new method for parsing filenames passes for
-            #       data-multi-subject, but may fail for "T1w_MTS" data, if such data even exists?
             try:
                 # Try new method for renamed, BIDS-compliant 'data-multi-subject'
                 MTS_type = "_".join(item.filename.split('_')[-3:-1])
