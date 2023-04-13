@@ -80,7 +80,7 @@ def main():
     # Fetch a list of `BIDSImageFile` objects from the layout that meet the requirements below
     query = layout.get(suffix=["T1w", "T2w", "T2star", "MTS"], extension="nii.gz")
 
-    # Fetch acquisition parameters from various vendors (Siemens, GE, Phillips) and MRI models
+    # Fetch acquisition parameters for various vendors (Siemens, GE, Phillips) and MRI models
     with importlib.resources.path(spinegeneric.config, "specs.json") as path_specs:
         with open(path_specs) as json_file:
             data = json.load(json_file)  # TODO: We could probably be more descriptive with this filename?
@@ -104,8 +104,8 @@ def main():
 
         # Parse the file's contrast from its suffix (sans `.nii.gz`)
         Contrast = (item.filename.split("_")[-1]).split(".")[0]
-        # In the case of MTS files, manufacturers won't just specify 'MTS'. Instead, 'MTon_MTS',
-        # 'MToff_MTS', 'T1w_MTS' etc. will be used. So, we need to parse the type of MTS from the filename,
+        # In the case of MTS files, the spine-generic protocol doesn't just specify 'MTS'. Instead, 'MTon_MTS',
+        # 'MToff_MTS', 'T1w_MTS' etc. are used. So, we need to parse the type of MTS from the filename,
         # then convert it to the specific names expected by the 'manufacturer params' dictionary.
         if Contrast == "MTS":
             # TODO: The manufacturer param dicts specifically contains the key "T1w_MTS", but I can't
@@ -123,7 +123,7 @@ def main():
         # Fetch the names of each available parameter for the given manufacturer + model
         keys_contrast = data[Manufacturer][ManufacturersModelName][str(Contrast)].keys()
 
-        # Validate repetition time against manufacturer's specifications
+        # Validate repetition time against spine-generic's acquisition protocol
         RepetitionTime = item.get_metadata()["RepetitionTime"]
         if "RepetitionTime" in keys_contrast:
             ExpectedRT = data[Manufacturer][ManufacturersModelName][str(Contrast)]["RepetitionTime"]
@@ -132,7 +132,7 @@ def main():
                 logging.warning(f" {item.filename}: Incorrect RepetitionTime: "
                                 f"TR={RepetitionTime} instead of {ExpectedRT} +/- 0.1.")
 
-        # Validate echo time against manufacturer's specifications
+        # Validate echo time against spine-generic's acquisition protocol
         EchoTime = item.get_metadata()["EchoTime"]
         if "EchoTime" in keys_contrast:
             ExpectedTE = data[Manufacturer][ManufacturersModelName][str(Contrast)]["EchoTime"]
@@ -141,7 +141,7 @@ def main():
                 logging.warning(f" {item.filename}: Incorrect EchoTime: "
                                 f"TE={EchoTime} instead of {ExpectedTE} +/- 0.1.")
 
-        # Validate flip angle against manufacturer's specifications
+        # Validate flip angle against spine-generic's acquisition protocol
         FlipAngle = item.get_metadata()["FlipAngle"]
         if "FlipAngle" in keys_contrast:
             ExpectedFA = data[Manufacturer][ManufacturersModelName][str(Contrast)]["FlipAngle"]
