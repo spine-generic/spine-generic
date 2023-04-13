@@ -4,7 +4,7 @@ nibabel
 pandas
 scipy
 tqdm
-sklearn
+scikit-learn
 statsmodels
 pyyaml
 pybids
