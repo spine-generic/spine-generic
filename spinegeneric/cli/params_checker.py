@@ -114,8 +114,13 @@ def main():
             #       data-multi-subject, but may fail for "T1w_MTS" data, if such data even exists?
             try:
                 # Try new method for renamed, BIDS-compliant 'data-multi-subject'
-                MTS_acq = item.filename.split('_')[-2]
-                Contrast = {'mt-off': "MToff_MTS", 'mt-on': "MTon_MTS"}[MTS_acq]
+                MTS_type = "_".join(item.filename.split('_')[-3:-1])
+                type_to_contrast = {
+                    "flip-1_mt-off": "MToff_MTS",
+                    "flip-1_mt-on":  "MTon_MTS",
+                    "flip-2_mt-off": "T1w_MTS"
+                }
+                Contrast = type_to_contrast[MTS_type]
             except KeyError:
                 # Fall back to the old method for backwards compatibility with older datasets
                 Contrast = item.filename.split("_acq-")[1].split(".")[0]
