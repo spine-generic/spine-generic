@@ -83,7 +83,7 @@ def main():
     # Fetch acquisition parameters for various vendors (Siemens, GE, Phillips) and MRI models
     with importlib.resources.path(spinegeneric.config, "specs.json") as path_specs:
         with open(path_specs) as json_file:
-            data = json.load(json_file)  # TODO: We could probably be more descriptive with this filename?
+            sg_acq_protocol = json.load(json_file)
 
     # Loop across the contrast images to check parameters
     for item in query:
@@ -92,12 +92,12 @@ def main():
             logging.warning(f" {item.filename}: Missing 'Manufacturer' key in json sidecar; Cannot check parameters.")
             continue
         Manufacturer = item.get_metadata()["Manufacturer"]
-        if Manufacturer not in data.keys():
+        if Manufacturer not in sg_acq_protocol.keys():
             logging.warning(f" {item.filename}: Manufacturer '{Manufacturer}' not in list "
-                            f"of known manufacturers: {data.keys()}. Cannot check parameters.")
+                            f"of known manufacturers: {sg_acq_protocol.keys()}. Cannot check parameters.")
             continue
         ManufacturersModelName = item.get_metadata()["ManufacturersModelName"]
-        if ManufacturersModelName not in data[Manufacturer].keys():
+        if ManufacturersModelName not in sg_acq_protocol[Manufacturer].keys():
             logging.warning(f" {item.filename}: Model '{ManufacturersModelName}' not present in list of known "
                             f"models for manufacturer '{Manufacturer}'. Cannot check parameters.")
             continue
@@ -121,12 +121,12 @@ def main():
                 Contrast = item.filename.split("_acq-")[1].split(".")[0]
 
         # Fetch the names of each available parameter for the given manufacturer + model
-        keys_contrast = data[Manufacturer][ManufacturersModelName][str(Contrast)].keys()
+        keys_contrast = sg_acq_protocol[Manufacturer][ManufacturersModelName][str(Contrast)].keys()
 
         # Validate repetition time against spine-generic's acquisition protocol
         RepetitionTime = item.get_metadata()["RepetitionTime"]
         if "RepetitionTime" in keys_contrast:
-            ExpectedRT = data[Manufacturer][ManufacturersModelName][str(Contrast)]["RepetitionTime"]
+            ExpectedRT = sg_acq_protocol[Manufacturer][ManufacturersModelName][str(Contrast)]["RepetitionTime"]
             # TODO: We only check `val > 0.1`, rather than `abs(val) > 0.1`. Is this a bug?
             if RepetitionTime - ExpectedRT > 0.1:
                 logging.warning(f" {item.filename}: Incorrect RepetitionTime: "
@@ -135,7 +135,7 @@ def main():
         # Validate echo time against spine-generic's acquisition protocol
         EchoTime = item.get_metadata()["EchoTime"]
         if "EchoTime" in keys_contrast:
-            ExpectedTE = data[Manufacturer][ManufacturersModelName][str(Contrast)]["EchoTime"]
+            ExpectedTE = sg_acq_protocol[Manufacturer][ManufacturersModelName][str(Contrast)]["EchoTime"]
             # TODO: We only check `val > 0.1`, rather than `abs(val) > 0.1`. Is this a bug?
             if EchoTime - ExpectedTE > 0.1:
                 logging.warning(f" {item.filename}: Incorrect EchoTime: "
@@ -144,7 +144,7 @@ def main():
         # Validate flip angle against spine-generic's acquisition protocol
         FlipAngle = item.get_metadata()["FlipAngle"]
         if "FlipAngle" in keys_contrast:
-            ExpectedFA = data[Manufacturer][ManufacturersModelName][str(Contrast)]["FlipAngle"]
+            ExpectedFA = sg_acq_protocol[Manufacturer][ManufacturersModelName][str(Contrast)]["FlipAngle"]
             if FlipAngle != ExpectedFA:
                 logging.warning(f" {item.filename}: Incorrect FlipAngle: "
                                 f"FA={FlipAngle} instead of {ExpectedFA}.")
