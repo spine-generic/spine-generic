@@ -51,12 +51,12 @@ structure for one center is shown below:
     │   │   ├── sub-ubc06_T2star.nii.gz
     │   │   ├── sub-ubc06_T2w.json
     │   │   ├── sub-ubc06_T2w.nii.gz
-    │   │   ├── sub-ubc06_acq-MToff_MTS.json
-    │   │   ├── sub-ubc06_acq-MToff_MTS.nii.gz
-    │   │   ├── sub-ubc06_acq-MTon_MTS.json
-    │   │   ├── sub-ubc06_acq-MTon_MTS.nii.gz
-    │   │   ├── sub-ubc06_acq-T1w_MTS.json
-    │   │   └── sub-ubc06_acq-T1w_MTS.nii.gz
+    │   │   ├── sub-ubc06_flip-1_mt-off_MTS.json
+    │   │   ├── sub-ubc06_flip-1_mt-off_MTS.nii.gz
+    │   │   ├── sub-ubc06_flip-1_mt-on_MTS.json
+    │   │   ├── sub-ubc06_flip-1_mt-on_MTS.nii.gz
+    │   │   ├── sub-ubc06_flip-2_mt-off_MTS.json
+    │   │   └── sub-ubc06_flip-2_mt-off_MTS.nii.gz
     │   │
     │   └── dwi
     │       ├── sub-ubc06_dwi.bval
@@ -78,8 +78,8 @@ structure for one center is shown below:
                 │   ├── sub-ubc06_T1w_RPI_r_labels-manual.json
                 │   ├── sub-ubc06_T2w_RPI_r_seg-manual.nii.gz  <---------- manually-corrected spinal cord segmentation
                 │   ├── sub-ubc06_T2w_RPI_r_seg-manual.json
-                │   ├── sub-ubc06_acq-T1w_MTS_seg-manual.nii.gz  <-------- manually-corrected spinal cord segmentation
-                │   ├── sub-ubc06_acq-T1w_MTS_seg-manual.json
+                │   ├── sub-ubc06_flip-2_mt-off_MTS_seg-manual.nii.gz  <-------- manually-corrected spinal cord segmentation
+                │   ├── sub-ubc06_flip-2_mt-off_MTS_seg-manual.json
                 │   ├── sub-ubc06_T2star_rms_gmseg-manual.nii.gz  <------- manually-corrected gray matter segmentation
                 │   └── sub-ubc06_T2star_rms_gmseg-manual.json
                 │
