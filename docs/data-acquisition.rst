@@ -294,19 +294,19 @@ Example of datasets
 
     <iframe src="_static/sub-brnoCeitec01_T2star.html"  width=800 height=300 style="padding:0; border:0; display: block; margin-left: auto; margin-right: auto"></iframe>
 
-**MTon_MTS - sub-barcelona04**
+**flip-1_mt-on_MTS - sub-barcelona04**
 
 .. raw:: html
 
     <iframe src="_static/sub-barcelona04_acq-MTon_MTS.html"  width=800 height=400 style="padding:0; border:0; display: block; margin-left: auto; margin-right: auto"></iframe>
 
-**MToff_MTS - sub-barcelona04**
+**flip-1_mt-off_MTS - sub-barcelona04**
 
 .. raw:: html
 
     <iframe src="_static/sub-barcelona04_acq-MToff_MTS.html" width=800 height=400 style="padding:0; border:0; display: block; margin-left: auto; margin-right: auto"></iframe>
 
-**T1w_MTS - sub-barcelona04**
+**flip-2_mt-off_MTS - sub-barcelona04**
 
 .. raw:: html
 
