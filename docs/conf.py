@@ -26,13 +26,11 @@ def generate_html_figures(app):
     # Get exclude.yml from latest release of multi-subject
     path_zip_data_multisubject = os.path.join(path_data_stats, "data_multisubject.zip")
     os.system(
-        """
-    LOCATION=$(curl -s https://api.github.com/repos/spine-generic/data-multi-subject/releases/latest \
-    | grep "tag_name" \
-    | awk '{print "https://github.com/spine-generic/data-multi-subject/archive/" substr($2, 2, length($2)-3) ".zip"}') \
-    ;curl -L -o """
-        + path_zip_data_multisubject
-        + """ $LOCATION"""
+        'LOCATION=$(curl -s https://api.github.com/repos/spine-generic/data-multi-subject/releases/latest '
+        '| grep "tag_name" '
+        '| awk \'{print "https://github.com/spine-generic/data-multi-subject/archive/" '
+        'substr($2, 2, length($2)-3) ".zip"}\') '
+        '; curl -L -o ' + path_zip_data_multisubject + ' $LOCATION'
     )
 
     # Extract only *exclude.yml
@@ -43,13 +41,11 @@ def generate_html_figures(app):
     # Get results from latest release of multi-subject
     path_zip_results_multisubject = os.path.join(path_data_stats, "results.zip")
     os.system(
-        """
-    LOCATION=$(curl -s https://api.github.com/repos/spine-generic/data-multi-subject/releases/latest \
-    | grep "tag_name" \
-    | awk '{print "https://github.com/spine-generic/data-multi-subject/releases/download/" substr($2, 2, length($2)-3) "/results.zip"}') \
-    ;curl -L -o """
-        + path_zip_results_multisubject
-        + """ $LOCATION"""
+        'LOCATION=$(curl -s https://api.github.com/repos/spine-generic/data-multi-subject/releases/latest '
+        '| grep "tag_name" '
+        '| awk \'{print "https://github.com/spine-generic/data-multi-subject/releases/download/" '
+        'substr($2, 2, length($2)-3) "/results.zip"}\') '
+        '; curl -L -o ' + path_zip_results_multisubject + ' $LOCATION'
     )
 
     # Extract only *.csv
