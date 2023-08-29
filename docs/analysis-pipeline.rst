@@ -8,10 +8,10 @@ MRI data and output the following metrics for each contrast:
 -  **T2**: Spinal cord CSA averaged between C2 and C3.
 -  **T2s**: Gray matter CSA averaged between C3 and C4.
 -  **DWI**: FA in WM averaged between C2 and C5.
--  **MTS**: MTR in WM averaged between C2 and C5. Uses MTon\_MTS and
-   MToff\_MTS.
+-  **MTS**: MTR in WM averaged between C2 and C5. Uses flip-1\_mt-on\_MTS and
+   flip-1\_mt-off\_MTS.
 -  **MTS**: MTSat & T1 map in WM averaged between C2 and C5. Uses
-   MTon\_MTS, MToff\_MTS and T1w\_MTS.
+   flip-1\_mt-on\_MTS, flip-1\_mt-off\_MTS and flip-2\_mt-off\_MTS.
 
 
 Dependencies
@@ -122,7 +122,7 @@ Some explanations about this yml file:
 +-------------------------------------------------------+---------------------------------------------------+-----------------+-----------------------+
 | sub-XX\_T2star\_rms\_gmseg.nii.gz                     | sub-XX\_T2star\_rms.nii.gz                        | C3-C4           | CSA                   |
 +-------------------------------------------------------+---------------------------------------------------+-----------------+-----------------------+
-| sub-XX\_acq-T1w\_MTS\_seg.nii.gz                      | sub-XX\_acq-T1w\_MTS.nii.gz                       | C2-C5           | Template registration |
+| sub-XX\_flip-2\_mt-off\_MTS\_seg.nii.gz                      | sub-XX\_flip-2\_mt-off\_MTS.nii.gz                       | C2-C5           | Template registration |
 +-------------------------------------------------------+---------------------------------------------------+-----------------+-----------------------+
 | sub-XX\_dwi\_concat\_crop\_moco\_dwi\_mean_seg.nii.gz | sub-XX\_dwi\_concat\_crop\_moco\_dwi\_mean.nii.gz | C2-C5           | Template registration |
 +-------------------------------------------------------+---------------------------------------------------+-----------------+-----------------------+
@@ -201,7 +201,7 @@ To generate a mosaic of images, run:
   # Sagittal views of 3D T1w data
   sg_create_mosaic -i *T1w_RPI_r_flatten.nii.gz -ifolder ~/project/results_multi_20200907/data_processed/ -p sag -col 20 -row 13 -o fig_mosaic_T1w.png
   # Axial views of GRE-T1w data
-  sg_create_mosaic -i *acq-T1w_MTS.nii.gz -ifolder ~/spineGeneric_results/data_processed -s _seg -p ax -col 20 -row 13 -o fig_mosaic_GRE-T1w.png
+  sg_create_mosaic -i *flip-2_mt-off_MTS.nii.gz -ifolder ~/spineGeneric_results/data_processed -s _seg -p ax -col 20 -row 13 -o fig_mosaic_GRE-T1w.png
 
 Results
 -------
