@@ -38,7 +38,7 @@ def generate_html_figures(app):
         "unzip -j " + path_zip_data_multisubject + " *exclude.yml -d" + path_data_stats
     )
 
-    ### Get results from latest release of multi-subject
+    # Get results from latest release of multi-subject
     # TODO: This is currently hard-coded to r20201130, rather than the latest release,
     # to address https://github.com/spine-generic/spine-generic/issues/268
     path_zip_results_multisubject = os.path.join(path_data_stats, "results.zip")
@@ -50,7 +50,8 @@ def generate_html_figures(app):
     #     '; curl -L -o ' + path_zip_results_multisubject + ' $LOCATION'
     # )
     os.system(
-        f'curl -L -o {path_zip_results_multisubject} https://github.com/spine-generic/data-multi-subject/releases/download/r20201130/results.zip'
+        f'curl -L -o {path_zip_results_multisubject} '
+        'https://github.com/spine-generic/data-multi-subject/releases/download/r20201130/results.zip'
     )
 
     # Extract only *.csv
