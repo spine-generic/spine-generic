@@ -44,7 +44,7 @@ part1 = """
 <table width="750" border="1" cellpadding="5">
 <th>Subject</th>
 <th>T1w</th>
-<th>T2w</th> 
+<th>T2w</th>
 
 """
 part2 = """

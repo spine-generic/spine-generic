@@ -72,9 +72,8 @@ def main():
     for dirName, subdirList, fileList in os.walk(data_path):
         for file in fileList:
             if file.endswith(".nii.gz"):
-                originalFilePath = os.path.join(dirName, file)
                 jsonSidecarPath = os.path.join(dirName, file.split(".")[0] + ".json")
-                if os.path.exists(jsonSidecarPath) == False:
+                if not os.path.exists(jsonSidecarPath):
                     print("Missing jsonSidecar: " + jsonSidecarPath)
 
     # Checking participants.tsv contents
