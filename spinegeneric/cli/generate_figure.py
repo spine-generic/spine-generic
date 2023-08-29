@@ -526,7 +526,7 @@ def output_text(stats):
 
         # Get significant post-hoc results
         index = sum(
-            bool(stats["tukey_test"].reject)
+            stats["tukey_test"].reject == True  # noqa: E712
         )  # total number of significant post-hoc tests
         # Loop across between vendor tests (i.e, GE-Philips, GE-Siemens, Philips-Siemens)
         for counter in range(1, 4):
@@ -1312,7 +1312,7 @@ def main(argv=sys.argv[1:]):
 
         # Excluded sites
         logger.info(
-            "Sites removed: {}".format(list(df[df["exclude"]]["site"].values))
+            "Sites removed: {}".format(list(df[df["exclude"] == True]["site"].values))  # noqa: E712
         )
 
         # Compute statistics
