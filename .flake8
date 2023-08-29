@@ -1,8 +1,5 @@
 [flake8]
 
-# This constrains how dense the code of each function can be
-max-complexity = 10
-
 # The GitHub editor is 127 chars wide
 max-line-length = 127 
 

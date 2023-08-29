@@ -1,9 +1,9 @@
-## This script is used to do a batch defacing of T1w & T2w scans using R
-## Basic usage example:
-## deface_spineGeneric_usingR -i PATH_TO_DATASET_TO_DEFACE -o PATH_TO_OUTPUT_DATASET_DEFACED -f
-## If you use the command for the first time and you want to populate the `_defaced` folder add the `-f` flag at the end.
-## Author: Alexandru Foias
-## License MIT
+# This script is used to do a batch defacing of T1w & T2w scans using R
+# Basic usage example:
+# deface_spineGeneric_usingR -i PATH_TO_DATASET_TO_DEFACE -o PATH_TO_OUTPUT_DATASET_DEFACED -f
+# If you use the command for the first time and you want to populate the `_defaced` folder add the `-f` flag at the end.
+# Author: Alexandru Foias
+# License MIT
 
 import argparse
 import importlib.resources
@@ -90,7 +90,7 @@ def main():
                                     pathContrastDefaced.split(".")[0] + ".json"
                                 )
                                 shutil.copy(pathContrastJson, pathContrastDefacedJson)
-                        except:
+                        except Exception:
                             try:
                                 print("Trying with special script... ")
                                 with importlib.resources.path(
@@ -105,7 +105,7 @@ def main():
                                         pathContrastDefaced,
                                     ]
                                     subprocess.run(command, check=True)
-                            except:
+                            except Exception:
                                 print("Both scripts failed!!!")
                                 pass
                     print("\n")
