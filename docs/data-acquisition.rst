@@ -13,6 +13,8 @@ If your site is interested in contributing to the publicly-available database, p
 coordinate with Julien Cohen-Adad.
 
 
+.. _multi-center-data:
+
 Multi-center data
 -----------------
 

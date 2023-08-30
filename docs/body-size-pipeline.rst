@@ -20,14 +20,10 @@ OPTIONAL:
 - `FSLeyes <https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FSLeyes>`__ for correcting segmentations.
 - `FreeSurfer <https://surfer.nmr.mgh.harvard.edu>`__ >=7.2 for segmentation and assessmnet of cerebral morphology from the **T1** scan.
 
-.. _spinal-cord-image-analysis:
-
 Spinal cord image analysis
 --------------------------
 
 The same methods as used in the `Analysis pipeline <https://spine-generic.readthedocs.io/analysis-pipeline.html>`__, i.e sub-sections `Getting started <https://spine-generic.readthedocs.io/analysis-pipeline.html#getting-started>`__ and `Quality Control <https://spine-generic.readthedocs.io/analysis-pipeline.html#quality-control>`__.
-
-.. _cerebral-image-analysis:
 
 Cerebral image analysis
 -----------------------
@@ -50,8 +46,6 @@ Your own FreeSurfer segmentation and measurements
 -   You need to build your own ``fs_measurements.xlsx`` table.
 -   The bash script `extract_fs_measures.sh <https://github.com/renelabounek/spine-generic/blob/rl/height-weight-analysis/extract_fs_measures.sh>`__ can help you to automatically export the sg.*.aparc.stats.*.csv files.
 -   Store all table files in the ``<PATH_RESULTS>`` folder.
-
-.. _generate-figures:
 
 Generate figures
 ----------------
@@ -76,8 +70,6 @@ Generate figures
     stat = sg_structure_versus_demography(path_results,path_data);
     % Figures exported in fig_*.png format and stat_labounek2022.mat file
     % will appear in the <PATH_RESULTS> folder
-
-.. _results:
 
 Results
 -------
