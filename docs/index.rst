@@ -12,8 +12,8 @@ The protocols and datasets are open-access and the data analysis code is open-so
 
 The main publications for this project are:
 
-- Cohen-Adad et al. *Generic acquisition protocol for quantitative MRI of the spinal cord*. **Nature Protocols** 2021 (doi: 10.1038/s41596-021-00588-0). `📥 ‎ PDF <https://github.com/spine-generic/protocols/blob/main/CohenAdad21_NatureProtocols.pdf>`_
-- Cohen-Adad et al. *Open-access quantitative MRI data of the spinal cord and reproducibility across participants, sites and manufacturers*. **Scientific Data** 2021 (doi: 10.1038/s41597-021-01026-2). `📥 ‎ PDF <https://www.nature.com/articles/s41597-021-00941-8.pdf>`_
+- Cohen-Adad et al. *Generic acquisition protocol for quantitative MRI of the spinal cord*. **Nature Protocols** 2021 (doi: 10.1038/s41596-021-00588-0). `📥 ‎ PDF <https://github.com/spine-generic/protocols/blob/main/CohenAdad21_NatureProtocols.pdf>`__
+- Cohen-Adad et al. *Open-access quantitative MRI data of the spinal cord and reproducibility across participants, sites and manufacturers*. **Scientific Data** 2021 (doi: 10.1038/s41597-021-01026-2). `📥 ‎ PDF <https://www.nature.com/articles/s41597-021-00941-8.pdf>`__
 
 .. toctree::
    :name: mastertoc
@@ -29,7 +29,7 @@ Contributors
 ------------
 
 A list of contributors for the analysis pipeline is available `here <https://github.com/spine-generic/spine-generic/graphs/contributors>`__.
-If you would like to contribute to this project, please see `contribution guidelines <https://github.com/spine-generic/spine-generic/blob/master/CONTRIBUTING.md>`_.
+If you would like to contribute to this project, please see `contribution guidelines <https://github.com/spine-generic/spine-generic/blob/master/CONTRIBUTING.md>`__.
 
 
 License

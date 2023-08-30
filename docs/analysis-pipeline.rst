@@ -42,7 +42,7 @@ Install Python dependencies:
 
 .. note::
    If you prefer to preserve your default Python's libraries, you could first
-   create a `virtual environment <https://docs.python.org/3/tutorial/venv.html>`_,
+   create a `virtual environment <https://docs.python.org/3/tutorial/venv.html>`__,
    and then run the commands below.
 
 .. code-block:: bash
