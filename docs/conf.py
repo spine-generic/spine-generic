@@ -39,13 +39,12 @@ def generate_html_figures(app):
     )
 
     # Get results from latest release of multi-subject
+    # TODO: This is currently hard-coded to r20201130, rather than the latest release,
+    # to address https://github.com/spine-generic/spine-generic/issues/268
     path_zip_results_multisubject = os.path.join(path_data_stats, "results.zip")
     os.system(
-        'LOCATION=$(curl -s https://api.github.com/repos/spine-generic/data-multi-subject/releases/latest '
-        '| grep "tag_name" '
-        '| awk \'{print "https://github.com/spine-generic/data-multi-subject/releases/download/" '
-        'substr($2, 2, length($2)-3) "/results.zip"}\') '
-        '; curl -L -o ' + path_zip_results_multisubject + ' $LOCATION'
+        f'curl -L -o {path_zip_results_multisubject} '
+        'https://github.com/spine-generic/data-multi-subject/releases/download/r20201130/results.zip'
     )
 
     # Extract only *.csv
