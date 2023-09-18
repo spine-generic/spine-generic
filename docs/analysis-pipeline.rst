@@ -42,7 +42,7 @@ Install Python dependencies:
 
 .. note::
    If you prefer to preserve your default Python's libraries, you could first
-   create a `virtual environment <https://docs.python.org/3/tutorial/venv.html>`_,
+   create a `virtual environment <https://docs.python.org/3/tutorial/venv.html>`__,
    and then run the commands below.
 
 .. code-block:: bash
@@ -122,7 +122,7 @@ Some explanations about this yml file:
 +-------------------------------------------------------+---------------------------------------------------+-----------------+-----------------------+
 | sub-XX\_T2star\_rms\_gmseg.nii.gz                     | sub-XX\_T2star\_rms.nii.gz                        | C3-C4           | CSA                   |
 +-------------------------------------------------------+---------------------------------------------------+-----------------+-----------------------+
-| sub-XX\_flip-2\_mt-off\_MTS\_seg.nii.gz                      | sub-XX\_flip-2\_mt-off\_MTS.nii.gz                       | C2-C5           | Template registration |
+| sub-XX\_flip-2\_mt-off\_MTS\_seg.nii.gz               | sub-XX\_flip-2\_mt-off\_MTS.nii.gz                | C2-C5           | Template registration |
 +-------------------------------------------------------+---------------------------------------------------+-----------------+-----------------------+
 | sub-XX\_dwi\_concat\_crop\_moco\_dwi\_mean_seg.nii.gz | sub-XX\_dwi\_concat\_crop\_moco\_dwi\_mean.nii.gz | C2-C5           | Template registration |
 +-------------------------------------------------------+---------------------------------------------------+-----------------+-----------------------+

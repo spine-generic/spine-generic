@@ -13,6 +13,8 @@ If your site is interested in contributing to the publicly-available database, p
 coordinate with Julien Cohen-Adad.
 
 
+.. _multi-center-data:
+
 Multi-center data
 -----------------
 
@@ -226,7 +228,7 @@ defacing fails.
 Automatic defacing with R
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-1. Install `R <https://www.r-project.org/>`_, then open R (type "r" in the Terminal) and install the following dependencies:
+1. Install `R <https://www.r-project.org/>`__, then open R (type "r" in the Terminal) and install the following dependencies:
 
 .. code-block:: R
 
