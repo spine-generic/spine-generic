@@ -232,10 +232,15 @@ if [[ -e "${file_t1w}.nii.gz" && -e "${file_mton}.nii.gz" && -e "${file_mtoff}.n
   sct_extract_metric -i mtr.nii.gz -f label_axT1w/atlas -l 51 -vert 2:5 -vertfile label_axT1w/template/PAM50_levels.nii.gz -o ${PATH_RESULTS}/MTR.csv -append 1
   sct_extract_metric -i mtsat.nii.gz -f label_axT1w/atlas -l 51 -vert 2:5 -vertfile label_axT1w/template/PAM50_levels.nii.gz -o ${PATH_RESULTS}/MTsat.csv -append 1
   sct_extract_metric -i t1map.nii.gz -f label_axT1w/atlas -l 51 -vert 2:5 -vertfile label_axT1w/template/PAM50_levels.nii.gz -o ${PATH_RESULTS}/T1.csv -append 1
-  # Compute MTR in LCST between C2 and C5 vertebral levels
-  sct_extract_metric -i mtr.nii.gz -f label_axT1w/atlas -l 2,17 -vert 2:5 -vertfile label_axT1w/template/PAM50_levels.nii.gz -o ${PATH_RESULTS}/MTR_LCST.csv -append 1 -combine 1
-  # Compute MTR in LCST between C2 and C5 vertebral levels
-  sct_extract_metric -i mtr.nii.gz -f label_axT1w/atlas -l 0,1,15,16 -vert 2:5 -vertfile label_axT1w/template/PAM50_levels.nii.gz -o ${PATH_RESULTS}/MTR_DC.csv -append 1 -combine 1
+  # Compute MTR and MTsat in LCST between C2 and C5 vertebral levels
+  sct_extract_metric -i mtr.nii.gz -f label_axT1w/atlas -l 4,5 -vert 2:5 -vertfile label_axT1w/template/PAM50_levels.nii.gz -o ${PATH_RESULTS}/MTR_LCST.csv -append 1 -combine 1
+  sct_extract_metric -i mtsat.nii.gz -f label_axT1w/atlas -l 4,5 -vert 2:5 -vertfile label_axT1w/template/PAM50_levels.nii.gz -o ${PATH_RESULTS}/MTsat_LCST.csv -append 1
+  # Compute MTR and MTsat in DC between C2 and C5 vertebral levels
+  sct_extract_metric -i mtr.nii.gz -f label_axT1w/atlas -l 53 -vert 2:5 -vertfile label_axT1w/template/PAM50_levels.nii.gz -o ${PATH_RESULTS}/MTR_DC.csv -append 1 -combine 1
+  sct_extract_metric -i mtsat.nii.gz -f label_axT1w/atlas -l 53 -vert 2:5 -vertfile label_axT1w/template/PAM50_levels.nii.gz -o ${PATH_RESULTS}/MTsat_DC.csv -append 1
+  # Compute MTR and MTsat in GM between C2 and C5 vertebral levels
+  sct_extract_metric -i mtr.nii.gz -f label_axT1w/atlas -l 52 -vert 2:5 -vertfile label_axT1w/template/PAM50_levels.nii.gz -o ${PATH_RESULTS}/MTR_GM.csv -append 1 -combine 1
+  sct_extract_metric -i mtsat.nii.gz -f label_axT1w/atlas -l 52 -vert 2:5 -vertfile label_axT1w/template/PAM50_levels.nii.gz -o ${PATH_RESULTS}/MTsat_GM.csv -append 1
 else
   echo "WARNING: MTS dataset is incomplete."
 fi
@@ -306,13 +311,17 @@ sct_extract_metric -i dti_FA.nii.gz -f label/atlas -l 51 -vert 2:5 -o ${PATH_RES
 sct_extract_metric -i dti_MD.nii.gz -f label/atlas -l 51 -vert 2:5 -o ${PATH_RESULTS}/DWI_MD.csv -append 1
 sct_extract_metric -i dti_RD.nii.gz -f label/atlas -l 51 -vert 2:5 -o ${PATH_RESULTS}/DWI_RD.csv -append 1
 # Compute FA, MD and RD in LCST between C2 and C5 vertebral levels
-sct_extract_metric -i dti_FA.nii.gz -f label/atlas -l 2,17 -vert 2:5 -o ${PATH_RESULTS}/DWI_FA_LCST.csv -append 1 -combine 1
-sct_extract_metric -i dti_MD.nii.gz -f label/atlas -l 2,17 -vert 2:5 -o ${PATH_RESULTS}/DWI_MD_LCST.csv -append 1 -combine 1
-sct_extract_metric -i dti_RD.nii.gz -f label/atlas -l 2,17 -vert 2:5 -o ${PATH_RESULTS}/DWI_RD_LCST.csv -append 1 -combine 1
+sct_extract_metric -i dti_FA.nii.gz -f label/atlas -l 4,5 -vert 2:5 -o ${PATH_RESULTS}/DWI_FA_LCST.csv -append 1 -combine 1
+sct_extract_metric -i dti_MD.nii.gz -f label/atlas -l 4,5 -vert 2:5 -o ${PATH_RESULTS}/DWI_MD_LCST.csv -append 1 -combine 1
+sct_extract_metric -i dti_RD.nii.gz -f label/atlas -l 4,5 -vert 2:5 -o ${PATH_RESULTS}/DWI_RD_LCST.csv -append 1 -combine 1
 # Compute FA, MD and RD in DC between C2 and C5 vertebral levels
-sct_extract_metric -i dti_FA.nii.gz -f label/atlas -l 0,1,15,16 -vert 2:5 -o ${PATH_RESULTS}/DWI_FA_DC.csv -append 1 -combine 1
-sct_extract_metric -i dti_MD.nii.gz -f label/atlas -l 0,1,15,16 -vert 2:5 -o ${PATH_RESULTS}/DWI_MD_DC.csv -append 1 -combine 1
-sct_extract_metric -i dti_RD.nii.gz -f label/atlas -l 0,1,15,16 -vert 2:5 -o ${PATH_RESULTS}/DWI_RD_DC.csv -append 1 -combine 1
+sct_extract_metric -i dti_FA.nii.gz -f label/atlas -l 53 -vert 2:5 -o ${PATH_RESULTS}/DWI_FA_DC.csv -append 1 -combine 1
+sct_extract_metric -i dti_MD.nii.gz -f label/atlas -l 53 -vert 2:5 -o ${PATH_RESULTS}/DWI_MD_DC.csv -append 1 -combine 1
+sct_extract_metric -i dti_RD.nii.gz -f label/atlas -l 53 -vert 2:5 -o ${PATH_RESULTS}/DWI_RD_DC.csv -append 1 -combine 1
+# Compute FA, MD and RD in GM between C2 and C5 vertebral levels
+sct_extract_metric -i dti_FA.nii.gz -f label/atlas -l 52 -vert 2:5 -o ${PATH_RESULTS}/DWI_FA_GM.csv -append 1 -combine 1
+sct_extract_metric -i dti_MD.nii.gz -f label/atlas -l 52 -vert 2:5 -o ${PATH_RESULTS}/DWI_MD_GM.csv -append 1 -combine 1
+sct_extract_metric -i dti_RD.nii.gz -f label/atlas -l 52 -vert 2:5 -o ${PATH_RESULTS}/DWI_RD_GM.csv -append 1 -combine 1
 # Go back to parent folder
 cd ..
 
