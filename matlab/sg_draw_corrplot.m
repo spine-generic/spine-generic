@@ -96,8 +96,10 @@ function [r, p, r_norm, p_norm] = sg_draw_corrplot(xdata,ydata,participants,used
             coefy1 = 1.025;
         elseif maxy>110 && miny>40
             coefy1 = 1.10;
+        elseif maxy>18 && maxy<25 && miny>1
+            coefy1 = 1.45;
         else
-            coefy1 = 1.05;
+            coefy1 = 1.06;
         end
     elseif r(1)<=0
         if maxy<5
@@ -118,9 +120,9 @@ function [r, p, r_norm, p_norm] = sg_draw_corrplot(xdata,ydata,participants,used
             txty = maxy - coefy1*miny;
         end
         if p(1) < 0.0001
-            text(0.99*maxx,txty,['r=' num2str(r(1),'%.3f') '; p<0.0001'],'HorizontalAlignment','right','FontWeight','bold')
+            text(0.99*maxx,txty,['r=' num2str(r(1),'%.3f') '; p<0.0001'],'HorizontalAlignment','right','FontWeight','bold','FontSize',14)
         else
-            text(0.99*maxx,txty,['r=' num2str(r(1),'%.3f') '; p=' num2str(p(1),'%.4f')],'HorizontalAlignment','right','FontWeight','bold')
+            text(0.99*maxx,txty,['r=' num2str(r(1),'%.3f') '; p=' num2str(p(1),'%.4f')],'HorizontalAlignment','right','FontWeight','bold','FontSize',14)
         end
     end
     axis([minx maxx miny maxy])
