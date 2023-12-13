@@ -112,7 +112,7 @@ function [r, p, r_norm, p_norm] = sg_draw_corrplot(xdata,ydata,participants,used
     else
         coefy1 = 0.05;
     end
-    if p(1) < 0.05
+    if p(1) < 0.01
         set(gca,'Color',[255 255 224]/255)
         if r(1)>0
             txty = coefy1*miny;
