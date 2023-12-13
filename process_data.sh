@@ -58,12 +58,24 @@ label_if_does_not_exist(){
   local file="$1"
   local file_seg="$2"
   # Update global variable with segmentation file name
+  file2=${file%_*} # to catch _rms string which is not present in derivatives/labels
+  file3=${file2%_*} # to catch _RPI_r string which is not present in derivatives/labels
   FILELABEL="${file}_labels"
+  FILELABEL2="${file2}_labels"
+  FILELABEL3="${file3}_labels"
   FILELABELMANUAL="${PATH_DATA}/derivatives/labels/${SUBJECT}/anat/${FILELABEL}-manual.nii.gz"
+  FILELABELMANUAL2="${PATH_DATA}/derivatives/labels/${SUBJECT}/anat/${FILELABEL2}-manual.nii.gz"
+  FILELABELMANUAL3="${PATH_DATA}/derivatives/labels/${SUBJECT}/anat/${FILELABEL3}-manual.nii.gz"
   echo "Looking for manual label: $FILELABELMANUAL"
-  if [[ -e $FILELABELMANUAL ]]; then
+  if [[ -e $FILELABELMANUAL ]] || [[ -e $FILELABELMANUAL2 ]] || [[ -e $FILELABELMANUAL3 ]]; then
     echo "Found! Using manual labels."
-    rsync -avzh $FILELABELMANUAL ${FILELABEL}.nii.gz
+    if [[ -e $FILELABELMANUAL ]];then
+      rsync -avzh $FILELABELMANUAL ${FILELABEL}.nii.gz
+    elif [[ -e $FILELABELMANUAL2 ]];then
+      rsync -avzh $FILELABELMANUAL2 ${FILELABEL}.nii.gz
+    else
+      rsync -avzh $FILELABELMANUAL3 ${FILELABEL}.nii.gz
+    fi
   else
     echo "Not found. Proceeding with automatic labeling."
     # Generate labeled segmentation
@@ -84,14 +96,26 @@ segment_if_does_not_exist(){
   else
     folder_contrast="anat"
   fi
+  file2=${file%_*} # to catch _rms string which is not present in derivatives/labels
+  file3=${file2%_*} # to catch _RPI_r string which is not present in derivatives/labels
   # Update global variable with segmentation file name
   FILESEG="${file}_seg"
+  FILESEG2="${file2}_seg"
+  FILESEG3="${file3}_seg"
   FILESEGMANUAL="${PATH_DATA}/derivatives/labels/${SUBJECT}/${folder_contrast}/${FILESEG}-manual.nii.gz"
+  FILESEGMANUAL2="${PATH_DATA}/derivatives/labels/${SUBJECT}/${folder_contrast}/${FILESEG2}-manual.nii.gz"
+  FILESEGMANUAL3="${PATH_DATA}/derivatives/labels/${SUBJECT}/${folder_contrast}/${FILESEG3}-manual.nii.gz"
   echo
   echo "Looking for manual segmentation: $FILESEGMANUAL"
-  if [[ -e $FILESEGMANUAL ]]; then
+  if [[ -e $FILESEGMANUAL ]] || [[ -e $FILESEGMANUAL2 ]] || [[ -e $FILESEGMANUAL3 ]]; then
     echo "Found! Using manual segmentation."
-    rsync -avzh $FILESEGMANUAL ${FILESEG}.nii.gz
+    if [[ -e $FILESEGMANUAL ]];then
+      rsync -avzh $FILESEGMANUAL ${FILESEG}.nii.gz
+    elif [[ -e $FILESEGMANUAL2 ]];then
+      rsync -avzh $FILESEGMANUAL2 ${FILESEG}.nii.gz
+    else
+      rsync -avzh $FILESEGMANUAL3 ${FILESEG}.nii.gz
+    fi
     sct_qc -i ${file}.nii.gz -s ${FILESEG}.nii.gz -p sct_deepseg_sc -qc ${PATH_QC} -qc-subject ${SUBJECT}
   else
     echo "Not found. Proceeding with automatic segmentation."
@@ -105,13 +129,20 @@ segment_if_does_not_exist(){
 segment_gm_if_does_not_exist(){
   local file="$1"
   local contrast="$2"
+  file2=${file%_*} # to catch _rms string which is not present in derivatives/labels
   # Update global variable with segmentation file name
   FILESEG="${file}_gmseg"
+  FILESEG2="${file2}_gmseg"
   FILESEGMANUAL="${PATH_DATA}/derivatives/labels/${SUBJECT}/anat/${FILESEG}-manual.nii.gz"
+  FILESEGMANUAL2="${PATH_DATA}/derivatives/labels/${SUBJECT}/anat/${FILESEG2}-manual.nii.gz"
   echo "Looking for manual segmentation: $FILESEGMANUAL"
-  if [[ -e $FILESEGMANUAL ]]; then
+  if [[ -e $FILESEGMANUAL ]] || [[ -e $FILESEGMANUAL2 ]]; then
     echo "Found! Using manual segmentation."
-    rsync -avzh $FILESEGMANUAL ${FILESEG}.nii.gz
+    if [[ -e $FILESEGMANUAL ]];then
+      rsync -avzh $FILESEGMANUAL ${FILESEG}.nii.gz
+    else
+      rsync -avzh $FILESEGMANUAL2 ${FILESEG}.nii.gz
+    fi
     sct_qc -i ${file}.nii.gz -s ${FILESEG}.nii.gz -p sct_deepseg_gm -qc ${PATH_QC} -qc-subject ${SUBJECT}
   else
     echo "Not found. Proceeding with automatic segmentation."
