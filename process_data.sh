@@ -58,12 +58,24 @@ label_if_does_not_exist(){
   local file="$1"
   local file_seg="$2"
   # Update global variable with segmentation file name
+  file2=${file%_*} # to catch _rms string which is not present in derivatives/labels
+  file3=${file2%_*} # to catch _RPI_r string which is not present in derivatives/labels
   FILELABEL="${file}_labels"
+  FILELABEL2="${file2}_labels"
+  FILELABEL3="${file3}_labels"
   FILELABELMANUAL="${PATH_DATA}/derivatives/labels/${SUBJECT}/anat/${FILELABEL}-manual.nii.gz"
+  FILELABELMANUAL2="${PATH_DATA}/derivatives/labels/${SUBJECT}/anat/${FILELABEL2}-manual.nii.gz"
+  FILELABELMANUAL3="${PATH_DATA}/derivatives/labels/${SUBJECT}/anat/${FILELABEL3}-manual.nii.gz"
   echo "Looking for manual label: $FILELABELMANUAL"
-  if [[ -e $FILELABELMANUAL ]]; then
+  if [[ -e $FILELABELMANUAL ]] || [[ -e $FILELABELMANUAL2 ]] || [[ -e $FILELABELMANUAL3 ]]; then
     echo "Found! Using manual labels."
-    rsync -avzh $FILELABELMANUAL ${FILELABEL}.nii.gz
+    if [[ -e $FILELABELMANUAL ]];then
+      rsync -avzh $FILELABELMANUAL ${FILELABEL}.nii.gz
+    elif [[ -e $FILELABELMANUAL2 ]];then
+      rsync -avzh $FILELABELMANUAL2 ${FILELABEL}.nii.gz
+    else
+      rsync -avzh $FILELABELMANUAL3 ${FILELABEL}.nii.gz
+    fi
   else
     echo "Not found. Proceeding with automatic labeling."
     # Generate labeled segmentation
@@ -84,14 +96,26 @@ segment_if_does_not_exist(){
   else
     folder_contrast="anat"
   fi
+  file2=${file%_*} # to catch _rms string which is not present in derivatives/labels
+  file3=${file2%_*} # to catch _RPI_r string which is not present in derivatives/labels
   # Update global variable with segmentation file name
   FILESEG="${file}_seg"
+  FILESEG2="${file2}_seg"
+  FILESEG3="${file3}_seg"
   FILESEGMANUAL="${PATH_DATA}/derivatives/labels/${SUBJECT}/${folder_contrast}/${FILESEG}-manual.nii.gz"
+  FILESEGMANUAL2="${PATH_DATA}/derivatives/labels/${SUBJECT}/${folder_contrast}/${FILESEG2}-manual.nii.gz"
+  FILESEGMANUAL3="${PATH_DATA}/derivatives/labels/${SUBJECT}/${folder_contrast}/${FILESEG3}-manual.nii.gz"
   echo
   echo "Looking for manual segmentation: $FILESEGMANUAL"
-  if [[ -e $FILESEGMANUAL ]]; then
+  if [[ -e $FILESEGMANUAL ]] || [[ -e $FILESEGMANUAL2 ]] || [[ -e $FILESEGMANUAL3 ]]; then
     echo "Found! Using manual segmentation."
-    rsync -avzh $FILESEGMANUAL ${FILESEG}.nii.gz
+    if [[ -e $FILESEGMANUAL ]];then
+      rsync -avzh $FILESEGMANUAL ${FILESEG}.nii.gz
+    elif [[ -e $FILESEGMANUAL2 ]];then
+      rsync -avzh $FILESEGMANUAL2 ${FILESEG}.nii.gz
+    else
+      rsync -avzh $FILESEGMANUAL3 ${FILESEG}.nii.gz
+    fi
     sct_qc -i ${file}.nii.gz -s ${FILESEG}.nii.gz -p sct_deepseg_sc -qc ${PATH_QC} -qc-subject ${SUBJECT}
   else
     echo "Not found. Proceeding with automatic segmentation."
@@ -105,13 +129,20 @@ segment_if_does_not_exist(){
 segment_gm_if_does_not_exist(){
   local file="$1"
   local contrast="$2"
+  file2=${file%_*} # to catch _rms string which is not present in derivatives/labels
   # Update global variable with segmentation file name
   FILESEG="${file}_gmseg"
+  FILESEG2="${file2}_gmseg"
   FILESEGMANUAL="${PATH_DATA}/derivatives/labels/${SUBJECT}/anat/${FILESEG}-manual.nii.gz"
+  FILESEGMANUAL2="${PATH_DATA}/derivatives/labels/${SUBJECT}/anat/${FILESEG2}-manual.nii.gz"
   echo "Looking for manual segmentation: $FILESEGMANUAL"
-  if [[ -e $FILESEGMANUAL ]]; then
+  if [[ -e $FILESEGMANUAL ]] || [[ -e $FILESEGMANUAL2 ]]; then
     echo "Found! Using manual segmentation."
-    rsync -avzh $FILESEGMANUAL ${FILESEG}.nii.gz
+    if [[ -e $FILESEGMANUAL ]];then
+      rsync -avzh $FILESEGMANUAL ${FILESEG}.nii.gz
+    else
+      rsync -avzh $FILESEGMANUAL2 ${FILESEG}.nii.gz
+    fi
     sct_qc -i ${file}.nii.gz -s ${FILESEG}.nii.gz -p sct_deepseg_gm -qc ${PATH_QC} -qc-subject ${SUBJECT}
   else
     echo "Not found. Proceeding with automatic segmentation."
@@ -196,6 +227,13 @@ sct_process_segmentation -i ${file_t2_seg}.nii.gz -vert 3:4 -vertfile PAM50_leve
 file_t1w="${SUBJECT}_acq-T1w_MTS"
 file_mton="${SUBJECT}_acq-MTon_MTS"
 file_mtoff="${SUBJECT}_acq-MToff_MTS"
+mtsfilenametype=1
+if [[ ! -e "${file_t1w}.nii.gz"  ]];then
+	file_t1w="${SUBJECT}_flip-2_mt-off_MTS"
+	file_mton="${SUBJECT}_flip-1_mt-on_MTS"
+	file_mtoff="${SUBJECT}_flip-1_mt-off_MTS"
+	mtsfilenametype=2
+fi
 
 if [[ -e "${file_t1w}.nii.gz" && -e "${file_mton}.nii.gz" && -e "${file_mtoff}.nii.gz" ]]; then
   # Segment spinal cord (only if it does not exist)
@@ -214,9 +252,15 @@ if [[ -e "${file_t1w}.nii.gz" && -e "${file_mton}.nii.gz" && -e "${file_mtoff}.n
   sct_register_multimodal -i ${file_mton}.nii.gz -d ${file_t1w}.nii.gz -dseg ${file_t1w_seg}.nii.gz -param step=1,type=im,algo=rigid,slicewise=1,metric=CC -x spline -qc ${PATH_QC} -qc-subject ${SUBJECT}
   file_mton="${file_mton}_reg"
   # Copy json files to match file basename (it will later be used by sct_compute_mtsat)
-  cp ${SUBJECT}_acq-T1w_MTS.json ${file_t1w}.json
-  cp ${SUBJECT}_acq-MToff_MTS.json ${file_mtoff}.json
-  cp ${SUBJECT}_acq-MTon_MTS.json ${file_mton}.json
+  if [ $mtsfilenametype -eq 1 ];then
+	  cp ${SUBJECT}_acq-T1w_MTS.json ${file_t1w}.json
+	  cp ${SUBJECT}_acq-MToff_MTS.json ${file_mtoff}.json
+	  cp ${SUBJECT}_acq-MTon_MTS.json ${file_mton}.json
+  else
+  	  cp ${SUBJECT}_flip-2_mt-off_MTS.json ${file_t1w}.json
+	  cp ${SUBJECT}_flip-1_mt-off_MTS.json ${file_mtoff}.json
+	  cp ${SUBJECT}_flip-1_mt-on_MTS.json ${file_mton}.json
+  fi
   # Register template->T1w_ax (using template-T1w as initial transformation)
   sct_register_multimodal -i $SCT_DIR/data/PAM50/template/PAM50_t1.nii.gz -iseg $SCT_DIR/data/PAM50/template/PAM50_cord.nii.gz -d ${file_t1w}.nii.gz -dseg ${file_t1w_seg}.nii.gz -param step=1,type=seg,algo=slicereg,metric=MeanSquares,smooth=2:step=2,type=im,algo=syn,metric=CC,iter=5,gradStep=0.5 -initwarp warp_template2T1w.nii.gz -initwarpinv warp_T1w2template.nii.gz
   # Rename warping field for clarity
@@ -232,10 +276,15 @@ if [[ -e "${file_t1w}.nii.gz" && -e "${file_mton}.nii.gz" && -e "${file_mtoff}.n
   sct_extract_metric -i mtr.nii.gz -f label_axT1w/atlas -l 51 -vert 2:5 -vertfile label_axT1w/template/PAM50_levels.nii.gz -o ${PATH_RESULTS}/MTR.csv -append 1
   sct_extract_metric -i mtsat.nii.gz -f label_axT1w/atlas -l 51 -vert 2:5 -vertfile label_axT1w/template/PAM50_levels.nii.gz -o ${PATH_RESULTS}/MTsat.csv -append 1
   sct_extract_metric -i t1map.nii.gz -f label_axT1w/atlas -l 51 -vert 2:5 -vertfile label_axT1w/template/PAM50_levels.nii.gz -o ${PATH_RESULTS}/T1.csv -append 1
-  # Compute MTR in LCST between C2 and C5 vertebral levels
-  sct_extract_metric -i mtr.nii.gz -f label_axT1w/atlas -l 2,17 -vert 2:5 -vertfile label_axT1w/template/PAM50_levels.nii.gz -o ${PATH_RESULTS}/MTR_LCST.csv -append 1 -combine 1
-  # Compute MTR in LCST between C2 and C5 vertebral levels
-  sct_extract_metric -i mtr.nii.gz -f label_axT1w/atlas -l 0,1,15,16 -vert 2:5 -vertfile label_axT1w/template/PAM50_levels.nii.gz -o ${PATH_RESULTS}/MTR_DC.csv -append 1 -combine 1
+  # Compute MTR and MTsat in LCST between C2 and C5 vertebral levels
+  sct_extract_metric -i mtr.nii.gz -f label_axT1w/atlas -l 4,5 -vert 2:5 -vertfile label_axT1w/template/PAM50_levels.nii.gz -o ${PATH_RESULTS}/MTR_LCST.csv -append 1 -combine 1
+  sct_extract_metric -i mtsat.nii.gz -f label_axT1w/atlas -l 4,5 -vert 2:5 -vertfile label_axT1w/template/PAM50_levels.nii.gz -o ${PATH_RESULTS}/MTsat_LCST.csv -append 1 -combine 1
+  # Compute MTR and MTsat in DC between C2 and C5 vertebral levels
+  sct_extract_metric -i mtr.nii.gz -f label_axT1w/atlas -l 53 -vert 2:5 -vertfile label_axT1w/template/PAM50_levels.nii.gz -o ${PATH_RESULTS}/MTR_DC.csv -append 1
+  sct_extract_metric -i mtsat.nii.gz -f label_axT1w/atlas -l 53 -vert 2:5 -vertfile label_axT1w/template/PAM50_levels.nii.gz -o ${PATH_RESULTS}/MTsat_DC.csv -append 1
+  # Compute MTR and MTsat in GM between C2 and C5 vertebral levels
+  sct_extract_metric -i mtr.nii.gz -f label_axT1w/atlas -l 52 -vert 2:5 -vertfile label_axT1w/template/PAM50_levels.nii.gz -o ${PATH_RESULTS}/MTR_GM.csv -append 1
+  sct_extract_metric -i mtsat.nii.gz -f label_axT1w/atlas -l 52 -vert 2:5 -vertfile label_axT1w/template/PAM50_levels.nii.gz -o ${PATH_RESULTS}/MTsat_GM.csv -append 1
 else
   echo "WARNING: MTS dataset is incomplete."
 fi
@@ -306,13 +355,17 @@ sct_extract_metric -i dti_FA.nii.gz -f label/atlas -l 51 -vert 2:5 -o ${PATH_RES
 sct_extract_metric -i dti_MD.nii.gz -f label/atlas -l 51 -vert 2:5 -o ${PATH_RESULTS}/DWI_MD.csv -append 1
 sct_extract_metric -i dti_RD.nii.gz -f label/atlas -l 51 -vert 2:5 -o ${PATH_RESULTS}/DWI_RD.csv -append 1
 # Compute FA, MD and RD in LCST between C2 and C5 vertebral levels
-sct_extract_metric -i dti_FA.nii.gz -f label/atlas -l 2,17 -vert 2:5 -o ${PATH_RESULTS}/DWI_FA_LCST.csv -append 1 -combine 1
-sct_extract_metric -i dti_MD.nii.gz -f label/atlas -l 2,17 -vert 2:5 -o ${PATH_RESULTS}/DWI_MD_LCST.csv -append 1 -combine 1
-sct_extract_metric -i dti_RD.nii.gz -f label/atlas -l 2,17 -vert 2:5 -o ${PATH_RESULTS}/DWI_RD_LCST.csv -append 1 -combine 1
+sct_extract_metric -i dti_FA.nii.gz -f label/atlas -l 4,5 -vert 2:5 -o ${PATH_RESULTS}/DWI_FA_LCST.csv -append 1 -combine 1
+sct_extract_metric -i dti_MD.nii.gz -f label/atlas -l 4,5 -vert 2:5 -o ${PATH_RESULTS}/DWI_MD_LCST.csv -append 1 -combine 1
+sct_extract_metric -i dti_RD.nii.gz -f label/atlas -l 4,5 -vert 2:5 -o ${PATH_RESULTS}/DWI_RD_LCST.csv -append 1 -combine 1
 # Compute FA, MD and RD in DC between C2 and C5 vertebral levels
-sct_extract_metric -i dti_FA.nii.gz -f label/atlas -l 0,1,15,16 -vert 2:5 -o ${PATH_RESULTS}/DWI_FA_DC.csv -append 1 -combine 1
-sct_extract_metric -i dti_MD.nii.gz -f label/atlas -l 0,1,15,16 -vert 2:5 -o ${PATH_RESULTS}/DWI_MD_DC.csv -append 1 -combine 1
-sct_extract_metric -i dti_RD.nii.gz -f label/atlas -l 0,1,15,16 -vert 2:5 -o ${PATH_RESULTS}/DWI_RD_DC.csv -append 1 -combine 1
+sct_extract_metric -i dti_FA.nii.gz -f label/atlas -l 53 -vert 2:5 -o ${PATH_RESULTS}/DWI_FA_DC.csv -append 1
+sct_extract_metric -i dti_MD.nii.gz -f label/atlas -l 53 -vert 2:5 -o ${PATH_RESULTS}/DWI_MD_DC.csv -append 1
+sct_extract_metric -i dti_RD.nii.gz -f label/atlas -l 53 -vert 2:5 -o ${PATH_RESULTS}/DWI_RD_DC.csv -append 1
+# Compute FA, MD and RD in GM between C2 and C5 vertebral levels
+sct_extract_metric -i dti_FA.nii.gz -f label/atlas -l 52 -vert 2:5 -o ${PATH_RESULTS}/DWI_FA_GM.csv -append 1
+sct_extract_metric -i dti_MD.nii.gz -f label/atlas -l 52 -vert 2:5 -o ${PATH_RESULTS}/DWI_MD_GM.csv -append 1
+sct_extract_metric -i dti_RD.nii.gz -f label/atlas -l 52 -vert 2:5 -o ${PATH_RESULTS}/DWI_RD_GM.csv -append 1
 # Go back to parent folder
 cd ..
 
