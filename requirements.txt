@@ -4,6 +4,6 @@ nibabel
 pandas
 scipy
 tqdm
-sklearn
+scikit-learn
 pyyaml
 pybids
