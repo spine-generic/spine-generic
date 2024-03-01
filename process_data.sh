@@ -115,7 +115,7 @@ segment_gm_if_does_not_exist(){
   else
     echo "Not found. Proceeding with automatic segmentation."
     # Segment spinal cord
-    sct_deepseg_gm -i ${file}.nii.gz -qc ${PATH_QC} -qc-subject ${SUBJECT}
+    sct_deepseg_gm -i ${file}.nii.gz -qc ${PATH_QC} -qc-subject ${SUBJECT} -o ${FILESEG}.nii.gz
   fi
 }
 
@@ -145,10 +145,8 @@ cd ${SUBJECT}/anat/
 # T1w
 # ------------------------------------------------------------------------------
 file_t1="${SUBJECT}_T1w"
-# Rename to raw original image
-mv "${file_t1}.nii.gz" "${file_t1}_raw.nii.gz"
 # Reorient to RPI and resample to 1mm iso (supposed to be the effective resolution)
-sct_image -i ${file_t1}_raw.nii.gz -setorient RPI -o ${file_t1}_RPI.nii.gz
+sct_image -i ${file_t1}.nii.gz -setorient RPI -o ${file_t1}_RPI.nii.gz
 sct_resample -i ${file_t1}_RPI.nii.gz -mm 1x1x1 -o ${file_t1}_RPI_r.nii.gz
 # Rename to add space-other 
 mv "${file_t1}_RPI_r.nii.gz" "${SUBJECT}_space-other_T1w.nii.gz"
@@ -178,8 +176,6 @@ sct_process_segmentation -i ${file_t1_seg}.nii.gz -vert 3:4 -vertfile label_T1w/
 # T2
 # ------------------------------------------------------------------------------
 file_t2="${SUBJECT}_T2w"
-# Rename to raw original image
-mv "${file_t2}.nii.gz" "${file_t2}_raw.nii.gz"
 # Reorient to RPI and resample to 0.8mm iso (supposed to be the effective resolution)
 sct_image -i ${file_t2}.nii.gz -setorient RPI -o ${file_t2}_RPI.nii.gz
 sct_resample -i ${file_t2}_RPI.nii.gz -mm 0.8x0.8x0.8 -o ${file_t2}_RPI_r.nii.gz
@@ -208,14 +204,10 @@ file_mtoff="${SUBJECT}_flip-1_mt-off_MTS"
 if [[ -e "${file_t1w}.nii.gz" && -e "${file_mton}.nii.gz" && -e "${file_mtoff}.nii.gz" ]]; then
   
   # Reorient to RPI:
-  # Rename raw file
-  mv ${file_t1w}.nii.gz ${file_t1w}_raw.nii.gz
-  mv ${file_mton}.nii.gz ${file_mton}_raw.nii.gz
-  mv ${file_mtoff}.nii.gz ${file_mtoff}_raw.nii.gz
   # Reorient to RPI
-  sct_image -i ${file_t1w}_raw.nii.gz -setorient RPI -o ${file_t1w}_RPI.nii.gz
-  sct_image -i ${file_mton}_raw.nii.gz -setorient RPI -o ${file_mton}_RPI.nii.gz
-  sct_image -i ${file_mtoff}_raw.nii.gz -setorient RPI -o ${file_mtoff}_RPI.nii.gz
+  sct_image -i ${file_t1w}.nii.gz -setorient RPI -o ${file_t1w}_RPI.nii.gz
+  sct_image -i ${file_mton}.nii.gz -setorient RPI -o ${file_mton}_RPI.nii.gz
+  sct_image -i ${file_mtoff}.nii.gz -setorient RPI -o ${file_mtoff}_RPI.nii.gz
   
   # Rename _RPI file to space-other
   mv ${file_t1w}_RPI.nii.gz "${SUBJECT}_flip-2_mt-off_space-other_MTS.nii.gz"
@@ -241,9 +233,9 @@ if [[ -e "${file_t1w}.nii.gz" && -e "${file_mton}.nii.gz" && -e "${file_mtoff}.n
   sct_register_multimodal -i ${file_mton}.nii.gz -d ${file_t1w}.nii.gz -dseg ${file_t1w_seg}.nii.gz -param step=1,type=im,algo=rigid,slicewise=1,metric=CC -x spline -qc ${PATH_QC} -qc-subject ${SUBJECT}
   file_mton="${file_mton}_reg"
   # Copy json files to match file basename (it will later be used by sct_compute_mtsat)
-  cp ${SUBJECT}_acq-T1w_MTS.json ${file_t1w}.json
-  cp ${SUBJECT}_acq-MToff_MTS.json ${file_mtoff}.json
-  cp ${SUBJECT}_acq-MTon_MTS.json ${file_mton}.json
+  cp ${SUBJECT}_flip-2_mt-off_MTS.json ${file_t1w}.json
+  cp ${SUBJECT}_flip-1_mt-off_MTS.json ${file_mtoff}.json
+  cp ${SUBJECT}_flip-1_mt-on_MTS.json ${file_mton}.json
   # Register template->T1w_ax (using template-T1w as initial transformation)
   sct_register_multimodal -i $SCT_DIR/data/PAM50/template/PAM50_t1.nii.gz -iseg $SCT_DIR/data/PAM50/template/PAM50_cord.nii.gz -d ${file_t1w}.nii.gz -dseg ${file_t1w_seg}.nii.gz -param step=1,type=seg,algo=slicereg,metric=MeanSquares,smooth=2:step=2,type=im,algo=syn,metric=CC,iter=5,gradStep=0.5 -initwarp warp_template2T1w.nii.gz -initwarpinv warp_T1w2template.nii.gz
   # Rename warping field for clarity
@@ -272,20 +264,22 @@ fi
 file_t2s="${SUBJECT}_T2star"
 # Compute root-mean square across 4th dimension (if it exists), corresponding to all echoes in Philips scans.
 sct_maths -i ${file_t2s}.nii.gz -rms t -o ${file_t2s}_rms.nii.gz
-mv ${file_t2s}_rms.nii.gz "${SUBJECT}_space-other_T2star.nii.gz"
+# Reorient to RPI
+sct_image -i ${file_t2s}_rms.nii.gz -setorient RPI -o ${file_t2s}_rms_RPI.nii.gz
+mv ${file_t2s}_rms_RPI.nii.gz "${SUBJECT}_space-other_T2star.nii.gz"
 file_t2s="${SUBJECT}_space-other_T2star"
 # Bring vertebral level into T2s space
 sct_register_multimodal -i label_T1w/template/PAM50_levels.nii.gz -d ${file_t2s}.nii.gz -o PAM50_levels2${file_t2s}.nii.gz -identity 1 -x nn
 # Segment gray matter (only if it does not exist)
 segment_gm_if_does_not_exist $file_t2s "t2s"
-file_t2s_seg=$FILESEG
+file_t2s_gmseg=$FILESEG
 # Segment spinal cord (only if it does not exist)
 segment_if_does_not_exist $file_t2s "t2s"
 file_t2s_scseg=$FILESEG
 # Compute the gray matter CSA between C3 and C4 levels
 # NB: Here we set -no-angle 1 because we do not want angle correction: it is too
 # unstable with GM seg, and t2s data were acquired orthogonal to the cord anyways.
-sct_process_segmentation -i ${file_t2s_seg}.nii.gz -angle-corr 0 -vert 3:4 -vertfile PAM50_levels2${file_t2s}.nii.gz -o ${PATH_RESULTS}/csa-GM_T2s.csv -append 1
+sct_process_segmentation -i ${file_t2s_gmseg}.nii.gz -angle-corr 0 -vert 3:4 -vertfile PAM50_levels2${file_t2s}.nii.gz -o ${PATH_RESULTS}/csa-GM_T2s.csv -append 1
 sct_process_segmentation -i ${file_t2s_scseg}.nii.gz -angle-corr 0 -vert 3:4 -vertfile PAM50_levels2${file_t2s}.nii.gz -o ${PATH_RESULTS}/csa-SC_T2s.csv -append 1
 
 # DWI
@@ -314,7 +308,7 @@ sct_create_mask -i ${file_dwi}_dwi_mean.nii.gz -p centerline,${file_dwi}_dwi_mea
 # Motion correction
 sct_dmri_moco -i ${file_dwi}.nii.gz -bvec ${file_dwi}.bvec -m mask_${file_dwi}_dwi_mean.nii.gz -x spline
 file_dwi=${file_dwi}_moco
-mv ${file_dwi_mean}.nii.gz "${SUBJECT}_rec-average_dwi.nii.gz"
+mv ${file_dwi}_dwi_mean.nii.gz "${SUBJECT}_rec-average_dwi.nii.gz"
 file_dwi_mean="${SUBJECT}_rec-average_dwi"
 # Segment spinal cord (only if it does not exist)
 segment_if_does_not_exist ${file_dwi_mean} "dwi"
