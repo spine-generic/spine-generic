@@ -57,20 +57,24 @@ concatenate_b0_and_dwi(){
 label_if_does_not_exist(){
   local file="$1"
   local file_seg="$2"
+  local file_space_other="$3"
   # Update global variable with segmentation file name
-  FILELABEL="${file}_labels"
-  FILELABELMANUAL="${PATH_DATA}/derivatives/labels/${SUBJECT}/anat/${FILELABEL}-manual.nii.gz"
+  FILELABEL="${file}_label-discs_dlabel" #label-discs_dlabel
+  FILELABELMANUAL="${PATH_DATA}/derivatives/labels/${SUBJECT}/anat/${FILELABEL}.nii.gz"
   echo "Looking for manual label: $FILELABELMANUAL"
   if [[ -e $FILELABELMANUAL ]]; then
     echo "Found! Using manual labels."
     rsync -avzh $FILELABELMANUAL ${FILELABEL}.nii.gz
+    # Generate labeled segmentation from manual disc labels
+    sct_label_vertebrae -i ${file}.nii.gz -s ${file_seg}.nii.gz -discfile ${FILELABEL}.nii.gz -c t1
   else
     echo "Not found. Proceeding with automatic labeling."
     # Generate labeled segmentation
-    sct_label_vertebrae -i ${file}.nii.gz -s ${file_seg}.nii.gz -c t1
-    # Create labels in the cord at C3 and C5 mid-vertebral levels
-    sct_label_utils -i ${file_seg}_labeled.nii.gz -vert-body 3,5 -o ${FILELABEL}.nii.gz
+    sct_label_vertebrae -i ${file_space_other}.nii.gz -s ${file_seg}.nii.gz -c t1
   fi
+  # Create labels in the cord at C3 and C5 mid-vertebral levels
+  sct_label_utils -i ${file_seg}_labeled_discs.nii.gz -vert-body 3,5 -o ${file}_label-vertebrae_desc-C3C5_dlabel.nii.gz
+  FILELABEL="${file}_label-vertebrae_desc-C3C5_dlabel"
 }
 
 # Check if manual segmentation already exists. If it does, copy it locally. If
@@ -155,7 +159,7 @@ file_t1="${SUBJECT}_space-other_T1w"
 segment_if_does_not_exist $file_t1 "t1"
 file_t1_seg=$FILESEG
 # Create mid-vertebral levels in the cord (only if it does not exist)
-label_if_does_not_exist ${file_t1} ${file_t1_seg}
+label_if_does_not_exist "${SUBJECT}_T1w" ${file_t1_seg} $file_t1
 file_label=$FILELABEL
 # Register to PAM50 template
 sct_register_to_template -i ${file_t1}.nii.gz -s ${file_t1_seg}.nii.gz -l ${file_label}.nii.gz -c t1 -param step=1,type=seg,algo=centermassrot:step=2,type=seg,algo=syn,slicewise=1,smooth=0,iter=5:step=3,type=im,algo=syn,slicewise=1,smooth=0,iter=3 -qc ${PATH_QC} -qc-subject ${SUBJECT}
@@ -342,13 +346,13 @@ cd ..
 # Verify presence of output files and write log file if error
 # ------------------------------------------------------------------------------
 FILES_TO_CHECK=(
-  "anat/${SUBJECT}_T1w_RPI_r_seg.nii.gz"
-  "anat/${SUBJECT}_T2w_RPI_r_seg.nii.gz"
+  "anat/${SUBJECT}_space-other_T1w_label-SC_seg.nii.gz"
+  "anat/${SUBJECT}_space-other_T2w_label-SC_seg.nii.gz"
   "anat/label_axT1w/template/PAM50_levels.nii.gz"
   "anat/mtr.nii.gz"
   "anat/mtsat.nii.gz"
   "anat/t1map.nii.gz"
-  "anat/${SUBJECT}_T2star_rms_gmseg.nii.gz"
+  "anat/${SUBJECT}_space-other_T2star_label-GM_seg.nii.gz"
   "dwi/dti_FA.nii.gz"
   "dwi/dti_MD.nii.gz"
   "dwi/dti_RD.nii.gz"
