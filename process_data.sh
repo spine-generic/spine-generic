@@ -334,13 +334,13 @@ sct_extract_metric -i dti_FA.nii.gz -f label/atlas -l 51 -vert 2:5 -o ${PATH_RES
 sct_extract_metric -i dti_MD.nii.gz -f label/atlas -l 51 -vert 2:5 -o ${PATH_RESULTS}/DWI_MD.csv -append 1
 sct_extract_metric -i dti_RD.nii.gz -f label/atlas -l 51 -vert 2:5 -o ${PATH_RESULTS}/DWI_RD.csv -append 1
 # Compute FA, MD and RD in LCST between C2 and C5 vertebral levels
-sct_extract_metric -i dti_FA.nii.gz -f label/atlas -l 2,17 -vert 2:5 -o ${PATH_RESULTS}/DWI_FA_LCST.csv -append 1 -combine 1
-sct_extract_metric -i dti_MD.nii.gz -f label/atlas -l 2,17 -vert 2:5 -o ${PATH_RESULTS}/DWI_MD_LCST.csv -append 1 -combine 1
-sct_extract_metric -i dti_RD.nii.gz -f label/atlas -l 2,17 -vert 2:5 -o ${PATH_RESULTS}/DWI_RD_LCST.csv -append 1 -combine 1
+sct_extract_metric -i dti_FA.nii.gz -f label/atlas -l 4,5 -vert 2:5 -o ${PATH_RESULTS}/DWI_FA_LCST.csv -append 1 -combine 1
+sct_extract_metric -i dti_MD.nii.gz -f label/atlas -l 4,5 -vert 2:5 -o ${PATH_RESULTS}/DWI_MD_LCST.csv -append 1 -combine 1
+sct_extract_metric -i dti_RD.nii.gz -f label/atlas -l 4,5 -vert 2:5 -o ${PATH_RESULTS}/DWI_RD_LCST.csv -append 1 -combine 1
 # Compute FA, MD and RD in DC between C2 and C5 vertebral levels
-sct_extract_metric -i dti_FA.nii.gz -f label/atlas -l 0,1,15,16 -vert 2:5 -o ${PATH_RESULTS}/DWI_FA_DC.csv -append 1 -combine 1
-sct_extract_metric -i dti_MD.nii.gz -f label/atlas -l 0,1,15,16 -vert 2:5 -o ${PATH_RESULTS}/DWI_MD_DC.csv -append 1 -combine 1
-sct_extract_metric -i dti_RD.nii.gz -f label/atlas -l 0,1,15,16 -vert 2:5 -o ${PATH_RESULTS}/DWI_RD_DC.csv -append 1 -combine 1
+sct_extract_metric -i dti_FA.nii.gz -f label/atlas -l 53 -vert 2:5 -o ${PATH_RESULTS}/DWI_FA_DC.csv -append 1 -combine 1
+sct_extract_metric -i dti_MD.nii.gz -f label/atlas -l 53 -vert 2:5 -o ${PATH_RESULTS}/DWI_MD_DC.csv -append 1 -combine 1
+sct_extract_metric -i dti_RD.nii.gz -f label/atlas -l 53 -vert 2:5 -o ${PATH_RESULTS}/DWI_RD_DC.csv -append 1 -combine 1
 # Go back to parent folder
 cd ..
 
