@@ -57,7 +57,7 @@ concatenate_b0_and_dwi(){
 label_if_does_not_exist(){
   local file="$1"
   local file_seg="$2"
-  local file_space_other="$3"
+  local file_space_other="$3"  # image file that has a different resolution than the segmentation file (but still in the same physical space)
   # Update global variable with segmentation file name
   FILELABEL="${file}_label-discs_dlabel" #label-discs_dlabel
   FILELABELMANUAL="${PATH_DATA}/derivatives/labels/${SUBJECT}/anat/${FILELABEL}.nii.gz"
