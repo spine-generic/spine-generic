@@ -73,7 +73,7 @@ label_if_does_not_exist(){
     sct_label_vertebrae -i ${file_space_other}.nii.gz -s ${file_seg}.nii.gz -c t1
   fi
   # Create labels in the cord at C3 and C5 mid-vertebral levels
-  sct_label_utils -i ${file_seg}_labeled_discs.nii.gz -vert-body 3,5 -o ${file}_label-vertebrae_desc-C3C5_dlabel.nii.gz
+  sct_label_utils -i ${file_seg}_labeled.nii.gz -vert-body 3,5 -o ${file}_label-vertebrae_desc-C3C5_dlabel.nii.gz
   FILELABEL="${file}_label-vertebrae_desc-C3C5_dlabel"
 }
 
