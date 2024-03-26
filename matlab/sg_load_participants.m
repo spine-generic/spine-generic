@@ -15,5 +15,6 @@ function participants = sg_load_participants(participants_file)
     participants.participant_id=cellstr(participants.participant_id);
     participants.institution_id=cellstr(participants.institution_id);
     participants.manufacturer=cellstr(participants.manufacturer);
+    participants.pathology=cellstr(participants.pathology);
     participants.sex=cellstr(participants.sex);
 end

@@ -1,4 +1,4 @@
-function [r, p, r_norm, p_norm] = sg_draw_corrplot_loop(xdata,ydata,xdata_name,ydata_name,participants,fig_ind,fig_dimensions,usedata,tick_xdata,tick_ydata,fig_filename)
+function [r, p, r_norm, p_norm] = sg_draw_corrplot_loop(xdata,ydata,xdata_name,ydata_name,participants,fig_ind,fig_dimensions,usedata,tick_xdata,tick_ydata,fig_filename,p_thr)
 %SG_DRAW_CORRPLOT_LOOP Summary of this function goes here
 %   Detailed explanation goes here
 %
@@ -18,10 +18,14 @@ function [r, p, r_norm, p_norm] = sg_draw_corrplot_loop(xdata,ydata,xdata_name,y
     for cs = 1:size(ydata,2)
         for dm = 1:size(xdata,2)
             subplot(size(ydata,2),size(xdata,2),pl)
-            [r(cs,dm,:), p(cs,dm,:), r_norm(cs,dm,:), p_norm(cs,dm,:)] = sg_draw_corrplot(xdata(:,dm),ydata(:,cs),participants,usedata);
+            [r(cs,dm,:), p(cs,dm,:), r_norm(cs,dm,:), p_norm(cs,dm,:)] = sg_draw_corrplot(xdata(:,dm),ydata(:,cs),participants,usedata,fig_ind,p_thr);
             if cs == size(ydata,2)
                 xlabel(xdata_name{1,dm})
-                set(gca,'Xtick',tick_xdata{dm,1},'Xticklabel',tick_xdata{dm,1})
+                if strcmp(xdata_name{1,dm},'BrainVol [mm^3]')
+                    set(gca,'Xtick',tick_xdata{dm,1},'Xticklabel',{'1.0*10^6','1.3*10^6','1.6*10^6'})
+                else
+                    set(gca,'Xtick',tick_xdata{dm,1},'Xticklabel',tick_xdata{dm,1})
+                end
             elseif cs < size(ydata,2)
                 set(gca,'Xtick',tick_xdata{dm,1},'Xticklabel',' ')
             end

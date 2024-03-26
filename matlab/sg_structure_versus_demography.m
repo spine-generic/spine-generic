@@ -40,7 +40,11 @@ function stat = sg_structure_versus_demography(path_results,path_data)
     %% Basic setups
     include_body_indexes = 0;
     fig_biplot_size=[10 42 1450 1290]; % Define biplot figure dimensions
-
+    exclude_sg_pathology = 0; % values: 0 - all data
+                              %         1 - without compression only
+                              %         2 - with compression only
+    %% Set uncorrected critical p-value for firther FWE correction
+    p_thr = 0.05;
     %% Graph tick ranges:
     tick_csa = 35:5:100;      % CSA-range [mm^2]
     tick_csagm = 2:2:20;      % CSA-GM-range [mm^2]
@@ -68,7 +72,7 @@ function stat = sg_structure_versus_demography(path_results,path_data)
     tick_dwi = {tick_fa; tick_md; tick_rd};
     tick_mtr = {tick_mtrrange; tick_mtrrange; tick_mtrrange};
     tick_mtrgm = {tick_mtrgmrange; tick_mtrgmrange; tick_mtrgmrange};
-    tick_dwimtr = {tick_md; tick_rd; tick_mtrrange};
+    tick_dwimtr = {tick_fa; tick_md; tick_mtrrange};
     tick_dwimtrgm = {tick_fa; tick_md; tick_mtrgmrange};
     tick_fs = {tick_BrainVol; tick_BrainGMVol; tick_CorticalGMVol; tick_CorticalWMVol; tick_SubCortGMVol; tick_ThalamusVol; tick_CerebellumVol; tick_BrainStemVol};
     tick_thick = {tick_thickness; tick_thickness; tick_thickness; tick_PrecentralGMVol; tick_PostcentralGMVol};
@@ -100,6 +104,8 @@ function stat = sg_structure_versus_demography(path_results,path_data)
     participants = sg_load_participants(fullfile(csv_path,'participants.tsv'));
     yml = ReadYaml(fullfile(path_data,'exclude.yml'));
 
+    %% Identify positions of subject with degenerative cervical compression (exclusion criteria)
+    compression_pos = strcmp(participants.participant_id,'sub-mniS05');
     %% Define filenames and other values for spinal cord and cerebral structural measurements
     % All *.csv files are stored in the results folder
 
@@ -137,7 +143,7 @@ function stat = sg_structure_versus_demography(path_results,path_data)
     mtr_lvl = {'2:5', '2:5', '2:5'};
     mtr_excl = {yml.mtr, yml.mtr, yml.mtr};
 
-    dwimtr_name = {'MD-SC-WM [*10^{-9}m^2/s]', 'RD-SC-WM [*10^{-9}m^2/s]', 'MTR-SC-WM [%]'};
+    dwimtr_name = {'FA-SC-GM', 'MD-SC-WM [*10^{-9}m^2/s]', 'MTR-SC-WM [%]'};
     
     mtrgm_filename = {'MTR_GM.csv', 'MTR_GM.csv', 'MTR_GM.csv'};
     mtrgm_name = {'MTR-SC-GM [%]', 'MTR-SC-GM [%]', 'MTR-SC-GM [%]'};
@@ -153,6 +159,13 @@ function stat = sg_structure_versus_demography(path_results,path_data)
     thick_excl = {cell(0,0), cell(0,0)};
     thickGMvol_name = {'PrecentralGMVol [mm^3]', 'PostcentralGMVol [mm^3]'};
 
+    %% Set critical p-values for FWE correction p_FWE < p_thr
+    csa_p_fwe_thr_demography = p_thr / (3*3); % 3 CSA measures (SC, WM ,GM) * 3 demography measures (age, height, weight)
+    csa_p_fwe_thr_brain = p_thr / (3*10); % 3 CSA measures (SC, WM ,GM) * 10 brain regions of interest
+    dwi_p_fwe_thr_demography = p_thr / (3*3);  % 3 DTI measures (FA, MD, RD) * 3 demography measures
+    dwi_p_fwe_thr_thick = p_thr / (3*3);  % 3 DTI measures (FA, MD, RD) * 3 thickness measures
+    demography_p_fwe_thr_brain = p_thr / (3*10); % 3 demography measures (age, height, weight) * 10 brain regions of interest
+    dwi_p_fwe_thr_brain = p_thr / (3*10); % 3 DTI measures (FA, MD, RD) * 10 brain regions of interest
     %% Define position (column) of age, height and weight in the demogprahy variable
     age_pos = strcmp(demography_name,text_age)==1;
     height_pos = strcmp(demography_name,text_height)==1;
@@ -248,6 +261,12 @@ function stat = sg_structure_versus_demography(path_results,path_data)
     if strcmp(csa_name{1,2}(5:6),'WM')
         csa(:,2) = csa(:,2) - csa(:,3);
     end
+    csa(compression_pos,:) = NaN;
+    if exclude_sg_pathology == 1
+        csa(~strcmp(participants.pathology,'HC'),:) = NaN;
+    elseif exclude_sg_pathology == 2
+        csa(strcmp(participants.pathology,'HC'),:) = NaN;
+    end
     %% Two-sample t-tests examining differences in CSA measurements over manufacturers
     pttest2_csa = zeros(size(csa,2),3);
     for ind = 1:size(csa,2)
@@ -259,22 +278,58 @@ function stat = sg_structure_versus_demography(path_results,path_data)
     %% Read spinal cord DTI measurements (FA, MD, RD respectively) from WM ROI
     dwi = sg_extract_csv(dwi_name,csv_path,dwi_filename,dwi_lvl,'WA()',participants,dwi_excl);
     dwi(:,2:3) = 1000*dwi(:,2:3);
+    dwi(compression_pos,:) = NaN;
+    if exclude_sg_pathology == 1
+        dwi(~strcmp(participants.pathology,'HC'),:) = NaN;
+    elseif exclude_sg_pathology == 2
+        dwi(strcmp(participants.pathology,'HC'),:) = NaN;
+    end
     %% Read spinal cord DTI measurements (FA, MD, RD respectively) from bilateral LCST ROI
     dwilcst = sg_extract_csv(dwilcst_name,csv_path,dwilcst_filename,dwilcst_lvl,'WA()',participants,dwilcst_excl);
     dwilcst(:,2:3) = 1000*dwilcst(:,2:3);
+    dwilcst(compression_pos,:) = NaN;
+    if exclude_sg_pathology == 1
+        dwilcst(~strcmp(participants.pathology,'HC'),:) = NaN;
+    elseif exclude_sg_pathology == 2
+        dwilcst(strcmp(participants.pathology,'HC'),:) = NaN;
+    end
     %% Read spinal cord DTI measurements (FA, MD, RD respectively) from bilateral DC ROI
     dwidc = sg_extract_csv(dwidc_name,csv_path,dwidc_filename,dwidc_lvl,'WA()',participants,dwidc_excl);
     dwidc(:,2:3) = 1000*dwidc(:,2:3);
+    dwidc(compression_pos,:) = NaN;
+    if exclude_sg_pathology == 1
+        dwidc(~strcmp(participants.pathology,'HC'),:) = NaN;
+    elseif exclude_sg_pathology == 2
+        dwidc(strcmp(participants.pathology,'HC'),:) = NaN;
+    end
     %% Read spinal cord DTI measurements (FA, MD, RD respectively) from GM ROI
     dwigm = sg_extract_csv(dwigm_name,csv_path,dwigm_filename,dwigm_lvl,'WA()',participants,dwigm_excl);
     dwigm(:,2:3) = 1000*dwigm(:,2:3);
+    dwigm(compression_pos,:) = NaN;
+    if exclude_sg_pathology == 1
+        dwigm(~strcmp(participants.pathology,'HC'),:) = NaN;
+    elseif exclude_sg_pathology == 2
+        dwigm(strcmp(participants.pathology,'HC'),:) = NaN;
+    end
     %% Read spinal cord MTR measurements from WM, bilateral LCST and bilateral DC ROIs
     mtr = sg_extract_csv(mtr_name,csv_path,mtr_filename,mtr_lvl,'WA()',participants,mtr_excl);
+    mtr(compression_pos,:) = NaN;
+    if exclude_sg_pathology == 1
+        mtr(~strcmp(participants.pathology,'HC'),:) = NaN;
+    elseif exclude_sg_pathology == 2
+        mtr(strcmp(participants.pathology,'HC'),:) = NaN;
+    end
     %% Read spinal cord MTR measurements from GM ROI
     mtrgm = sg_extract_csv(mtrgm_name,csv_path,mtrgm_filename,mtrgm_lvl,'WA()',participants,mtrgm_excl);
+    mtrgm(compression_pos,:) = NaN;
+    if exclude_sg_pathology == 1
+       mtrgm(~strcmp(participants.pathology,'HC'),:) = NaN;
+    elseif exclude_sg_pathology == 2
+       mtrgm(strcmp(participants.pathology,'HC'),:) = NaN;
+    end
     %% Reorganize spinal cord data of major analysis interest
     dwimtrgm = [dwigm(:,1:2), mtrgm(:,1)];
-    dwimtr = [dwi(:,2:3), mtr(:,1)];
+    dwimtr = [dwigm(:,1) dwi(:,2), mtr(:,1)];
     sc_data = [csa, dwimtr];
     sc_data_name = [csa_name, dwimtr_name];
 
@@ -310,41 +365,41 @@ function stat = sg_structure_versus_demography(path_results,path_data)
     % p ... array of p-values of correlation coefficients from raw data
     % r_norm ... array of correlation coefficients from normalized y-axis data
     % p_norm ... array of p-values of correlation coefficients from normalized y-axis data
-    [r(:,:,:,1),p(:,:,:,1),r_norm(:,:,:,1),p_norm(:,:,:,1)] = sg_draw_corrplot_loop(demography,csa,demography_name,csa_name,participants,1,fig_dimensions,'All',tick_demography,tick_csa,fullfile(csv_path,'fig_corr_body_csa'));
-    [r(:,:,:,2),p(:,:,:,2),r_norm(:,:,:,2),p_norm(:,:,:,2)] = sg_draw_corrplot_loop(demography,dwimtr,demography_name,dwimtr_name,participants,2,fig_dimensions,'GEout',tick_demography,tick_dwimtr,fullfile(csv_path,'fig_corr_body_dtimtr'));
-    [r(:,:,:,3),p(:,:,:,3),r_norm(:,:,:,3),p_norm(:,:,:,3)] = sg_draw_corrplot_loop(demography,dwi,demography_name,dwi_name,participants,3,fig_dimensions,'GEout',tick_demography,tick_dwi,fullfile(csv_path,'fig_corr_body_dti'));
-    [r(:,:,:,4),p(:,:,:,4),r_norm(:,:,:,4),p_norm(:,:,:,4)] = sg_draw_corrplot_loop(demography,dwilcst,demography_name,dwilcst_name,participants,4,fig_dimensions,'GEout',tick_demography,tick_dwi,fullfile(csv_path,'fig_corr_body_dti_lcst'));
-    [r(:,:,:,5),p(:,:,:,5),r_norm(:,:,:,5),p_norm(:,:,:,5)] = sg_draw_corrplot_loop(demography,dwidc,demography_name,dwidc_name,participants,5,fig_dimensions,'GEout',tick_demography,tick_dwi,fullfile(csv_path,'fig_corr_body_dti_dc'));
-    [r(:,:,:,6),p(:,:,:,6),r_norm(:,:,:,6),p_norm(:,:,:,6)] = sg_draw_corrplot_loop(demography,mtr,demography_name,mtr_name,participants,6,fig_dimensions,'GEout',tick_demography,tick_mtr,fullfile(csv_path,'fig_corr_body_mtr'));
-    [r(:,:,:,7),p(:,:,:,7),r_norm(:,:,:,7),p_norm(:,:,:,7)] = sg_draw_corrplot_loop(thick(:,1:3),dwilcst,thick_name(1:3),dwilcst_name,participants,7,fig_dimensions,'GEout',tick_thick(1:3),tick_dwi,fullfile(csv_path,'fig_corr_thick_dtilcst'));
-    [r(:,:,:,8),p(:,:,:,8),r_norm(:,:,:,8),p_norm(:,:,:,8)] = sg_draw_corrplot_loop(thick(:,1:3),dwidc,thick_name(1:3),dwidc_name,participants,8,fig_dimensions,'GEout',tick_thick(1:3),tick_dwi,fullfile(csv_path,'fig_corr_thick_dtidc'));
-    [r(:,:,:,9),p(:,:,:,9),r_norm(:,:,:,9),p_norm(:,:,:,9)] = sg_draw_corrplot_loop(thick(:,1:3),mtr,thick_name(1:3),mtr_name,participants,9,fig_dimensions,'GEout',tick_thick(1:3),tick_mtr,fullfile(csv_path,'fig_corr_thick_mtr'));
-    [r(:,:,:,10),p(:,:,:,10),r_norm(:,:,:,10),p_norm(:,:,:,10)] = sg_draw_corrplot_loop(demography,dwigm,demography_name,dwigm_name,participants,10,fig_dimensions,'GEout',tick_demography,tick_dwi,fullfile(csv_path,'fig_corr_body_dti_gm'));
-    [r(:,:,:,11),p(:,:,:,11),r_norm(:,:,:,11),p_norm(:,:,:,11)] = sg_draw_corrplot_loop(demography,mtrgm,demography_name,mtrgm_name,participants,11,fig_dimensions,'GEout',tick_demography,tick_mtrgm,fullfile(csv_path,'fig_corr_body_mtr_gm'));
+    [r(:,:,:,1),p(:,:,:,1),r_norm(:,:,:,1),p_norm(:,:,:,1)] = sg_draw_corrplot_loop(demography,csa,demography_name,csa_name,participants,1,fig_dimensions,'All',tick_demography,tick_csa,fullfile(csv_path,'fig_corr_body_csa'),csa_p_fwe_thr_demography);
+    [r(:,:,:,2),p(:,:,:,2),r_norm(:,:,:,2),p_norm(:,:,:,2)] = sg_draw_corrplot_loop(demography,dwimtr,demography_name,dwimtr_name,participants,2,fig_dimensions,'GEout',tick_demography,tick_dwimtr,fullfile(csv_path,'fig_corr_body_dtimtr'),dwi_p_fwe_thr_demography);
+    [r(:,:,:,3),p(:,:,:,3),r_norm(:,:,:,3),p_norm(:,:,:,3)] = sg_draw_corrplot_loop(demography,dwi,demography_name,dwi_name,participants,3,fig_dimensions,'GEout',tick_demography,tick_dwi,fullfile(csv_path,'fig_corr_body_dti'),dwi_p_fwe_thr_demography);
+    [r(:,:,:,4),p(:,:,:,4),r_norm(:,:,:,4),p_norm(:,:,:,4)] = sg_draw_corrplot_loop(demography,dwilcst,demography_name,dwilcst_name,participants,4,fig_dimensions,'GEout',tick_demography,tick_dwi,fullfile(csv_path,'fig_corr_body_dti_lcst'),dwi_p_fwe_thr_demography);
+    [r(:,:,:,5),p(:,:,:,5),r_norm(:,:,:,5),p_norm(:,:,:,5)] = sg_draw_corrplot_loop(demography,dwidc,demography_name,dwidc_name,participants,5,fig_dimensions,'GEout',tick_demography,tick_dwi,fullfile(csv_path,'fig_corr_body_dti_dc'),dwi_p_fwe_thr_demography);
+    [r(:,:,:,6),p(:,:,:,6),r_norm(:,:,:,6),p_norm(:,:,:,6)] = sg_draw_corrplot_loop(demography,mtr,demography_name,mtr_name,participants,6,fig_dimensions,'GEout',tick_demography,tick_mtr,fullfile(csv_path,'fig_corr_body_mtr'),dwi_p_fwe_thr_demography);
+    [r(:,:,:,7),p(:,:,:,7),r_norm(:,:,:,7),p_norm(:,:,:,7)] = sg_draw_corrplot_loop(thick(:,1:3),dwilcst,thick_name(1:3),dwilcst_name,participants,7,fig_dimensions,'GEout',tick_thick(1:3),tick_dwi,fullfile(csv_path,'fig_corr_thick_dtilcst'),dwi_p_fwe_thr_thick);
+    [r(:,:,:,8),p(:,:,:,8),r_norm(:,:,:,8),p_norm(:,:,:,8)] = sg_draw_corrplot_loop(thick(:,1:3),dwidc,thick_name(1:3),dwidc_name,participants,8,fig_dimensions,'GEout',tick_thick(1:3),tick_dwi,fullfile(csv_path,'fig_corr_thick_dtidc'),dwi_p_fwe_thr_thick);
+    [r(:,:,:,9),p(:,:,:,9),r_norm(:,:,:,9),p_norm(:,:,:,9)] = sg_draw_corrplot_loop(thick(:,1:3),mtr,thick_name(1:3),mtr_name,participants,9,fig_dimensions,'GEout',tick_thick(1:3),tick_mtr,fullfile(csv_path,'fig_corr_thick_mtr'),dwi_p_fwe_thr_thick);
+    [r(:,:,:,10),p(:,:,:,10),r_norm(:,:,:,10),p_norm(:,:,:,10)] = sg_draw_corrplot_loop(demography,dwigm,demography_name,dwigm_name,participants,10,fig_dimensions,'GEout',tick_demography,tick_dwi,fullfile(csv_path,'fig_corr_body_dti_gm'),dwi_p_fwe_thr_demography);
+    [r(:,:,:,11),p(:,:,:,11),r_norm(:,:,:,11),p_norm(:,:,:,11)] = sg_draw_corrplot_loop(demography,mtrgm,demography_name,mtrgm_name,participants,11,fig_dimensions,'GEout',tick_demography,tick_mtrgm,fullfile(csv_path,'fig_corr_body_mtr_gm'),dwi_p_fwe_thr_demography);
     %% Draw figures 12-19 and store them on HDD in the folder csv_path (results)
     % Last input into the function sg_draw_corrplot_loop is the figure filename
     % fs_r ... array of correlation coefficients from raw data
     % fs_p ... array of p-values of correlation coefficients from raw data
     % fs_r_norm ... array of correlation coefficients from normalized y-axis data
     % fs_p_norm ... array of p-values of correlation coefficients from normalized y-axis data
-    [fs_r(:,:,:,1),fs_p(:,:,:,1),fs_r_norm(:,:,:,1),fs_p_norm(:,:,:,1)] = sg_draw_corrplot_loop(fs(:,1:4),csa,fs_name(1:4),csa_name,participants,12,[10 50 1935 1200],'All',tick_fs(1:4),tick_csa,fullfile(csv_path,'fig_corr_fs_csa_1'));
-    [fs_r(:,:,:,2),fs_p(:,:,:,2),fs_r_norm(:,:,:,2),fs_p_norm(:,:,:,2)] = sg_draw_corrplot_loop(fs(:,5:end),csa,fs_name(5:end),csa_name,participants,13,[10 50 1935 1200],'All',tick_fs(5:end),tick_csa,fullfile(csv_path,'fig_corr_fs_csa_2'));
-    [fs_r(:,:,:,3),fs_p(:,:,:,3),fs_r_norm(:,:,:,3),fs_p_norm(:,:,:,3)] = sg_draw_corrplot_loop(fs(:,1:4),dwimtr,fs_name(1:4),dwimtr_name,participants,14,[10 50 1935 1200],'GEout',tick_fs(1:4),tick_dwimtr,fullfile(csv_path,'fig_corr_fs_dtimtr_1'));
-    [fs_r(:,:,:,4),fs_p(:,:,:,4),fs_r_norm(:,:,:,4),fs_p_norm(:,:,:,4)] = sg_draw_corrplot_loop(fs(:,5:end),dwimtr,fs_name(5:end),dwimtr_name,participants,15,[10 50 1935 1200],'GEout',tick_fs(5:end),tick_dwimtr,fullfile(csv_path,'fig_corr_fs_dtimtr_2'));
-    [fs_r(:,:,:,5),fs_p(:,:,:,5),fs_r_norm(:,:,:,5),fs_p_norm(:,:,:,5)] = sg_draw_corrplot_loop(fs(:,1:4),demography,fs_name(1:4),demography_name,participants,16,[10 50 1935 1200],'All',tick_fs(1:4),tick_demography,fullfile(csv_path,'fig_corr_fs_demography_1'));
-    [fs_r(:,:,:,6),fs_p(:,:,:,6),fs_r_norm(:,:,:,6),fs_p_norm(:,:,:,6)] = sg_draw_corrplot_loop(fs(:,5:end),demography,fs_name(5:end),demography_name,participants,17,[10 50 1935 1200],'All',tick_fs(5:end),tick_demography,fullfile(csv_path,'fig_corr_fs_demography_2'));
-    [fs_r(:,:,:,7),fs_p(:,:,:,7),fs_r_norm(:,:,:,7),fs_p_norm(:,:,:,7)] = sg_draw_corrplot_loop(fs(:,1:4),dwimtrgm,fs_name(1:4),dwimtrgm_name,participants,18,[10 50 1935 1200],'GEout',tick_fs(1:4),tick_dwimtrgm,fullfile(csv_path,'fig_corr_fs_dtimtrgm_1'));
-    [fs_r(:,:,:,8),fs_p(:,:,:,8),fs_r_norm(:,:,:,8),fs_p_norm(:,:,:,8)] = sg_draw_corrplot_loop(fs(:,5:end),dwimtrgm,fs_name(5:end),dwimtrgm_name,participants,19,[10 50 1935 1200],'GEout',tick_fs(5:end),tick_dwimtrgm,fullfile(csv_path,'fig_corr_fs_dtimtrgm_2'));
+    [fs_r(:,:,:,1),fs_p(:,:,:,1),fs_r_norm(:,:,:,1),fs_p_norm(:,:,:,1)] = sg_draw_corrplot_loop(fs(:,1:4),csa,fs_name(1:4),csa_name,participants,12,[10 50 1935 1200],'All',tick_fs(1:4),tick_csa,fullfile(csv_path,'fig_corr_fs_csa_1'),csa_p_fwe_thr_brain);
+    [fs_r(:,:,:,2),fs_p(:,:,:,2),fs_r_norm(:,:,:,2),fs_p_norm(:,:,:,2)] = sg_draw_corrplot_loop(fs(:,5:end),csa,fs_name(5:end),csa_name,participants,13,[10 50 1935 1200],'All',tick_fs(5:end),tick_csa,fullfile(csv_path,'fig_corr_fs_csa_2'),csa_p_fwe_thr_brain);
+    [fs_r(:,:,:,3),fs_p(:,:,:,3),fs_r_norm(:,:,:,3),fs_p_norm(:,:,:,3)] = sg_draw_corrplot_loop(fs(:,1:4),dwimtr,fs_name(1:4),dwimtr_name,participants,14,[10 50 1935 1200],'GEout',tick_fs(1:4),tick_dwimtr,fullfile(csv_path,'fig_corr_fs_dtimtr_1'),dwi_p_fwe_thr_brain);
+    [fs_r(:,:,:,4),fs_p(:,:,:,4),fs_r_norm(:,:,:,4),fs_p_norm(:,:,:,4)] = sg_draw_corrplot_loop(fs(:,5:end),dwimtr,fs_name(5:end),dwimtr_name,participants,15,[10 50 1935 1200],'GEout',tick_fs(5:end),tick_dwimtr,fullfile(csv_path,'fig_corr_fs_dtimtr_2'),dwi_p_fwe_thr_brain);
+    [fs_r(:,:,:,5),fs_p(:,:,:,5),fs_r_norm(:,:,:,5),fs_p_norm(:,:,:,5)] = sg_draw_corrplot_loop(fs(:,1:4),demography,fs_name(1:4),demography_name,participants,16,[10 50 1935 1200],'All',tick_fs(1:4),tick_demography,fullfile(csv_path,'fig_corr_fs_demography_1'),demography_p_fwe_thr_brain);
+    [fs_r(:,:,:,6),fs_p(:,:,:,6),fs_r_norm(:,:,:,6),fs_p_norm(:,:,:,6)] = sg_draw_corrplot_loop(fs(:,5:end),demography,fs_name(5:end),demography_name,participants,17,[10 50 1935 1200],'All',tick_fs(5:end),tick_demography,fullfile(csv_path,'fig_corr_fs_demography_2'),demography_p_fwe_thr_brain);
+    [fs_r(:,:,:,7),fs_p(:,:,:,7),fs_r_norm(:,:,:,7),fs_p_norm(:,:,:,7)] = sg_draw_corrplot_loop(fs(:,1:4),dwimtrgm,fs_name(1:4),dwimtrgm_name,participants,18,[10 50 1935 1200],'GEout',tick_fs(1:4),tick_dwimtrgm,fullfile(csv_path,'fig_corr_fs_dtimtrgm_1'),dwi_p_fwe_thr_brain);
+    [fs_r(:,:,:,8),fs_p(:,:,:,8),fs_r_norm(:,:,:,8),fs_p_norm(:,:,:,8)] = sg_draw_corrplot_loop(fs(:,5:end),dwimtrgm,fs_name(5:end),dwimtrgm_name,participants,19,[10 50 1935 1200],'GEout',tick_fs(5:end),tick_dwimtrgm,fullfile(csv_path,'fig_corr_fs_dtimtrgm_2'),dwi_p_fwe_thr_brain);
     %% Draw figures 20-23 and store them on HDD in the folder csv_path (results)
     % Last input into the function sg_draw_corrplot_loop is the figure filename
     % thick_r ... array of correlation coefficients from raw data
     % thick_p ... array of p-values of correlation coefficients from raw data
     % thick_r_norm ... array of correlation coefficients from normalized y-axis data
     % thick_p_norm ... array of p-values of correlation coefficients from normalized y-axis data
-    [thick_r(:,:,:,1),thick_p(:,:,:,1),thick_r_norm(:,:,:,1),thick_p_norm(:,:,:,1)] = sg_draw_corrplot_loop(thick,csa,thick_name,csa_name,participants,20,[10 50 2415 1200],'All',tick_thick,tick_csa,fullfile(csv_path,'fig_corr_thick_csa'));
-    [thick_r(:,:,:,2),thick_p(:,:,:,2),thick_r_norm(:,:,:,2),thick_p_norm(:,:,:,2)] = sg_draw_corrplot_loop(thick,dwimtr,thick_name,dwimtr_name,participants,21,[10 50 2415 1200],'GEout',tick_thick,tick_dwimtr,fullfile(csv_path,'fig_corr_thick_dwimtr'));
-    [thick_r(:,:,:,3),thick_p(:,:,:,3),thick_r_norm(:,:,:,3),thick_p_norm(:,:,:,3)] = sg_draw_corrplot_loop(thick,demography,thick_name,demography_name,participants,22,[10 50 2415 1200],'All',tick_thick,tick_demography,fullfile(csv_path,'fig_corr_thick_demography'));
-    [thick_r(:,:,:,4),thick_p(:,:,:,4),thick_r_norm(:,:,:,4),thick_p_norm(:,:,:,4)] = sg_draw_corrplot_loop(thick,dwimtrgm,thick_name,dwimtrgm_name,participants,23,[10 50 2415 1200],'GEout',tick_thick,tick_dwimtrgm,fullfile(csv_path,'fig_corr_thick_dwimtrgm'));
+    [thick_r(:,:,:,1),thick_p(:,:,:,1),thick_r_norm(:,:,:,1),thick_p_norm(:,:,:,1)] = sg_draw_corrplot_loop(thick,csa,thick_name,csa_name,participants,20,[10 50 2415 1200],'All',tick_thick,tick_csa,fullfile(csv_path,'fig_corr_thick_csa'),csa_p_fwe_thr_brain);
+    [thick_r(:,:,:,2),thick_p(:,:,:,2),thick_r_norm(:,:,:,2),thick_p_norm(:,:,:,2)] = sg_draw_corrplot_loop(thick,dwimtr,thick_name,dwimtr_name,participants,21,[10 50 2415 1200],'GEout',tick_thick,tick_dwimtr,fullfile(csv_path,'fig_corr_thick_dwimtr'),dwi_p_fwe_thr_brain);
+    [thick_r(:,:,:,3),thick_p(:,:,:,3),thick_r_norm(:,:,:,3),thick_p_norm(:,:,:,3)] = sg_draw_corrplot_loop(thick,demography,thick_name,demography_name,participants,22,[10 50 2415 1200],'All',tick_thick,tick_demography,fullfile(csv_path,'fig_corr_thick_demography'),demography_p_fwe_thr_brain);
+    [thick_r(:,:,:,4),thick_p(:,:,:,4),thick_r_norm(:,:,:,4),thick_p_norm(:,:,:,4)] = sg_draw_corrplot_loop(thick,dwimtrgm,thick_name,dwimtrgm_name,participants,23,[10 50 2415 1200],'GEout',tick_thick,tick_dwimtrgm,fullfile(csv_path,'fig_corr_thick_dwimtrgm'),dwi_p_fwe_thr_brain);
     %% Estimate manufacturer-specific mean for spinal cord structural measurements
     sc_data_manufacturer_mean = zeros(size(sc_data));
     for ind = 1:size(sc_data,2)
@@ -368,20 +423,20 @@ function stat = sg_structure_versus_demography(path_results,path_data)
     stat.demography = demography_stats;
     stat.demography_male = demography_stats_males;
     stat.demography_female = demography_stats_females;
-    stat.r_fig1to9 = r;
-    stat.r_fig10to15 = fs_r;
-    stat.r_fig16to18 = thick_r;
+    stat.r_fig1to11 = r;
+    stat.r_fig12to19 = fs_r;
+    stat.r_fig20to23 = thick_r;
     stat.r_HeightWeight = r_HW;
-    stat.r_norm_fig1to9 = r_norm;
-    stat.r_norm_fig10to15 = fs_r_norm;
-    stat.r_norm_fig16to18 = thick_r_norm;
-    stat.p_fig1to9 = p;
-    stat.p_fig10to15 = fs_p;
-    stat.p_fig16to18 = thick_p;
+    stat.r_norm_fig1to11 = r_norm;
+    stat.r_norm_fig12to19 = fs_r_norm;
+    stat.r_norm_fig20to23 = thick_r_norm;
+    stat.p_fig1to11 = p;
+    stat.p_fig12to19 = fs_p;
+    stat.p_fig20to23 = thick_p;
     stat.p_HeightWeight = p_HW;
-    stat.p_norm_fig1to9 = p_norm;
-    stat.p_norm_fig10to15 = fs_p_norm;
-    stat.p_norm_fig16to18 = thick_p_norm;  
+    stat.p_norm_fig1to11 = p_norm;
+    stat.p_norm_fig12to19 = fs_p_norm;
+    stat.p_norm_fig20to23 = thick_p_norm;  
     stat.p_ttest2_AgeHeightWeightBmi_MALEvsFEMALE = pttest2_AHWB;
     stat.p_ttest2_CSA_MALEvsFEMALE = pttest2_csa;
     stat.manufacturer = manufacturer_stats;
@@ -390,5 +445,5 @@ function stat = sg_structure_versus_demography(path_results,path_data)
     stat.tbl = tbl;  
 
     %% Save the results in  the stat variable as .mat file at HDD
-    save(fullfile(csv_path,'stat_labounek2023.mat'),'stat','-mat')
+    save(fullfile(csv_path,'stat_labounek2023_HC_only.mat'),'stat','-mat')
 end

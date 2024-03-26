@@ -1,4 +1,4 @@
-function [r, p, r_norm, p_norm] = sg_draw_corrplot(xdata,ydata,participants,usedata)
+function [r, p, r_norm, p_norm] = sg_draw_corrplot(xdata,ydata,participants,usedata,fig_ind,p_thr)
 %SG_DRAW_CORRPLOT Summary of this function goes here
 %   
 %   OUTPUTS:
@@ -91,19 +91,23 @@ function [r, p, r_norm, p_norm] = sg_draw_corrplot(xdata,ydata,participants,used
     plot(xdata(ge_male),ydata(ge_male),'rx','LineStyle','none','LineWidth',3,'MarkerSize',11)
     hold off
     
-    if r(1)>0
+    if fig_ind == 1 || (r(1)>0 && fig_ind ~= 2 && fig_ind ~= 20 && fig_ind ~= 17 && fig_ind ~= 16 && fig_ind ~= 22)
         if miny>140
             coefy1 = 1.025;
         elseif maxy>110 && miny>40
             coefy1 = 1.10;
         elseif maxy>18 && maxy<25 && miny>1
-            coefy1 = 1.45;
+            coefy1 = 1.08;
         else
             coefy1 = 1.06;
         end
-    elseif r(1)<=0
+    elseif r(1)<=0 || fig_ind == 2 || fig_ind == 20 || fig_ind == 17 || fig_ind == 16 || fig_ind == 22
         if maxy<5
             coefy1 = 0.10;
+        elseif maxy>110 && maxy<200
+            coefy1 = 0.09;
+        elseif maxy>200
+            coefy1 = 0.02;
         elseif miny>25
             coefy1 = 0.03;
         else
@@ -112,18 +116,21 @@ function [r, p, r_norm, p_norm] = sg_draw_corrplot(xdata,ydata,participants,used
     else
         coefy1 = 0.05;
     end
-    if p(1) < 0.01
+    if fig_ind == 1 || (r(1)>0 && fig_ind ~= 2 && fig_ind ~= 20 && fig_ind ~= 17 && fig_ind ~= 16 && fig_ind ~= 22)
+        txty = coefy1*miny;
+    else
+        txty = maxy - coefy1*miny;
+    end
+    if p(1) < p_thr
         set(gca,'Color',[255 255 224]/255)
-        if r(1)>0
-            txty = coefy1*miny;
-        else
-            txty = maxy - coefy1*miny;
-        end
-        if p(1) < 0.0001
-            text(0.99*maxx,txty,['r=' num2str(r(1),'%.3f') '; p<0.0001'],'HorizontalAlignment','right','FontWeight','bold','FontSize',14)
-        else
-            text(0.99*maxx,txty,['r=' num2str(r(1),'%.3f') '; p=' num2str(p(1),'%.4f')],'HorizontalAlignment','right','FontWeight','bold','FontSize',14)
-        end
+%         if p(1) < 0.0001
+%             text(0.99*maxx,txty,['r=' num2str(r(1),'%.3f') '; p<0.0001'],'HorizontalAlignment','right','FontWeight','bold','FontSize',14)
+%         else
+%             text(0.99*maxx,txty,['r=' num2str(r(1),'%.3f') '; p=' num2str(p(1),'%.4f')],'HorizontalAlignment','right','FontWeight','bold','FontSize',14)
+%         end
+        text(0.99*maxx,txty,['r=' num2str(r(1),'%.3f')],'HorizontalAlignment','right','FontWeight','bold','FontSize',14)
+    else
+        text(0.99*maxx,txty,['r=' num2str(r(1),'%.3f')],'HorizontalAlignment','right','FontSize',14,'Color',[0.4 0.4 0.4])
     end
     axis([minx maxx miny maxy])
     grid on

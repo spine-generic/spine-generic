@@ -18,7 +18,9 @@ function [coeff,score,latent,tsquared,explained,mu] = sg_draw_biplot(data,data_n
 
     for ind = 1:size(data_name,2)
         brk_pos=find(data_name{1,ind}=='[');
-        data_name{1,ind} = data_name{1,ind}(1:brk_pos-2);
+        if ~isempty(brk_pos)
+            data_name{1,ind} = data_name{1,ind}(1:brk_pos-2);
+        end
     end
 
     h.fig = figure(fig_num);
@@ -109,129 +111,144 @@ function sg_mod_biplot(bp,explained,cmp1,cmp2,data_colorid,fg,sbpl)
             if fg == 1
                 if sbpl == 1
                     if strcmp(bp(ind).String,'CSA-WM')
-                        bp(ind).Position(2) = bp(ind).Position(2) -0.015;
+                        bp(ind).Position(2) = bp(ind).Position(2) -0.020;
                         bp(ind).Position(1) = bp(ind).Position(1) -0.015;
                     elseif strcmp(bp(ind).String,'CSA-SC')
                         bp(ind).Position(2) = bp(ind).Position(2) -0.010;
+                    elseif strcmp(bp(ind).String,'FA-SC-GM')
+                        bp(ind).Position(1) = bp(ind).Position(1) +0.010;
                     elseif strcmp(bp(ind).String,'Weight')
-                        bp(ind).Position(2) = bp(ind).Position(2) -0.010;
+                        bp(ind).Position(2) = bp(ind).Position(2) -0.020;
+                        bp(ind).Position(1) = bp(ind).Position(1) -0.015;
                     elseif strcmp(bp(ind).String,'BrainVol')
                         bp(ind).Position(2) = bp(ind).Position(2) -0.015;
                     elseif strcmp(bp(ind).String,'BrainStemVol')
                         bp(ind).Position(2) = bp(ind).Position(2) -0.008;
                         bp(ind).Position(1) = bp(ind).Position(1) +0.005;
                     elseif strcmp(bp(ind).String,'Height')
-                        bp(ind).Position(2) = bp(ind).Position(2) +0.007;
-                        bp(ind).Position(1) = bp(ind).Position(1) -0.010;
+                        bp(ind).Position(2) = bp(ind).Position(2) +0.018;
+                        bp(ind).Position(1) = bp(ind).Position(1) -0.010;  
                     elseif strcmp(bp(ind).String,'SubCortGMVol')
-                        bp(ind).Position(2) = bp(ind).Position(2) -0.017;
+                        bp(ind).Position(2) = bp(ind).Position(2) -0.022;
+                    elseif strcmp(bp(ind).String,'Age')
+                        bp(ind).Position(1) = bp(ind).Position(1) -0.015;
                     end
                 elseif sbpl == 2
                     if strcmp(bp(ind).String,'PrecentralG Thickness')
                         bp(ind).Position(2) = bp(ind).Position(2) -0.015;
+                    elseif strcmp(bp(ind).String,'PostcentralG Thickness')
+                        bp(ind).Position(2) = bp(ind).Position(2) +0.025;
+                    elseif strcmp(bp(ind).String,'Cortical Thickness')
+                        bp(ind).Position(2) = bp(ind).Position(2) +0.020;
                     elseif strcmp(bp(ind).String,'BrainStemVol')
-                        bp(ind).Position(2) = bp(ind).Position(2) +0.015;
+                        bp(ind).Position(2) = bp(ind).Position(2) +0.000;
                     elseif strcmp(bp(ind).String,'ThalamusVol')
-                        bp(ind).Position(2) = bp(ind).Position(2) +0.018;
+                        bp(ind).Position(2) = bp(ind).Position(2) +0.014;
                     elseif strcmp(bp(ind).String,'CorticalGMVol')
-                        bp(ind).Position(2) = bp(ind).Position(2) -0.045;
+                        bp(ind).Position(2) = bp(ind).Position(2) -0.075;
                     elseif strcmp(bp(ind).String,'CorticalWMVol')
-                        bp(ind).Position(2) = bp(ind).Position(2) -0.007;
+                        bp(ind).Position(2) = bp(ind).Position(2) -0.027;
+                    elseif strcmp(bp(ind).String,'CerebellumVol')
+                        bp(ind).Position(2) = bp(ind).Position(2) +0.005;
+                        bp(ind).Position(1) = bp(ind).Position(1) -0.000;
                     elseif strcmp(bp(ind).String,'BrainGMVol')
-                        bp(ind).Position(2) = bp(ind).Position(2) -0.042;
+                        bp(ind).Position(2) = bp(ind).Position(2) -0.062;
                     elseif strcmp(bp(ind).String,'PostcentralGMVol')
-                        bp(ind).Position(2) = bp(ind).Position(2) -0.025;
+                        bp(ind).Position(2) = bp(ind).Position(2) -0.050;
+                        bp(ind).Position(1) = bp(ind).Position(1) +0.045;
                     elseif strcmp(bp(ind).String,'PrecentralGMVol')
                         bp(ind).Position(2) = bp(ind).Position(2) -0.005;
                         bp(ind).Position(1) = bp(ind).Position(1) +0.015;
                     elseif strcmp(bp(ind).String,'BrainVol')
-                        bp(ind).Position(2) = bp(ind).Position(2) -0.015;
+                        bp(ind).Position(2) = bp(ind).Position(2) -0.050;
                     elseif strcmp(bp(ind).String,'SubCortGMVol')
-                        bp(ind).Position(2) = bp(ind).Position(2) +0.006;
+                        bp(ind).Position(2) = bp(ind).Position(2) +0.017;
                     elseif strcmp(bp(ind).String,'Height')
-                        bp(ind).Position(2) = bp(ind).Position(2) -0.008;
-                        bp(ind).Position(1) = bp(ind).Position(1) -0.010;
+                        bp(ind).Position(2) = bp(ind).Position(2) -0.023;
+                        bp(ind).Position(1) = bp(ind).Position(1) -0.015;
+                    elseif strcmp(bp(ind).String,'CSA-GM')
+                        bp(ind).Position(2) = bp(ind).Position(2) +0.020;
+                    elseif strcmp(bp(ind).String,'FA-SC-GM')
+                        bp(ind).Position(1) = bp(ind).Position(1) +0.010;
+                    elseif strcmp(bp(ind).String,'Age')
+                        bp(ind).Position(1) = bp(ind).Position(1) -0.015;
                     end
                 elseif sbpl == 3
                     if strcmp(bp(ind).String,'CSA-GM')
-                        bp(ind).Position(2) = bp(ind).Position(2) -0.025;
-                        bp(ind).Position(1) = bp(ind).Position(1) -0.010;
-                    elseif strcmp(bp(ind).String,'CSA-SC')
-                        bp(ind).Position(2) = bp(ind).Position(2) -0.020;
-                    elseif strcmp(bp(ind).String,'CSA-WM')
-                        bp(ind).Position(2) = bp(ind).Position(2) -0.007;
-                        bp(ind).Position(1) = bp(ind).Position(1) -0.020;
-                    elseif strcmp(bp(ind).String,'CerebellumVol')
-                        bp(ind).Position(2) = bp(ind).Position(2) -0.015;
-                    elseif strcmp(bp(ind).String,'PostcentralG Thickness')
-                        bp(ind).Position(2) = bp(ind).Position(2) -0.015;
+                        bp(ind).Position(2) = bp(ind).Position(2) +0.017;
+                        bp(ind).Position(1) = bp(ind).Position(1) -0.015;
                     elseif strcmp(bp(ind).String,'Height')
-                        bp(ind).Position(2) = bp(ind).Position(2) -0.030;
-                        bp(ind).Position(1) = bp(ind).Position(1) -0.010;
+                        bp(ind).Position(2) = bp(ind).Position(2) +0.015;
+                    elseif strcmp(bp(ind).String,'Height')
+                        bp(ind).Position(2) = bp(ind).Position(2) -0.005;
                     elseif strcmp(bp(ind).String,'PrecentralGMVol')
-                        bp(ind).Position(2) = bp(ind).Position(2) -0.010;
-                        bp(ind).Position(1) = bp(ind).Position(1) +0.020;
+                        bp(ind).Position(2) = bp(ind).Position(2) +0.015;
                     elseif strcmp(bp(ind).String,'BrainStemVol')
-                        bp(ind).Position(2) = bp(ind).Position(2) +0.005;
-                        bp(ind).Position(1) = bp(ind).Position(1) +0.020;
-                    elseif strcmp(bp(ind).String,'PostcentralGMVol')
-                        bp(ind).Position(2) = bp(ind).Position(2) -0.020;
-                        bp(ind).Position(1) = bp(ind).Position(1) +0.025;
-                    elseif strcmp(bp(ind).String,'CorticalGMVol')
-                        bp(ind).Position(2) = bp(ind).Position(2) +0.010;
+                        bp(ind).Position(2) = bp(ind).Position(2) -0.045;
                     elseif strcmp(bp(ind).String,'ThalamusVol')
-                        bp(ind).Position(2) = bp(ind).Position(2) +0.030;
-                    elseif strcmp(bp(ind).String,'SubCortGMVol')
-                        bp(ind).Position(2) = bp(ind).Position(2) -0.004;
+                        bp(ind).Position(2) = bp(ind).Position(2) -0.015;
+                    elseif strcmp(bp(ind).String,'FA-SC-GM')
+                        bp(ind).Position(1) = bp(ind).Position(1) +0.010;
+                    elseif strcmp(bp(ind).String,'Age')
+                        bp(ind).Position(1) = bp(ind).Position(1) -0.015;
                     end
                 elseif sbpl == 4
-                    if strcmp(bp(ind).String,'PostcentralGMVol')
-                        bp(ind).Position(2) = bp(ind).Position(2) -0.033;
+                    if strcmp(bp(ind).String,'Cortical Thickness')
+                        bp(ind).Position(2) = bp(ind).Position(2) -0.028;
+                        bp(ind).Position(1) = bp(ind).Position(1) -0.010;
+                    elseif strcmp(bp(ind).String,'ThalamusVol')
+                        bp(ind).Position(2) = bp(ind).Position(2) +0.015;
                     elseif strcmp(bp(ind).String,'PrecentralGMVol')
-                        bp(ind).Position(2) = bp(ind).Position(2) -0.030;
-%                         bp(ind).Position(1) = bp(ind).Position(1) +0.020;
+                        bp(ind).Position(2) = bp(ind).Position(2) +0.020;
                     elseif strcmp(bp(ind).String,'BrainVol')
-                        bp(ind).Position(2) = bp(ind).Position(2) -0.010;
+                        bp(ind).Position(2) = bp(ind).Position(2) -0.002;
+                        bp(ind).Position(1) = bp(ind).Position(1) +0.208;
                     elseif strcmp(bp(ind).String,'CorticalGMVol')
-                        bp(ind).Position(1) = bp(ind).Position(1) +0.155;
+                        bp(ind).Position(2) = bp(ind).Position(2) -0.019;
+                        bp(ind).Position(1) = bp(ind).Position(1) +0.215;
                     elseif strcmp(bp(ind).String,'BrainGMVol')
-                        bp(ind).Position(2) = bp(ind).Position(2) -0.003;
-                        bp(ind).Position(1) = bp(ind).Position(1) -0.060;
-                    elseif strcmp(bp(ind).String,'PostcentralG Thickness')
-                        bp(ind).Position(2) = bp(ind).Position(2) -0.027;
-                    elseif strcmp(bp(ind).String,'CSA-SC')
-                        bp(ind).Position(2) = bp(ind).Position(2) -0.015;
+                        bp(ind).Position(1) = bp(ind).Position(1) +0.206;
                     elseif strcmp(bp(ind).String,'CSA-WM')
-                        bp(ind).Position(2) = bp(ind).Position(2) -0.015;
-                    elseif strcmp(bp(ind).String,'Cortical Thickness')
-                        bp(ind).Position(2) = bp(ind).Position(2) +0.016;
+                        bp(ind).Position(2) = bp(ind).Position(2) -0.010;
                     elseif strcmp(bp(ind).String,'PrecentralG Thickness')
-                        bp(ind).Position(2) = bp(ind).Position(2) +0.012;
-                    elseif strcmp(bp(ind).String,'MD-SC-WM')
-                        bp(ind).Position(2) = bp(ind).Position(2) -0.020;
+                        bp(ind).Position(2) = bp(ind).Position(2) +0.010;
+                        bp(ind).Position(1) = bp(ind).Position(1) -0.010;
+                    elseif strcmp(bp(ind).String,'SubCortGMVol')
+                        bp(ind).Position(2) = bp(ind).Position(2) -0.007;
+                    elseif strcmp(bp(ind).String,'FA-SC-GM')
+                        bp(ind).Position(1) = bp(ind).Position(1) +0.010;
+                    elseif strcmp(bp(ind).String,'Age')
+                        bp(ind).Position(1) = bp(ind).Position(1) -0.015;
                     end
                 end
             elseif fg == 2
                 if sbpl == 1
                     if strcmp(bp(ind).String,'PrecentralG Thickness')
                         bp(ind).Position(2) = bp(ind).Position(2) -0.015;
+                    elseif strcmp(bp(ind).String,'PrecentralGMVol')
+                        bp(ind).Position(2) = bp(ind).Position(2) +0.025;
                     elseif strcmp(bp(ind).String,'CorticalGMVol')
-                        bp(ind).Position(2) = bp(ind).Position(2) -0.025;
+                        bp(ind).Position(2) = bp(ind).Position(2) -0.035;
                     elseif strcmp(bp(ind).String,'BrainGMVol')
                         bp(ind).Position(2) = bp(ind).Position(2) -0.020;
-                    elseif strcmp(bp(ind).String,'BrainVol')
-                        bp(ind).Position(2) = bp(ind).Position(2) -0.030;
+                    elseif strcmp(bp(ind).String,'BrainStemVol')
+                        bp(ind).Position(2) = bp(ind).Position(2) -0.020;
                     elseif strcmp(bp(ind).String,'Height')
-                        bp(ind).Position(2) = bp(ind).Position(2) -0.015;
+                        bp(ind).Position(2) = bp(ind).Position(2) -0.025;
                     elseif strcmp(bp(ind).String,'CorticalWMVol')
-                        bp(ind).Position(2) = bp(ind).Position(2) -0.023;
-                    elseif strcmp(bp(ind).String,'SubCortGMVol')
-                        bp(ind).Position(2) = bp(ind).Position(2) -0.012;
+                        bp(ind).Position(2) = bp(ind).Position(2) -0.020;
                     elseif strcmp(bp(ind).String,'CSA-GM')
-                        bp(ind).Position(2) = bp(ind).Position(2) +0.010;
+                        bp(ind).Position(2) = bp(ind).Position(2) +0.015;
+                    elseif strcmp(bp(ind).String,'CSA-SC')
+                        bp(ind).Position(1) = bp(ind).Position(1) -0.025;
                     elseif strcmp(bp(ind).String,'CSA-WM')
-                        bp(ind).Position(2) = bp(ind).Position(2) -0.010;
-                        bp(ind).Position(1) = bp(ind).Position(1) -0.010;
+                        bp(ind).Position(1) = bp(ind).Position(1) -0.025;
+                    elseif strcmp(bp(ind).String,'MTR-SC-WM')
+                        bp(ind).Position(2) = bp(ind).Position(2) +0.015;
+                    elseif strcmp(bp(ind).String,'FA-SC-GM')
+                        bp(ind).Position(1) = bp(ind).Position(1) -0.025;
+                    elseif strcmp(bp(ind).String,'Age')
+                        bp(ind).Position(1) = bp(ind).Position(1) -0.015;
                     end
                 end
             end
