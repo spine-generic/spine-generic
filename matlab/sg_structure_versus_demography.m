@@ -332,6 +332,8 @@ function stat = sg_structure_versus_demography(path_results,path_data)
     dwimtr = [dwigm(:,1) dwi(:,2), mtr(:,1)];
     sc_data = [csa, dwimtr];
     sc_data_name = [csa_name, dwimtr_name];
+    
+    [r_dti_mtr, p_r_dti_mtr] = corrcoef([dwi(~strcmp(participants.manufacturer,'GE'),:),dwimtr(~strcmp(participants.manufacturer,'GE'),3)],'Rows','Pairwise');
 
     %% Read cerebral moprhological measurements from the file results/fs-measurements.xlsx
     [fs, fs_name] = sg_extract_xlsx(fullfile(csv_path,'fs-measurements.xlsx'),[47 57 52 55 56 75 72 12],participants);
