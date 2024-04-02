@@ -1,4 +1,4 @@
-function [r, p, r_norm, p_norm] = sg_draw_corrplot(xdata,ydata,participants,usedata,fig_ind,p_thr)
+function [r, p, r_norm, p_norm, rho, p_rho, rho_norm, p_rho_norm] = sg_draw_corrplot(xdata,ydata,participants,usedata,fig_ind,p_thr,xlbl,ylbl)
 %SG_DRAW_CORRPLOT Summary of this function goes here
 %   
 %   OUTPUTS:
@@ -39,19 +39,25 @@ function [r, p, r_norm, p_norm] = sg_draw_corrplot(xdata,ydata,participants,used
     if strcmp(usedata,'All')
         [rr, pp]=corrcoef(xdata,ydata,'Rows','Pairwise');
         r(1)=rr(1,2);p(1)=pp(1,2);
+        [rho, p_rho]=corr(xdata,ydata,'Rows','Pairwise','Type','Spearman');
         [rr, pp]=corrcoef(xdata(strcmp(participants.sex,'F')),ydata(strcmp(participants.sex,'F')),'Rows','Pairwise');
         r(2)=rr(1,2);p(2)=pp(1,2);
+        [rho(2), p_rho(2)]=corr(xdata(strcmp(participants.sex,'F')),ydata(strcmp(participants.sex,'F')),'Rows','Pairwise','Type','Spearman');
         [rr, pp]=corrcoef(xdata(strcmp(participants.sex,'M')),ydata(strcmp(participants.sex,'M')),'Rows','Pairwise');
         r(3)=rr(1,2);p(3)=pp(1,2);
+        [rho(3), p_rho(3)]=corr(xdata(strcmp(participants.sex,'M')),ydata(strcmp(participants.sex,'M')),'Rows','Pairwise','Type','Spearman');
         ps = ~isnan(xdata) & ~isnan(ydata);
     elseif strcmp(usedata,'GEout')
         useonly=~strcmp(participants.manufacturer,'GE');
         [rr, pp]=corrcoef(xdata(useonly),ydata(useonly),'Rows','Pairwise');
         r(1)=rr(1,2);p(1)=pp(1,2);
+        [rho, p_rho]=corr(xdata(useonly),ydata(useonly),'Rows','Pairwise','Type','Spearman');
         [rr, pp]=corrcoef(xdata(useonly & strcmp(participants.sex,'F')),ydata(useonly & strcmp(participants.sex,'F')),'Rows','Pairwise');
         r(2)=rr(1,2);p(2)=pp(1,2);
+        [rho(2), p_rho(2)]=corr(xdata(useonly & strcmp(participants.sex,'F')),ydata(useonly & strcmp(participants.sex,'F')),'Rows','Pairwise','Type','Spearman');
         [rr, pp]=corrcoef(xdata(useonly & strcmp(participants.sex,'M')),ydata(useonly & strcmp(participants.sex,'M')),'Rows','Pairwise');
         r(3)=rr(1,2);p(3)=pp(1,2);
+        [rho(3), p_rho(3)]=corr(xdata(useonly & strcmp(participants.sex,'M')),ydata(useonly & strcmp(participants.sex,'M')),'Rows','Pairwise','Type','Spearman');
         ps = ~isnan(xdata) & ~isnan(ydata) & useonly;
         ps2 = ~isnan(xdata) & ~isnan(ydata) & ~useonly;
         c2 = polyfit(xdata(ps2),ydata(ps2),1);
@@ -70,10 +76,13 @@ function [r, p, r_norm, p_norm] = sg_draw_corrplot(xdata,ydata,participants,used
 
     [rr, pp]=corrcoef(xdata,ydata_norm,'Rows','Pairwise');
     r_norm(1)=rr(1,2);p_norm(1)=pp(1,2);
+    [rho_norm, p_rho_norm]=corr(xdata,ydata_norm,'Rows','Pairwise','Type','Spearman');
     [rr, pp]=corrcoef(xdata(strcmp(participants.sex,'F')),ydata_norm(strcmp(participants.sex,'F')),'Rows','Pairwise');
     r_norm(2)=rr(1,2);p_norm(2)=pp(1,2);
+    [rho_norm(2), p_rho_norm(2)]=corr(xdata(strcmp(participants.sex,'F')),ydata_norm(strcmp(participants.sex,'F')),'Rows','Pairwise','Type','Spearman');
     [rr, pp]=corrcoef(xdata(strcmp(participants.sex,'M')),ydata_norm(strcmp(participants.sex,'M')),'Rows','Pairwise');
     r_norm(3)=rr(1,2);p_norm(3)=pp(1,2);
+    [rho_norm(3), p_rho_norm(3)]=corr(xdata(strcmp(participants.sex,'M')),ydata_norm(strcmp(participants.sex,'M')),'Rows','Pairwise','Type','Spearman');
 
     c = polyfit(xdata(ps),ydata(ps),1);
     y = c(1)*x + c(2);
@@ -91,46 +100,35 @@ function [r, p, r_norm, p_norm] = sg_draw_corrplot(xdata,ydata,participants,used
     plot(xdata(ge_male),ydata(ge_male),'rx','LineStyle','none','LineWidth',3,'MarkerSize',11)
     hold off
     
-    if fig_ind == 1 || (r(1)>0 && fig_ind ~= 2 && fig_ind ~= 20 && fig_ind ~= 17 && fig_ind ~= 16 && fig_ind ~= 22)
-        if miny>140
-            coefy1 = 1.025;
-        elseif maxy>110 && miny>40
-            coefy1 = 1.10;
-        elseif maxy>18 && maxy<25 && miny>1
-            coefy1 = 1.08;
-        else
-            coefy1 = 1.06;
-        end
-    elseif r(1)<=0 || fig_ind == 2 || fig_ind == 20 || fig_ind == 17 || fig_ind == 16 || fig_ind == 22
-        if maxy<5
-            coefy1 = 0.10;
-        elseif maxy>110 && maxy<200
-            coefy1 = 0.09;
-        elseif maxy>200
-            coefy1 = 0.02;
-        elseif miny>25
-            coefy1 = 0.03;
-        else
-            coefy1 = 0.08;
-        end
+    if fig_ind == 20
+        vertalign = 'Top';
+        horizalign = 'left';
+        txty = 0.995*maxy;
+        txtx = 1.01*minx;
+    elseif fig_ind == 1 || (r(1)>0 && fig_ind ~= 2 && fig_ind ~= 17 && fig_ind ~= 22)
+        vertalign = 'Bottom';
+        horizalign = 'right';
+        txty = 1.01*miny;
+        txtx = 0.99*maxx;
     else
-        coefy1 = 0.05;
-    end
-    if fig_ind == 1 || (r(1)>0 && fig_ind ~= 2 && fig_ind ~= 20 && fig_ind ~= 17 && fig_ind ~= 16 && fig_ind ~= 22)
-        txty = coefy1*miny;
-    else
-        txty = maxy - coefy1*miny;
+        vertalign = 'Top';
+        horizalign = 'right';
+        txty = 0.995*maxy;
+        txtx = 0.99*maxx;
     end
     if p(1) < p_thr
         set(gca,'Color',[255 255 224]/255)
-%         if p(1) < 0.0001
-%             text(0.99*maxx,txty,['r=' num2str(r(1),'%.3f') '; p<0.0001'],'HorizontalAlignment','right','FontWeight','bold','FontSize',14)
+%         if contains(xlbl,'Age') || contains(ylbl,'Age') || contains(xlbl,'MTR') || contains(ylbl,'MTR')
+            text(txtx,txty,{['r=' num2str(r(1),'%.3f')],['\rho=' num2str(rho(1),'%.3f')]},'HorizontalAlignment',horizalign,'FontWeight','bold','FontSize',14,'VerticalAlignment',vertalign)
 %         else
-%             text(0.99*maxx,txty,['r=' num2str(r(1),'%.3f') '; p=' num2str(p(1),'%.4f')],'HorizontalAlignment','right','FontWeight','bold','FontSize',14)
+%             text(0.99*maxx,txty,['r=' num2str(r(1),'%.3f')],'HorizontalAlignment','right','FontWeight','bold','FontSize',14,'VerticalAlignment',vertalign)
 %         end
-        text(0.99*maxx,txty,['r=' num2str(r(1),'%.3f')],'HorizontalAlignment','right','FontWeight','bold','FontSize',14)
     else
-        text(0.99*maxx,txty,['r=' num2str(r(1),'%.3f')],'HorizontalAlignment','right','FontSize',14,'Color',[0.4 0.4 0.4])
+%         if contains(xlbl,'Age') || contains(ylbl,'Age') || contains(xlbl,'MTR') || contains(ylbl,'MTR')
+            text(txtx,txty,{['r=' num2str(r(1),'%.3f')],['\rho=' num2str(rho(1),'%.3f')]},'HorizontalAlignment',horizalign,'FontSize',14,'Color',[0.4 0.4 0.4],'VerticalAlignment',vertalign)
+%         else
+%             text(0.99*maxx,txty,['r=' num2str(r(1),'%.3f')],'HorizontalAlignment','right','FontSize',14,'Color',[0.4 0.4 0.4],'VerticalAlignment',vertalign)
+%         end
     end
     axis([minx maxx miny maxy])
     grid on
