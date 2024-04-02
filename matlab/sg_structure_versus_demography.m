@@ -200,7 +200,27 @@ function stat = sg_structure_versus_demography(path_results,path_data)
     else
         bmi = demography(:,weight_pos) ./ (demography(:,height_pos)/100).^2;
     end
-
+    
+    %% Test normality of demographic data
+    p_kstest_demography = ones(1,size(demography,2));
+    p_kslogtest_demography = ones(1,size(demography,2));
+    for ind = 1:size(demography,2)
+        x = demography(:,ind);
+        xlog = log(x);
+        x = (x - mean(x,'omitnan')) / std(x,'omitnan');
+        xlog = (xlog - mean(xlog,'omitnan')) / std(xlog,'omitnan');
+        
+        [~, p_kstest_demography(1,ind)] = kstest(x);
+        [~, p_kslogtest_demography(1,ind)] = kstest(xlog);
+    end
+    if include_body_indexes ~= 1
+        x = bmi;
+        xlog = log(x);
+        x = (x - mean(x,'omitnan')) / std(x,'omitnan');
+        xlog = (xlog - mean(xlog,'omitnan')) / std(xlog,'omitnan');
+        [~, p_kstest_bmi] = kstest(x);
+        [~, p_kslogtest_bmi] = kstest(xlog); 
+    end
     %% Calculate correlation coefficient between body height and weight
     [r_HW, p_HW]= corrcoef(demography(:,weight_pos),demography(:,height_pos),'Rows','Pairwise');r_HW=r_HW(1,2);p_HW=p_HW(1,2);
 
@@ -267,6 +287,26 @@ function stat = sg_structure_versus_demography(path_results,path_data)
     elseif exclude_sg_pathology == 2
         csa(strcmp(participants.pathology,'HC'),:) = NaN;
     end
+    %% Test normality of CSA data
+    p_kstest_csa = ones(1,size(csa,2));
+    p_kslogtest_csa = ones(1,size(csa,2));
+    for ind = 1:size(csa,2)
+        x1 = csa(strcmp(participants.manufacturer,'Siemens'),ind); x1 = x1 - mean(x1,'omitnan');
+        x2 = csa(strcmp(participants.manufacturer,'Philips'),ind); x2 = x2 - mean(x2,'omitnan');
+        x3 = csa(strcmp(participants.manufacturer,'GE'),ind);  x3 = x3 - mean(x3,'omitnan');
+        if ~contains(csa_name,'CSA-GM')
+            x = [x1; x2; x3];
+            xlog = log(csa(:,ind));
+        else
+            x = [x1; x3];
+            xlog = log(csa(~strcmp(participants.manufacturer,'Philips'),ind));
+        end
+        x = (x - mean(x,'omitnan')) / std(x,'omitnan');
+        xlog = (xlog - mean(xlog,'omitnan')) / std(xlog,'omitnan');
+        
+        [~, p_kstest_csa(1,ind)] = kstest(x);
+        [~, p_kslogtest_csa(1,ind)] = kstest(xlog);
+    end
     %% Two-sample t-tests examining differences in CSA measurements over manufacturers
     pttest2_csa = zeros(size(csa,2),3);
     for ind = 1:size(csa,2)
@@ -284,6 +324,21 @@ function stat = sg_structure_versus_demography(path_results,path_data)
     elseif exclude_sg_pathology == 2
         dwi(strcmp(participants.pathology,'HC'),:) = NaN;
     end
+    %% Test normality of DTI WM data
+    p_kstest_dwi = ones(1,size(csa,2));
+    p_kslogtest_dwi = ones(1,size(csa,2));
+    for ind = 1:size(dwi,2)
+        x1 = dwi(strcmp(participants.manufacturer,'Siemens'),ind); x1 = x1 - mean(x1,'omitnan');
+        x2 = dwi(strcmp(participants.manufacturer,'Philips'),ind); x2 = x2 - mean(x2,'omitnan');
+%         x3 = dwi(strcmp(participants.manufacturer,'GE'),ind);  x3 = x3 - mean(x3,'omitnan'); 
+        x = [x1; x2];
+        xlog = log(dwi(~strcmp(participants.manufacturer,'GE'),ind));
+        x = (x - mean(x,'omitnan')) / std(x,'omitnan');
+        xlog = (xlog - mean(xlog,'omitnan')) / std(xlog,'omitnan');
+        
+        [~, p_kstest_dwi(1,ind)] = kstest(x);
+        [~, p_kslogtest_dwi(1,ind)] = kstest(xlog);
+    end
     %% Read spinal cord DTI measurements (FA, MD, RD respectively) from bilateral LCST ROI
     dwilcst = sg_extract_csv(dwilcst_name,csv_path,dwilcst_filename,dwilcst_lvl,'WA()',participants,dwilcst_excl);
     dwilcst(:,2:3) = 1000*dwilcst(:,2:3);
@@ -292,6 +347,21 @@ function stat = sg_structure_versus_demography(path_results,path_data)
         dwilcst(~strcmp(participants.pathology,'HC'),:) = NaN;
     elseif exclude_sg_pathology == 2
         dwilcst(strcmp(participants.pathology,'HC'),:) = NaN;
+    end
+    %% Test normality of DTI LCST data
+    p_kstest_dwilcst = ones(1,size(csa,2));
+    p_kslogtest_dwilcst = ones(1,size(csa,2));
+    for ind = 1:size(dwilcst,2)
+        x1 = dwilcst(strcmp(participants.manufacturer,'Siemens'),ind); x1 = x1 - mean(x1,'omitnan');
+        x2 = dwilcst(strcmp(participants.manufacturer,'Philips'),ind); x2 = x2 - mean(x2,'omitnan');
+%         x3 = dwilcst(strcmp(participants.manufacturer,'GE'),ind);  x3 = x3 - mean(x3,'omitnan'); 
+        x = [x1; x2];
+        xlog = log(dwilcst(~strcmp(participants.manufacturer,'GE'),ind));
+        x = (x - mean(x,'omitnan')) / std(x,'omitnan');
+        xlog = (xlog - mean(xlog,'omitnan')) / std(xlog,'omitnan');
+        
+        [~, p_kstest_dwilcst(1,ind)] = kstest(x);
+        [~, p_kslogtest_dwilcst(1,ind)] = kstest(xlog);
     end
     %% Read spinal cord DTI measurements (FA, MD, RD respectively) from bilateral DC ROI
     dwidc = sg_extract_csv(dwidc_name,csv_path,dwidc_filename,dwidc_lvl,'WA()',participants,dwidc_excl);
@@ -302,6 +372,21 @@ function stat = sg_structure_versus_demography(path_results,path_data)
     elseif exclude_sg_pathology == 2
         dwidc(strcmp(participants.pathology,'HC'),:) = NaN;
     end
+    %% Test normality of DTI DC data
+    p_kstest_dwidc = ones(1,size(csa,2));
+    p_kslogtest_dwidc = ones(1,size(csa,2));
+    for ind = 1:size(dwidc,2)
+        x1 = dwidc(strcmp(participants.manufacturer,'Siemens'),ind); x1 = x1 - mean(x1,'omitnan');
+        x2 = dwidc(strcmp(participants.manufacturer,'Philips'),ind); x2 = x2 - mean(x2,'omitnan');
+%         x3 = dwidc(strcmp(participants.manufacturer,'GE'),ind);  x3 = x3 - mean(x3,'omitnan'); 
+        x = [x1; x2];
+        xlog = log(dwidc(~strcmp(participants.manufacturer,'GE'),ind));
+        x = (x - mean(x,'omitnan')) / std(x,'omitnan');
+        xlog = (xlog - mean(xlog,'omitnan')) / std(xlog,'omitnan');
+        
+        [~, p_kstest_dwidc(1,ind)] = kstest(x);
+        [~, p_kslogtest_dwidc(1,ind)] = kstest(xlog);
+    end
     %% Read spinal cord DTI measurements (FA, MD, RD respectively) from GM ROI
     dwigm = sg_extract_csv(dwigm_name,csv_path,dwigm_filename,dwigm_lvl,'WA()',participants,dwigm_excl);
     dwigm(:,2:3) = 1000*dwigm(:,2:3);
@@ -311,6 +396,21 @@ function stat = sg_structure_versus_demography(path_results,path_data)
     elseif exclude_sg_pathology == 2
         dwigm(strcmp(participants.pathology,'HC'),:) = NaN;
     end
+    %% Test normality of DTI WM data
+    p_kstest_dwigm = ones(1,size(csa,2));
+    p_kslogtest_dwigm = ones(1,size(csa,2));
+    for ind = 1:size(dwigm,2)
+        x1 = dwigm(strcmp(participants.manufacturer,'Siemens'),ind); x1 = x1 - mean(x1,'omitnan');
+        x2 = dwigm(strcmp(participants.manufacturer,'Philips'),ind); x2 = x2 - mean(x2,'omitnan');
+%         x3 = dwigm(strcmp(participants.manufacturer,'GE'),ind);  x3 = x3 - mean(x3,'omitnan'); 
+        x = [x1; x2];
+        xlog = log(dwigm(~strcmp(participants.manufacturer,'GE'),ind));
+        x = (x - mean(x,'omitnan')) / std(x,'omitnan');
+        xlog = (xlog - mean(xlog,'omitnan')) / std(xlog,'omitnan');
+        
+        [~, p_kstest_dwigm(1,ind)] = kstest(x);
+        [~, p_kslogtest_dwigm(1,ind)] = kstest(xlog);
+    end
     %% Read spinal cord MTR measurements from WM, bilateral LCST and bilateral DC ROIs
     mtr = sg_extract_csv(mtr_name,csv_path,mtr_filename,mtr_lvl,'WA()',participants,mtr_excl);
     mtr(compression_pos,:) = NaN;
@@ -319,6 +419,21 @@ function stat = sg_structure_versus_demography(path_results,path_data)
     elseif exclude_sg_pathology == 2
         mtr(strcmp(participants.pathology,'HC'),:) = NaN;
     end
+    %% Test normality of MTR data
+    p_kstest_mtr = ones(1,size(csa,2));
+    p_kslogtest_mtr = ones(1,size(csa,2));
+    for ind = 1:size(mtr,2)
+        x1 = mtr(strcmp(participants.manufacturer,'Siemens'),ind); x1 = x1 - mean(x1,'omitnan');
+        x2 = mtr(strcmp(participants.manufacturer,'Philips'),ind); x2 = x2 - mean(x2,'omitnan');
+%         x3 = mtr(strcmp(participants.manufacturer,'GE'),ind);  x3 = x3 - mean(x3,'omitnan'); 
+        x = [x1; x2];
+        xlog = log(mtr(~strcmp(participants.manufacturer,'GE'),ind));
+        x = (x - mean(x,'omitnan')) / std(x,'omitnan');
+        xlog = (xlog - mean(xlog,'omitnan')) / std(xlog,'omitnan');
+        
+        [~, p_kstest_mtr(1,ind)] = kstest(x);
+        [~, p_kslogtest_mtr(1,ind)] = kstest(xlog);
+    end
     %% Read spinal cord MTR measurements from GM ROI
     mtrgm = sg_extract_csv(mtrgm_name,csv_path,mtrgm_filename,mtrgm_lvl,'WA()',participants,mtrgm_excl);
     mtrgm(compression_pos,:) = NaN;
@@ -326,6 +441,21 @@ function stat = sg_structure_versus_demography(path_results,path_data)
        mtrgm(~strcmp(participants.pathology,'HC'),:) = NaN;
     elseif exclude_sg_pathology == 2
        mtrgm(strcmp(participants.pathology,'HC'),:) = NaN;
+    end
+    %% Test normality of MTR GM data
+    p_kstest_mtrgm = ones(1,size(csa,2));
+    p_kslogtest_mtrgm = ones(1,size(csa,2));
+    for ind = 1:size(mtrgm,2)
+        x1 = mtrgm(strcmp(participants.manufacturer,'Siemens'),ind); x1 = x1 - mean(x1,'omitnan');
+        x2 = mtrgm(strcmp(participants.manufacturer,'Philips'),ind); x2 = x2 - mean(x2,'omitnan');
+%         x3 = mtr(strcmp(participants.manufacturer,'GE'),ind);  x3 = x3 - mean(x3,'omitnan'); 
+        x = [x1; x2];
+        xlog = log(mtrgm(~strcmp(participants.manufacturer,'GE'),ind));
+        x = (x - mean(x,'omitnan')) / std(x,'omitnan');
+        xlog = (xlog - mean(xlog,'omitnan')) / std(xlog,'omitnan');
+        
+        [~, p_kstest_mtr(1,ind)] = kstest(x);
+        [~, p_kslogtest_mtr(1,ind)] = kstest(xlog);
     end
     %% Reorganize spinal cord data of major analysis interest
     dwimtrgm = [dwigm(:,1:2), mtrgm(:,1)];
