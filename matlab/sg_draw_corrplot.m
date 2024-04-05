@@ -29,6 +29,16 @@ function [r, p, r_norm, p_norm, rho, p_rho, rho_norm, p_rho_norm] = sg_draw_corr
     sie_pos = strcmp(participants.manufacturer,'Siemens');
     ge_pos = strcmp(participants.manufacturer,'GE');
     phi_pos = strcmp(participants.manufacturer,'Philips');
+    
+    mean_siemens = mean(ydata(sie_pos & ~isnan(ydata)));
+    mean_philips = mean(ydata(phi_pos & ~isnan(ydata)));
+    mean_ge = mean(ydata(ge_pos & ~isnan(ydata)));
+    mean_vec = zeros(size(ydata));
+    mean_vec(sie_pos)= mean_siemens;
+    mean_vec(phi_pos)= mean_philips;
+    mean_vec(ge_pos)= mean_ge;
+    
+    ydata_norm = ydata - mean_vec;
 
     minx=min(xdata);
     maxx=max(xdata);
@@ -62,17 +72,36 @@ function [r, p, r_norm, p_norm, rho, p_rho, rho_norm, p_rho_norm] = sg_draw_corr
         ps2 = ~isnan(xdata) & ~isnan(ydata) & ~useonly;
         c2 = polyfit(xdata(ps2),ydata(ps2),1);
         y2 = c2(1)*x + c2(2);
+    elseif strcmp(usedata,'normalize')
+        x1mean = mean(xdata(sie_pos),'omitnan');
+        x2mean = mean(xdata(phi_pos),'omitnan');
+        x3mean = mean(xdata(ge_pos),'omitnan');
+        
+        xmean_vec = zeros(size(xdata));
+        xmean_vec(sie_pos) = x1mean;
+        xmean_vec(phi_pos) = x2mean;
+        xmean_vec(ge_pos) = x3mean;
+        
+        xdata = xdata - xmean_vec;
+        ydata = ydata_norm;
+        
+        minx=min(xdata);
+        maxx=max(xdata);
+        miny=min(ydata);
+        maxy=max(ydata);
+        x = [minx maxx];
+        
+        [rr, pp]=corrcoef(xdata,ydata,'Rows','Pairwise');
+        r(1)=rr(1,2);p(1)=pp(1,2);
+        [rho, p_rho]=corr(xdata,ydata,'Rows','Pairwise','Type','Spearman');
+        [rr, pp]=corrcoef(xdata(strcmp(participants.sex,'F')),ydata(strcmp(participants.sex,'F')),'Rows','Pairwise');
+        r(2)=rr(1,2);p(2)=pp(1,2);
+        [rho(2), p_rho(2)]=corr(xdata(strcmp(participants.sex,'F')),ydata(strcmp(participants.sex,'F')),'Rows','Pairwise','Type','Spearman');
+        [rr, pp]=corrcoef(xdata(strcmp(participants.sex,'M')),ydata(strcmp(participants.sex,'M')),'Rows','Pairwise');
+        r(3)=rr(1,2);p(3)=pp(1,2);
+        [rho(3), p_rho(3)]=corr(xdata(strcmp(participants.sex,'M')),ydata(strcmp(participants.sex,'M')),'Rows','Pairwise','Type','Spearman');
+        ps = ~isnan(xdata) & ~isnan(ydata);
     end
-
-    mean_siemens = mean(ydata(sie_pos & ~isnan(ydata)));
-    mean_philips = mean(ydata(phi_pos & ~isnan(ydata)));
-    mean_ge = mean(ydata(ge_pos & ~isnan(ydata)));
-    mean_vec = zeros(size(ydata));
-    mean_vec(sie_pos)= mean_siemens;
-    mean_vec(phi_pos)= mean_philips;
-    mean_vec(ge_pos)= mean_ge;
-
-    ydata_norm = ydata - mean_vec;
 
     [rr, pp]=corrcoef(xdata,ydata_norm,'Rows','Pairwise');
     r_norm(1)=rr(1,2);p_norm(1)=pp(1,2);

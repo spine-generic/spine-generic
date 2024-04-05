@@ -68,6 +68,13 @@ function stat = sg_structure_versus_demography(path_results,path_data)
     tick_PrecentralGMVol = 17000:7500:43000; % PrecentralGMVol-range [mm^3]
     tick_PostcentralGMVol = 13000:5000:33000; % PostcentralGMVol-range [mm^3]
     
+    tick_csawmnorm = -20:4:20;      % CSA-range [mm^2]
+    tick_csagmnorm = -10:1:10;      % CSA-range [mm^2]
+    tick_fanorm = -0.5:0.05:0.5;
+    tick_mdnorm = -0.5:0.1:0.5;
+    tick_rdnorm = -0.5:0.1:0.5;
+    tick_mtrnorm = -20:4:20;
+    
     tick_csa = {tick_csa; tick_csa; tick_csagm};
     tick_dwi = {tick_fa; tick_md; tick_rd};
     tick_mtr = {tick_mtrrange; tick_mtrrange; tick_mtrrange};
@@ -77,6 +84,10 @@ function stat = sg_structure_versus_demography(path_results,path_data)
     tick_fs = {tick_BrainVol; tick_BrainGMVol; tick_CorticalGMVol; tick_CorticalWMVol; tick_SubCortGMVol; tick_ThalamusVol; tick_CerebellumVol; tick_BrainStemVol};
     tick_thick = {tick_thickness; tick_thickness; tick_thickness; tick_PrecentralGMVol; tick_PostcentralGMVol};
 
+    
+    tick_csanorm = {tick_csawmnorm; tick_csawmnorm; tick_csagmnorm};
+    tick_dwinorm = {tick_fanorm; tick_mdnorm; tick_rdnorm};
+    tick_mtrnorm = {tick_mtrnorm; tick_mtrnorm ;tick_mtrnorm};
     %% Graph label variables start as text_*
     text_age = 'Age [y.o.]';
     text_height = 'Height [cm]';
@@ -506,8 +517,14 @@ function stat = sg_structure_versus_demography(path_results,path_data)
     [r(:,:,:,7),p(:,:,:,7),r_norm(:,:,:,7),p_norm(:,:,:,7), rho(:,:,:,7),p_rho(:,:,:,7),rho_norm(:,:,:,7),p_rho_norm(:,:,:,7)] = sg_draw_corrplot_loop(thick(:,1:3),dwilcst,thick_name(1:3),dwilcst_name,participants,7,fig_dimensions,'GEout',tick_thick(1:3),tick_dwi,fullfile(csv_path,'fig_corr_thick_dtilcst'),dwi_p_fwe_thr_thick);
     [r(:,:,:,8),p(:,:,:,8),r_norm(:,:,:,8),p_norm(:,:,:,8), rho(:,:,:,8),p_rho(:,:,:,8),rho_norm(:,:,:,8),p_rho_norm(:,:,:,8)] = sg_draw_corrplot_loop(thick(:,1:3),dwidc,thick_name(1:3),dwidc_name,participants,8,fig_dimensions,'GEout',tick_thick(1:3),tick_dwi,fullfile(csv_path,'fig_corr_thick_dtidc'),dwi_p_fwe_thr_thick);
     [r(:,:,:,9),p(:,:,:,9),r_norm(:,:,:,9),p_norm(:,:,:,9), rho(:,:,:,9),p_rho(:,:,:,9),rho_norm(:,:,:,9),p_rho_norm(:,:,:,9)] = sg_draw_corrplot_loop(thick(:,1:3),mtr,thick_name(1:3),mtr_name,participants,9,fig_dimensions,'GEout',tick_thick(1:3),tick_mtr,fullfile(csv_path,'fig_corr_thick_mtr'),dwi_p_fwe_thr_thick);
-    [r(:,:,:,10),p(:,:,:,10),r_norm(:,:,:,10),p_norm(:,:,:,10)] = sg_draw_corrplot_loop(demography,dwigm,demography_name,dwigm_name,participants,10,fig_dimensions,'GEout',tick_demography,tick_dwi,fullfile(csv_path,'fig_corr_body_dti_gm'),dwi_p_fwe_thr_demography);
-    [r(:,:,:,11),p(:,:,:,11),r_norm(:,:,:,11),p_norm(:,:,:,11)] = sg_draw_corrplot_loop(demography,mtrgm,demography_name,mtrgm_name,participants,11,fig_dimensions,'GEout',tick_demography,tick_mtrgm,fullfile(csv_path,'fig_corr_body_mtr_gm'),dwi_p_fwe_thr_demography);
+    [r(:,:,:,10),p(:,:,:,10),r_norm(:,:,:,10),p_norm(:,:,:,10), rho(:,:,:,10),p_rho(:,:,:,10),rho_norm(:,:,:,10),p_rho_norm(:,:,:,10)] = sg_draw_corrplot_loop(demography,dwigm,demography_name,dwigm_name,participants,10,fig_dimensions,'GEout',tick_demography,tick_dwi,fullfile(csv_path,'fig_corr_body_dti_gm'),dwi_p_fwe_thr_demography);
+    [r(:,:,:,11),p(:,:,:,11),r_norm(:,:,:,11),p_norm(:,:,:,11), rho(:,:,:,11),p_rho(:,:,:,11),rho_norm(:,:,:,11),p_rho_norm(:,:,:,11)] = sg_draw_corrplot_loop(demography,mtrgm,demography_name,mtrgm_name,participants,11,fig_dimensions,'GEout',tick_demography,tick_mtrgm,fullfile(csv_path,'fig_corr_body_mtr_gm'),dwi_p_fwe_thr_demography);
+    [r(:,:,:,12),p(:,:,:,12),r_norm(:,:,:,12),p_norm(:,:,:,12), rho(:,:,:,12),p_rho(:,:,:,12),rho_norm(:,:,:,12),p_rho_norm(:,:,:,12)] = sg_draw_corrplot_loop(csa,dwi,csa_name,dwi_name,participants,112,fig_dimensions,'normalize',tick_csanorm,tick_dwinorm,fullfile(csv_path,'fig_corr_csa_dti'),dwi_p_fwe_thr_demography);
+    [r(:,:,:,13),p(:,:,:,13),r_norm(:,:,:,13),p_norm(:,:,:,13), rho(:,:,:,13),p_rho(:,:,:,13),rho_norm(:,:,:,13),p_rho_norm(:,:,:,13)] = sg_draw_corrplot_loop(csa,dwilcst,csa_name,dwilcst_name,participants,113,fig_dimensions,'normalize',tick_csanorm,tick_dwinorm,fullfile(csv_path,'fig_corr_csa_dtilcst'),dwi_p_fwe_thr_demography);
+    [r(:,:,:,14),p(:,:,:,14),r_norm(:,:,:,14),p_norm(:,:,:,14), rho(:,:,:,14),p_rho(:,:,:,14),rho_norm(:,:,:,14),p_rho_norm(:,:,:,14)] = sg_draw_corrplot_loop(csa,dwidc,csa_name,dwidc_name,participants,114,fig_dimensions,'normalize',tick_csanorm,tick_dwinorm,fullfile(csv_path,'fig_corr_csa_dtidc'),dwi_p_fwe_thr_demography);
+    [r(:,:,:,15),p(:,:,:,15),r_norm(:,:,:,15),p_norm(:,:,:,15), rho(:,:,:,15),p_rho(:,:,:,15),rho_norm(:,:,:,15),p_rho_norm(:,:,:,15)] = sg_draw_corrplot_loop(csa,dwigm,csa_name,dwigm_name,participants,115,fig_dimensions,'normalize',tick_csanorm,tick_dwinorm,fullfile(csv_path,'fig_corr_csa_dtigm'),dwi_p_fwe_thr_demography);
+    [r(:,:,:,16),p(:,:,:,16),r_norm(:,:,:,16),p_norm(:,:,:,16), rho(:,:,:,16),p_rho(:,:,:,16),rho_norm(:,:,:,16),p_rho_norm(:,:,:,16)] = sg_draw_corrplot_loop(csa,mtr,csa_name,mtr_name,participants,116,fig_dimensions,'normalize',tick_csanorm,tick_mtrnorm,fullfile(csv_path,'fig_corr_csa_mtr'),dwi_p_fwe_thr_demography);
+    [r(:,:,:,17),p(:,:,:,17),r_norm(:,:,:,17),p_norm(:,:,:,17), rho(:,:,:,17),p_rho(:,:,:,17),rho_norm(:,:,:,17),p_rho_norm(:,:,:,17)] = sg_draw_corrplot_loop(csa,mtrgm,csa_name,mtrgm_name,participants,117,fig_dimensions,'normalize',tick_csanorm,tick_mtrnorm,fullfile(csv_path,'fig_corr_csa_mtrgm'),dwi_p_fwe_thr_demography);
     %% Draw figures 12-19 and store them on HDD in the folder csv_path (results)
     % Last input into the function sg_draw_corrplot_loop is the figure filename
     % fs_r ... array of correlation coefficients from raw data
