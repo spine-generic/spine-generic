@@ -25,7 +25,7 @@ function stat = sg_structure_versus_demography(path_results,path_data)
 %   stat ... structure type variable consisting of all statistical analysis
 %            values
 %
-%   The stat_labounek2023.mat file with stat variable and all graphical outputs are
+%   The stat_labounek2024.mat file with stat variable and all graphical outputs are
 %   stored in the folder (variable) csv_path=path_results/results
 %
 %   AUTHORS:
@@ -489,7 +489,20 @@ function stat = sg_structure_versus_demography(path_results,path_data)
     for fsid = 1:size(fs,2)
         fs_name{1,fsid} = [fs_name{1,fsid} ' [mm^3]'];
     end
-
+    
+    %% Test normality of FS data
+    p_kstest_fs = ones(1,size(fs,2));
+    p_kslogtest_fs = ones(1,size(fs,2));
+    for ind = 1:size(fs,2)
+        x = fs(:,ind);
+        xlog = log(fs(:,ind));
+            
+        x = (x - mean(x,'omitnan')) / std(x,'omitnan');
+        xlog = (xlog - mean(xlog,'omitnan')) / std(xlog,'omitnan');
+        
+        [~, p_kstest_fs(1,ind)] = kstest(x);
+        [~, p_kslogtest_fs(1,ind)] = kstest(xlog);
+    end
     %% Read cortical thickness measurements (average them over hemispheres if necessary) and volumes of precentral and postcentral gyri
     % Final values stored in the thick variable and variable names are stored in the thick_name variable
     thickL = sg_extract_csv(thick_name,csv_path,thickL_filename,thick_lvl,'ThickAvg',participants,thick_excl);
@@ -502,6 +515,20 @@ function stat = sg_structure_versus_demography(path_results,path_data)
     thick = [tmp thick thickGMvol];
     thick_name = [ {'Cortical Thickness [mm]'} thick_name thickGMvol_name];
     
+    
+    %% Test normality of FS data
+    p_kstest_thick = ones(1,size(thick,2));
+    p_kslogtest_thick = ones(1,size(thick,2));
+    for ind = 1:size(thick,2)
+        x = thick(:,ind);
+        xlog = log(thick(:,ind));
+            
+        x = (x - mean(x,'omitnan')) / std(x,'omitnan');
+        xlog = (xlog - mean(xlog,'omitnan')) / std(xlog,'omitnan');
+        
+        [~, p_kstest_thick(1,ind)] = kstest(x);
+        [~, p_kslogtest_thick(1,ind)] = kstest(xlog);
+    end
     %% Draw figures 1-11 and store them on HDD in the folder csv_path (results)
     % Last input into the function sg_draw_corrplot_loop is the figure filename
     % r ... array of correlation coefficients from raw data
@@ -562,9 +589,64 @@ function stat = sg_structure_versus_demography(path_results,path_data)
 
     %% Make data matrix serving as input for the principal component analysis (PCA), estimate PCA in the sg_draw_biplot function which also draw biplot projections
     data = [demography sc_data_pca fs thick];
+    data_name = [demography_name sc_data_name fs_name thick_name];
     data_colorid = [ ones(1,size(demography,2)) 2*ones(1,size(csa,2)) 3*ones(1,size(dwimtr,2)) 4*ones(1,size(fs,2)) 5*ones(1,3) 4*ones(1,2) ]; % different color-coding for different groups of variables
-    [pc.coeff,pc.score,pc.latent,pc.tsquared,pc.explained,pc.mu] = sg_draw_biplot(data,[demography_name sc_data_name fs_name thick_name],111,fig_biplot_size,fullfile(csv_path,'fig_pca'),data_colorid);
+    [pc.coeff,pc.score,pc.latent,pc.tsquared,pc.explained,pc.mu] = sg_draw_biplot(data,data_name,111,fig_biplot_size,fullfile(csv_path,'fig_pca'),data_colorid);
 
+    %% Make matrices Y and X for regression analysis
+    X = demography;
+%     X = ( X - repmat(mean(X,'omitnan'),size(X,1),1) ) ./ repmat(std(X,'omitnan'),size(X,1),1);
+    X_name = {'Age' 'Height' 'Weight'};
+    
+    Y_name = {'BrainGMVol' 'BrainVol' 'CorticalGMVol' 'CerebellumVol' 'BrainStemVol' 'CorticalWMVol' 'SubCortGMVol' 'PrecentralGMVol' 'PostcentralGMVol' 'CSA-WM' 'CSA-SC' 'MD-SC-WM' 'MTR-SC-WM' 'Cortical Thickness'};
+    Y = [data(:,contains(data_name,'BrainGMVol')) ...
+        data(:,contains(data_name,'BrainVol')) ...
+        data(:,contains(data_name,'CorticalGMVol')) ...
+        data(:,contains(data_name,'CerebellumVol')) ...
+        data(:,contains(data_name,'BrainStemVol')) ...
+        data(:,contains(data_name,'CorticalWMVol')) ...
+        data(:,contains(data_name,'SubCortGMVol')) ...
+        data(:,contains(data_name,'PrecentralGMVol')) ...
+        data(:,contains(data_name,'PostcentralGMVol')) ...
+        data(:,contains(data_name,'CSA-WM')) ...
+        data(:,contains(data_name,'CSA-SC')) ...
+        data(:,contains(data_name,'MD-SC-WM')) ...
+        data(:,contains(data_name,'MTR-SC-WM')) ...
+        data(:,contains(data_name,'Cortical Thickness')) ...
+        ];
+    
+    sex = 0.5*ones(size(participants.sex,1),1);
+    sex(strcmp(participants.sex,'F')) = -0.5;
+    
+    tblR2{1,1} = 'y';
+    tblR2{1,2} = 'y ~ y0 + Age';
+    tblR2{1,3} = 'y ~ y0 + Sex + Age';
+    tblR2{1,4} = 'y ~ y0 + Sex + Height';
+    tblR2{1,5} = 'y ~ y0 + Sex + Weight';
+    tblR2{1,6} = 'y ~ y0 + Sex + Age + Height';
+    tblR2{1,7} = 'y ~ y0 + Sex + Age + Weight';
+    for vr = 1:size(Y,2)
+        tblR2{vr+1,1} = Y_name{1,vr};
+        
+        mdl = fitlm(X(:,strcmp(X_name,'Age')),Y(:,vr));
+        tblR2{vr+1,2} = mdl.Rsquared.Ordinary;
+        
+        mdl = fitlm([ X(:,strcmp(X_name,'Age')) sex ],Y(:,vr));
+        tblR2{vr+1,3} = mdl.Rsquared.Ordinary;
+        
+        mdl = fitlm([ X(:,strcmp(X_name,'Height')) sex ],Y(:,vr));
+        tblR2{vr+1,4} = mdl.Rsquared.Ordinary;
+        
+        mdl = fitlm([ X(:,strcmp(X_name,'Weight')) sex ],Y(:,vr));
+        tblR2{vr+1,5} = mdl.Rsquared.Ordinary;
+        
+        mdl = fitlm([ X(:,strcmp(X_name,'Age')) X(:,strcmp(X_name,'Height')) sex ],Y(:,vr));
+        tblR2{vr+1,6} = mdl.Rsquared.Ordinary;
+        
+        mdl = fitlm([ X(:,strcmp(X_name,'Age')) X(:,strcmp(X_name,'Weight')) sex ],Y(:,vr));
+        tblR2{vr+1,7} = mdl.Rsquared.Ordinary;
+    end
+    
     %% Extract correlation coefficients (+ its p-values) of interest and organize them into the tbl table
     tbl = sg_build_corr_table(r,p,r_norm,p_norm,fs_r,fs_p,fs_r_norm,fs_p_norm,thick_r,thick_p,thick_r_norm,thick_p_norm);
 
@@ -579,6 +661,12 @@ function stat = sg_structure_versus_demography(path_results,path_data)
     stat.r_norm_fig1to11 = r_norm;
     stat.r_norm_fig12to19 = fs_r_norm;
     stat.r_norm_fig20to23 = thick_r_norm;
+    stat.rho_fig1to11 = rho;
+    stat.rho_fig12to19 = fs_rho;
+    stat.rho_fig20to23 = thick_rho;
+    stat.rho_norm_fig1to11 = rho_norm;
+    stat.rho_norm_fig12to19 = fs_rho_norm;
+    stat.rho_norm_fig20to23 = thick_rho_norm;
     stat.p_fig1to11 = p;
     stat.p_fig12to19 = fs_p;
     stat.p_fig20to23 = thick_p;
@@ -588,11 +676,39 @@ function stat = sg_structure_versus_demography(path_results,path_data)
     stat.p_norm_fig20to23 = thick_p_norm;  
     stat.p_ttest2_AgeHeightWeightBmi_MALEvsFEMALE = pttest2_AHWB;
     stat.p_ttest2_CSA_MALEvsFEMALE = pttest2_csa;
+    stat.p_rho_fig1to11 = p_rho;
+    stat.p_rho_fig12to19 = fs_p_rho;
+    stat.p_rho_fig20to23 = thick_p_rho;
+    stat.p_rho_norm_fig1to11 = p_rho_norm;
+    stat.p_rho_norm_fig12to19 = fs_p_rho_norm;
+    stat.p_rho_norm_fig20to23 = thick_p_rho_norm;
+    stat.p_kstest_demography = p_kstest_demography;
+    stat.p_kslogtest_demography =  p_kslogtest_demography;
+    stat.p_kstest_bmi = p_kstest_bmi;
+    stat.p_kslogtest_bmi =  p_kslogtest_bmi;
+    stat.p_kstest_csa = p_kstest_csa;
+    stat.p_kslogtest_csa =  p_kslogtest_csa;
+    stat.p_kstest_dwi = p_kstest_dwi;
+    stat.p_kslogtest_dwi =  p_kslogtest_dwi;
+    stat.p_kstest_dwilcst = p_kstest_dwilcst;
+    stat.p_kslogtest_dwilcst =  p_kslogtest_dwilcst;
+    stat.p_kstest_dwidc = p_kstest_dwidc;
+    stat.p_kslogtest_dwidc =  p_kslogtest_dwidc;
+    stat.p_kstest_dwigm = p_kstest_dwigm;
+    stat.p_kslogtest_dwigm =  p_kslogtest_dwigm;
+    stat.p_kstest_fs = p_kstest_fs;
+    stat.p_kslogtest_fs =  p_kslogtest_fs;
+    stat.p_kstest_mtr = p_kstest_mtr;
+    stat.p_kslogtest_mtr =  p_kslogtest_mtr;
+    stat.p_kstest_mtrgm = p_kstest_mtrgm;
+    stat.p_kslogtest_mtrgm =  p_kslogtest_mtrgm;
+    stat.p_kstest_thick = p_kstest_thick;
+    stat.p_kslogtest_thick =  p_kslogtest_thick;
     stat.manufacturer = manufacturer_stats;
     stat.pca = pc;
     stat.sex = sex_stat;
-    stat.tbl = tbl;  
-
+    stat.tbl = tbl;
+    stat.tblR2 = tblR2;
     %% Save the results in  the stat variable as .mat file at HDD
-    save(fullfile(csv_path,'stat_labounek2023_HC_only.mat'),'stat','-mat')
+    save(fullfile(csv_path,'stat_labounek2024.mat'),'stat','-mat')
 end
