@@ -161,6 +161,12 @@ function [r, p, r_norm, p_norm, rho, p_rho, rho_norm, p_rho_norm] = sg_draw_corr
     end
     axis([minx maxx miny maxy])
     grid on
+    if ~isempty(ylbl)
+        ylabel(ylbl)
+    end
+    if ~isempty(xlbl)
+        xlabel(xlbl)
+    end
     set(gca,'FontSize',14,'LineWidth',2)
 end
 
