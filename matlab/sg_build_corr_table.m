@@ -1,4 +1,4 @@
-function tbl = sg_build_corr_table(r,p,r_norm,p_norm,fs_r,fs_p,fs_r_norm,fs_p_norm,thick_r,thick_p,thick_r_norm,thick_p_norm)
+function tbl = sg_build_corr_table(r,p,r_norm,p_norm,fs_r,fs_p,fs_r_norm,fs_p_norm,thick_r,thick_p,thick_r_norm,thick_p_norm,r_icv,p_icv,r_norm_icv,p_norm_icv)
 %SG_BUILD_CORR_TABLE Summary of this function goes here
 %   Detailed explanation goes here
 %
@@ -208,4 +208,26 @@ function tbl = sg_build_corr_table(r,p,r_norm,p_norm,fs_r,fs_p,fs_r_norm,fs_p_no
     tbl(88:102,:) = tbl([97:102 88:96],:);
 
     tbl(64:102,8:13)={[]};
+    
+    
+    tbl{103,1} = 'ICV vs BrainVol';
+    tbl{104,1} = 'ICV vs BrainGMVol';
+    tbl{105,1} = 'ICV vs CorticalGMVol';
+    tbl{106,1} = 'ICV vs CorticalWMVol';
+    tbl{107,1} = 'ICV vs SubCortGMVol';
+    tbl{108,1} = 'ICV vs ThalamusVol';
+    tbl{109,1} = 'ICV vs CerebellumVol';
+    tbl{110,1} = 'ICV vs BrainStemVol';
+    tbl{111,1} = 'ICV vs PrecentralGMVol';
+    tbl{112,1} = 'ICV vs PostcentralGMVol';
+    tbl{113,1} = 'ICV vs CSA-SC';
+    tbl{114,1} = 'ICV vs CSA-WM';
+    tbl{115,1} = 'ICV vs MD-SC-WM';
+    tbl{116,1} = 'ICV vs MTR-SC-WM';
+    tbl{117,1} = 'ICV vs Cortical Thickness';
+    
+    tbl(103:117,2:2:6) = num2cell(r_icv);
+    tbl(103:117,3:2:7) = num2cell(p_icv);
+    tbl(113:116,8:2:12) = num2cell(r_norm_icv(11:14,:));
+    tbl(113:116,9:2:13) = num2cell(p_norm_icv(11:14,:));
 end

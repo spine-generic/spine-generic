@@ -86,6 +86,7 @@ function sg_mod_biplot(bp,explained,cmp1,cmp2,data_colorid,fg,sbpl)
         1 0 0 alpha
         0 0.749 1 alpha
         1 1 0 alpha
+        1 0.549 0 alpha
         ];
     color_pos = 1;
     for ind = 1:(size(bp,1)-1)
@@ -114,7 +115,10 @@ function sg_mod_biplot(bp,explained,cmp1,cmp2,data_colorid,fg,sbpl)
                         bp(ind).Position(2) = bp(ind).Position(2) -0.020;
                         bp(ind).Position(1) = bp(ind).Position(1) -0.015;
                     elseif strcmp(bp(ind).String,'CSA-SC')
+                        bp(ind).Position(1) = bp(ind).Position(1) -0.010;
                         bp(ind).Position(2) = bp(ind).Position(2) -0.010;
+                    elseif strcmp(bp(ind).String,'CSA-GM')
+                        bp(ind).Position(2) = bp(ind).Position(2) -0.015;
                     elseif strcmp(bp(ind).String,'FA-SC-GM')
                         bp(ind).Position(1) = bp(ind).Position(1) +0.010;
                     elseif strcmp(bp(ind).String,'Weight')
@@ -125,6 +129,8 @@ function sg_mod_biplot(bp,explained,cmp1,cmp2,data_colorid,fg,sbpl)
                     elseif strcmp(bp(ind).String,'BrainStemVol')
                         bp(ind).Position(2) = bp(ind).Position(2) -0.008;
                         bp(ind).Position(1) = bp(ind).Position(1) +0.005;
+                    elseif strcmp(bp(ind).String,'CerebellumVol')
+                        bp(ind).Position(2) = bp(ind).Position(2) -0.010;
                     elseif strcmp(bp(ind).String,'Height')
                         bp(ind).Position(2) = bp(ind).Position(2) +0.018;
                         bp(ind).Position(1) = bp(ind).Position(1) -0.010;  
@@ -132,6 +138,11 @@ function sg_mod_biplot(bp,explained,cmp1,cmp2,data_colorid,fg,sbpl)
                         bp(ind).Position(2) = bp(ind).Position(2) -0.022;
                     elseif strcmp(bp(ind).String,'Age')
                         bp(ind).Position(1) = bp(ind).Position(1) -0.015;
+                    elseif strcmp(bp(ind).String,'ThalamusVol')
+                        bp(ind).Position(2) = bp(ind).Position(2) +0.019;
+                    elseif strcmp(bp(ind).String,'ICV')
+                        bp(ind).Position(2) = bp(ind).Position(2) -0.020;
+                        bp(ind).Position(1) = bp(ind).Position(1) +0.015;
                     end
                 elseif sbpl == 2
                     if strcmp(bp(ind).String,'PrecentralG Thickness')
@@ -139,31 +150,35 @@ function sg_mod_biplot(bp,explained,cmp1,cmp2,data_colorid,fg,sbpl)
                     elseif strcmp(bp(ind).String,'PostcentralG Thickness')
                         bp(ind).Position(2) = bp(ind).Position(2) +0.025;
                     elseif strcmp(bp(ind).String,'Cortical Thickness')
-                        bp(ind).Position(2) = bp(ind).Position(2) +0.020;
+                        bp(ind).Position(2) = bp(ind).Position(2) +0.015;
                     elseif strcmp(bp(ind).String,'BrainStemVol')
-                        bp(ind).Position(2) = bp(ind).Position(2) +0.000;
+                        bp(ind).Position(2) = bp(ind).Position(2) -0.005;
                     elseif strcmp(bp(ind).String,'ThalamusVol')
                         bp(ind).Position(2) = bp(ind).Position(2) +0.014;
                     elseif strcmp(bp(ind).String,'CorticalGMVol')
                         bp(ind).Position(2) = bp(ind).Position(2) -0.075;
                     elseif strcmp(bp(ind).String,'CorticalWMVol')
-                        bp(ind).Position(2) = bp(ind).Position(2) -0.027;
+                        bp(ind).Position(2) = bp(ind).Position(2) -0.038;
+                        bp(ind).Position(1) = bp(ind).Position(1) +0.032;
                     elseif strcmp(bp(ind).String,'CerebellumVol')
                         bp(ind).Position(2) = bp(ind).Position(2) +0.005;
                         bp(ind).Position(1) = bp(ind).Position(1) -0.000;
                     elseif strcmp(bp(ind).String,'BrainGMVol')
                         bp(ind).Position(2) = bp(ind).Position(2) -0.062;
                     elseif strcmp(bp(ind).String,'PostcentralGMVol')
-                        bp(ind).Position(2) = bp(ind).Position(2) -0.050;
+                        bp(ind).Position(2) = bp(ind).Position(2) -0.035;
                         bp(ind).Position(1) = bp(ind).Position(1) +0.045;
                     elseif strcmp(bp(ind).String,'PrecentralGMVol')
-                        bp(ind).Position(2) = bp(ind).Position(2) -0.005;
+                        bp(ind).Position(2) = bp(ind).Position(2) -0.003;
                         bp(ind).Position(1) = bp(ind).Position(1) +0.015;
                     elseif strcmp(bp(ind).String,'BrainVol')
-                        bp(ind).Position(2) = bp(ind).Position(2) -0.050;
+                        bp(ind).Position(2) = bp(ind).Position(2) -0.053;
                     elseif strcmp(bp(ind).String,'SubCortGMVol')
-                        bp(ind).Position(2) = bp(ind).Position(2) +0.017;
+                        bp(ind).Position(2) = bp(ind).Position(2) +0.012;
                     elseif strcmp(bp(ind).String,'Height')
+                        bp(ind).Position(2) = bp(ind).Position(2) -0.023;
+                        bp(ind).Position(1) = bp(ind).Position(1) -0.020;
+                    elseif strcmp(bp(ind).String,'Weight')
                         bp(ind).Position(2) = bp(ind).Position(2) -0.023;
                         bp(ind).Position(1) = bp(ind).Position(1) -0.015;
                     elseif strcmp(bp(ind).String,'CSA-GM')
@@ -172,6 +187,10 @@ function sg_mod_biplot(bp,explained,cmp1,cmp2,data_colorid,fg,sbpl)
                         bp(ind).Position(1) = bp(ind).Position(1) +0.010;
                     elseif strcmp(bp(ind).String,'Age')
                         bp(ind).Position(1) = bp(ind).Position(1) -0.015;
+                        bp(ind).Position(2) = bp(ind).Position(2) +0.010;
+                    elseif strcmp(bp(ind).String,'ICV')
+                        bp(ind).Position(1) = bp(ind).Position(1) -0.005;
+                        bp(ind).Position(2) = bp(ind).Position(2) -0.015;
                     end
                 elseif sbpl == 3
                     if strcmp(bp(ind).String,'CSA-GM')
@@ -179,12 +198,16 @@ function sg_mod_biplot(bp,explained,cmp1,cmp2,data_colorid,fg,sbpl)
                         bp(ind).Position(1) = bp(ind).Position(1) -0.015;
                     elseif strcmp(bp(ind).String,'Height')
                         bp(ind).Position(2) = bp(ind).Position(2) +0.015;
-                    elseif strcmp(bp(ind).String,'Height')
+                    elseif strcmp(bp(ind).String,'Weight')
                         bp(ind).Position(2) = bp(ind).Position(2) -0.005;
                     elseif strcmp(bp(ind).String,'PrecentralGMVol')
-                        bp(ind).Position(2) = bp(ind).Position(2) +0.015;
+                        bp(ind).Position(2) = bp(ind).Position(2) +0.020;
+                    elseif strcmp(bp(ind).String,'BrainVol')
+                        bp(ind).Position(2) = bp(ind).Position(2) -0.010;
                     elseif strcmp(bp(ind).String,'BrainStemVol')
-                        bp(ind).Position(2) = bp(ind).Position(2) -0.045;
+                        bp(ind).Position(2) = bp(ind).Position(2) +0.005;
+                    elseif strcmp(bp(ind).String,'CerebellumVol')
+                        bp(ind).Position(2) = bp(ind).Position(2) -0.026;
                     elseif strcmp(bp(ind).String,'ThalamusVol')
                         bp(ind).Position(2) = bp(ind).Position(2) -0.015;
                     elseif strcmp(bp(ind).String,'FA-SC-GM')
@@ -208,23 +231,28 @@ function sg_mod_biplot(bp,explained,cmp1,cmp2,data_colorid,fg,sbpl)
                         bp(ind).Position(1) = bp(ind).Position(1) +0.215;
                     elseif strcmp(bp(ind).String,'BrainGMVol')
                         bp(ind).Position(1) = bp(ind).Position(1) +0.206;
+                    elseif strcmp(bp(ind).String,'BrainStemVol')
+                        bp(ind).Position(1) = bp(ind).Position(1) +0.010;
                     elseif strcmp(bp(ind).String,'CSA-WM')
                         bp(ind).Position(2) = bp(ind).Position(2) -0.010;
                     elseif strcmp(bp(ind).String,'PrecentralG Thickness')
                         bp(ind).Position(2) = bp(ind).Position(2) +0.010;
                         bp(ind).Position(1) = bp(ind).Position(1) -0.010;
                     elseif strcmp(bp(ind).String,'SubCortGMVol')
-                        bp(ind).Position(2) = bp(ind).Position(2) -0.007;
+                        bp(ind).Position(2) = bp(ind).Position(2) -0.010;
                     elseif strcmp(bp(ind).String,'FA-SC-GM')
                         bp(ind).Position(1) = bp(ind).Position(1) +0.010;
                     elseif strcmp(bp(ind).String,'Age')
                         bp(ind).Position(1) = bp(ind).Position(1) -0.015;
+                    elseif strcmp(bp(ind).String,'ICV')
+                        bp(ind).Position(1) = bp(ind).Position(1) -0.023;
+                        bp(ind).Position(2) = bp(ind).Position(2) -0.003;
                     end
                 end
             elseif fg == 2
                 if sbpl == 1
                     if strcmp(bp(ind).String,'PrecentralG Thickness')
-                        bp(ind).Position(2) = bp(ind).Position(2) -0.015;
+                        bp(ind).Position(2) = bp(ind).Position(2) -0.030;
                     elseif strcmp(bp(ind).String,'PrecentralGMVol')
                         bp(ind).Position(2) = bp(ind).Position(2) +0.025;
                     elseif strcmp(bp(ind).String,'CorticalGMVol')
@@ -232,7 +260,7 @@ function sg_mod_biplot(bp,explained,cmp1,cmp2,data_colorid,fg,sbpl)
                     elseif strcmp(bp(ind).String,'BrainGMVol')
                         bp(ind).Position(2) = bp(ind).Position(2) -0.020;
                     elseif strcmp(bp(ind).String,'BrainStemVol')
-                        bp(ind).Position(2) = bp(ind).Position(2) -0.020;
+                        bp(ind).Position(2) = bp(ind).Position(2) +0.010;
                     elseif strcmp(bp(ind).String,'Height')
                         bp(ind).Position(2) = bp(ind).Position(2) -0.025;
                     elseif strcmp(bp(ind).String,'CorticalWMVol')
@@ -248,7 +276,7 @@ function sg_mod_biplot(bp,explained,cmp1,cmp2,data_colorid,fg,sbpl)
                     elseif strcmp(bp(ind).String,'FA-SC-GM')
                         bp(ind).Position(1) = bp(ind).Position(1) -0.025;
                     elseif strcmp(bp(ind).String,'Age')
-                        bp(ind).Position(1) = bp(ind).Position(1) -0.015;
+                        bp(ind).Position(1) = bp(ind).Position(1) -0.020;
                     end
                 end
             end
