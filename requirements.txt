@@ -9,7 +9,6 @@ statsmodels
 pyyaml
 pybids
 scikit-image
-transforms3d~=0.3.1
 pandas-schema
 plotly~=4.12.0
 opencv-python
