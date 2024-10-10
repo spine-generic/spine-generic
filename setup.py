@@ -18,7 +18,7 @@ with open(req_path, "r") as f:
 setup(
     name="spinegeneric",
     version=spinegeneric.__version__,
-    python_requires=">=3.7,<3.12",
+    python_requires=">=3.9,<=3.13",
     description="Collection of cli to process data for the Spine Generic project.",
     url="https://spine-generic.rtfd.io",
     author="NeuroPoly Lab, Polytechnique Montreal",
@@ -27,11 +27,12 @@ setup(
     classifiers=[
         "Development Status :: 3 - Alpha",
         "License :: OSI Approved :: MIT License",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13",
+
     ],
     keywords="",
     install_requires=install_reqs,
