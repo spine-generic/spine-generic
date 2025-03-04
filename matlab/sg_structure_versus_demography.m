@@ -25,7 +25,7 @@ function stat = sg_structure_versus_demography(path_results,path_data)
 %   stat ... structure type variable consisting of all statistical analysis
 %            values
 %
-%   The stat_labounek2024.mat file with stat variable and all graphical outputs are
+%   The stat_labounek2025.mat file with stat variable and all graphical outputs are
 %   stored in the folder (variable) csv_path=path_results/results
 %
 %   AUTHORS:
@@ -43,6 +43,10 @@ function stat = sg_structure_versus_demography(path_results,path_data)
     exclude_sg_pathology = 0; % values: 0 - all data
                               %         1 - without compression only
                               %         2 - with compression only
+    exclude_small_and_tall = 0; % values: 0 - all data
+                              %           1 - csa and fs measurements outside height limit, defined in height_thr variable, are excluded
+                              
+    height_thr = [160 180];
     %% Set uncorrected critical p-value for further FWE correction
     p_thr = 0.05;
     %% Graph tick ranges:
@@ -75,6 +79,19 @@ function stat = sg_structure_versus_demography(path_results,path_data)
     tick_mdnorm = -0.5:0.1:0.5;
     tick_rdnorm = -0.5:0.1:0.5;
     tick_mtrnorm = -20:4:20;
+    
+    tick_fs_icv = [
+        {0:10:120}
+        {0:5:120}
+        {0:5:120}
+        {0:5:120}
+        {0:1:120}
+        {0:0.2:120}
+        {0:2:120}
+        {0:0.2:120}
+        {0:0.2:120}
+        {0:0.2:120}
+        ];
     
     tick_csa = {tick_csa; tick_csa; tick_csagm};
     tick_dwi = {tick_fa; tick_md; tick_rd};
@@ -179,6 +196,123 @@ function stat = sg_structure_versus_demography(path_results,path_data)
     demography_p_fwe_thr_brain = p_thr / (3*10); % 3 demography measures (age, height, weight) * 10 brain regions of interest
     dwi_p_fwe_thr_brain = p_thr / (3*10); % 3 DTI measures (FA, MD, RD) * 10 brain regions of interest
     icv_p_fwe_icv = 0.05/15;
+    
+    %% Set list of subjects where manual edits were done during FreeSurfer image analysis
+    
+    fs_manual_edits = {
+        'sub-amu01'
+        'sub-amu02'
+        'sub-amu03'
+        'sub-amu05'
+        'sub-balgrist03'
+        'sub-beijingVerio02'
+        'sub-beijingVerio03'
+        'sub-beijingVerio04'
+        'sub-brnoCeitec01'
+        'sub-brnoCeitec03'
+        'sub-brnoCeitec05'
+        'sub-brnoUhb01'
+        'sub-brnoUhb02'
+        'sub-brnoUhb08'
+        'sub-cardiff01'
+        'sub-cardiff04'
+        'sub-cmrra01'
+        'sub-cmrra02'
+        'sub-cmrra03'
+        'sub-cmrra04'
+        'sub-cmrra05'
+        'sub-cmrra06'
+        'sub-cmrrb01'
+        'sub-cmrrb02'
+        'sub-cmrrb03'
+        'sub-cmrrb04'
+        'sub-cmrrb07'
+        'sub-fslAchieva03'
+        'sub-fslAchieva04'
+        'sub-fslAchieva05'
+        'sub-fslPrisma02'
+        'sub-fslPrisma05'
+        'sub-geneva01'
+        'sub-geneva02'
+        'sub-geneva06'
+        'sub-hamburg01'
+        'sub-hamburg05'
+        'sub-hamburg06'
+        'sub-juntendo750w03'
+        'sub-juntendo750w06'
+        'sub-mniS02'
+        'sub-mniS03'
+        'sub-mniS05'
+        'sub-mniS06'
+        'sub-mniS07'
+        'sub-mniS08'
+        'sub-mountSinai01'
+        'sub-mountSinai04'
+        'sub-mpicbs03'
+        'sub-mpicbs05'
+        'sub-nottwil02'
+        'sub-nottwil03'
+        'sub-nottwil04'
+        'sub-nottwil06'
+        'sub-nwu03'
+        'sub-nwu04'
+        'sub-nwu06'
+        'sub-oxfordFmrib01'
+        'sub-oxfordFmrib02'
+        'sub-oxfordFmrib03'
+        'sub-oxfordFmrib04'
+        'sub-oxfordFmrib05'
+        'sub-oxfordFmrib06'
+        'sub-oxfordFmrib07'
+        'sub-oxfordFmrib09'
+        'sub-oxfordFmrib10'
+        'sub-oxfordFmrib11'
+        'sub-oxfordOhba02'
+        'sub-oxfordOhba03'
+        'sub-oxfordOhba05'
+        'sub-pavia03'
+        'sub-pavia04'
+        'sub-perform01'
+        'sub-perform02'
+        'sub-perform04'
+        'sub-perform05'
+        'sub-perform06'
+        'sub-queensland03'
+        'sub-sherbrooke06'
+        'sub-stanford01'
+        'sub-stanford02'
+        'sub-stanford03'
+        'sub-stanford05'
+        'sub-stanford06'
+        'sub-strasbourg02'
+        'sub-strasbourg05'
+        'sub-strasbourg06'
+        'sub-tehranS05'
+        'sub-tokyo750w01'
+        'sub-tokyo750w07'
+        'sub-tokyoIngenia03'
+        'sub-tokyoSkyra01'
+        'sub-tokyoSkyra02'
+        'sub-ubc03'
+        'sub-ubc05'
+        'sub-ucl03'
+        'sub-ucl04'
+        'sub-unf01'
+        'sub-unf04'
+        'sub-unf05'
+        'sub-unf06'
+        'sub-unf07'
+        'sub-vallHebron01'
+        'sub-vallHebron02'
+        'sub-vallHebron03'
+        'sub-vallHebron05'
+        'sub-vallHebron07'
+        'sub-vuiisAchieva01'
+        'sub-vuiisAchieva02'
+        'sub-vuiisAchieva06'
+        'sub-vuiisIngenia03'
+        'sub-vuiisIngenia05'
+        };
     %% Define position (column) of age, height and weight in the demogprahy variable
     age_pos = strcmp(demography_name,text_age)==1;
     height_pos = strcmp(demography_name,text_height)==1;
@@ -344,6 +478,9 @@ function stat = sg_structure_versus_demography(path_results,path_data)
     elseif exclude_sg_pathology == 2
         csa(strcmp(participants.pathology,'HC'),:) = NaN;
     end
+    if exclude_small_and_tall == 1
+        csa(demography(:,height_pos)<height_thr(1) | demography(:,height_pos)>height_thr(2),:) = NaN;
+    end
     %% Test normality of CSA data
     p_kstest_csa = ones(1,size(csa,2));
     p_kslogtest_csa = ones(1,size(csa,2));
@@ -381,6 +518,9 @@ function stat = sg_structure_versus_demography(path_results,path_data)
     elseif exclude_sg_pathology == 2
         dwi(strcmp(participants.pathology,'HC'),:) = NaN;
     end
+    if exclude_small_and_tall == 1
+        dwi(demography(:,height_pos)<height_thr(1) | demography(:,height_pos)>height_thr(2),:) = NaN;
+    end
     %% Test normality of DTI WM data
     p_kstest_dwi = ones(1,size(csa,2));
     p_kslogtest_dwi = ones(1,size(csa,2));
@@ -404,6 +544,9 @@ function stat = sg_structure_versus_demography(path_results,path_data)
         dwilcst(~strcmp(participants.pathology,'HC'),:) = NaN;
     elseif exclude_sg_pathology == 2
         dwilcst(strcmp(participants.pathology,'HC'),:) = NaN;
+    end
+    if exclude_small_and_tall == 1
+        dwilcst(demography(:,height_pos)<height_thr(1) | demography(:,height_pos)>height_thr(2),:) = NaN;
     end
     %% Test normality of DTI LCST data
     p_kstest_dwilcst = ones(1,size(csa,2));
@@ -429,6 +572,9 @@ function stat = sg_structure_versus_demography(path_results,path_data)
     elseif exclude_sg_pathology == 2
         dwidc(strcmp(participants.pathology,'HC'),:) = NaN;
     end
+    if exclude_small_and_tall == 1
+        dwidc(demography(:,height_pos)<height_thr(1) | demography(:,height_pos)>height_thr(2),:) = NaN;
+    end
     %% Test normality of DTI DC data
     p_kstest_dwidc = ones(1,size(csa,2));
     p_kslogtest_dwidc = ones(1,size(csa,2));
@@ -453,6 +599,9 @@ function stat = sg_structure_versus_demography(path_results,path_data)
     elseif exclude_sg_pathology == 2
         dwigm(strcmp(participants.pathology,'HC'),:) = NaN;
     end
+    if exclude_small_and_tall == 1
+        dwigm(demography(:,height_pos)<height_thr(1) | demography(:,height_pos)>height_thr(2),:) = NaN;
+    end
     %% Test normality of DTI WM data
     p_kstest_dwigm = ones(1,size(csa,2));
     p_kslogtest_dwigm = ones(1,size(csa,2));
@@ -476,6 +625,9 @@ function stat = sg_structure_versus_demography(path_results,path_data)
     elseif exclude_sg_pathology == 2
         mtr(strcmp(participants.pathology,'HC'),:) = NaN;
     end
+    if exclude_small_and_tall == 1
+        mtr(demography(:,height_pos)<height_thr(1) | demography(:,height_pos)>height_thr(2),:) = NaN;
+    end
     %% Test normality of MTR data
     p_kstest_mtr = ones(1,size(csa,2));
     p_kslogtest_mtr = ones(1,size(csa,2));
@@ -498,6 +650,9 @@ function stat = sg_structure_versus_demography(path_results,path_data)
        mtrgm(~strcmp(participants.pathology,'HC'),:) = NaN;
     elseif exclude_sg_pathology == 2
        mtrgm(strcmp(participants.pathology,'HC'),:) = NaN;
+    end
+    if exclude_small_and_tall == 1
+        mtrgm(demography(:,height_pos)<height_thr(1) | demography(:,height_pos)>height_thr(2),:) = NaN;
     end
     %% Test normality of MTR GM data
     p_kstest_mtrgm = ones(1,size(csa,2));
@@ -536,6 +691,9 @@ function stat = sg_structure_versus_demography(path_results,path_data)
         fs_name{1,fsid} = [fs_name{1,fsid} ' [mm^3]'];
     end
     
+    if exclude_small_and_tall == 1
+        fs(demography(:,height_pos)<height_thr(1) | demography(:,height_pos)>height_thr(2),:) = NaN;
+    end
     %% Test normality of FS data
     p_kstest_fs = ones(1,size(fs,2));
     p_kslogtest_fs = ones(1,size(fs,2));
@@ -552,6 +710,10 @@ function stat = sg_structure_versus_demography(path_results,path_data)
     %% Read cerebral ICV from the file results/fs-measurements.xlsx
     [icv, ~] = sg_extract_xlsx(fullfile(csv_path,'fs-measurements.xlsx'),67,participants);
     icv_name = {'ICV [mm^3]'};
+    
+    if exclude_small_and_tall == 1
+        icv(demography(:,height_pos)<height_thr(1) | demography(:,height_pos)>height_thr(2),:) = NaN;
+    end
     %% ICV stats
     icv_stats(1,1) = mean(icv,'omitnan');
     icv_stats(1,2) = std(icv,0,'omitnan');
@@ -578,9 +740,11 @@ function stat = sg_structure_versus_demography(path_results,path_data)
     thickR = sg_extract_csv(thickGMvol_name,csv_path,thickR_filename,thick_lvl,'GrayVol',participants,thick_excl);
     thickGMvol = thickL + thickR;
     thick = [tmp thick thickGMvol];
-    thick_name = [ {'Cortical Thickness [mm]'} thick_name thickGMvol_name];
+    thick_name = [ {'Cortical Thickness [mm]'} thick_name thickGMvol_name]; 
     
-    
+    if exclude_small_and_tall == 1
+        thick(demography(:,height_pos)<height_thr(1) | demography(:,height_pos)>height_thr(2),:) = NaN;
+    end
     %% Test normality of FS data
     p_kstest_thick = ones(1,size(thick,2));
     p_kslogtest_thick = ones(1,size(thick,2));
@@ -593,6 +757,181 @@ function stat = sg_structure_versus_demography(path_results,path_data)
         
         [~, p_kstest_thick(1,ind)] = kstest(x);
         [~, p_kslogtest_thick(1,ind)] = kstest(xlog);
+    end
+    
+    %% Check number of included subjects based on body height
+    if exclude_small_and_tall == 1
+        sub_height_included = demography(:,height_pos)>=height_thr(1) & demography(:,height_pos)<=height_thr(2);
+        stats_sub_height_included(1,1) = sum(sub_height_included);
+        stats_sub_height_included(2,1) = sum(sub_height_included(strcmp(participants.sex,'F')));
+        stats_sub_height_included(3,1) = sum(sub_height_included(strcmp(participants.sex,'M')));
+    end
+    %% Normalize cerebral volumetric measurements with ICV
+    fs_icv = 100*[fs thickGMvol] ./ repmat(icv,1,size(fs,2)+size(thickGMvol,2));
+    fs_icv_name = [fs_name thickGMvol_name];
+    for ind = 1:size(fs,2)
+        [tmp, p_tmp] = corrcoef(fs(:,ind),fs_icv(:,ind),'Rows','Pairwise');
+        r_fs_icv(1,ind) = tmp(1,2);
+        p_r_fs_icv(1,ind) = p_tmp(1,2);
+    end
+    for ind = 1:size(thickGMvol,2)
+        [tmp, p_tmp] = corrcoef(thickGMvol(:,ind),fs_icv(:,size(fs,2)+ind),'Rows','Pairwise');
+        r_fs_icv(1,size(fs,2)+ind) = tmp(1,2);
+        p_r_fs_icv(1,size(fs,2)+ind) = p_tmp(1,2);
+    end
+    for ind = 1:size(fs_icv_name,2)
+        fs_icv_name{1,ind} = [extractBefore(fs_icv_name{1,ind},' [mm') ' [%]'];
+    end
+    %% Check differences in body size and ICV between manually edited and non-edited FreeSurrfer results
+    
+    for vr = 1:size(demography,2)
+        vec = demography(:,vr);
+        fs_edited = [];
+        fs_nonedited = [];
+        for ind = 1:size(vec,1)
+            edited = sum(strcmp(participants.participant_id{ind,1},fs_manual_edits));
+            if edited == 0
+                fs_nonedited = [fs_nonedited; vec(ind,1)];
+            else
+                fs_edited = [fs_edited; vec(ind,1)];
+            end
+        end
+        [~, stats_fsedits_demography(1,vr)] = ttest2(fs_nonedited,fs_edited);
+        stats_fsedits_demography(2,vr) = mean(fs_nonedited,'omitnan');
+        stats_fsedits_demography(3,vr) = std(fs_nonedited,'omitnan');
+        stats_fsedits_demography(4,vr) = min(fs_nonedited);
+        stats_fsedits_demography(5,vr) = max(fs_nonedited);
+        stats_fsedits_demography(6,vr) = mean(fs_edited,'omitnan');
+        stats_fsedits_demography(7,vr) = std(fs_edited,'omitnan');
+        stats_fsedits_demography(8,vr) = min(fs_edited);
+        stats_fsedits_demography(9,vr) = max(fs_edited);
+    end
+    
+    vec = icv;
+    fs_edited = [];
+    fs_nonedited = [];
+    fs_edited_males = 0;
+    fs_edited_males_bin = false(size(icv,1),1);
+    fs_edited_females_bin = false(size(icv,1),1);
+    for ind = 1:size(vec,1)
+        edited = sum(strcmp(participants.participant_id{ind,1},fs_manual_edits));
+        if edited == 0
+            fs_nonedited = [fs_nonedited; vec(ind,1)];
+        else
+            fs_edited = [fs_edited; vec(ind,1)];
+            fs_edited_males_bin(ind,1) = strcmp(participants.sex{ind,1},'M');
+            fs_edited_females_bin(ind,1) = strcmp(participants.sex{ind,1},'F');
+            fs_edited_males = fs_edited_males + double(strcmp(participants.sex{ind,1},'M'));
+        end
+    end
+    [~, stats_fsedits_icv] = ttest2(fs_nonedited,fs_edited);
+    stats_fsedits_icv(2,1) = mean(fs_nonedited,'omitnan');
+    stats_fsedits_icv(3,1) = std(fs_nonedited,'omitnan');
+    stats_fsedits_icv(4,1) = min(fs_nonedited);
+    stats_fsedits_icv(5,1) = max(fs_nonedited);
+    stats_fsedits_icv(6,1) = mean(fs_edited,'omitnan');
+    stats_fsedits_icv(7,1) = std(fs_edited,'omitnan');
+    stats_fsedits_icv(8,1) = min(fs_edited);
+    stats_fsedits_icv(9,1) = max(fs_edited);
+    fs_edited_females = size(fs_manual_edits,1) - fs_edited_males;
+    
+    vec = bmi;
+    fs_edited = [];
+    fs_nonedited = [];
+    for ind = 1:size(vec,1)
+        edited = sum(strcmp(participants.participant_id{ind,1},fs_manual_edits));
+        if edited == 0
+            fs_nonedited = [fs_nonedited; vec(ind,1)];
+        else
+            fs_edited = [fs_edited; vec(ind,1)];
+        end
+    end
+    [~, stats_fsedits_bmi] = ttest2(fs_nonedited,fs_edited);
+    stats_fsedits_bmi(2,1) = mean(fs_nonedited,'omitnan');
+    stats_fsedits_bmi(3,1) = std(fs_nonedited,'omitnan');
+    stats_fsedits_bmi(4,1) = min(fs_nonedited);
+    stats_fsedits_bmi(5,1) = max(fs_nonedited);
+    stats_fsedits_bmi(6,1) = mean(fs_edited,'omitnan');
+    stats_fsedits_bmi(7,1) = std(fs_edited,'omitnan');
+    stats_fsedits_bmi(8,1) = min(fs_edited);
+    stats_fsedits_bmi(9,1) = max(fs_edited);
+    
+    vec = bsa;
+    fs_edited = [];
+    fs_nonedited = [];
+    for ind = 1:size(vec,1)
+        edited = sum(strcmp(participants.participant_id{ind,1},fs_manual_edits));
+        if edited == 0
+            fs_nonedited = [fs_nonedited; vec(ind,1)];
+        else
+            fs_edited = [fs_edited; vec(ind,1)];
+        end
+    end
+    [~, stats_fsedits_bsa] = ttest2(fs_nonedited,fs_edited);
+    stats_fsedits_bsa(2,1) = mean(fs_nonedited,'omitnan');
+    stats_fsedits_bsa(3,1) = std(fs_nonedited,'omitnan');
+    stats_fsedits_bsa(4,1) = min(fs_nonedited);
+    stats_fsedits_bsa(5,1) = max(fs_nonedited);
+    stats_fsedits_bsa(6,1) = mean(fs_edited,'omitnan');
+    stats_fsedits_bsa(7,1) = std(fs_edited,'omitnan');
+    stats_fsedits_bsa(8,1) = min(fs_edited);
+    stats_fsedits_bsa(9,1) = max(fs_edited);
+    
+    
+    vec = lbw;
+    fs_edited = [];
+    fs_nonedited = [];
+    for ind = 1:size(vec,1)
+        edited = sum(strcmp(participants.participant_id{ind,1},fs_manual_edits));
+        if edited == 0
+            fs_nonedited = [fs_nonedited; vec(ind,1)];
+        else
+            fs_edited = [fs_edited; vec(ind,1)];
+        end
+    end
+    [~, stats_fsedits_lbw] = ttest2(fs_nonedited,fs_edited);
+    stats_fsedits_lbw(2,1) = mean(fs_nonedited,'omitnan');
+    stats_fsedits_lbw(3,1) = std(fs_nonedited,'omitnan');
+    stats_fsedits_lbw(4,1) = min(fs_nonedited);
+    stats_fsedits_lbw(5,1) = max(fs_nonedited);
+    stats_fsedits_lbw(6,1) = mean(fs_edited,'omitnan');
+    stats_fsedits_lbw(7,1) = std(fs_edited,'omitnan');
+    stats_fsedits_lbw(8,1) = min(fs_edited);
+    stats_fsedits_lbw(9,1) = max(fs_edited);
+    
+    %% Test differences in brain volume and thickness measurements regarding manual editting
+    fsthick = [fs thick];
+    for vr = 1:size(fsthick,2)
+        fsedits_male = fsthick(fs_edited_males_bin == 1 & strcmp(participants.sex,'M'),vr);
+        fsnoedits_male = fsthick(fs_edited_males_bin == 0 & strcmp(participants.sex,'M'),vr);
+        fsedits_female = fsthick(fs_edited_females_bin == 1 & strcmp(participants.sex,'F'),vr);
+        fsnoedits_female = fsthick(fs_edited_females_bin == 0 & strcmp(participants.sex,'F'),vr);
+        
+%         fsedits = fsthick(fs_edited_males_bin == 1 | fs_edited_females_bin == 1,vr);
+%         fsnoedits = fsthick(fs_edited_males_bin == 0 & fs_edited_females_bin == 0,vr);
+        
+        [~, stats_fsedits_fsthicks_male(1,vr)] = ttest2 ( fsedits_male, fsnoedits_male );
+        stats_fsedits_fsthicks_male(2,vr) = mean(fsnoedits_male,'omitnan');
+        stats_fsedits_fsthicks_male(3,vr) = std(fsnoedits_male,'omitnan');
+        stats_fsedits_fsthicks_male(4,vr) = min(fsnoedits_male);
+        stats_fsedits_fsthicks_male(5,vr) = max(fsnoedits_male);
+        stats_fsedits_fsthicks_male(6,vr) = mean(fsedits_male,'omitnan');
+        stats_fsedits_fsthicks_male(7,vr) = std(fsedits_male,'omitnan');
+        stats_fsedits_fsthicks_male(8,vr) = min(fsedits_male);
+        stats_fsedits_fsthicks_male(9,vr) = max(fsedits_male);
+        
+        
+        [~, stats_fsedits_fsthicks_female(1,vr)] = ttest2 ( fsedits_female, fsnoedits_female );
+        stats_fsedits_fsthicks_female(2,vr) = mean(fsnoedits_female,'omitnan');
+        stats_fsedits_fsthicks_female(3,vr) = std(fsnoedits_female,'omitnan');
+        stats_fsedits_fsthicks_female(4,vr) = min(fsnoedits_female);
+        stats_fsedits_fsthicks_female(5,vr) = max(fsnoedits_female);
+        stats_fsedits_fsthicks_female(6,vr) = mean(fsedits_female,'omitnan');
+        stats_fsedits_fsthicks_female(7,vr) = std(fsedits_female,'omitnan');
+        stats_fsedits_fsthicks_female(8,vr) = min(fsedits_female);
+        stats_fsedits_fsthicks_female(9,vr) = max(fsedits_female);
+        
+%         [~, stat_fsedits_fsthicks(1,vr)] = ttest2 ( fsedits, fsnoedits );
     end
     %% Draw figures 1-11 and store them on HDD in the folder csv_path (results)
     % Last input into the function sg_draw_corrplot_loop is the figure filename
@@ -647,7 +986,36 @@ function stat = sg_structure_versus_demography(path_results,path_data)
     [thick_r(:,:,:,3),thick_p(:,:,:,3),thick_r_norm(:,:,:,3),thick_p_norm(:,:,:,3), thick_rho(:,:,:,3),thick_p_rho(:,:,:,3),thick_rho_norm(:,:,:,3),thick_p_rho_norm(:,:,:,3)] = sg_draw_corrplot_loop(thick,demography,thick_name,demography_name,participants,22,[10 50 2415 1200],'All',tick_thick,tick_demography,fullfile(csv_path,'fig_corr_thick_demography'),demography_p_fwe_thr_brain);
     [thick_r(:,:,:,4),thick_p(:,:,:,4),thick_r_norm(:,:,:,4),thick_p_norm(:,:,:,4), thick_rho(:,:,:,4),thick_p_rho(:,:,:,4),thick_rho_norm(:,:,:,4),thick_p_rho_norm(:,:,:,4)] = sg_draw_corrplot_loop(thick,dwimtrgm,thick_name,dwimtrgm_name,participants,23,[10 50 2415 1200],'GEout',tick_thick,tick_dwimtrgm,fullfile(csv_path,'fig_corr_thick_dwimtrgm'),dwi_p_fwe_thr_brain);
     
-    [thick_r(:,:,:,1),thick_p(:,:,:,1),thick_r_norm(:,:,:,1),thick_p_norm(:,:,:,1), thick_rho(:,:,:,1),thick_p_rho(:,:,:,1),thick_rho_norm(:,:,:,1),thick_p_rho_norm(:,:,:,1)] = sg_draw_corrplot_loop(thick,[bmi bsa lbw],thick_name,{text_bmi text_bsa text_lbw},participants,171,[10 50 2415 1200],'All',tick_thick,{tick_bmi; tick_bsa; tick_lbw},fullfile(csv_path,'fig_corr_thick_bmi'),demography_p_fwe_thr_brain);
+    [thick_r(:,:,:,5),thick_p(:,:,:,5),thick_r_norm(:,:,:,5),thick_p_norm(:,:,:,5), thick_rho(:,:,:,5),thick_p_rho(:,:,:,5),thick_rho_norm(:,:,:,5),thick_p_rho_norm(:,:,:,5)] = sg_draw_corrplot_loop(thick,[bmi bsa lbw],thick_name,{text_bmi text_bsa text_lbw},participants,171,[10 50 2415 1200],'All',tick_thick,{tick_bmi; tick_bsa; tick_lbw},fullfile(csv_path,'fig_corr_thick_bmi'),demography_p_fwe_thr_brain);
+     %% Draw figures 24-31 and store them on HDD in the folder csv_path (results)
+    % Last input into the function sg_draw_corrplot_loop is the figure filename
+    % fs_icv_r ... array of correlation coefficients from raw data
+    % fs_icv_p ... array of p-values of correlation coefficients from raw data
+    % fs_icv_r_norm ... array of correlation coefficients from normalized y-axis data
+    % fs_icv_p_norm ... array of p-values of correlation coefficients from normalized y-axis data
+    [fs_icv_r(:,:,:,1),fs_icv_p(:,:,:,1),fs_icv_r_norm(:,:,:,1),fs_icv_p_norm(:,:,:,1), fs_icv_rho(:,:,:,1),fs_icv_p_rho(:,:,:,1),fs_icv_rho_norm(:,:,:,1),fs_icv_p_rho_norm(:,:,:,1)] = sg_draw_corrplot_loop(fs_icv(:,1:4),[demography icv.^-1],fs_icv_name(1:4),[demography_name {'ICV^{-1} [mm^{-3}]'}],participants,24,[10 50 1500 1250],'All',tick_fs_icv(1:4),[tick_demography; {0.4e-6:0.1e-6:1.1e-6}],fullfile(csv_path,'fig_corr_fsicv_demography_1'),demography_p_fwe_thr_brain);
+    [fs_icv_r(:,:,:,2),fs_icv_p(:,:,:,2),fs_icv_r_norm(:,:,:,2),fs_icv_p_norm(:,:,:,2), fs_icv_rho(:,:,:,1),fs_icv_p_rho(:,:,:,2),fs_icv_rho_norm(:,:,:,2),fs_icv_p_rho_norm(:,:,:,2)] = sg_draw_corrplot_loop(fs_icv(:,5:8),[demography icv.^-1],fs_icv_name(5:8),[demography_name {'ICV^{-1} [mm^{-3}]'}],participants,25,[10 50 1500 1250],'All',tick_fs_icv(5:8),[tick_demography; {0.4e-6:0.1e-6:1.1e-6}],fullfile(csv_path,'fig_corr_fsicv_demography_2'),demography_p_fwe_thr_brain);
+    
+    [fs_icv2_r(:,:,:,1),fs_icv2_p(:,:,:,1),fs_icv2_r_norm(:,:,:,1),fs_icv2_p_norm(:,:,:,1), fs_icv2_rho(:,:,:,1),fs_icv2_p_rho(:,:,:,1),fs_icv2_rho_norm(:,:,:,1),fs_icv2_p_rho_norm(:,:,:,1)] = sg_draw_corrplot_loop(fs_icv(:,9:10),[demography icv.^-1],fs_icv_name(9:10),[demography_name {'ICV^{-1} [mm^{-3}]'}],participants,26,[10 50 725 1250],'All',tick_fs_icv(9:10),[tick_demography; {0.4e-6:0.1e-6:1.1e-6}],fullfile(csv_path,'fig_corr_fsicv_demography_3'),demography_p_fwe_thr_brain);
+    
+    fs_invicv_r = squeeze(fs_icv_r(4,:,1,:));
+    fs_invicv_r = [fs_invicv_r(:); squeeze(fs_icv2_r(4,:,1,:))'];
+    fs_invicv_r_stat = [mean(fs_invicv_r) std(fs_invicv_r) min(fs_invicv_r) max(fs_invicv_r)];
+    
+    fsvol = [fs thick(:,strcmp(thick_name,'PrecentralGMVol [mm^3]')) thick(:,strcmp(thick_name,'PostcentralGMVol [mm^3]'))];
+    for ind = 1:size(fs_icv,2)
+        [tmp, tmp_p] = corrcoef(fs_icv(:,ind),fsvol(:,ind),'Rows','Pairwise');
+        r_fsicv_fsvol(1,ind) = tmp(1,2);
+        p_r_fsicv_fsvol(1,ind) = tmp_p(1,2);
+    end
+    r_fsicv_fsvol_stat = [mean(r_fsicv_fsvol) std(r_fsicv_fsvol) min(r_fsicv_fsvol) max(r_fsicv_fsvol)];
+    %% Detect numbers of normalized brain volumes >100%
+    brvolover100_siemens = sum(fs_icv(:,1)>100 & strcmp(participants.manufacturer,'Siemens'));
+    nbrainscans_siemens = sum(~isnan(fs_icv(:,1)) & strcmp(participants.manufacturer,'Siemens'));
+    brvolover100_philips = sum(fs_icv(:,1)>100 & strcmp(participants.manufacturer,'Philips'));
+    nbrainscans_philips = sum(~isnan(fs_icv(:,1)) & strcmp(participants.manufacturer,'Philips'));
+    brvolover100_siemens_prctl = 100*brvolover100_siemens/nbrainscans_siemens;
+    brvolover100_philips_prctl = 100*brvolover100_philips/nbrainscans_philips;
     %% Estimate manufacturer-specific mean for spinal cord structural measurements
     sc_data_manufacturer_mean = zeros(size(sc_data));
     for ind = 1:size(sc_data,2)
@@ -740,58 +1108,172 @@ function stat = sg_structure_versus_demography(path_results,path_data)
         data(:,contains(data_name,'Cortical Thickness')) ...
         ];
     
+    X_female = X(strcmp(participants.sex,'F'),:);
+    X_male = X(strcmp(participants.sex,'M'),:);
+    Y_female = Y(strcmp(participants.sex,'F'),:);
+    Y_male = Y(strcmp(participants.sex,'M'),:);
+    
     sex = 0.5*ones(size(participants.sex,1),1);
     sex(strcmp(participants.sex,'F')) = -0.5;
     
     tblR2{1,1} = 'y';
     tblR2{1,2} = 'y ∝ y0 + Age';
-    tblR2{1,3} = 'y ∝ y0 + Sex + Age';
-    tblR2{1,4} = 'y ∝ y0 + Sex + Weight';
-    tblR2{1,5} = 'y ∝ y0 + Sex + Height';
-    tblR2{1,6} = 'y ∝ y0 + Sex + ICV';
-    tblR2{1,7} = 'y ∝ y0 + Sex + Age + Weight';
-    tblR2{1,8} = 'y ∝ y0 + Sex + Age + Height';
-    tblR2{1,9} = 'y ∝ y0 + Sex + Age + ICV';
-    tblR2{1,10} = 'y ∝ y0 + Sex + Age + ICV + Weight';
-    tblR2{1,11} = 'y ∝ y0 + Sex + Age + ICV + Height';
+    tblR2{1,3} = 'y ∝ y0 + Sex';
+    tblR2{1,4} = 'y ∝ y0 + Weight';
+    tblR2{1,5} = 'y ∝ y0 + Height';
+    tblR2{1,6} = 'y ∝ y0 + ICV';
+    tblR2{1,7} = 'y ∝ y0 + Sex + Age';
+    tblR2{1,8} = 'y ∝ y0 + Sex + Weight';
+    tblR2{1,9} = 'y ∝ y0 + Sex + Height';
+    tblR2{1,10} = 'y ∝ y0 + Sex + ICV';
+    tblR2{1,11} = 'y ∝ y0 + Sex + Age + Weight';
+    tblR2{1,12} = 'y ∝ y0 + Sex + Age + Height';
+    tblR2{1,13} = 'y ∝ y0 + Sex + Age + ICV';
+    tblR2{1,14} = 'y ∝ y0 + Sex + Age + ICV + Weight';
+    tblR2{1,15} = 'y ∝ y0 + Sex + Age + ICV + Height';
     for vr = 1:size(Y,2)
         tblR2{vr+1,1} = Y_name{1,vr};
         
         mdl = fitlm(X(:,strcmp(X_name,'Age')),Y(:,vr));
         tblR2{vr+1,2} = mdl.Rsquared.Ordinary;
         
-        mdl = fitlm([ X(:,strcmp(X_name,'Age')) sex ],Y(:,vr));
+        mdl = fitlm(sex,Y(:,vr));
         tblR2{vr+1,3} = mdl.Rsquared.Ordinary;
         
-        mdl = fitlm([ X(:,strcmp(X_name,'Weight')) sex ],Y(:,vr));
+        mdl = fitlm(X(:,strcmp(X_name,'Weight')),Y(:,vr));
         tblR2{vr+1,4} = mdl.Rsquared.Ordinary;
         
-        mdl = fitlm([ X(:,strcmp(X_name,'Height')) sex ],Y(:,vr));
+        mdl = fitlm(X(:,strcmp(X_name,'Height')),Y(:,vr));
         tblR2{vr+1,5} = mdl.Rsquared.Ordinary;
         
-        mdl = fitlm([ X(:,strcmp(X_name,'ICV')) sex ],Y(:,vr));
+        mdl = fitlm(X(:,strcmp(X_name,'ICV')),Y(:,vr));
         tblR2{vr+1,6} = mdl.Rsquared.Ordinary;
         
-        mdl = fitlm([ X(:,strcmp(X_name,'Age')) X(:,strcmp(X_name,'Weight')) sex ],Y(:,vr));
+        mdl = fitlm([ X(:,strcmp(X_name,'Age')) sex ],Y(:,vr));
         tblR2{vr+1,7} = mdl.Rsquared.Ordinary;
         
-        mdl = fitlm([ X(:,strcmp(X_name,'Age')) X(:,strcmp(X_name,'Height')) sex ],Y(:,vr));
+        mdl = fitlm([ X(:,strcmp(X_name,'Weight')) sex ],Y(:,vr));
         tblR2{vr+1,8} = mdl.Rsquared.Ordinary;
         
-        mdl = fitlm([ X(:,strcmp(X_name,'Age')) X(:,strcmp(X_name,'ICV')) sex ],Y(:,vr));
+        mdl = fitlm([ X(:,strcmp(X_name,'Height')) sex ],Y(:,vr));
         tblR2{vr+1,9} = mdl.Rsquared.Ordinary;
         
-        mdl = fitlm([ X(:,strcmp(X_name,'Age')) X(:,strcmp(X_name,'ICV')) X(:,strcmp(X_name,'Weight')) sex ],Y(:,vr));
+        mdl = fitlm([ X(:,strcmp(X_name,'ICV')) sex ],Y(:,vr));
         tblR2{vr+1,10} = mdl.Rsquared.Ordinary;
         
-        mdl = fitlm([ X(:,strcmp(X_name,'Age')) X(:,strcmp(X_name,'ICV')) X(:,strcmp(X_name,'Height')) sex ],Y(:,vr));
+        mdl = fitlm([ X(:,strcmp(X_name,'Age')) X(:,strcmp(X_name,'Weight')) sex ],Y(:,vr));
         tblR2{vr+1,11} = mdl.Rsquared.Ordinary;
+        
+        mdl = fitlm([ X(:,strcmp(X_name,'Age')) X(:,strcmp(X_name,'Height')) sex ],Y(:,vr));
+        tblR2{vr+1,12} = mdl.Rsquared.Ordinary;
+        
+        mdl = fitlm([ X(:,strcmp(X_name,'Age')) X(:,strcmp(X_name,'ICV')) sex ],Y(:,vr));
+        tblR2{vr+1,13} = mdl.Rsquared.Ordinary;
+        
+        mdl = fitlm([ X(:,strcmp(X_name,'Age')) X(:,strcmp(X_name,'ICV')) X(:,strcmp(X_name,'Weight')) sex ],Y(:,vr));
+        tblR2{vr+1,14} = mdl.Rsquared.Ordinary;
+        
+        mdl = fitlm([ X(:,strcmp(X_name,'Age')) X(:,strcmp(X_name,'ICV')) X(:,strcmp(X_name,'Height')) sex ],Y(:,vr));
+        tblR2{vr+1,15} = mdl.Rsquared.Ordinary;
     end
     
     tblR2 = tblR2';
     
+    %% Make matrices Y and X for regression analysis for females
+    tblR2_female{1,1} = 'y';
+    tblR2_female{1,2} = 'y ∝ y0 + Age';
+    tblR2_female{1,3} = 'y ∝ y0 + Weight';
+    tblR2_female{1,4} = 'y ∝ y0 + Height';
+    tblR2_female{1,5} = 'y ∝ y0 + ICV';
+
+    tblR2_female{1,6} = 'y ∝ y0 + Age + Weight';
+    tblR2_female{1,7} = 'y ∝ y0 + Age + Height';
+    tblR2_female{1,8} = 'y ∝ y0 + Age + ICV';
+    tblR2_female{1,9} = 'y ∝ y0 + Age + ICV + Weight';
+    tblR2_female{1,10} = 'y ∝ y0 + Age + ICV + Height';
+    for vr = 1:size(Y_female,2)
+        tblR2_female{vr+1,1} = Y_name{1,vr};
+        
+        mdl = fitlm(X_female(:,strcmp(X_name,'Age')),Y_female(:,vr));
+        tblR2_female{vr+1,2} = mdl.Rsquared.Ordinary;
+        
+        mdl = fitlm(X_female(:,strcmp(X_name,'Weight')),Y_female(:,vr));
+        tblR2_female{vr+1,3} = mdl.Rsquared.Ordinary;
+        
+        mdl = fitlm(X_female(:,strcmp(X_name,'Height')),Y_female(:,vr));
+        tblR2_female{vr+1,4} = mdl.Rsquared.Ordinary;
+        
+        mdl = fitlm(X_female(:,strcmp(X_name,'ICV')),Y_female(:,vr));
+        tblR2_female{vr+1,5} = mdl.Rsquared.Ordinary;
+        
+        mdl = fitlm([ X_female(:,strcmp(X_name,'Age')) X_female(:,strcmp(X_name,'Weight')) ],Y_female(:,vr));
+        tblR2_female{vr+1,6} = mdl.Rsquared.Ordinary;
+        
+        mdl = fitlm([ X_female(:,strcmp(X_name,'Age')) X_female(:,strcmp(X_name,'Height')) ],Y_female(:,vr));
+        tblR2_female{vr+1,7} = mdl.Rsquared.Ordinary;
+        
+        mdl = fitlm([ X_female(:,strcmp(X_name,'Age')) X_female(:,strcmp(X_name,'ICV')) ],Y_female(:,vr));
+        tblR2_female{vr+1,8} = mdl.Rsquared.Ordinary;
+        
+        mdl = fitlm([ X_female(:,strcmp(X_name,'Age')) X_female(:,strcmp(X_name,'ICV')) X_female(:,strcmp(X_name,'Weight')) ],Y_female(:,vr));
+        tblR2_female{vr+1,9} = mdl.Rsquared.Ordinary;
+        
+        mdl = fitlm([ X_female(:,strcmp(X_name,'Age')) X_female(:,strcmp(X_name,'ICV')) X_female(:,strcmp(X_name,'Height')) ],Y_female(:,vr));
+        tblR2_female{vr+1,10} = mdl.Rsquared.Ordinary;
+    end
+    
+    tblR2_female = tblR2_female';
+    
+    %% Make matrices Y and X for regression analysis for males
+    tblR2_male{1,1} = 'y';
+    tblR2_male{1,2} = 'y ∝ y0 + Age';
+    tblR2_male{1,3} = 'y ∝ y0 + Weight';
+    tblR2_male{1,4} = 'y ∝ y0 + Height';
+    tblR2_male{1,5} = 'y ∝ y0 + ICV';
+
+    tblR2_male{1,6} = 'y ∝ y0 + Age + Weight';
+    tblR2_male{1,7} = 'y ∝ y0 + Age + Height';
+    tblR2_male{1,8} = 'y ∝ y0 + Age + ICV';
+    tblR2_male{1,9} = 'y ∝ y0 + Age + ICV + Weight';
+    tblR2_male{1,10} = 'y ∝ y0 + Age + ICV + Height';
+    for vr = 1:size(Y_male,2)
+        tblR2_male{vr+1,1} = Y_name{1,vr};
+        
+        mdl = fitlm(X_male(:,strcmp(X_name,'Age')),Y_male(:,vr));
+        tblR2_male{vr+1,2} = mdl.Rsquared.Ordinary;
+        
+        mdl = fitlm(X_male(:,strcmp(X_name,'Weight')),Y_male(:,vr));
+        tblR2_male{vr+1,3} = mdl.Rsquared.Ordinary;
+        
+        mdl = fitlm(X_male(:,strcmp(X_name,'Height')),Y_male(:,vr));
+        tblR2_male{vr+1,4} = mdl.Rsquared.Ordinary;
+        
+        mdl = fitlm(X_male(:,strcmp(X_name,'ICV')),Y_male(:,vr));
+        tblR2_male{vr+1,5} = mdl.Rsquared.Ordinary;
+        
+        mdl = fitlm([ X_male(:,strcmp(X_name,'Age')) X_male(:,strcmp(X_name,'Weight')) ],Y_male(:,vr));
+        tblR2_male{vr+1,6} = mdl.Rsquared.Ordinary;
+        
+        mdl = fitlm([ X_male(:,strcmp(X_name,'Age')) X_male(:,strcmp(X_name,'Height')) ],Y_male(:,vr));
+        tblR2_male{vr+1,7} = mdl.Rsquared.Ordinary;
+        
+        mdl = fitlm([ X_male(:,strcmp(X_name,'Age')) X_male(:,strcmp(X_name,'ICV')) ],Y_male(:,vr));
+        tblR2_male{vr+1,8} = mdl.Rsquared.Ordinary;
+        
+        mdl = fitlm([ X_male(:,strcmp(X_name,'Age')) X_male(:,strcmp(X_name,'ICV')) X_male(:,strcmp(X_name,'Weight')) ],Y_male(:,vr));
+        tblR2_male{vr+1,9} = mdl.Rsquared.Ordinary;
+        
+        mdl = fitlm([ X_male(:,strcmp(X_name,'Age')) X_male(:,strcmp(X_name,'ICV')) X_male(:,strcmp(X_name,'Height')) ],Y_male(:,vr));
+        tblR2_male{vr+1,10} = mdl.Rsquared.Ordinary;
+    end
+    
+    tblR2_male = tblR2_male';
+    
     %% Step-wise linear regression
     mdl2=struct([]);
+    mdl2_female=struct([]);
+    mdl2_male=struct([]);
+    
     XX = [X sex];
     XX_name = [ X_name {'Sex'}];
     tblStepWise{1,1} = 'Fitted model: y ∝ y0 + b*x';
@@ -802,6 +1284,9 @@ function stat = sg_structure_versus_demography(path_results,path_data)
     tblStepWise{1,6} = 'r_ICV';
     tblStepWise{1,7} = 'RMSE';
     tblStepWise{1,8} = 'y';
+    
+    tblStepWise_female = tblStepWise;
+    tblStepWise_male = tblStepWise;
     
     for vr = 1:size(Y,2)
         [mdl2(vr,1).b,mdl2(vr,1).se,mdl2(vr,1).pval,mdl2(vr,1).inmodel,mdl2(vr,1).stats,mdl2(vr,1).nextstep,mdl2(vr,1).history] = stepwisefit(XX,Y(:,vr),'penter',0.05);
@@ -816,111 +1301,44 @@ function stat = sg_structure_versus_demography(path_results,path_data)
         mdl2(vr,1).mae = sum(abs(a-b))/length(a);
         mdl2(vr,1).rmse = mdl2(vr,1).stats(1,1).rmse;
         
+        tblStepWise = sg_build_mixture_model_table(tblStepWise,mdl2,XX_name,Y_name,vr,Y,...
+            csa,dwi,mtr,csa_name,dwi_name,mtr_name,tblR2,...
+            averaged_subtracted_sc_measurement,averaged_subtracted_sc_measurement_name,icv_name_y,r_icv,1,6,5);
         
-        var = XX_name(1,mdl2(vr,1).inmodel);
-        beta = mdl2(vr,1).b(mdl2(vr,1).inmodel);
         
-        if strcmp(Y_name{1,vr},'CSA-WM')           
-            y0 = mdl2(vr,1).stats.intercept + averaged_subtracted_sc_measurement(strcmp(averaged_subtracted_sc_measurement_name,'CSA-WM'));
-            ystr = [ Y_name{1,vr} ' ∝ ' num2str(y0,'%.2f') ' '];
-        elseif strcmp(Y_name{1,vr},'CSA-SC')
-            y0 = mdl2(vr,1).stats.intercept + averaged_subtracted_sc_measurement(strcmp(averaged_subtracted_sc_measurement_name,'CSA-SC'));
-            ystr = [ Y_name{1,vr} ' ∝ ' num2str(y0,'%.2f') ' '];
-        elseif strcmp(Y_name{1,vr},'MD-SC-WM')
-            y0 = mdl2(vr,1).stats.intercept + averaged_subtracted_sc_measurement(strcmp(averaged_subtracted_sc_measurement_name,'MD-SC-WM'));
-            ystr = [ Y_name{1,vr} ' ∝ ' num2str(y0,'%.3f') ' '];
-        elseif strcmp(Y_name{1,vr},'MTR-SC-WM')
-            y0 = mdl2(vr,1).stats.intercept + averaged_subtracted_sc_measurement(strcmp(averaged_subtracted_sc_measurement_name,'MTR-SC-WM'));
-            ystr = [ Y_name{1,vr} ' ∝ ' num2str(y0,'%.1f') ' '];
-        else
-            y0 = mdl2(vr,1).stats.intercept;
-            if abs(y0)<0.001
-                y0 = round(1000000*y0)/1000000;
-            elseif abs(y0)<0.01
-                y0 = round(10000*y0)/10000;
-            elseif abs(y0)<1
-                y0 = round(1000*y0)/1000;
-            elseif abs(y0)<10
-                y0 = round(100*y0)/100;
-            elseif abs(y0)<100
-                y0 = round(10*y0)/10; 
-            else
-                y0 = round(y0);
-            end
-            ystr = [ Y_name{1,vr} ' ∝ ' num2str(y0) ' '];
-        end
-        for md = 1:size(var,2)
-            if abs(beta(md,1))<0.001
-                c = round(1000000*beta(md,1))/1000000;
-            elseif abs(beta(md,1))<0.01
-                c = round(10000*beta(md,1))/10000;
-            elseif abs(beta(md,1))<1
-                c = round(1000*beta(md,1))/1000;
-            elseif abs(beta(md,1))<10
-                c = round(100*beta(md,1))/100;
-            elseif abs(beta(md,1))<100
-                c = round(10*beta(md,1))/10; 
-            else
-                c = round(beta(md,1));
-            end
-            if beta(md,1) >= 0
-                ystr = [ystr ' +' num2str(c) '*' var{1,md}];
-            else
-                ystr = [ystr ' ' num2str(c) '*' var{1,md}];
-            end
-        end
+        [mdl2_female(vr,1).b,mdl2_female(vr,1).se,mdl2_female(vr,1).pval,mdl2_female(vr,1).inmodel,mdl2_female(vr,1).stats,mdl2_female(vr,1).nextstep,mdl2_female(vr,1).history] = stepwisefit(X_female,Y_female(:,vr),'penter',0.05);
+        Y_predict_female = sum( repmat(mdl2_female(vr,1).b(mdl2_female(vr,1).inmodel==1)',size(X_female,1),1).*X_female(:,mdl2_female(vr,1).inmodel==1) ,2); % Predicted signal Y_predict_female
+        [r_ypredict_female, pr_ypredict_female]=corrcoef(Y_female(:,vr),Y_predict_female,'Rows','Pairwise');
+        a_female = Y_female(~isnan(Y_predict_female) & ~isnan(Y_female(:,vr)),vr)';
+        b_female = Y_predict_female(~isnan(Y_predict_female) & ~isnan(Y_female(:,vr)))';
+        mdl2_female(vr,1).Y_predict = Y_predict_female;
+        mdl2_female(vr,1).r = r_ypredict_female(1,2);
+        mdl2_female(vr,1).p_r = pr_ypredict_female(1,2);
+        mdl2_female(vr,1).R2 = (1 - mdl2_female(vr,1).stats(1,1).SSresid / mdl2_female(vr,1).stats(1,1).SStotal)*100;
+        mdl2_female(vr,1).mae = sum(abs(a_female-b_female))/length(a_female);
+        mdl2_female(vr,1).rmse = mdl2_female(vr,1).stats(1,1).rmse;
         
-        tblStepWise{vr+1,1} = ystr;
-        tblStepWise{vr+1,2} = [num2str(mdl2(vr,1).R2,'%.1f') '%'];
-        tblStepWise{vr+1,3} = [num2str(100*tblR2{6,vr+1},'%.1f') '%'];
-        tblStepWise{vr+1,4} = [num2str(100*tblR2{5,vr+1},'%.1f') '%'];
-        tblStepWise{vr+1,5} = num2str(mdl2(vr,1).r,'%.3f');
-        tblStepWise{vr+1,6} = r_icv(contains(icv_name_y,Y_name{1,vr}),1);
+        tblStepWise_female = sg_build_mixture_model_table(tblStepWise_female,mdl2_female,X_name,Y_name,vr,Y_female,...
+            csa(strcmp(participants.sex,'F'),:),dwi(strcmp(participants.sex,'F'),:),mtr(strcmp(participants.sex,'F'),:),csa_name,dwi_name,mtr_name,tblR2_female,...
+            averaged_subtracted_sc_measurement,averaged_subtracted_sc_measurement_name,icv_name_y,r_icv,2,5,4);
         
-        if contains(Y_name{1,vr},'Vol')
-            tblStepWise{vr+1,7} = [ num2str(round(mdl2(vr,1).rmse)) 'mm^3'];
-            vec = Y(:,vr);
-            vec_mean = round(mean(vec,'omitnan'));
-            vec_std = round(std(vec,0,'omitnan'));
-            tblStepWise{vr+1,8} = [ num2str(vec_mean) '±' num2str(vec_std) 'mm^3'];
-        elseif contains(Y_name{1,vr},'CSA-')
-            g = round(10*mdl2(vr,1).rmse)/10;
-            tblStepWise{vr+1,7} = [ num2str(g,'%.1f') 'mm^2'];
-            if strcmp(Y_name{1,vr},'CSA-WM')
-                vec = csa(:,strcmp(csa_name,'CSA-WM [mm^2]'));
-            elseif strcmp(Y_name{1,vr},'CSA-SC')
-                vec = csa(:,strcmp(csa_name,'CSA-SC [mm^2]'));
-            end    
-            vec_mean = mean(vec,'omitnan');
-            vec_std = std(vec,0,'omitnan');
-            tblStepWise{vr+1,8} = [ num2str(vec_mean,'%.1f') '±' num2str(vec_std,'%.1f') 'mm^2'];
-        elseif contains(Y_name{1,vr},'MD-')
-            g = round(100*mdl2(vr,1).rmse)/100;
-            tblStepWise{vr+1,7} = [ num2str(g,'%.2f') '*10^-9 m^2/s'];
-            if strcmp(Y_name{1,vr},'MD-SC-WM')
-                vec = dwi(:,strcmp(dwi_name,'MD-SC-WM [*10^{-9}m^2/s]'));
-            end
-            vec_mean = mean(vec,'omitnan');
-            vec_std = std(vec,0,'omitnan');
-            tblStepWise{vr+1,8} = [ '(' num2str(vec_mean,'%.2f') '±' num2str(vec_std,'%.2f') ')*10^-9 m^2/s'];
-        elseif contains(Y_name{1,vr},'MTR-')
-            g = round(10*mdl2(vr,1).rmse)/10;
-            tblStepWise{vr+1,7} = [ num2str(g,'%.1f') '%'];
-            if strcmp(Y_name{1,vr},'MTR-SC-WM')
-                vec = mtr(:,strcmp(mtr_name,'MTR-SC-WM [%]'));
-            end
-            vec_mean = mean(vec,'omitnan');
-            vec_std = std(vec,0,'omitnan');
-            tblStepWise{vr+1,8} = [ num2str(vec_mean,'%.1f') '±' num2str(vec_std,'%.1f') '%'];
-        elseif contains(Y_name{1,vr},'Thickness')
-            g = round(100*mdl2(vr,1).rmse)/100;
-            tblStepWise{vr+1,7} = [ num2str(g,'%.2f') 'mm'];
-            
-            vec = Y(:,vr);
-            vec_mean = round(100*mean(vec,'omitnan'))/100;
-            vec_std = round(100*std(vec,0,'omitnan'))/100;
-            tblStepWise{vr+1,8} = [ num2str(vec_mean,'%.2f') '±' num2str(vec_std,'%.2f') 'mm'];
-        end   
+        
+        [mdl2_male(vr,1).b,mdl2_male(vr,1).se,mdl2_male(vr,1).pval,mdl2_male(vr,1).inmodel,mdl2_male(vr,1).stats,mdl2_male(vr,1).nextstep,mdl2_male(vr,1).history] = stepwisefit(X_male,Y_male(:,vr),'penter',0.05);
+        Y_predict_male = sum( repmat(mdl2_male(vr,1).b(mdl2_male(vr,1).inmodel==1)',size(X_male,1),1).*X_male(:,mdl2_male(vr,1).inmodel==1) ,2); % Predicted signal Y_predict_male
+        [r_ypredict_male, pr_ypredict_male]=corrcoef(Y_male(:,vr),Y_predict_male,'Rows','Pairwise');
+        a_male = Y_male(~isnan(Y_predict_male) & ~isnan(Y_male(:,vr)),vr)';
+        b_male = Y_predict_male(~isnan(Y_predict_male) & ~isnan(Y_male(:,vr)))';
+        mdl2_male(vr,1).Y_predict = Y_predict_male;
+        mdl2_male(vr,1).r = r_ypredict_male(1,2);
+        mdl2_male(vr,1).p_r = pr_ypredict_male(1,2);
+        mdl2_male(vr,1).R2 = (1 - mdl2_male(vr,1).stats(1,1).SSresid / mdl2_male(vr,1).stats(1,1).SStotal)*100;
+        mdl2_male(vr,1).mae = sum(abs(a_male-b_male))/length(a_male);
+        mdl2_male(vr,1).rmse = mdl2_male(vr,1).stats(1,1).rmse;
+        
+        tblStepWise_male = sg_build_mixture_model_table(tblStepWise_male,mdl2_male,X_name,Y_name,vr,Y_male,...
+            csa(strcmp(participants.sex,'M'),:),dwi(strcmp(participants.sex,'M'),:),mtr(strcmp(participants.sex,'M'),:),csa_name,dwi_name,mtr_name,tblR2_male,...
+            averaged_subtracted_sc_measurement,averaged_subtracted_sc_measurement_name,icv_name_y,r_icv,3,5,4);
+           
     end
     %% Extract correlation coefficients (+ its p-values) of interest and organize them into the tbl table
     tbl = sg_build_corr_table(r,p,r_norm,p_norm,fs_r,fs_p,fs_r_norm,fs_p_norm,thick_r,thick_p,thick_r_norm,thick_p_norm,r_icv,p_icv,r_norm_icv,p_norm_icv);
@@ -1001,6 +1419,44 @@ function stat = sg_structure_versus_demography(path_results,path_data)
     stat.tbl = tbl;
     stat.tblR2 = tblR2;
     stat.tblStepWise = tblStepWise;
+    stat.tblStepWise_male = tblStepWise_male;
+    stat.tblStepWise_female = tblStepWise_female;
+    
+    stat.stats_fsedits_demography = stats_fsedits_demography;
+    stat.stats_fsedits_icv = stats_fsedits_icv;
+    stat.stats_fsedits_bmi = stats_fsedits_bmi;
+    stat.stats_fsedits_bsa = stats_fsedits_bsa;
+    stat.stats_fsedits_lbw = stats_fsedits_lbw;
+    stat.stats_fsedits_fsthicks_male =stats_fsedits_fsthicks_male;
+    stat.stats_fsedits_fsthicks_female = stats_fsedits_fsthicks_female;
+    
+    stat.fs_icv_r = fs_icv_r;
+    stat.fs_icv_p = fs_icv_p;
+    stat.fs_icv_r_norm = fs_icv_r_norm;
+    stat.fs_icv_p_norm = fs_icv_p_norm;
+    stat.fs_icv_rho = fs_icv_rho;
+    stat.fs_icv_p_rho = fs_icv_p_rho;
+    stat.fs_icv_rho_norm = fs_icv_rho_norm;
+    stat.fs_icv_p_rho_norm = fs_icv_p_rho_norm;
+    
+    stat.fs_icv2_r = fs_icv2_r;
+    stat.fs_icv2_p = fs_icv2_p;
+    stat.fs_icv2_r_norm = fs_icv2_r_norm;
+    stat.fs_icv2_p_norm = fs_icv2_p_norm;
+    stat.fs_icv2_rho = fs_icv2_rho;
+    stat.fs_icv2_p_rho = fs_icv2_p_rho;
+    stat.fs_icv2_rho_norm = fs_icv2_rho_norm;
+    stat.fs_icv2_p_rho_norm = fs_icv2_p_rho_norm;
+    
+    stat.fs_invicv_r_stat = fs_invicv_r_stat;
+    stat.r_fsicv_fsvol = r_fsicv_fsvol;
+    stat.p_r_fsicv_fsvol = p_r_fsicv_fsvol;
+    stat.r_fsicv_fsvol_stat =r_fsicv_fsvol_stat;
+    
+    stat.brvolover100_siemens = brvolover100_siemens;
+    stat.brvolover100_philips = brvolover100_philips;
+    stat.brvolover100_siemens_prctl = brvolover100_siemens_prctl;
+    stat.brvolover100_philips_prctl = brvolover100_philips_prctl;
     %% Save the results in  the stat variable as .mat file at HDD
-    save(fullfile(csv_path,'stat_labounek2024.mat'),'stat','-mat')
+    save(fullfile(csv_path,'stat_labounek2025.mat'),'stat','-mat')
 end
