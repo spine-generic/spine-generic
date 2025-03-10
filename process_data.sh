@@ -57,7 +57,6 @@ concatenate_b0_and_dwi(){
 label_if_does_not_exist(){
   local file="$1"
   local file_seg="$2"
-  local file_space_other="$3"  # image file that has a different resolution than the segmentation file (but still in the same physical space)
   # Update global variable with segmentation file name
   FILELABEL="${file}_label-discs_dlabel" #label-discs_dlabel
   FILELABELMANUAL="${PATH_DATA}/derivatives/labels/${SUBJECT}/anat/${FILELABEL}.nii.gz"
@@ -67,11 +66,11 @@ label_if_does_not_exist(){
     rsync -avzh $FILELABELMANUAL ${FILELABEL}.nii.gz
     # Generate labeled segmentation from manual disc labels
     sct_label_vertebrae -i ${file}.nii.gz -s ${file_seg}.nii.gz -discfile ${FILELABEL}.nii.gz -c t1
-    sct_qc  -i ${file_space_other}.nii.gz  -p sct_label_vertebrae -s ${file_seg}_labeled.nii.gz ${PATH_QC} -qc-subject ${SUBJECT}
+    sct_qc  -i ${file}.nii.gz  -p sct_label_vertebrae -s ${file_seg}_labeled.nii.gz -qc ${PATH_QC} -qc-subject ${SUBJECT}
   else
     echo "Not found. Proceeding with automatic labeling."
     # Generate labeled segmentation
-    sct_label_vertebrae -i ${file_space_other}.nii.gz -s ${file_seg}.nii.gz -c t1
+    sct_label_vertebrae -i ${file}.nii.gz -s ${file_seg}.nii.gz -c t1
   fi
   # Create labels in the cord at C3 and C5 mid-vertebral levels
   sct_label_utils -i ${file_seg}_labeled.nii.gz -vert-body 3,5 -o ${file}_label-vertebrae_desc-C3C5_dlabel.nii.gz
@@ -153,14 +152,14 @@ file_t1="${SUBJECT}_T1w"
 # Reorient to RPI and resample to 1mm iso (supposed to be the effective resolution)
 sct_image -i ${file_t1}.nii.gz -setorient RPI -o ${file_t1}_RPI.nii.gz
 sct_resample -i ${file_t1}_RPI.nii.gz -mm 1x1x1 -o ${file_t1}_RPI_r.nii.gz
-# Rename to add space-other 
-mv "${file_t1}_RPI_r.nii.gz" "${SUBJECT}_space-other_T1w.nii.gz"
-file_t1="${SUBJECT}_space-other_T1w"
+# Rename
+mv "${file_t1}.nii.gz" "${file_t1}_native.nii.gz"
+mv "${file_t1}_RPI_r.nii.gz" "${file_t1}.nii.gz"
 # Segment spinal cord (only if it does not exist)
 segment_if_does_not_exist $file_t1 "t1"
 file_t1_seg=$FILESEG
 # Create mid-vertebral levels in the cord (only if it does not exist)
-label_if_does_not_exist "${SUBJECT}_T1w" ${file_t1_seg} $file_t1
+label_if_does_not_exist ${file_t1} ${file_t1_seg} $file_t1
 file_label=$FILELABEL
 # Register to PAM50 template
 sct_register_to_template -i ${file_t1}.nii.gz -s ${file_t1_seg}.nii.gz -l ${file_label}.nii.gz -c t1 -param step=1,type=seg,algo=centermassrot:step=2,type=seg,algo=syn,slicewise=1,smooth=0,iter=5:step=3,type=im,algo=syn,slicewise=1,smooth=0,iter=3 -qc ${PATH_QC} -qc-subject ${SUBJECT}
@@ -184,9 +183,9 @@ file_t2="${SUBJECT}_T2w"
 # Reorient to RPI and resample to 0.8mm iso (supposed to be the effective resolution)
 sct_image -i ${file_t2}.nii.gz -setorient RPI -o ${file_t2}_RPI.nii.gz
 sct_resample -i ${file_t2}_RPI.nii.gz -mm 0.8x0.8x0.8 -o ${file_t2}_RPI_r.nii.gz
-# Rename to add space-other 
-mv "${file_t2}_RPI_r.nii.gz" "${SUBJECT}_space-other_T2w.nii.gz"
-file_t2="${SUBJECT}_space-other_T2w"
+# Rename 
+mv "${file_t2}.nii.gz" "${file_t2}_native.nii.gz"
+mv "${file_t2}_RPI_r.nii.gz" "${file_t2}.nii.gz"
 
 # Segment spinal cord (only if it does not exist)
 segment_if_does_not_exist $file_t2 "t2"
@@ -214,13 +213,13 @@ if [[ -e "${file_t1w}.nii.gz" && -e "${file_mton}.nii.gz" && -e "${file_mtoff}.n
   sct_image -i ${file_mton}.nii.gz -setorient RPI -o ${file_mton}_RPI.nii.gz
   sct_image -i ${file_mtoff}.nii.gz -setorient RPI -o ${file_mtoff}_RPI.nii.gz
   
-  # Rename _RPI file to space-other
-  mv ${file_t1w}_RPI.nii.gz "${SUBJECT}_flip-2_mt-off_space-other_MTS.nii.gz"
-  file_t1w="${SUBJECT}_flip-2_mt-off_space-other_MTS"
-  mv ${file_mton}_RPI.nii.gz "${SUBJECT}_flip-1_mt-on_space-other_MTS.nii.gz"
-  file_mton="${SUBJECT}_flip-1_mt-on_space-other_MTS"
-  mv ${file_mtoff}_RPI.nii.gz "${SUBJECT}_flip-1_mt-off_space-other_MTS.nii.gz"
-  file_mtoff="${SUBJECT}_flip-1_mt-off_space-other_MTS"
+  # Rename _RPI 
+  mv ${file_t1w}.nii.gz ${file_t1w}_native.nii.gz
+  mv ${file_t1w}_RPI.nii.gz ${file_t1w}.nii.gz
+  mv ${file_mton}.nii.gz ${file_mton}_native.nii.gz
+  mv ${file_mton}_RPI.nii.gz ${file_mton}.nii.gz
+  mv ${file_mtoff}.nii.gz ${file_mtoff}_native.nii.gz
+  mv ${file_mtoff}_RPI.nii.gz ${file_mtoff}.nii.gz
 
   # Segment spinal cord (only if it does not exist)
   segment_if_does_not_exist $file_t1w "t1"
@@ -271,8 +270,10 @@ file_t2s="${SUBJECT}_T2star"
 sct_maths -i ${file_t2s}.nii.gz -rms t -o ${file_t2s}_rms.nii.gz
 # Reorient to RPI
 sct_image -i ${file_t2s}_rms.nii.gz -setorient RPI -o ${file_t2s}_rms_RPI.nii.gz
-mv ${file_t2s}_rms_RPI.nii.gz "${SUBJECT}_space-other_T2star.nii.gz"
-file_t2s="${SUBJECT}_space-other_T2star"
+# Rename
+mv ${file_t2s}.nii.gz ${file_t2s}_native.nii.gz
+mv ${file_t2s}_rms_RPI.nii.gz ${file_t2s}.nii.gz
+
 # Bring vertebral level into T2s space
 sct_register_multimodal -i label_T1w/template/PAM50_levels.nii.gz -d ${file_t2s}.nii.gz -o PAM50_levels2${file_t2s}.nii.gz -identity 1 -x nn
 # Segment gray matter (only if it does not exist)
@@ -347,13 +348,13 @@ cd ..
 # Verify presence of output files and write log file if error
 # ------------------------------------------------------------------------------
 FILES_TO_CHECK=(
-  "anat/${SUBJECT}_space-other_T1w_label-SC_seg.nii.gz"
-  "anat/${SUBJECT}_space-other_T2w_label-SC_seg.nii.gz"
+  "anat/${SUBJECT}_T1w_label-SC_seg.nii.gz"
+  "anat/${SUBJECT}_T2w_label-SC_seg.nii.gz"
   "anat/label_axT1w/template/PAM50_levels.nii.gz"
   "anat/mtr.nii.gz"
   "anat/mtsat.nii.gz"
   "anat/t1map.nii.gz"
-  "anat/${SUBJECT}_space-other_T2star_label-GM_seg.nii.gz"
+  "anat/${SUBJECT}_T2star_label-GM_seg.nii.gz"
   "dwi/dti_FA.nii.gz"
   "dwi/dti_MD.nii.gz"
   "dwi/dti_RD.nii.gz"
