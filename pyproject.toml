@@ -41,6 +41,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
   "flake8",
+  "pytest",
 ]
 docs = [
   "sphinx-rtd-theme~=3.0.1",
