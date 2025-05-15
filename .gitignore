@@ -5,6 +5,8 @@ docs/_build/
 .DS_Store
 *.egg-info/
 *.swp
+build/
+dist/
 
 # results_dummy/ contains test input, but those tests
 # write back these outputs to the same place
