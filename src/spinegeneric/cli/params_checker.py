@@ -13,22 +13,20 @@ import os
 from bids import BIDSLayout, BIDSLayoutIndexer
 
 import spinegeneric.config
-import spinegeneric.utils
 
 
 def get_parser():
     parser = argparse.ArgumentParser(
-        description="Acquisition parameters checker feature. This feature allows the users "
-                    "to compare the acquisition parameters that can be found in the json "
-                    "sidecar to the recommended acquisition parameters.",
-        formatter_class=spinegeneric.utils.SmartFormatter,
-        prog=os.path.basename(__file__).strip(".py"),
+        description="""
+            Script to check acquisition parameters. It compares the
+            acquisition parameters found in the JSON sidecar files to the
+            recommended acquisition parameters.
+        """,
     )
     parser.add_argument(
         "-path-in",
         required=True,
-        type=str,
-        help="Path to input BIDS dataset, which contains all the 'sub-' folders.",
+        help="Path to input BIDS dataset, which contains all the 'sub-*' folders.",
     )
     return parser
 
