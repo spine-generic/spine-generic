@@ -1,6 +1,6 @@
-#!/usr/bin/env python
-# -*- coding: utf-8
-# Test script for generate_figure
+"""
+Test script for generate_figure
+"""
 
 import os
 import subprocess

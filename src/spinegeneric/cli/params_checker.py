@@ -1,10 +1,8 @@
-#!/usr/bin/env python
-#
-# Script to check acquisition parameters.
-#
-# For usage, type: sg_params_checker -h
-#
-# Authors: Alexandru Foias, Julien Cohen-Adad
+"""
+Script to check acquisition parameters.
+
+For usage, type: sg_params_checker -h
+"""
 
 import os
 import json
@@ -157,7 +155,3 @@ def main():
         file.close()
         for line in lines:
             print(line)
-
-
-if __name__ == "__main__":
-    main()

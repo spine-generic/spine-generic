@@ -1,6 +1,6 @@
-#!/usr/bin/env python
-# -*- coding: utf-8
-# BIDS utility tools
+"""
+BIDS utility tools
+"""
 
 
 def get_subject(file):

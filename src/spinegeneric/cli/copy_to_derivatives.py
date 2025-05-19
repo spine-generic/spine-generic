@@ -1,9 +1,8 @@
-#!/usr/bin/env python
-#
-# Copy files from <path-in>/sub-xxx/anat/ to <path-out>/derivatives/labels/sub-xxx/anat/.
-#
-# For more details, see the help.
+"""
+Copy files from <path-in>/sub-xxx/anat/ to <path-out>/derivatives/labels/sub-xxx/anat/.
 
+For more details, see the help.
+"""
 
 import os
 import argparse
@@ -70,7 +69,3 @@ def main():
     sg.utils.copy_files_that_match_suffix(
         args.path_in, args.suffix, args.path_out, FOLDER_DERIVATIVES, args.suffix_out
     )
-
-
-if __name__ == "__main__":
-    main()
