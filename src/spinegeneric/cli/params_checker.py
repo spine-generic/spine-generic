@@ -4,18 +4,16 @@ Script to check acquisition parameters.
 For usage, type: sg_params_checker -h
 """
 
-import os
-import json
-import logging
 import argparse
 import importlib.resources
+import json
+import logging
+import os
 
 from bids import BIDSLayout, BIDSLayoutIndexer
 
-import spinegeneric as sg
-import spinegeneric.cli
-import spinegeneric.utils
 import spinegeneric.config
+import spinegeneric.utils
 
 
 def get_parser():
@@ -23,7 +21,7 @@ def get_parser():
         description="Acquisition parameters checker feature. This feature allows the users "
                     "to compare the acquisition parameters that can be found in the json "
                     "sidecar to the recommended acquisition parameters.",
-        formatter_class=sg.utils.SmartFormatter,
+        formatter_class=spinegeneric.utils.SmartFormatter,
         prog=os.path.basename(__file__).strip(".py"),
     )
     parser.add_argument(
