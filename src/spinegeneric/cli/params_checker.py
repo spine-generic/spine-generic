@@ -8,7 +8,8 @@ import argparse
 import importlib.resources
 import json
 import logging
-import os
+import logging.config
+from pathlib import Path
 
 from bids import BIDSLayout, BIDSLayoutIndexer
 
@@ -26,6 +27,7 @@ def get_parser():
     parser.add_argument(
         "-path-in",
         required=True,
+        type=Path,
         help="Path to input BIDS dataset, which contains all the 'sub-*' folders.",
     )
     return parser
@@ -35,14 +37,12 @@ def main():
     # Parse input arguments
     parser = get_parser()
     args = parser.parse_args()
-    data_path = args.path_in
 
     # Initialize logging
-    path_warning_log = os.path.join(data_path, "WARNING.log")
-    if os.path.isfile(path_warning_log):
-        os.remove(path_warning_log)
+    path_warning_log = args.path_in / "WARNING.log"
+    path_warning_log.unlink(missing_ok=True)
     logging.basicConfig(
-        filename=path_warning_log,
+        filename=str(path_warning_log),
         format="%(levelname)s:%(message)s",
         level=logging.DEBUG,
     )
@@ -53,7 +53,7 @@ def main():
     with importlib.resources.path(spinegeneric.config, "bids_specs.json") as path_sg_layout_config:
         # TODO: This step takes quite a long time, but nothing gets logged during. Maybe we could provide some feedback?
         layout = BIDSLayout(
-            data_path,
+            str(args.path_in),
             # BIDSLayoutIndexer is a class that indexes files based on pattern-matching defined in the config.
             # By default, BIDS has its own config. But, SG specifies its own custom config instead. (Why?)
             # TODO: The default config fetches 1573 files from data-multi-subject, but the modified config
@@ -145,9 +145,4 @@ def main():
                                 f"FA={FlipAngle} instead of {ExpectedFA}.")
 
     # Print WARNING log
-    if path_warning_log:
-        file = open(path_warning_log, "r")
-        lines = file.read().splitlines()
-        file.close()
-        for line in lines:
-            print(line)
+    print(path_warning_log.read_text())
