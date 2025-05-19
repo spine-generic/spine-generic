@@ -40,7 +40,6 @@ class SmartFormatter(argparse.HelpFormatter):
     """
 
     def __init__(self, *args, **kw):
-        self._add_defaults = None
         super(SmartFormatter, self).__init__(*args, **kw)
         # Update _width to match Terminal width
         try:
