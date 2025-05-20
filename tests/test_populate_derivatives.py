@@ -1,6 +1,6 @@
-#!/usr/bin/env python
-# -*- coding: utf-8
-# Test script for copy_to_derivatives
+"""
+Test script for copy_to_derivatives
+"""
 
 import os
 

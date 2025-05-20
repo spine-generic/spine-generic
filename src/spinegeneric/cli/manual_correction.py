@@ -1,11 +1,8 @@
-#!/usr/bin/env python
-#
-# Script to perform manual correction of segmentations and vertebral labeling.
-#
-# For usage, type: python manual_correction.py -h
-#
-# Authors: Jan Valosek, Julien Cohen-Adad
+"""
+Script to perform manual correction of segmentations and vertebral labeling.
 
+For usage, type: python manual_correction.py -h
+"""
 
 import argparse
 import coloredlogs
@@ -266,7 +263,3 @@ def main():
     shutil.copy(fname_yml, fname_qc)
     shutil.make_archive(fname_qc, "zip", fname_qc)
     print("Archive created:\n--> {}".format(fname_qc + ".zip"))
-
-
-if __name__ == "__main__":
-    main()

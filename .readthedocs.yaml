@@ -12,8 +12,7 @@ build:
 
 python:
   install:
-  - requirements: requirements.txt
-  - path: .  # install spinegeneric itself so it can be imported
+  - path: ".[docs]"  # install spinegeneric itself so it can be imported
 
 # The build happens in the docs/ directory
 sphinx:

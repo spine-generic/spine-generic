@@ -1,6 +1,6 @@
-#!/usr/bin/env python
-# -*- coding: utf-8
-# Test script for manual_correction
+"""
+Test script for manual_correction
+"""
 
 import os
 

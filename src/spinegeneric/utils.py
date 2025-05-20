@@ -1,7 +1,6 @@
-#!/usr/bin/env python
-# -*- coding: utf-8
-# Collection of useful functions
-
+"""
+Collection of useful functions
+"""
 
 import os
 import re

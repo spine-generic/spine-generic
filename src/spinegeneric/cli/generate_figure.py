@@ -1,12 +1,9 @@
-#!/usr/bin/env python
-#
-# Generate figures for the spine-generic project.
-#
-# Note: Matplotlib crashes when running debugger in Pycharm with python 3.7.3. To fix the problem, run this script
-# using a virtual env python 3.7.0. More info at: https://github.com/MTG/sms-tools/issues/36
-#
-# Authors: Julien Cohen-Adad, Jan Valosek
+"""
+Generate figures for the spine-generic project.
 
+Note: Matplotlib crashes when running debugger in Pycharm with python 3.7.3. To fix the problem, run this script
+using a virtual env python 3.7.0. More info at: https://github.com/MTG/sms-tools/issues/36
+"""
 
 import os
 import argparse
@@ -1343,7 +1340,3 @@ def main(argv=sys.argv[1:]):
     if args.output_html:
         # Generate interactive html T1w vs. T2w figure
         generate_figure_t1_t2_plotly(df, csa_t1, csa_t2)
-
-
-if __name__ == "__main__":
-    main()

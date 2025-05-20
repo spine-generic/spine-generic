@@ -1,21 +1,18 @@
-#!/usr/bin/env python
-#
-# If manual correction files are all located in a flat directory, as was the case at the beginning of the project, this
-# script copies each file under the proper derivatives/ directory.
-# The directory is found by parsing the file name, and looking for the 'subject' field and the 'contrast' field (to
-# decide if a data goes under anat/ or dwi/).
-#
-# Assumptions:
-# - all data are .nii.gz
-# - subject name is first prefix separated by "_". Example: sub-tokyo750w_dwi_crop_moco.nii.gz -> sub-tokyo750w
-# - output folder is derivatives/labels/
-#
-# How to run:
-# Go to the directory that includes all the manual corrections (they should all be present in the ./ folder) and run:
-#   sg_populate_derivatives <PATH_TO_BIDS_DATASET>
+"""
+If manual correction files are all located in a flat directory, as was the case at the beginning of the project, this
+script copies each file under the proper derivatives/ directory.
+The directory is found by parsing the file name, and looking for the 'subject' field and the 'contrast' field (to
+decide if a data goes under anat/ or dwi/).
 
-# Authors: Julien Cohen-Adad
+Assumptions:
+- all data are .nii.gz
+- subject name is first prefix separated by "_". Example: sub-tokyo750w_dwi_crop_moco.nii.gz -> sub-tokyo750w
+- output folder is derivatives/labels/
 
+How to run:
+Go to the directory that includes all the manual corrections (they should all be present in the ./ folder) and run:
+  sg_populate_derivatives <PATH_TO_BIDS_DATASET>
+"""
 
 import os
 import glob

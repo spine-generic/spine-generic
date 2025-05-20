@@ -1,0 +1,69 @@
+[build-system]
+requires = ["setuptools>=77", "setuptools-scm>=8"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "spinegeneric"
+description = "A collection of CLI scripts to process data for the Spine Generic project."
+readme = "README.md"
+authors = [
+  {name = "NeuroPoly Lab, Polytechnique Montréal", email = "neuropoly@googlegroups.com"},
+]
+license = "MIT"
+license-files = ["LICENSE"]
+classifiers = [
+  "Private :: Do Not Upload",  # To prevent accidental uploads to PyPI
+  "Development Status :: 3 - Alpha",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+]
+dynamic = ["version"]
+requires-python = ">=3.9"
+dependencies = [
+  "coloredlogs",
+  "matplotlib",
+  "nibabel",
+  "opencv-python",
+  "pandas",
+  "pandas-schema",
+  "plotly~=4.12.0",
+  "pybids",
+  "pyyaml",
+  "scikit-image",
+  "scikit-learn",
+  "scipy",
+  "statsmodels",
+  "tqdm",
+]
+
+[project.optional-dependencies]
+dev = [
+  "flake8",
+  "pytest",
+]
+docs = [
+  "sphinx-rtd-theme~=3.0.1",
+]
+
+[project.urls]
+Homepage = "https://spine-generic.readthedocs.io/"
+Repository = "https://github.com/spine-generic/spine-generic"
+
+[project.scripts]
+sg_check_data_consistency = "spinegeneric.cli.check_data_consistency:main"
+sg_copy_to_derivatives = "spinegeneric.cli.copy_to_derivatives:main"
+sg_create_mosaic = "spinegeneric.cli.create_mosaic:main"
+sg_deface_using_r = "spinegeneric.cli.deface_spineGeneric_usingR:main"
+sg_generate_figure = "spinegeneric.cli.generate_figure:main"
+sg_manual_correction = "spinegeneric.cli.manual_correction:main"
+sg_package_for_correction = "spinegeneric.cli.package_for_correction:main"
+sg_params_checker = "spinegeneric.cli.params_checker:main"
+sg_populate_derivatives = "spinegeneric.cli.populate_derivatives:main"
+sg_qc_bids_deface = "spinegeneric.cli.qc_bids_deface:main"
+
+[tool.setuptools_scm]
+# this section must be present, even if empty, to activate setuptools_scm

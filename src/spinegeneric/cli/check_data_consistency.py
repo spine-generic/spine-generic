@@ -1,10 +1,9 @@
-#!/usr/bin/env python
-#
-# Script to check acquisition parameters.
-#
-# For usage, type: sg_check_data_consistency -h
-#
-# Authors: Alexandru Foias, Julien Cohen-Adad
+"""
+Script to check acquisition parameters.
+
+For usage, type: sg_check_data_consistency -h
+"""
+
 import argparse
 import pandas as pd
 import os
@@ -129,7 +128,3 @@ def main():
     else:
         for error in errors:
             print(error)
-
-
-if __name__ == "__main__":
-    main()

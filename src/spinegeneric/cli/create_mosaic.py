@@ -1,21 +1,17 @@
-#!/usr/bin/env python
-#
-# XX
-#
-# USAGE:
-#   ${SCT_DIR}/python/envs/venv_sct/bin/python create_mosaic.py
-#
-# EXAMPLE:
-#   ${SCT_DIR}/python/envs/venv_sct/bin/python create_mosaic.py \
-#        -i *T1w_RPI_r_flatten.nii.gz \
-#        -ifolder /Volumes/projects/spine_generic/spineGeneric_20191104/results/data \
-#        -s _seg.nii.gz -p sag -col 18 -row 12 \
-#        -o fig_mosaic_t1.png
-#
-#
-# DEPENDENCIES:
-#   SCT
-#
+"""
+USAGE:
+  ${SCT_DIR}/python/envs/venv_sct/bin/python create_mosaic.py
+
+EXAMPLE:
+  ${SCT_DIR}/python/envs/venv_sct/bin/python create_mosaic.py \
+       -i *T1w_RPI_r_flatten.nii.gz \
+       -ifolder /Volumes/projects/spine_generic/spineGeneric_20191104/results/data \
+       -s _seg.nii.gz -p sag -col 18 -row 12 \
+       -o fig_mosaic_t1.png
+
+DEPENDENCIES:
+  SCT
+"""
 
 import os
 import glob
@@ -240,7 +236,3 @@ def get_parameters():
     )
     args = parser.parse_args()
     return args
-
-
-if __name__ == "__main__":
-    main()

@@ -1,11 +1,8 @@
-#!/usr/bin/env python
-#
-# Script to package data for manual correction.
-#
-# For usage, type: python package_for_correction.py -h
-#
-# Author: Julien Cohen-Adad
+"""
+Script to package data for manual correction.
 
+For usage, type: python package_for_correction.py -h
+"""
 
 import os
 import sys
@@ -164,7 +161,3 @@ def main():
     shutil.move(path_tmp, new_path_tmp)
     fname_archive = shutil.make_archive(args.o, "zip", root_dir_tmp, base_dir_name)
     print("-> {}".format(fname_archive))
-
-
-if __name__ == "__main__":
-    main()
