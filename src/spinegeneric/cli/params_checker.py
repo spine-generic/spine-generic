@@ -85,9 +85,8 @@ def main():
     query = layout.get(suffix=["T1w", "T2w", "T2star", "MTS"], extension="nii.gz")
 
     # Fetch acquisition parameters for various vendors (Siemens, GE, Phillips) and MRI models
-    with importlib.resources.path(spinegeneric.config, "specs.json") as path_specs:
-        with open(path_specs) as json_file:
-            sg_acq_protocol = json.load(json_file)
+    with importlib.resources.open_text(spinegeneric.config, "specs.json") as f:
+        sg_acq_protocol = json.load(f)
 
     # Loop across the contrast images to check parameters
     for item in query:
