@@ -106,24 +106,40 @@ def main():
                             f"models for manufacturer '{Manufacturer}'. Cannot check parameters.")
             continue
 
-        # Parse the file's contrast from its suffix (sans `.nii.gz`)
-        Contrast = (item.filename.split("_")[-1]).split(".")[0]
-        # In the case of MTS files, the spine-generic protocol doesn't just specify 'MTS'. Instead, 'MTon_MTS',
-        # 'MToff_MTS', 'T1w_MTS' etc. are used. So, we need to parse the type of MTS from the filename,
-        # then convert it to the specific names expected by the 'manufacturer params' dictionary.
+        # Parse the filename's BIDS entities and suffix
+        parts = item.filename.removesuffix(".nii.gz").split("_")
+        suffix = parts.pop()
+        entities = {}
+        for part in parts:
+            try:
+                key, value = part.split("-", maxsplit=1)
+            except ValueError:
+                logging.warning(f"{item.filename}: Ignoring bad filename entity: '{part}'.")
+                continue
+            if key in entities:
+                logging.warning(f"{item.filename}: Repeated entity in filename: '{key}'.")
+            entities[key] = value
+
+        # Get the contrast from the filename.
+        # For MTS files, the spine-generic protocol splits this into 3 cases:
+        # "MToff_MTS", "MTon_MTS", "T1w_MTS". This depends on either the
+        # "flip" and "mt" entities (new naming scheme), or the "acq" entity
+        # (old naming scheme).
+        Contrast = suffix
         if Contrast == "MTS":
             try:
-                # Try new method for renamed, BIDS-compliant 'data-multi-subject'
-                MTS_type = "_".join(item.filename.split('_')[-3:-1])
-                type_to_contrast = {
-                    "flip-1_mt-off": "MToff_MTS",
-                    "flip-1_mt-on":  "MTon_MTS",
-                    "flip-2_mt-off": "T1w_MTS"
-                }
-                Contrast = type_to_contrast[MTS_type]
+                # Try the new naming scheme first
+                Contrast = {
+                    ("1", "off"): "MToff_MTS",
+                    ("1", "on"): "MTon_MTS",
+                    ("2", "off"): "T1w_MTS",
+                }[entities["flip"], entities["mt"]]
             except KeyError:
-                # Fall back to the old method for backwards compatibility with older datasets
-                Contrast = item.filename.split("_acq-")[1].split(".")[0]
+                # Fall back to the old naming scheme
+                Contrast = f"{entities.get('acq', 'missing')}_MTS"
+        if Contrast not in ["T1w", "T2w", "T2star", "MToff_MTS", "MTon_MTS", "T1w_MTS"]:
+            logging.warning(f"{item.filename}: Unrecognized contrast: '{Contrast}'")
+            continue
 
         # Fetch the names of each available parameter for the given manufacturer + model
         keys_contrast = sg_acq_protocol[Manufacturer][ManufacturersModelName][str(Contrast)].keys()
