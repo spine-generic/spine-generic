@@ -141,31 +141,40 @@ def main():
             logging.warning(f"{item.filename}: Unrecognized contrast: '{Contrast}'")
             continue
 
-        # Fetch the names of each available parameter for the given manufacturer + model
-        keys_contrast = sg_acq_protocol[Manufacturer][ManufacturersModelName][str(Contrast)].keys()
+        # Fetch the available parameters for the given manufacturer + model
+        expected = sg_acq_protocol[Manufacturer][ManufacturersModelName][Contrast]
 
-        # Validate repetition time against spine-generic's acquisition protocol
-        RepetitionTime = metadata["RepetitionTime"]
-        if "RepetitionTime" in keys_contrast:
-            ExpectedRT = sg_acq_protocol[Manufacturer][ManufacturersModelName][str(Contrast)]["RepetitionTime"]
-            # TODO: We only check `val > 0.1`, rather than `abs(val) > 0.1`. Is this a bug?
-            if RepetitionTime - ExpectedRT > 0.1:
-                logging.warning(f"{item.filename}: Incorrect RepetitionTime: "
-                                f"TR={RepetitionTime} instead of {ExpectedRT} +/- 0.1.")
-
-        # Validate echo time against spine-generic's acquisition protocol
-        EchoTime = metadata["EchoTime"]
-        if "EchoTime" in keys_contrast:
-            ExpectedTE = sg_acq_protocol[Manufacturer][ManufacturersModelName][str(Contrast)]["EchoTime"]
-            # TODO: We only check `val > 0.1`, rather than `abs(val) > 0.1`. Is this a bug?
-            if EchoTime - ExpectedTE > 0.1:
-                logging.warning(f"{item.filename}: Incorrect EchoTime: "
-                                f"TE={EchoTime} instead of {ExpectedTE} +/- 0.1.")
-
-        # Validate flip angle against spine-generic's acquisition protocol
-        FlipAngle = metadata["FlipAngle"]
-        if "FlipAngle" in keys_contrast:
-            ExpectedFA = sg_acq_protocol[Manufacturer][ManufacturersModelName][str(Contrast)]["FlipAngle"]
-            if FlipAngle != ExpectedFA:
-                logging.warning(f"{item.filename}: Incorrect FlipAngle: "
-                                f"FA={FlipAngle} instead of {ExpectedFA}.")
+        # Validate values against spine-generic's acquisition protocol
+        for key, symbol, tolerance in [
+            ("RepetitionTime", "TR", 0.1),
+            ("EchoTime", "TE", 0.1),
+            ("FlipAngle", "FA", None),
+        ]:
+            if key not in expected:
+                # The protocol doesn't require this value.
+                continue
+            if key not in metadata:
+                logging.warning(f"{item.filename}: Missing {key}.")
+                continue
+            if tolerance is None:
+                # We want an exact match of data type and value
+                if metadata[key] != expected[key]:
+                    logging.warning(
+                        f"{item.filename}: Incorrect {key}: {symbol}="
+                        f"{metadata[key]!r} instead of {expected[key]!r}."
+                    )
+            else:
+                # We want an approximate match of numerical values
+                try:
+                    actual = float(metadata[key])
+                except ValueError:
+                    logging.warning(
+                        f"{item.filename}: Incorrect {key}: {symbol}="
+                        f"{metadata[key]!r} is not a number."
+                    )
+                    continue
+                if abs(actual - expected[key]) > tolerance:
+                    logging.warning(
+                        f"{item.filename}: Incorrect {key}: {symbol}={actual} "
+                        f"instead of {expected[key]} +/- {tolerance}."
+                    )
