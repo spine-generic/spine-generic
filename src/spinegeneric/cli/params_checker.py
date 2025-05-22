@@ -148,6 +148,7 @@ def main():
         for key, symbol, tolerance in [
             ("RepetitionTime", "TR", 0.1),
             ("EchoTime", "TE", 0.1),
+            ("InversionTime", "TI", 0.1),
             ("FlipAngle", "FA", None),
         ]:
             if key not in expected:
