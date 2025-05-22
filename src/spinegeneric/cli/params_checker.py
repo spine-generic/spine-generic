@@ -58,6 +58,9 @@ def main():
         "root": {"level": "DEBUG", "handlers": ["console", "file"]},
     })
 
+    # Keep track of whether any warnings are found
+    warnings_found = False
+
     # Initialize the BIDSLayout object directed at the input dataset.
     # From the BIDS documentation:
     #   "A BIDSLayout instance is a lightweight container for all files in the BIDS project directory."
@@ -94,16 +97,19 @@ def main():
         # Check that the json sidecar has the correct keys and values
         if "Manufacturer" not in metadata:
             logging.warning(f"{item.filename}: Missing 'Manufacturer' key in json sidecar; Cannot check parameters.")
+            warnings_found = True
             continue
         Manufacturer = metadata["Manufacturer"]
         if Manufacturer not in sg_acq_protocol.keys():
             logging.warning(f"{item.filename}: Manufacturer '{Manufacturer}' not in list "
                             f"of known manufacturers: {sg_acq_protocol.keys()}. Cannot check parameters.")
+            warnings_found = True
             continue
         ManufacturersModelName = metadata["ManufacturersModelName"]
         if ManufacturersModelName not in sg_acq_protocol[Manufacturer].keys():
             logging.warning(f"{item.filename}: Model '{ManufacturersModelName}' not present in list of known "
                             f"models for manufacturer '{Manufacturer}'. Cannot check parameters.")
+            warnings_found = True
             continue
 
         # Parse the filename's BIDS entities and suffix
@@ -115,9 +121,11 @@ def main():
                 key, value = part.split("-", maxsplit=1)
             except ValueError:
                 logging.warning(f"{item.filename}: Ignoring bad filename entity: '{part}'.")
+                warnings_found = True
                 continue
             if key in entities:
                 logging.warning(f"{item.filename}: Repeated entity in filename: '{key}'.")
+                warnings_found = True
             entities[key] = value
 
         # Get the contrast from the filename.
@@ -139,6 +147,7 @@ def main():
                 Contrast = f"{entities.get('acq', 'missing')}_MTS"
         if Contrast not in ["T1w", "T2w", "T2star", "MToff_MTS", "MTon_MTS", "T1w_MTS"]:
             logging.warning(f"{item.filename}: Unrecognized contrast: '{Contrast}'")
+            warnings_found = True
             continue
 
         # Fetch the available parameters for the given manufacturer + model
@@ -156,6 +165,7 @@ def main():
                 continue
             if key not in metadata:
                 logging.warning(f"{item.filename}: Missing {key}.")
+                warnings_found = True
                 continue
             if tolerance is None:
                 # We want an exact match of data type and value
@@ -164,6 +174,7 @@ def main():
                         f"{item.filename}: Incorrect {key}: {symbol}="
                         f"{metadata[key]!r} instead of {expected[key]!r}."
                     )
+                    warnings_found = True
             else:
                 # We want an approximate match of numerical values
                 try:
@@ -173,9 +184,14 @@ def main():
                         f"{item.filename}: Incorrect {key}: {symbol}="
                         f"{metadata[key]!r} is not a number."
                     )
+                    warnings_found = True
                     continue
                 if abs(actual - expected[key]) > tolerance:
                     logging.warning(
                         f"{item.filename}: Incorrect {key}: {symbol}={actual} "
                         f"instead of {expected[key]} +/- {tolerance}."
                     )
+                    warnings_found = True
+
+    # Exit code for the script
+    return 1 if warnings_found else 0
