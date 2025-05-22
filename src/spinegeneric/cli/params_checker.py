@@ -11,7 +11,7 @@ import logging
 import logging.config
 from pathlib import Path
 
-from bids import BIDSLayout, BIDSLayoutIndexer
+from bids import BIDSLayout
 
 import spinegeneric.config
 
@@ -64,25 +64,7 @@ def main():
     # Initialize the BIDSLayout object directed at the input dataset.
     # From the BIDS documentation:
     #   "A BIDSLayout instance is a lightweight container for all files in the BIDS project directory."
-    with importlib.resources.path(spinegeneric.config, "bids_specs.json") as path_sg_layout_config:
-        layout = BIDSLayout(
-            str(args.path_in),
-            # BIDSLayoutIndexer is a class that indexes files based on pattern-matching defined in the config.
-            # By default, BIDS has its own config. But, SG specifies its own custom config instead. (Why?)
-            # TODO: The default config fetches 1573 files from data-multi-subject, but the modified config
-            #       *also* fetches 1573 files. Do they always perform identically? In what cases is the custom
-            #       config even needed? It would be nice to add comments to `bids_specs.json` to highlight the
-            #       areas where the custom config deviates from the built-in, default config.
-            indexer=BIDSLayoutIndexer(config_filename=str(path_sg_layout_config)),
-            # From BIDS documentation for `validate`:
-            #     > If True, all files are checked for BIDS compliance when first indexed,
-            #     > and non-compliant files are ignored. This provides a convenient way to
-            #     > restrict file indexing to only those files defined in the “core” BIDS spec,
-            #     > as setting validate=True will lead files in supplementary folders like
-            #     > derivatives/, code/, etc. to be ignored.
-            # I presume that by setting `validate=False`, we want to keep `derivatives/`, etc.
-            validate=False,
-        )
+    layout = BIDSLayout(str(args.path_in), validate=False)
 
     # Fetch a list of `BIDSImageFile` objects from the layout that meet the requirements below
     query = layout.get(suffix=["T1w", "T2w", "T2star", "MTS"], extension="nii.gz")
