@@ -6,6 +6,7 @@ For usage, type: sg_check_data_consistency -h
 
 import argparse
 import os
+from pathlib import Path
 from pprint import pprint
 
 import pandas as pd
@@ -19,23 +20,20 @@ from pandas_schema.validation import (
     TrailingWhitespaceValidation,
 )
 
-import spinegeneric as sg
-import spinegeneric.utils
-
 
 def get_parser():
     parser = argparse.ArgumentParser(
-        description="Data consistency checker feature. This feature allows the users"
-        "to check the subjects listed in participants.tsv and the actual sub-* data."
-        "In addition, it checks the presence of jsonSidecar.",
-        formatter_class=sg.utils.SmartFormatter,
-        prog=os.path.basename(__file__).strip(".py"),
+        description="""
+            Script to check the contents of 'participants.tsv', compare it
+            against the set of 'sub-*' folders, and check the presence of JSON
+            sidecars.
+        """,
     )
     parser.add_argument(
         "-path-in",
         required=True,
-        type=str,
-        help="Path to input BIDS dataset, which contains all the 'sub-' folders.",
+        type=Path,
+        help="Path to input BIDS dataset, which contains all the 'sub-*' folders.",
     )
     return parser
 
@@ -45,7 +43,7 @@ def main():
     parser = get_parser()
     args = parser.parse_args()
 
-    data_path = args.path_in
+    data_path = str(args.path_in)
 
     path_tsv = os.path.join(data_path, "participants.tsv")
     tsv_file = pd.read_csv(path_tsv, sep="\t")
