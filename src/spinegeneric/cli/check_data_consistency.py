@@ -1,5 +1,5 @@
 """
-Script to check acquisition parameters.
+Script to check `participants.tsv` and the presence of JSON sidecars.
 
 For usage, type: sg_check_data_consistency -h
 """
