@@ -39,19 +39,6 @@ class SmartFormatter(argparse.HelpFormatter):
     Inspired from: https://pythonhosted.org/skaff/_modules/skaff/cli.html
     """
 
-    def __init__(self, *args, **kw):
-        self._add_defaults = None
-        super(SmartFormatter, self).__init__(*args, **kw)
-        # Update _width to match Terminal width
-        try:
-            self._width = shutil.get_terminal_size()[0]
-        except (KeyError, ValueError):
-            logging.warning(
-                "Not able to fetch Terminal width. Using default: {}".format(
-                    self._width
-                )
-            )
-
     # this is the RawTextHelpFormatter._fill_text
     def _fill_text(self, text, width, indent):
         # print("splot",text)
