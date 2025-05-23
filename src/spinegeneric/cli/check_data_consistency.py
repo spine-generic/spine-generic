@@ -5,7 +5,6 @@ For usage, type: sg_check_data_consistency -h
 """
 
 import argparse
-import os
 from pathlib import Path
 from pprint import pprint
 
@@ -43,15 +42,8 @@ def main():
     parser = get_parser()
     args = parser.parse_args()
 
-    data_path = str(args.path_in)
-
-    path_tsv = os.path.join(data_path, "participants.tsv")
-    tsv_file = pd.read_csv(path_tsv, sep="\t")
-    list_subj = [
-        name
-        for name in os.listdir(data_path)
-        if os.path.isdir(os.path.join(data_path, name)) and name.startswith("sub")
-    ]
+    tsv_file = pd.read_csv(str(args.path_in / "participants.tsv"), sep="\t")
+    list_subj = [p.name for p in args.path_in.glob("sub-*") if p.is_dir()]
     df = pd.DataFrame(tsv_file)
     list_tsv_participants = df["participant_id"].tolist()
     missing_subjects_tsv = list(set(list_subj) - set(list_tsv_participants))
@@ -68,12 +60,10 @@ def main():
         missing_subjects_folder.sort()
         pprint(missing_subjects_folder)
 
-    for dirName, subdirList, fileList in os.walk(data_path):
-        for file in fileList:
-            if file.endswith(".nii.gz"):
-                jsonSidecarPath = os.path.join(dirName, file.split(".")[0] + ".json")
-                if not os.path.exists(jsonSidecarPath):
-                    print("Missing jsonSidecar: " + jsonSidecarPath)
+    for img_path in args.path_in.glob("sub-*/**/*.nii.gz"):
+        json_path = img_path.with_suffix("").with_suffix(".json")
+        if not json_path.exists():
+            print(f"Missing jsonSidecar: {json_path}")
 
     # Checking participants.tsv contents
     schema = Schema(
