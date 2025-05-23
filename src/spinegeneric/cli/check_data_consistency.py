@@ -5,20 +5,22 @@ For usage, type: sg_check_data_consistency -h
 """
 
 import argparse
-import pandas as pd
 import os
 from pprint import pprint
-import spinegeneric as sg
-import spinegeneric.utils
+
+import pandas as pd
 from pandas_schema import Column, Schema
 from pandas_schema.validation import (
-    LeadingWhitespaceValidation,
-    TrailingWhitespaceValidation,
-    InRangeValidation,
-    InListValidation,
     DateFormatValidation,
+    InListValidation,
+    InRangeValidation,
+    LeadingWhitespaceValidation,
     MatchesPatternValidation,
+    TrailingWhitespaceValidation,
 )
+
+import spinegeneric as sg
+import spinegeneric.utils
 
 
 def get_parser():
