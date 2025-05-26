@@ -99,6 +99,14 @@ def main():
     parser = get_parser()
     args = parser.parse_args()
 
+    # Keep track of errors for the exit status
+    warnings_found = False
+
+    def warn(message: str):
+        nonlocal warnings_found
+        warnings_found = True
+        print(f"Warning: {message}")
+
     # Read participants.tsv
     fieldnames, rows = read_tsv(args.path_in / "participants.tsv")
 
@@ -107,28 +115,28 @@ def main():
         tsv_subj = set(r["participant_id"] for r in rows)
         dir_subj = set(p.name for p in args.path_in.glob("sub-*") if p.is_dir())
         for subj in sorted(dir_subj - tsv_subj):
-            print(f"Warning: participants.tsv: missing row for data folder '{subj}'")
+            warn(f"participants.tsv: missing row for data folder '{subj}'")
         for subj in sorted(tsv_subj - dir_subj):
-            print(f"Warning: participants.tsv: missing data folder for subject '{subj}'")
+            warn(f"participants.tsv: missing data folder for subject '{subj}'")
 
     # Check the presence of JSON sidecars
     for img_path in args.path_in.glob("sub-*/**/*.nii.gz"):
         json_path = img_path.with_suffix("").with_suffix(".json")
         if not json_path.exists():
-            print(f"Warning: missing JSON sidecar for {img_path}")
+            warn(f"missing JSON sidecar for {img_path}")
 
     # Check the contents of participants.tsv
     tsv_cols = set(fieldnames)
     expected_cols = set(validators.keys())
     for col in sorted(expected_cols - tsv_cols):
-        print(f"Warning: participants.tsv: missing column '{col}'")
+        warn(f"participants.tsv: missing column '{col}'")
     for col in sorted(tsv_cols - expected_cols):
-        print(f"Warning: participants.tsv: extra column '{col}'")
+        warn(f"participants.tsv: extra column '{col}'")
     for r, row in enumerate(rows, start=1):
         if None in row.values():
-            print(f"Warning: participants.tsv: row {r} is too short")
+            warn(f"participants.tsv: row {r} is too short")
         if None in row.keys():
-            print(f"Warning: participants.tsv: row {r} is too long")
+            warn(f"participants.tsv: row {r} is too long")
         for col, validate in validators.items():
             if col not in fieldnames:
                 continue
@@ -138,4 +146,7 @@ def main():
             try:
                 validate(value)
             except ValueError as e:
-                print(f"Warning: participants.tsv: row {r}: {col} is '{value}', but {e}")
+                warn(f"participants.tsv: row {r}: {col} is '{value}', but {e}")
+
+    # exit code
+    return 1 if warnings_found else 0
