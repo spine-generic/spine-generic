@@ -6,18 +6,9 @@ For usage, type: sg_check_data_consistency -h
 
 import argparse
 import csv
+import datetime
 from pathlib import Path
-
-import pandas as pd
-from pandas_schema import Column, Schema
-from pandas_schema.validation import (
-    DateFormatValidation,
-    InListValidation,
-    InRangeValidation,
-    LeadingWhitespaceValidation,
-    MatchesPatternValidation,
-    TrailingWhitespaceValidation,
-)
+import re
 
 
 def get_parser():
@@ -47,6 +38,62 @@ def read_tsv(path: Path) -> tuple[list[Fieldname], list[Row]]:
         return reader.fieldnames, list(reader)
 
 
+def validate_whitespace(value: str):
+    if value != value.lstrip():
+        raise ValueError("should not have leading whitespace")
+    if value != value.rstrip():
+        raise ValueError("should not have trailing whitespace")
+
+
+def validate_integer(value: str) -> int:
+    validate_whitespace(value)
+    try:
+        return int(value)
+    except ValueError:
+        raise ValueError("should be an integer") from None
+
+
+def validate_sex(value: str):
+    validate_whitespace(value)
+    if value not in ["M", "F", "O"]:
+        raise ValueError("should be one of 'M', 'F', 'O', or 'n/a'")
+
+
+def validate_age(value: str):
+    age = validate_integer(value)
+    if not 18 <= age <= 60:
+        raise ValueError("should be between 18 and 60")
+
+
+date_re = re.compile(r"(\d{4})-(\d{2})-(\d{2})")
+
+
+def validate_date(value: str):
+    validate_whitespace(value)
+    m = date_re.fullmatch(value)
+    if m is None:
+        raise ValueError("should be formatted as YYYY-mm-dd")
+    year, month, day = map(int, m.group(1, 2, 3))
+    datetime.date(year, month, day)  # to check month range and day range
+
+
+validators = {
+    "participant_id": validate_whitespace,
+    "sex": validate_sex,
+    "age": validate_age,
+    "height": validate_integer,
+    "weight": validate_integer,
+    "date_of_scan": validate_date,
+    "institution_id": validate_whitespace,
+    "institution": validate_whitespace,
+    "manufacturer": validate_whitespace,
+    "manufacturers_model_name": validate_whitespace,
+    "receive_coil_name": validate_whitespace,
+    "software_versions": validate_whitespace,
+    "researcher": validate_whitespace,
+}
+
+
 def main():
     # Parse input arguments
     parser = get_parser()
@@ -56,70 +103,39 @@ def main():
     fieldnames, rows = read_tsv(args.path_in / "participants.tsv")
 
     # Compare subject list from participants.tsv and from sub-* folders
-    tsv_subj = set(r["participant_id"] for r in rows)
-    dir_subj = set(p.name for p in args.path_in.glob("sub-*") if p.is_dir())
-    for subj in dir_subj - tsv_subj:
-        print(f"Warning missing subject from participants.tsv: {subj}")
-    for subj in tsv_subj - dir_subj:
-        print(f"Warning missing data for subject listed in participants.tsv: {subj}")
+    if "participant_id" in fieldnames:
+        tsv_subj = set(r["participant_id"] for r in rows)
+        dir_subj = set(p.name for p in args.path_in.glob("sub-*") if p.is_dir())
+        for subj in sorted(dir_subj - tsv_subj):
+            print(f"Warning: participants.tsv: missing row for data folder '{subj}'")
+        for subj in sorted(tsv_subj - dir_subj):
+            print(f"Warning: participants.tsv: missing data folder for subject '{subj}'")
 
     # Check the presence of JSON sidecars
     for img_path in args.path_in.glob("sub-*/**/*.nii.gz"):
         json_path = img_path.with_suffix("").with_suffix(".json")
         if not json_path.exists():
-            print(f"Missing jsonSidecar: {json_path}")
+            print(f"Warning: missing JSON sidecar for {img_path}")
 
-    # Checking participants.tsv contents
-    schema = Schema(
-        [
-            Column(
-                "participant_id",
-                [LeadingWhitespaceValidation(), TrailingWhitespaceValidation()],
-            ),
-            Column("sex", [InListValidation(["M", "F"])]),
-            Column("age", [InRangeValidation(18, 60)]),
-            Column("height", [MatchesPatternValidation(r"[0-9]|-")]),
-            Column("weight", [MatchesPatternValidation(r"[0-9]|-")]),
-            Column(
-                "date_of_scan",
-                [DateFormatValidation("%Y-%m-%d") | MatchesPatternValidation(r"-")],
-            ),
-            Column(
-                "institution_id",
-                [LeadingWhitespaceValidation(), TrailingWhitespaceValidation()],
-            ),
-            Column(
-                "institution",
-                [LeadingWhitespaceValidation(), TrailingWhitespaceValidation()],
-            ),
-            Column(
-                "manufacturer",
-                [LeadingWhitespaceValidation(), TrailingWhitespaceValidation()],
-            ),
-            Column(
-                "manufacturers_model_name",
-                [LeadingWhitespaceValidation(), TrailingWhitespaceValidation()],
-            ),
-            Column(
-                "receive_coil_name",
-                [LeadingWhitespaceValidation(), TrailingWhitespaceValidation()],
-            ),
-            Column(
-                "software_versions",
-                [LeadingWhitespaceValidation(), TrailingWhitespaceValidation()],
-            ),
-            Column(
-                "researcher",
-                [LeadingWhitespaceValidation(), TrailingWhitespaceValidation()],
-            ),
-        ]
-    )
-
-    tsv_file = pd.read_csv(str(args.path_in / "participants.tsv"), sep="\t")
-    errors = schema.validate(tsv_file)
-    print("\nChecking the contents of participants.tsv")
-    if not errors:
-        print("--> all good 👍")
-    else:
-        for error in errors:
-            print(error)
+    # Check the contents of participants.tsv
+    tsv_cols = set(fieldnames)
+    expected_cols = set(validators.keys())
+    for col in sorted(expected_cols - tsv_cols):
+        print(f"Warning: participants.tsv: missing column '{col}'")
+    for col in sorted(tsv_cols - expected_cols):
+        print(f"Warning: participants.tsv: extra column '{col}'")
+    for r, row in enumerate(rows, start=1):
+        if None in row.values():
+            print(f"Warning: participants.tsv: row {r} is too short")
+        if None in row.keys():
+            print(f"Warning: participants.tsv: row {r} is too long")
+        for col, validate in validators.items():
+            if col not in fieldnames:
+                continue
+            value = row[col]
+            if value is None or value == "n/a":
+                continue
+            try:
+                validate(value)
+            except ValueError as e:
+                print(f"Warning: participants.tsv: row {r}: {col} is '{value}', but {e}")
