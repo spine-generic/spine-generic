@@ -125,13 +125,15 @@ def main():
         if not json_path.exists():
             warn(f"missing JSON sidecar for {img_path}")
 
-    # Check the contents of participants.tsv
+    # Check the column names of `participants.tsv` to ensure they match the validator
     tsv_cols = set(fieldnames)
     expected_cols = set(validators.keys())
     for col in sorted(expected_cols - tsv_cols):
         warn(f"participants.tsv: missing column '{col}'")
     for col in sorted(tsv_cols - expected_cols):
         warn(f"participants.tsv: extra column '{col}'")
+
+    # Check the row values of `participants.tsv` using the validator
     for r, row in enumerate(rows, start=1):
         if None in row.values():
             warn(f"participants.tsv: row {r} is too short")
