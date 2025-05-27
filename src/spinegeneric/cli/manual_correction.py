@@ -32,7 +32,6 @@ def get_parser():
         description="Manual correction of spinal cord and gray matter segmentation and vertebral labeling. "
         "Manually corrected files are saved under derivatives/ folder (BIDS standard).",
         formatter_class=sg.utils.SmartFormatter,
-        prog=os.path.basename(__file__).strip(".py"),
     )
     parser.add_argument(
         "-config",
@@ -145,7 +144,7 @@ def create_json(fname_nifti, name_rater):
     :return:
     """
     metadata = {"Author": name_rater, "Date": time.strftime("%Y-%m-%d %H:%M:%S")}
-    fname_json = fname_nifti.rstrip(".nii").rstrip(".nii.gz") + ".json"
+    fname_json = fname_nifti.removesuffix(".nii").removesuffix(".nii.gz") + ".json"
     with open(fname_json, "w") as outfile:
         json.dump(metadata, outfile, indent=4)
 
