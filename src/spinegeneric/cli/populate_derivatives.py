@@ -40,7 +40,6 @@ def get_parser():
         "Go to the directory that includes all the manual corrections (they should all be present in the "
         "./ folder) and run:",
         formatter_class=sg.utils.SmartFormatter,
-        prog=os.path.basename(__file__).rstrip(".py"),
     )
     parser.add_argument(
         "-path-out",
